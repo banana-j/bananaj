@@ -9,6 +9,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,6 +19,7 @@ import java.util.Scanner;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import model.filemanager.FileManagerFolder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -56,6 +58,8 @@ public class MailchimpConnection {
 	private String CAMPAIGNENDPOINT;
 	private String TEMPLATEENDPOINT;
 	private String AUTOMATIONENDPOINT;
+	private String FILEMANAGERFOLDERENDPOINT;
+	private String FILESENDPOINT;
 	private Account account;
 	
 	public MailchimpConnection(String apikey){
@@ -66,7 +70,9 @@ public class MailchimpConnection {
 		setLISTENDPOINT("https://"+server+".api.mailchimp.com/3.0/lists");
 		setCAMPAIGNENDPOINT("https://"+server+".api.mailchimp.com/3.0/campaigns");
 		setTEMPLATEENDPOINT("https://"+server+".api.mailchimp.com/3.0/templates");
-		setAUTOMATIONENDPOINT("https://"+server+".api.mailchimp.com/3.0/automations");	
+		setAUTOMATIONENDPOINT("https://"+server+".api.mailchimp.com/3.0/automations");
+		setFILEMANAGERFOLDERENDPOINT("https://"+server+".api.mailchimp.com/3.0/file-manager/folders");
+		setFILESENDPOINT("https://"+server+".api.mailchimp.com/3.0/file-manager/files");
 		try {
 			setAccount();
 		} catch (Exception e) {
@@ -617,6 +623,44 @@ public class MailchimpConnection {
 	}
 
 	/**
+	 * Get all file manager folders in mailchimp account account
+	 * @return
+	 * @throws Exception
+     */
+	public ArrayList<FileManagerFolder> getFileManagerFolders() throws Exception{
+		ArrayList<FileManagerFolder> fileManagerFolders = new ArrayList<FileManagerFolder>();
+
+		URL url = new URL(FILEMANAGERFOLDERENDPOINT);
+		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+		con.setRequestMethod("GET");
+		con.setRequestProperty("Authorization",getApikey());
+		int responseCode = con.getResponseCode();
+		System.out.println("\nSending 'GET' request to URL : " + url);
+		System.out.println("Response Code : " + responseCode+"\n");
+		BufferedReader in = new BufferedReader(
+				new InputStreamReader(con.getInputStream()));
+		String inputLine;
+		StringBuilder response = new StringBuilder();
+
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+		}
+		in.close();
+
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		// parse response
+		JSONObject jsonFileManagerFolders = new JSONObject(response.toString());
+		JSONArray folderArray = jsonFileManagerFolders.getJSONArray("folders");
+		for( int i = 0; i< folderArray.length();i++)
+		{
+			JSONObject folderDetail = folderArray.getJSONObject(i);
+			FileManagerFolder folder = new FileManagerFolder(folderDetail.getInt("id"),folderDetail.getString("name"),folderDetail.getInt("file_count"),folderDetail.getString("created_at"), folderDetail.getString("created_by"),folderDetail,this);
+			fileManagerFolders.add(folder);
+		}
+		return fileManagerFolders;
+	}
+
+	/**
 	 * Convert a string containing the type of a campaign in CompaignType enum
 	 * @param campaignType
 	 * @return
@@ -807,6 +851,33 @@ public class MailchimpConnection {
 	private void setAUTOMATIONENDPOINT(String automationendpoint){
 		this.AUTOMATIONENDPOINT = automationendpoint;
 	}
+
+
+	/**
+	 *
+	 * @return the filemanagerfolderendpoint
+     */
+	public String getFILEMANAGERFOLDERENDPOINT() {
+		return FILEMANAGERFOLDERENDPOINT;
+	}
+
+	/**
+	 * The filemanagerendpoint to set
+	 * @param FILEMANAGERFOLDERENDPOINT
+     */
+	public void setFILEMANAGERFOLDERENDPOINT(String FILEMANAGERFOLDERENDPOINT) {
+		this.FILEMANAGERFOLDERENDPOINT = FILEMANAGERFOLDERENDPOINT;
+	}
+
+
+	public String getFILESENDPOINT() {
+		return FILESENDPOINT;
+	}
+
+	public void setFILESENDPOINT(String FILESENDPOINT) {
+		this.FILESENDPOINT = FILESENDPOINT;
+	}
+
 
 	/**
 	 * @return the account

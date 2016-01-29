@@ -22,7 +22,7 @@ public class FileManagerFile extends MailchimpObject {
     private String file_data;
 
 
-    public FileManagerFile(int id, int folder_id, String type, String name, String full_size_url, int size, Date createdAt, String createdBy, int width, int height, String file_data , JSONObject jsonData) {
+    public FileManagerFile(int id, int folder_id, String type, String name, String full_size_url, int size, Date createdAt, String createdBy, int width, int height, JSONObject jsonData) {
         super(String.valueOf(id),jsonData);
         setFolder_id(folder_id);
         setType(type);
@@ -126,5 +126,11 @@ public class FileManagerFile extends MailchimpObject {
 
     public void setFile_data(String file_data) {
         this.file_data = file_data;
+    }
+
+
+    @Override
+    public String toString(){
+        return "ID: " + this.getId() +" Name: " + this.getName() + " Type: " + this.getType() + " Folder-Id: " + this.getFolder_id();
     }
 }

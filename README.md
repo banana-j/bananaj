@@ -34,47 +34,63 @@ Please check the wiki or the documents to get more informations. <br>
 
 #Package structure
    
-        ├── connection
-        │   ├── Account.java
-        │   └── MailchimpConnection.java
-        ├── exceptions
-        │   └── emailException.java
-        └── model
-            ├── MailchimpObject.java
-            ├── automation
-            │   ├── Automation.java
-            │   └── AutomationStatus.java
-            ├── campaign
-            │   ├── Bounce.java
-            │   ├── Campaign.java
-            │   ├── CampaignContent.java
-            │   ├── CampaignDefaults.java
-            │   ├── CampaignSettings.java
-            │   ├── CampaignStatus.java
-            │   └── CampaignType.java
-            ├── conversation
-            │   └── Conversation.java
-            ├── filemanager
-            │   ├── FileManagerFile.java
-            │   └── FileManagerFolder.java
-            ├── list
-            │   ├── GrowthHistory.java
-            │   ├── List.java
-            │   └── member
-            │       ├── Member.java
-            │       ├── MemberActivity.java
-            │       └── MemberStatus.java
-            ├── report
-            │   ├── Click.java
-            │   ├── FacebookLikes.java
-            │   ├── Forward.java
-            │   ├── IndustryStats.java
-            │   ├── Open.java
-            │   ├── Report.java
-            │   └── ReportListStats.java
-            └── template
-                ├── Template.java
-                └── TemplateType.java
+    .
+    ├── README.md
+    ├── bananaj.iml
+    ├── lib
+    │   ├── commons-validator-1.5.0.jar
+    │   ├── jxl.jar
+    │   └── org.json-20120521.jar
+    ├── out
+    │   └── artifacts
+    │       └── bananaj_jar
+    │           └── bananaj.jar
+    ├── pom.xml
+    └── src
+        └── main
+            ├── java
+            │   ├── connection
+            │   │   ├── Account.java
+            │   │   └── MailchimpConnection.java
+            │   ├── exceptions
+            │   │   └── emailException.java
+            │   └── model
+            │       ├── MailchimpObject.java
+            │       ├── automation
+            │       │   ├── Automation.java
+            │       │   └── AutomationStatus.java
+            │       ├── campaign
+            │       │   ├── Bounce.java
+            │       │   ├── Campaign.java
+            │       │   ├── CampaignContent.java
+            │       │   ├── CampaignDefaults.java
+            │       │   ├── CampaignSettings.java
+            │       │   ├── CampaignStatus.java
+            │       │   └── CampaignType.java
+            │       ├── conversation
+            │       │   └── Conversation.java
+            │       ├── filemanager
+            │       │   ├── FileManagerFile.java
+            │       │   └── FileManagerFolder.java
+            │       ├── list
+            │       │   ├── GrowthHistory.java
+            │       │   ├── List.java
+            │       │   └── member
+            │       │       ├── Member.java
+            │       │       ├── MemberActivity.java
+            │       │       └── MemberStatus.java
+            │       ├── report
+            │       │   ├── Click.java
+            │       │   ├── FacebookLikes.java
+            │       │   ├── Forward.java
+            │       │   ├── IndustryStats.java
+            │       │   ├── Open.java
+            │       │   ├── Report.java
+            │       │   └── ReportListStats.java
+            │       └── template
+            │           ├── Template.java
+            │           └── TemplateType.java
+            └── resources
 
 #License
 The MIT License (MIT)
