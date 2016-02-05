@@ -58,7 +58,7 @@ public class Report extends MailchimpObject{
 
 
 	/**
-	 * @param emails_send_total the emails_send to set
+	 * @param emails_sent_total the emails_send to set
 	 */
 	private void setEmails_sent_total(int emails_sent_total) {
 		this.emails_sent_total = emails_sent_total;

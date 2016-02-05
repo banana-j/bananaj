@@ -42,8 +42,6 @@ public class FileManagerFolder extends MailchimpObject{
         }catch(Exception e){
             e.printStackTrace();
         }
-
-
     }
 
     public String getName() {
@@ -84,45 +82,29 @@ public class FileManagerFolder extends MailchimpObject{
 
     public void setFiles() throws Exception{
         ArrayList<FileManagerFile> files = new ArrayList<FileManagerFile>();
-        URL url = new URL(connection.getFILESENDPOINT());
-        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
-        con.setRequestProperty("Authorization",connection.getApikey());
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'GET' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode+"\n");
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         // parse response
-        JSONObject jsonFileManagerFiles = new JSONObject(response.toString());
+        JSONObject jsonFileManagerFiles = new JSONObject(getConnection().do_Get(new URL(connection.getFILESENDPOINT())));
         JSONArray filesArray = jsonFileManagerFiles.getJSONArray("files");
         for( int i = 0; i< filesArray.length();i++)
         {
+            FileManagerFile file = null;
             JSONObject fileDetail = filesArray.getJSONObject(i);
-            FileManagerFile file = new FileManagerFile(fileDetail.getInt("id"),fileDetail.getInt("folder_id"),fileDetail.getString("type"),fileDetail.getString("name"),fileDetail.getString("full_size_url"),fileDetail.getInt("size"),formatter.parse(fileDetail.getString("created_at")),fileDetail.getString("created_by"), fileDetail.getInt("width"), fileDetail.getInt("height"), fileDetail);
+            if(fileDetail.getString("type").equals("image")){
+                file = new FileManagerFile(fileDetail.getInt("id"),fileDetail.getInt("folder_id"),fileDetail.getString("type"),fileDetail.getString("name"),fileDetail.getString("full_size_url"),fileDetail.getInt("size"),formatter.parse(fileDetail.getString("created_at")),fileDetail.getString("created_by"), fileDetail.getInt("width"), fileDetail.getInt("height"), fileDetail);
+            }else{
+                file = new FileManagerFile(fileDetail.getInt("id"),fileDetail.getInt("folder_id"),fileDetail.getString("type"),fileDetail.getString("name"),fileDetail.getString("full_size_url"),fileDetail.getInt("size"),formatter.parse(fileDetail.getString("created_at")),fileDetail.getString("created_by"), fileDetail);
+
+            }
 
             if(file.getFolder_id() == Integer.parseInt(this.getId())) {
                 files.add(file);
             }
         }
 
-
-
-
-
-
         this.files = files;
     }
-
 
     public JSONObject getJsonData() {
         return jsonData;

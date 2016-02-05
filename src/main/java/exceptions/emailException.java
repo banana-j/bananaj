@@ -4,33 +4,33 @@
  */
 package exceptions;
 
-public class emailException extends Exception {
+public class EmailException extends Exception {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -8513348757471330966L;
 
-	public emailException() {
+	public EmailException() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public emailException(String message) {
+	public EmailException(String message) {
 		super(message);
 		// TODO Auto-generated constructor stub
 	}
 
-	public emailException(Throwable cause) {
+	public EmailException(Throwable cause) {
 		super(cause);
 		// TODO Auto-generated constructor stub
 	}
 
-	public emailException(String message, Throwable cause) {
+	public EmailException(String message, Throwable cause) {
 		super(message, cause);
 		// TODO Auto-generated constructor stub
 	}
 
-	public emailException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+	public EmailException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 		// TODO Auto-generated constructor stub
 	}

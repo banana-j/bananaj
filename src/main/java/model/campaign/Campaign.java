@@ -58,30 +58,8 @@ public class Campaign extends MailchimpObject {
 	
 	
 	public Report getReport() throws Exception{
-		
-		URL url = new URL(getREPORTENDPOINT());
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
 
-		// optional default is GET
-		con.setRequestMethod("GET");
-
-		//add request header
-		con.setRequestProperty("Authorization",connection.getApikey());
-
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'GET' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-		final JSONObject report = new JSONObject(response.toString());
+		final JSONObject report = new JSONObject(connection.do_Get(new URL(getREPORTENDPOINT())));
 		final JSONObject bounces = report.getJSONObject("bounces");
 		final JSONObject forwards = report.getJSONObject("forwards");
 		final JSONObject opens = report.getJSONObject("opens");
@@ -115,28 +93,7 @@ public class Campaign extends MailchimpObject {
 	 * Send the campaign to the list members
 	 */
 	public void send() throws Exception{
-		URL url = new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/actions/send");
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-
-		// optional default is GET
-		con.setRequestMethod("POST");
-
-		//add request header
-		con.setRequestProperty("Authorization",connection.getApikey());
-
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'POST' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
+		getConnection().do_Post(new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/actions/send"));
 	}
 	
 	/**
@@ -144,28 +101,7 @@ public class Campaign extends MailchimpObject {
 	 * (!Only included in mailchimp pro)
 	 */
 	public void cancelSend() throws Exception{
-		URL url = new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/actions/cancel-send");
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-
-		// optional default is GET
-		con.setRequestMethod("POST");
-
-		//add request header
-		con.setRequestProperty("Authorization",connection.getApikey());
-
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'POST' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
+		getConnection().do_Post(new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/actions/cancel-send"));
 	}
 	
 	/**
@@ -288,30 +224,7 @@ public class Campaign extends MailchimpObject {
 	 * Set the content of this campaign
 	 */
 	private void setContent() throws Exception{
-		URL url = new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/content");
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-
-		// optional default is GET
-		con.setRequestMethod("POST");
-
-		//add request header
-		con.setRequestProperty("Authorization",connection.getApikey());
-
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'POST' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-		
-		JSONObject content = new JSONObject(response.toString());
+		JSONObject content = new JSONObject(getConnection().do_Get(new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/content")));
 		this.content = new CampaignContent(content.getString("plain_text"), content.getString("html")) ;
 	}
 }

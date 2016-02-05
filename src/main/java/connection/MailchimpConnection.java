@@ -76,38 +76,112 @@ public class MailchimpConnection {
 		try {
 			setAccount();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	/**
+    public String do_Get(URL url) throws Exception{
+        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+
+        // optional default is GET
+        con.setRequestMethod("GET");
+
+        //add request header
+        con.setRequestProperty("Authorization",this.getApikey());
+
+        int responseCode = con.getResponseCode();
+        System.out.println("\nSending 'GET' request to URL : " + url);
+        System.out.println("Response Code : " + responseCode+"\n");
+
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuilder response = new StringBuilder();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+        return response.toString();
+    }
+    public String do_Post(URL url, String post_string) throws Exception{
+
+        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+        con.setRequestProperty("Authorization", getApikey());
+        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        // Indicate that we want to write to the HTTP request body
+        con.setDoOutput(true);
+        con.setRequestMethod("POST");
+
+        // Writing the post data to the HTTP request body
+        BufferedWriter httpRequestBodyWriter = new BufferedWriter(new OutputStreamWriter(con.getOutputStream()));
+        httpRequestBodyWriter.write(post_string);
+        httpRequestBodyWriter.close();
+
+        // Reading from the HTTP response body
+        Scanner httpResponseScanner = new Scanner(con.getInputStream());
+        String inputLine;
+        StringBuilder response = new StringBuilder();
+        while ((inputLine = httpResponseScanner.nextLine()) != null) {
+            response.append(inputLine);
+        }
+        httpResponseScanner.close();
+        return response.toString();
+    }
+    public String do_Post(URL url) throws Exception{
+        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+
+        // optional default is GET
+        con.setRequestMethod("POST");
+
+        //add request header
+        con.setRequestProperty("Authorization",getApikey());
+
+        int responseCode = con.getResponseCode();
+        System.out.println("\nSending 'POST' request to URL : " + url);
+        System.out.println("Response Code : " + responseCode+"\n");
+
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuilder response = new StringBuilder();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+        return response.toString();
+    }
+    public String do_Delete(URL url) throws Exception{
+        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+        con.setRequestMethod("DELETE");
+        con.setRequestProperty("Authorization", getApikey());
+
+        int responseCode = con.getResponseCode();
+        System.out.println("\nSending 'DELETE' request to URL : " + url);
+        System.out.println("Response Code : " + responseCode+"\n");
+
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuilder response = new StringBuilder();
+
+        while ((inputLine = in.readLine()) != null)
+        {
+            response.append(inputLine);
+        }
+        in.close();
+        return response.toString();
+    }
+    /**
 	 * Get all lists in your account
 	 * @return Arraylist containing all lists
 	 * @throws Exception
 	 */
 	public ArrayList<List> getLists() throws Exception{
-
 		ArrayList<List> lists = new ArrayList<List>();
-		URL url = new URL(LISTENDPOINT);
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-		con.setRequestMethod("GET");
-		con.setRequestProperty("Authorization",getApikey());
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'GET' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
 		// parse response
-		JSONObject jsonLists = new JSONObject(response.toString());
+		JSONObject jsonLists = new JSONObject(do_Get(new URL(LISTENDPOINT)));
 		JSONArray listsArray = jsonLists.getJSONArray("lists");
 		for( int i = 0; i< listsArray.length();i++)
 		{
@@ -120,38 +194,18 @@ public class MailchimpConnection {
 		return lists;
 	}
 
-	/**
+    /**
 	 * Get a specific mailchimp list
 	 * @return a Mailchimp list object
 	 * @throws Exception
 	 */
 	public List getList(String listID) throws Exception{
-		URL url = new URL(LISTENDPOINT+"/"+listID);
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-		con.setRequestMethod("GET");
-		con.setRequestProperty("Authorization", getApikey());
-
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'GET' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
-
-		while ((inputLine = in.readLine()) != null)
-		{
-			response.append(inputLine);
-		}
-		in.close();
-		JSONObject list = new JSONObject(response.toString());
+		JSONObject list = new JSONObject(do_Get(new URL(LISTENDPOINT+"/"+listID)));
 		JSONObject listStats = list.getJSONObject("stats");
-		// parse response
 		return new List(list.getString("id"),list.getString("name"),listStats.getInt("member_count"),this.createDateFromISO8601(list.getString("date_created")),this,list);
 	}
 
-	
+
 	/**
 	 * Create a new list in your mailchimp account
 	 * @param listName
@@ -181,62 +235,16 @@ public class MailchimpConnection {
 		jsonList.put("campaign_defaults", JSONCampaignDefaults);
 		
 		
-	
-	
-		
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-		con.setRequestProperty("Authorization", getApikey());
-		con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-		// Indicate that we want to write to the HTTP request body
-		con.setDoOutput(true);
-		con.setRequestMethod("POST");
-	
-		
-		System.out.println(jsonList.toString());
-		
-		// Writing the post data to the HTTP request body
-		BufferedWriter httpRequestBodyWriter = new BufferedWriter(new OutputStreamWriter(con.getOutputStream()));
-		httpRequestBodyWriter.write(jsonList.toString());
-		httpRequestBodyWriter.close();
-		
-		
-		
-		
-		// Reading from the HTTP response body
-		Scanner httpResponseScanner = new Scanner(con.getInputStream());
-		while(httpResponseScanner.hasNextLine()) {
-		    System.out.println(httpResponseScanner.nextLine());
-		}
-		httpResponseScanner.close();	
+	    do_Post(new URL(LISTENDPOINT), jsonList.toString());
 	}
-	
-	
+
 	/**
 	 * Delete a list from your account
 	 * @param listID
 	 * @throws Exception
 	 */
 	public void deleteList(String listID) throws Exception{
-		URL url = new URL(LISTENDPOINT+"/"+listID);
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-		con.setRequestMethod("DELETE");
-		con.setRequestProperty("Authorization", getApikey());
-
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'DELETE' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
-
-		while ((inputLine = in.readLine()) != null)
-		{
-			response.append(inputLine);
-		}
-		in.close();
-
+        do_Delete(new URL(LISTENDPOINT+"/"+listID));
 	}
 
 	/**
@@ -310,26 +318,8 @@ public class MailchimpConnection {
 	 */
 	public ArrayList<Campaign> getCampaigns() throws Exception{
 		ArrayList<Campaign> campaigns = new ArrayList<Campaign>();
-
-		URL url = new URL(CAMPAIGNENDPOINT);
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-		con.setRequestMethod("GET");
-		con.setRequestProperty("Authorization",getApikey());
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'GET' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
 		// parse response
-		JSONObject jsonCampaigns = new JSONObject(response.toString());
+		JSONObject jsonCampaigns = new JSONObject(do_Get(new URL(CAMPAIGNENDPOINT)));
 		JSONArray campaignsArray = jsonCampaigns.getJSONArray("campaigns");
 		for( int i = 0; i< campaignsArray.length();i++)
 		{
@@ -354,24 +344,8 @@ public class MailchimpConnection {
 	 */
 	public Campaign getCampaign(String campaignID) throws Exception{
 		URL url = new URL(CAMPAIGNENDPOINT+"/"+campaignID);
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-		con.setRequestMethod("GET");
-		con.setRequestProperty("Authorization",getApikey());
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'GET' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
 		// parse response
-		JSONObject campaign = new JSONObject(response.toString());
+		JSONObject campaign = new JSONObject(do_Get(new URL(CAMPAIGNENDPOINT+"/"+campaignID)));
 		JSONObject recipients = campaign.getJSONObject("recipients");
 		JSONObject campaignSettings = campaign.getJSONObject("settings");
 		String campaignType = campaign.getString("type");
@@ -380,7 +354,6 @@ public class MailchimpConnection {
 		return new Campaign(campaign.getString("id"), campaignSettings.getString("title"),getList(recipients.getString("list_id")),this.translateStringIntoCampaignType(campaignType),this.translateStringIntoCampaignStatus(campaignStatus),this,campaign);
 	}
 
-	
 	/**
 	 * Create a new campaign in your mailchimp account
 	 * @param type
@@ -405,58 +378,16 @@ public class MailchimpConnection {
 		campaign.put("recipients", recipients);
 		campaign.put("settings", jsonSettings);
 		
-		
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-		con.setRequestProperty("Authorization", getApikey());
-		con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-		// Indicate that we want to write to the HTTP request body
-		con.setDoOutput(true);
-		con.setRequestMethod("POST");
-	
-		
-		System.out.println(campaign.toString());
-		
-		// Writing the post data to the HTTP request body
-		BufferedWriter httpRequestBodyWriter = new BufferedWriter(new OutputStreamWriter(con.getOutputStream()));
-		httpRequestBodyWriter.write(campaign.toString());
-		httpRequestBodyWriter.close();
-		
-		
-		
-		
-		// Reading from the HTTP response body
-		Scanner httpResponseScanner = new Scanner(con.getInputStream());
-		while(httpResponseScanner.hasNextLine()) {
-		    System.out.println(httpResponseScanner.nextLine());
-		}
-		httpResponseScanner.close();	
+        do_Post(new URL(CAMPAIGNENDPOINT), campaign.toString());
 	}
-	
-	
+
 	/**
 	 * Delete a campaign from mailchimp account
 	 * @param campaignID
 	 * @throws Exception
 	 */
 	public void deleteCampaign(String campaignID) throws Exception{
-		URL url = new URL(CAMPAIGNENDPOINT+"/"+campaignID);
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-		con.setRequestMethod("DELETE");
-		con.setRequestProperty("Authorization", getApikey());
-
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'DELETE' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-
-		BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
-
-		while ((inputLine = in.readLine()) != null)
-		{
-			response.append(inputLine);
-		}
-		in.close();
+		do_Delete(new URL(CAMPAIGNENDPOINT+"/"+campaignID));
 	}
 
 	/**
@@ -466,25 +397,8 @@ public class MailchimpConnection {
 	 */
 	public ArrayList<Template> getTemplates() throws Exception{
 		ArrayList<Template> templates = new ArrayList<Template>();
-		URL url = new URL(TEMPLATEENDPOINT);
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-		con.setRequestMethod("GET");
-		con.setRequestProperty("Authorization",getApikey());
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'GET' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
 
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
-		// parse response
-		JSONObject jsonTemplates = new JSONObject(response.toString());
+		JSONObject jsonTemplates = new JSONObject(do_Get(new URL(TEMPLATEENDPOINT)));
 		JSONArray templatesArray = jsonTemplates.getJSONArray("templates");
 		for( int i = 0; i< templatesArray.length();i++)
 		{
@@ -504,25 +418,7 @@ public class MailchimpConnection {
 	 * @throws Exception
 	 */
 	public Template getTemplate(String id) throws Exception{
-		URL url = new URL(TEMPLATEENDPOINT+"/" +id);
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-		con.setRequestMethod("GET");
-		con.setRequestProperty("Authorization",getApikey());
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'GET' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
-		// parse response
-		JSONObject jsonTemplate = new JSONObject(response.toString());
+		JSONObject jsonTemplate = new JSONObject(do_Get(new URL(TEMPLATEENDPOINT+"/" +id)));
 		Template template = new Template(jsonTemplate.getInt("id"),jsonTemplate.getString("name"),translateStringIntoTemplateType(jsonTemplate.getString("type")),jsonTemplate.getString("share_url"),createDateFromNormal(jsonTemplate.getString("date_created")),jsonTemplate);
 		return template;
 	}
@@ -533,22 +429,7 @@ public class MailchimpConnection {
 	 * @throws Exception
 	 */
 	public void deleteTemplate(String id) throws Exception {
-		URL url = new URL(TEMPLATEENDPOINT+"/" +id);
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-		con.setRequestMethod("DELETE");
-		con.setRequestProperty("Authorization",getApikey());
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'DELETE' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
+		do_Delete(new URL(TEMPLATEENDPOINT+"/" +id));
 	}
 	
 	
@@ -559,25 +440,8 @@ public class MailchimpConnection {
 	 */
 	public ArrayList<Automation> getAutomations() throws Exception{
 		ArrayList<Automation> automations = new ArrayList<Automation>();
-		URL url = new URL(AUTOMATIONENDPOINT);
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-		con.setRequestMethod("GET");
-		con.setRequestProperty("Authorization",getApikey());
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'GET' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
 
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
-		// parse response
-		JSONObject jsonAutomations = new JSONObject(response.toString());
+		JSONObject jsonAutomations = new JSONObject(do_Get(new URL(AUTOMATIONENDPOINT)));
 		JSONArray automationsArray = jsonAutomations.getJSONArray("automations");
 		for( int i = 0; i< automationsArray.length();i++)
 		{
@@ -597,25 +461,7 @@ public class MailchimpConnection {
 	 * @throws Exception
 	 */
 	public Automation getAutomation(String id) throws Exception{
-		URL url = new URL(AUTOMATIONENDPOINT+"/"+id);
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-		con.setRequestMethod("GET");
-		con.setRequestProperty("Authorization",getApikey());
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'GET' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
-		// parse response
-		JSONObject jsonAutomation = new JSONObject(response.toString());
+		JSONObject jsonAutomation = new JSONObject(do_Get(new URL(AUTOMATIONENDPOINT+"/"+id)));
 		JSONObject recipients = jsonAutomation.getJSONObject("recipients");
 		Automation automation = new Automation(jsonAutomation.getString("id"),createDateFromISO8601(jsonAutomation.getString("create_time")),createDateFromISO8601(jsonAutomation.getString("start_time")),translateStringIntoAutomationStatus(jsonAutomation.getString("status")),jsonAutomation.getInt("emails_sent"),getList(recipients.getString("list_id")),jsonAutomation);
 		
@@ -630,26 +476,9 @@ public class MailchimpConnection {
 	public ArrayList<FileManagerFolder> getFileManagerFolders() throws Exception{
 		ArrayList<FileManagerFolder> fileManagerFolders = new ArrayList<FileManagerFolder>();
 
-		URL url = new URL(FILEMANAGERFOLDERENDPOINT);
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-		con.setRequestMethod("GET");
-		con.setRequestProperty("Authorization",getApikey());
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'GET' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-		BufferedReader in = new BufferedReader(
-				new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-		// parse response
-		JSONObject jsonFileManagerFolders = new JSONObject(response.toString());
+
+		JSONObject jsonFileManagerFolders = new JSONObject(do_Get(new URL(FILEMANAGERFOLDERENDPOINT)));
 		JSONArray folderArray = jsonFileManagerFolders.getJSONArray("folders");
 		for( int i = 0; i< folderArray.length();i++)
 		{
@@ -891,25 +720,7 @@ public class MailchimpConnection {
 	 */
 	private void setAccount() throws Exception {
 		Account account;
-		URL url = new URL(APIENDPOINT);
-		HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-		con.setRequestMethod("GET");
-		con.setRequestProperty("Authorization",getApikey());
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'GET' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode+"\n");
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuilder response = new StringBuilder();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
-		// parse response
-		JSONObject jsonAPIROOT = new JSONObject(response.toString());
+		JSONObject jsonAPIROOT = new JSONObject(do_Get(new URL(APIENDPOINT)));
 		JSONObject contact = jsonAPIROOT.getJSONObject("contact");
 		account = new Account(this,contact.getString("company"),contact.getString("addr1"), contact.getString("city"), contact.getString("state"),contact.getString("zip"), contact.getString("country"));
 		this.account = account;

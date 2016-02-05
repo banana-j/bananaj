@@ -126,7 +126,7 @@ package connection;
 		/**
 		 * @return the apiKey
 		 */
-		public String getApiKey() {
+		protected String getApiKey() {
 			return apiKey;
 		}
 
