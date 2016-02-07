@@ -20,5 +20,6 @@
     <orderEntry type="library" name="commons-validator-1.5.0" level="project" />
     <orderEntry type="library" name="jxl" level="project" />
     <orderEntry type="library" name="org.json-20120521" level="project" />
+    <orderEntry type="library" name="commons-codec-1.10" level="project" />
   </component>
 </module>
