@@ -3,7 +3,7 @@ Simple api for accessing Mailchimp - Work in progess
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://raw.githubusercontent.com/gr4h4n/mailchimpwrapper/master/license.md)
 [![GitHub version](https://img.shields.io/badge/version-v1.0.0--alpha-orange.svg)](https://github.com/gr4h4n/mailchimpwrapper/releases/tag/v1.0.0-alpha)
-[![GitHub version](https://img.shields.io/badge/coverage-35%25-FFEB3B.svg)](https://github.com/gr4h4n/mailchimpwrapper)
+[![GitHub version](https://img.shields.io/badge/coverage-40%25-FFEB3B.svg)](https://github.com/gr4h4n/mailchimpwrapper)
 
 
 
@@ -26,11 +26,9 @@ You can get all objects from this connection. First start with getting list info
       
         /*You can also get a specific member by specifying it's id*/
         Member memberOfList = listname.getMember("MemberID");
-        
-
-Please check the wiki or the documents to get more informations. <br>
-[Wiki](https://github.com/gr4h4n/simplemailchimp/wiki/)
-
+##Upload file to FileManager
+        FileManager fileManager = new FileManager(mailchimpconnection);
+        fileManager.upload("Filename", yourFileToUpload);
 
 #Package structure
    
@@ -70,6 +68,7 @@ Please check the wiki or the documents to get more informations. <br>
             │       ├── conversation
             │       │   └── Conversation.java
             │       ├── filemanager
+            │       │   ├── FileManager.java
             │       │   ├── FileManagerFile.java
             │       │   └── FileManagerFolder.java
             │       ├── list
@@ -95,7 +94,7 @@ Please check the wiki or the documents to get more informations. <br>
 #License
 The MIT License (MIT)
 
-Copyright (c) 2015 AW
+Copyright (c) 2015 - 2016 Alexander Weiß
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
