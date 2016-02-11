@@ -4,11 +4,7 @@
  */
 package connection;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.net.URL;
 import java.text.ParseException;
@@ -117,6 +113,10 @@ public class MailchimpConnection {
         BufferedWriter httpRequestBodyWriter = new BufferedWriter(new OutputStreamWriter(con.getOutputStream()));
         httpRequestBodyWriter.write(post_string);
         httpRequestBodyWriter.close();
+
+        int responseCode = con.getResponseCode();
+        System.out.println("\nSending 'POST' request to URL : " + url + System.lineSeparator() + "Send data: " + post_string);
+        System.out.println("Response Code : " + responseCode+"\n");
 
         // Reading from the HTTP response body
         Scanner httpResponseScanner = new Scanner(con.getInputStream());
@@ -233,8 +233,7 @@ public class MailchimpConnection {
 		jsonList.put("email_type_option", email_type_option);
 		jsonList.put("contact", contact);
 		jsonList.put("campaign_defaults", JSONCampaignDefaults);
-		
-		
+
 	    do_Post(new URL(LISTENDPOINT), jsonList.toString());
 	}
 
@@ -255,7 +254,6 @@ public class MailchimpConnection {
 		WritableWorkbook workbook = Workbook.createWorkbook(new File("listdata_allLists.xls"));
 		WritableFont times16font = new WritableFont(WritableFont.TIMES, 16, WritableFont.BOLD, false);
 		WritableCellFormat times16format = new WritableCellFormat (times16font);
-
 
 		ArrayList<List> lists = getLists();
 		int index  = 0;
@@ -287,8 +285,9 @@ public class MailchimpConnection {
 			{
 				Member member = members.get(i);
 				sheet.addCell(new Label(0,i+1,member.getId()));
-				sheet.addCell(new Label(1,i+1,member.getFNAME()));
-				sheet.addCell(new Label(2,i+1,member.getLNAME()));
+				//TODO add support for merge fields
+				//sheet.addCell(new Label(1,i+1,member.getFNAME()));
+				//sheet.addCell(new Label(2,i+1,member.getLNAME()));
 				sheet.addCell(new Label(3,i+1,member.getEmail_address()));
 				sheet.addCell(new Label(4,i+1,member.getTimestamp_signup()));
 				sheet.addCell(new Label(5,i+1,member.getTimestamp_opt()));
@@ -329,8 +328,12 @@ public class MailchimpConnection {
 			String campaignType = campaignDetail.getString("type");
 			String campaignStatus = campaignDetail.getString("status");
 
-
-			Campaign campaign = new Campaign(campaignDetail.getString("id"),campaignSettings.getString("title"),getList(recipients.getString("list_id")),this.translateStringIntoCampaignType(campaignType),this.translateStringIntoCampaignStatus(campaignStatus),this,campaignDetail);
+			Campaign campaign = null;
+			try{
+				campaign = new Campaign(campaignDetail.getString("id"),campaignSettings.getString("title"),getList(recipients.getString("list_id")),this.translateStringIntoCampaignType(campaignType),this.translateStringIntoCampaignStatus(campaignStatus),this,campaignDetail);
+			}catch (FileNotFoundException fnfe){ // If list to campaign is deleted then just a null reference to list is added
+                campaign = new Campaign(campaignDetail.getString("id"),campaignSettings.getString("title"),null,this.translateStringIntoCampaignType(campaignType),this.translateStringIntoCampaignStatus(campaignStatus),this,campaignDetail);
+			}
 			campaigns.add(campaign);
 		}
 		return campaigns;
@@ -351,7 +354,11 @@ public class MailchimpConnection {
 		String campaignType = campaign.getString("type");
 		String campaignStatus = campaign.getString("status");
 
-		return new Campaign(campaign.getString("id"), campaignSettings.getString("title"),getList(recipients.getString("list_id")),this.translateStringIntoCampaignType(campaignType),this.translateStringIntoCampaignStatus(campaignStatus),this,campaign);
+        try{
+            return new Campaign(campaign.getString("id"), campaignSettings.getString("title"),getList(recipients.getString("list_id")),this.translateStringIntoCampaignType(campaignType),this.translateStringIntoCampaignStatus(campaignStatus),this,campaign);
+        }catch(FileNotFoundException fnfe){
+            return new Campaign(campaign.getString("id"), campaignSettings.getString("title"),null,this.translateStringIntoCampaignType(campaignType),this.translateStringIntoCampaignStatus(campaignStatus),this,campaign);
+        }
 	}
 
 	/**
@@ -431,8 +438,7 @@ public class MailchimpConnection {
 	public void deleteTemplate(String id) throws Exception {
 		do_Delete(new URL(TEMPLATEENDPOINT+"/" +id));
 	}
-	
-	
+
 	/**
 	 * Get all autmations from mailchimp account
 	 * @return Arraylist containing all automations
@@ -466,27 +472,6 @@ public class MailchimpConnection {
 		Automation automation = new Automation(jsonAutomation.getString("id"),createDateFromISO8601(jsonAutomation.getString("create_time")),createDateFromISO8601(jsonAutomation.getString("start_time")),translateStringIntoAutomationStatus(jsonAutomation.getString("status")),jsonAutomation.getInt("emails_sent"),getList(recipients.getString("list_id")),jsonAutomation);
 		
 		return automation;
-	}
-
-	/**
-	 * Get all file manager folders in mailchimp account account
-	 * @return
-	 * @throws Exception
-     */
-	public ArrayList<FileManagerFolder> getFileManagerFolders() throws Exception{
-		ArrayList<FileManagerFolder> fileManagerFolders = new ArrayList<FileManagerFolder>();
-
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-
-		JSONObject jsonFileManagerFolders = new JSONObject(do_Get(new URL(FILEMANAGERFOLDERENDPOINT)));
-		JSONArray folderArray = jsonFileManagerFolders.getJSONArray("folders");
-		for( int i = 0; i< folderArray.length();i++)
-		{
-			JSONObject folderDetail = folderArray.getJSONObject(i);
-			FileManagerFolder folder = new FileManagerFolder(folderDetail.getInt("id"),folderDetail.getString("name"),folderDetail.getInt("file_count"),folderDetail.getString("created_at"), folderDetail.getString("created_by"),folderDetail,this);
-			fileManagerFolders.add(folder);
-		}
-		return fileManagerFolders;
 	}
 
 	/**

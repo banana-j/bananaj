@@ -106,6 +106,15 @@ public class FileManagerFolder extends MailchimpObject{
         this.files = files;
     }
 
+    public FileManagerFile getFile(int id){
+        for (FileManagerFile file:files){
+            if(Integer.parseInt(file.getId()) == id){
+                return file;
+            }
+        }
+        return null;
+    }
+
     public JSONObject getJsonData() {
         return jsonData;
     }

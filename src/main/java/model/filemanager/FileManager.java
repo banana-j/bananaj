@@ -2,6 +2,7 @@ package model.filemanager;
 
 import connection.MailchimpConnection;
 import org.apache.commons.codec.binary.Base64;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,6 +12,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 /**
  * Created by alexanderweiss on 06.02.16.
@@ -24,6 +27,85 @@ public class FileManager {
         setConnection(connection);
     }
 
+
+    /**
+     * Get all file manager folders in mailchimp account account
+     * @return
+     * @throws Exception
+     */
+    public ArrayList<FileManagerFolder> getFileManagerFolders() throws Exception{
+        ArrayList<FileManagerFolder> fileManagerFolders = new ArrayList<FileManagerFolder>();
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
+        JSONObject jsonFileManagerFolders = new JSONObject(getConnection().do_Get(new URL(getConnection().getFILEMANAGERFOLDERENDPOINT())));
+        JSONArray folderArray = jsonFileManagerFolders.getJSONArray("folders");
+        for( int i = 0; i< folderArray.length();i++)
+        {
+            JSONObject folderDetail = folderArray.getJSONObject(i);
+            FileManagerFolder folder = new FileManagerFolder(folderDetail.getInt("id"),folderDetail.getString("name"),folderDetail.getInt("file_count"),folderDetail.getString("created_at"), folderDetail.getString("created_by"),folderDetail,this.getConnection());
+            fileManagerFolders.add(folder);
+        }
+        return fileManagerFolders;
+    }
+
+    /**
+     * Get a specific file manager folder in mailchimp account account
+     * @return
+     * @throws Exception
+     */
+    public FileManagerFolder getFileManagerFolder(int id) throws Exception{
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        JSONObject jsonFileManagerFolder = new JSONObject(getConnection().do_Get(new URL(getConnection().getFILEMANAGERFOLDERENDPOINT()+"/"+id)));
+        return new FileManagerFolder(jsonFileManagerFolder.getInt("id"),jsonFileManagerFolder.getString("name"),jsonFileManagerFolder.getInt("file_count"),jsonFileManagerFolder.getString("created_at"), jsonFileManagerFolder.getString("created_by"),jsonFileManagerFolder,this.getConnection());
+    }
+
+
+    /**
+     * Get all files in your account
+     * @return
+     * @throws Exception
+     */
+    public ArrayList<FileManagerFile> getFileManagerFiles() throws Exception{
+        ArrayList<FileManagerFile> files = new ArrayList<FileManagerFile>();
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        // parse response
+        JSONObject jsonFileManagerFiles = new JSONObject(getConnection().do_Get(new URL(this.getConnection().getFILESENDPOINT())));
+        JSONArray filesArray = jsonFileManagerFiles.getJSONArray("files");
+        for( int i = 0; i< filesArray.length();i++)
+        {
+            FileManagerFile file = null;
+            JSONObject fileDetail = filesArray.getJSONObject(i);
+            if(fileDetail.getString("type").equals("image")){
+                file = new FileManagerFile(fileDetail.getInt("id"),fileDetail.getInt("folder_id"),fileDetail.getString("type"),fileDetail.getString("name"),fileDetail.getString("full_size_url"),fileDetail.getInt("size"),formatter.parse(fileDetail.getString("created_at")),fileDetail.getString("created_by"), fileDetail.getInt("width"), fileDetail.getInt("height"), fileDetail);
+            }else{
+                file = new FileManagerFile(fileDetail.getInt("id"),fileDetail.getInt("folder_id"),fileDetail.getString("type"),fileDetail.getString("name"),fileDetail.getString("full_size_url"),fileDetail.getInt("size"),formatter.parse(fileDetail.getString("created_at")),fileDetail.getString("created_by"), fileDetail);
+
+            }
+
+            files.add(file);
+        }
+        return files;
+    }
+
+
+    /**
+     * Get all files in your account
+     * @return
+     * @throws Exception
+     */
+    public FileManagerFile getFileManagerFile(int id) throws Exception{
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        // parse response
+        JSONObject jsonFileManagerFile = new JSONObject(getConnection().do_Get(new URL(this.getConnection().getFILESENDPOINT()+"/"+id)));
+
+        if(jsonFileManagerFile.getString("type").equals("image")){
+            return new FileManagerFile(jsonFileManagerFile.getInt("id"),jsonFileManagerFile.getInt("folder_id"),jsonFileManagerFile.getString("type"),jsonFileManagerFile.getString("name"),jsonFileManagerFile.getString("full_size_url"),jsonFileManagerFile.getInt("size"),formatter.parse(jsonFileManagerFile.getString("created_at")),jsonFileManagerFile.getString("created_by"), jsonFileManagerFile.getInt("width"), jsonFileManagerFile.getInt("height"), jsonFileManagerFile);
+        }else{
+            return new FileManagerFile(jsonFileManagerFile.getInt("id"),jsonFileManagerFile.getInt("folder_id"),jsonFileManagerFile.getString("type"),jsonFileManagerFile.getString("name"),jsonFileManagerFile.getString("full_size_url"),jsonFileManagerFile.getInt("size"),formatter.parse(jsonFileManagerFile.getString("created_at")),jsonFileManagerFile.getString("created_by"), jsonFileManagerFile);
+        }
+    }
 
     /**
      * Upload a file with folder id

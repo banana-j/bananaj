@@ -55,8 +55,12 @@ public class Campaign extends MailchimpObject {
 		setCampaign_status(campaign_status);
 	}
 
-	
-	
+
+	/**
+	 * Get the report of this campaign
+	 * @return
+	 * @throws Exception
+     */
 	public Report getReport() throws Exception{
 
 		final JSONObject report = new JSONObject(connection.do_Get(new URL(getREPORTENDPOINT())));
@@ -155,16 +159,12 @@ public class Campaign extends MailchimpObject {
 		REPORTENDPOINT = rEPORTSENDPOINT;
 	}
 
-
-
 	/**
 	 * @return the campaign_type
 	 */
 	public CampaignType getCampaign_type() {
 		return campaign_type;
 	}
-
-
 
 	/**
 	 * @param campaign_type the campaign_type to set
@@ -173,16 +173,12 @@ public class Campaign extends MailchimpObject {
 		this.campaign_type = campaign_type;
 	}
 
-
-
 	/**
 	 * @return the campaign_status
 	 */
 	public CampaignStatus getCampaign_status() {
 		return campaign_status;
 	}
-
-
 
 	/**
 	 * @param campaign_status the campaign_status to set
@@ -191,16 +187,12 @@ public class Campaign extends MailchimpObject {
 		this.campaign_status = campaign_status;
 	}
 
-
-
 	/**
 	 * @return the list
 	 */
 	public List getList() {
 		return list;
 	}
-
-
 
 	/**
 	 * @param list the list to set
@@ -209,8 +201,6 @@ public class Campaign extends MailchimpObject {
 		this.list = list;
 	}
 
-
-
 	/**
 	 * @return the content
 	 */
@@ -218,13 +208,11 @@ public class Campaign extends MailchimpObject {
 		return content;
 	}
 
-
-
 	/**
 	 * Set the content of this campaign
 	 */
 	private void setContent() throws Exception{
 		JSONObject content = new JSONObject(getConnection().do_Get(new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/content")));
-		this.content = new CampaignContent(content.getString("plain_text"), content.getString("html")) ;
+		this.content = new CampaignContent(content.getString("plain_text"), content.getString("html"), this) ;
 	}
 }

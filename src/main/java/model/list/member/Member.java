@@ -7,6 +7,9 @@ package model.list.member;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 
 import connection.MailchimpConnection;
@@ -30,8 +33,7 @@ import model.list.List;
 public class Member extends MailchimpObject{
 
 	private List list;
-	private String FNAME;
-	private String LNAME;
+    private HashMap<String, Object> merge_fields;
 	private String unique_email_id;
 	private String email_address;
 	private MemberStatus status;
@@ -46,11 +48,11 @@ public class Member extends MailchimpObject{
 	
 
 
-	public Member(String id, List list, String FNAME, String LNAME, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String timestamp_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailchimpConnection connection, JSONObject jsonRepresentation){
-		super(id,jsonRepresentation);
+	public Member(String id, List list, HashMap<String, Object> merge_fields, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String timestamp_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailchimpConnection connection, JSONObject jsonRepresentation){
+		//TODO Add merge field support
+        super(id,jsonRepresentation);
 		setList(list);
-		setFNAME(FNAME);
-		setLNAME(LNAME);
+        setMerge_fields(merge_fields);
 		setUnique_email_id(unique_email_id);
 		setEmail_address(email_address);
 		setStatus(status);
@@ -81,12 +83,12 @@ public class Member extends MailchimpObject{
 	
 	/**
 	 * Update the list of this member
-	 * @param list
+	 * @param listId
 	 * @throws Exception 
 	 */
-	public void changeList(List list) throws Exception{
+	public void changeList(String listId) throws Exception{
 		JSONObject updateMember = new JSONObject();
-		updateMember.put("list_id", list.getId());
+		updateMember.put("list_id", listId);
         this.getConnection().do_Post(new URL("https://"+list.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+getList().getId()+"/members/"+getId()), updateMember.toString());
 	}
 	
@@ -110,29 +112,18 @@ public class Member extends MailchimpObject{
 	}
 
 	/**
-	 * @return the fNAME
+	 * Update the email adress of this memeber
+	 * @param status
+	 * @throws Exception
 	 */
-	public String getFNAME() {
-		return FNAME;
+	public void changeMemberStatus(MemberStatus status) throws Exception{
+
+		String url = "https://"+list.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+getList().getId()+"/members/"+this.getId();
+		JSONObject updateMember = new JSONObject();
+		updateMember.put("status", status.getStringRepresentation());
+		this.getConnection().do_Post(new URL("https://"+list.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+getList().getId()+"/members/"+getId()), updateMember.toString());
 	}
-	/**
-	 * @param fNAME the fNAME to set
-	 */
-	public void setFNAME(String fNAME) {
-		FNAME = fNAME;
-	}
-	/**
-	 * @return the lNAME
-	 */
-	public String getLNAME() {
-		return LNAME;
-	}
-	/**
-	 * @param lNAME the lNAME to set
-	 */
-	public void setLNAME(String lNAME) {
-		LNAME = lNAME;
-	}
+
 	/**
 	 * @return the unique_email_id
 	 */
@@ -196,14 +187,23 @@ public class Member extends MailchimpObject{
 	
 	@Override
 	public String toString(){
-		return "ID: " + this.getId() + "\t"+  System.getProperty("line.separator")
-				+ "Name: " + this.getFNAME() + " " + this.getLNAME() + System.getProperty("line.separator")
+        StringBuilder stringBuilder = new StringBuilder();
+        Iterator it = getMerge_fields().entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            stringBuilder.append(pair.getKey()+ ": " + pair.getValue() +  "\n");
+            it.remove(); // avoids a ConcurrentModificationException
+        }
+
+		return System.lineSeparator()+"ID: " + this.getId() + "\t"+  System.getProperty("line.separator")
 				+ "Unique email adress: " + this.getUnique_email_id() + System.getProperty("line.separator")
 				+ "Email address: " + this.getEmail_address() + System.getProperty("line.separator") 
 				+ "Status: " + this.getStatus().getStringRepresentation() + System.getProperty("line.separator") 
-				+ "Sign_Up: " + this.getTimestamp_signup() +" + 01:00:00 "  + System.getProperty("line.separator")
-				+ "Opt_In: " + this.getTimestamp_opt() +" + 01:00:00 " +System.lineSeparator()
-				+ "Last changed: " + this.getLast_changed();
+				+ "Sign_Up: " + this.getTimestamp_signup() + System.getProperty("line.separator")
+				+ "Opt_In: " + this.getTimestamp_opt() + System.lineSeparator()
+				+ "Last changed: " + this.getLast_changed() + System.lineSeparator()
+                + stringBuilder.toString()
+                + "_________________________________________________";
 	}
 
 	/**
@@ -296,4 +296,12 @@ public class Member extends MailchimpObject{
 	public void setConnection(MailchimpConnection connection) {
 		this.connection = connection;
 	}
+
+    public HashMap<String, Object> getMerge_fields() {
+        return merge_fields;
+    }
+
+    public void setMerge_fields(HashMap<String, Object> merge_fields) {
+        this.merge_fields = merge_fields;
+    }
 }
