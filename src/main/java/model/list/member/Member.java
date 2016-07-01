@@ -39,6 +39,8 @@ public class Member extends MailchimpObject{
 	private MemberStatus status;
 	private String timestamp_signup;
 	private String timestamp_opt;
+	private String ip_signup;
+	private String ip_opt;
 	private double avg_open_rate;
 	private double avg_click_rate;
 	private String last_changed;
@@ -48,7 +50,7 @@ public class Member extends MailchimpObject{
 	
 
 
-	public Member(String id, List list, HashMap<String, Object> merge_fields, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String timestamp_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailchimpConnection connection, JSONObject jsonRepresentation){
+	public Member(String id, List list, HashMap<String, Object> merge_fields, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String ip_signup, String timestamp_opt,String ip_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailchimpConnection connection, JSONObject jsonRepresentation){
 		//TODO Add merge field support
         super(id,jsonRepresentation);
 		setList(list);
@@ -57,7 +59,9 @@ public class Member extends MailchimpObject{
 		setEmail_address(email_address);
 		setStatus(status);
 		setTimestamp_signup(timestamp_signup);
+		setIp_signup(ip_signup);
 		setTimestamp_opt(timestamp_opt);
+		setIp_opt(ip_opt);
 		setAvg_open_rate(avg_open_rate);
 		setAvg_click_rate(avg_click_rate);
 		setLast_changed(last_changed);
@@ -304,4 +308,20 @@ public class Member extends MailchimpObject{
     public void setMerge_fields(HashMap<String, Object> merge_fields) {
         this.merge_fields = merge_fields;
     }
+
+	public String getIp_signup() {
+		return ip_signup;
+	}
+
+	public void setIp_signup(String ip_signup) {
+		this.ip_signup = ip_signup;
+	}
+
+	public String getIp_opt() {
+		return ip_opt;
+	}
+
+	public void setIp_opt(String ip_opt) {
+		this.ip_opt = ip_opt;
+	}
 }

@@ -61,6 +61,7 @@ public class List extends MailchimpObject {
 		final JSONObject list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getId()+"/members")));
 		final JSONArray membersArray = list.getJSONArray("members");
 
+
 		for (int i = 0 ; i < membersArray.length();i++)
 		{
 			final JSONObject memberDetail = membersArray.getJSONObject(i);
@@ -76,44 +77,11 @@ public class List extends MailchimpObject {
 				String value = (String)memberMergeTags.get(key);
 				merge_fields.put(key, value);
 			}
-			Member member = new Member(memberDetail.getString("id"),this,merge_fields,memberDetail.getString("unique_email_id"), memberDetail.getString("email_address"), translateStringIntoMemberStatus(memberDetail.getString("status")),memberDetail.getString("timestamp_signup"),memberDetail.getString("timestamp_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),memberDetail.getString("last_changed"),this.getConnection(),memberDetail);
+			Member member = new Member(memberDetail.getString("id"),this,merge_fields,memberDetail.getString("unique_email_id"), memberDetail.getString("email_address"), translateStringIntoMemberStatus(memberDetail.getString("status")),memberDetail.getString("timestamp_signup"),memberDetail.getString("ip_signup"),memberDetail.getString("timestamp_opt"),memberDetail.getString("ip_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),memberDetail.getString("last_changed"),this.getConnection(),memberDetail);
 			members.add(member);
 
 		}
 		return members;
-	}
-
-	/**
-	 * Get all subscribed members in this list
-	 * @return
-	 * @throws Exception
-	 */
-	public ArrayList<Member> getAllSubscribers() throws Exception{
-		
-		ArrayList<Member> members = new ArrayList<Member>();
-		final JSONObject list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getId()+"/members?offset=0&count="+getMembercount())));
-		final JSONArray membersArray = list.getJSONArray("members");
-		
-	    for (int i = 0 ; i < membersArray.length();i++) 
-	    {	
-	    	final JSONObject memberDetail = membersArray.getJSONObject(i);
-	    	final JSONObject memberMergeTags = memberDetail.getJSONObject("merge_fields");
-	    	final JSONObject memberStats = memberDetail.getJSONObject("stats");
-
-			HashMap<String, Object> merge_fields = new HashMap<String, Object>();
-
-			Iterator a = memberMergeTags.keys();
-			while(a.hasNext()) {
-				String key = (String)a.next();
-				// loop to get the dynamic key
-				String value = (String)memberMergeTags.get(key);
-				merge_fields.put(key, value);
-			}
-	    	Member member = new Member(memberDetail.getString("id"),this,merge_fields,memberDetail.getString("unique_email_id"), memberDetail.getString("email_address"), translateStringIntoMemberStatus(memberDetail.getString("status")),memberDetail.getString("timestamp_signup"),memberDetail.getString("timestamp_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),memberDetail.getString("last_changed"),this.getConnection(),memberDetail);
-	    	members.add(member);
-	    	
-	    }
-		return members;		
 	}
 
 	/**
@@ -138,7 +106,7 @@ public class List extends MailchimpObject {
 			System.out.println(": "+value);
 			merge_fields.put(key, value);
 		}
-		return new Member(member.getString("id"),this,merge_fields,member.getString("unique_email_id"), member.getString("email_address"),  translateStringIntoMemberStatus(member.getString("status")),member.getString("timestamp_signup"),member.getString("timestamp_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),member.getString("last_changed"),this.getConnection(),member);
+		return new Member(member.getString("id"),this,merge_fields,member.getString("unique_email_id"), member.getString("email_address"),  translateStringIntoMemberStatus(member.getString("status")),member.getString("timestamp_signup"),member.getString("ip_signup"),member.getString("timestamp_opt"),member.getString("ip_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),member.getString("last_changed"),this.getConnection(),member);
 	}
 	
 	/**
@@ -250,7 +218,6 @@ public class List extends MailchimpObject {
 	 * @throws Exception
      */
 	public ArrayList<Segment> getSegments() throws Exception{
-       //TODO add segements
         ArrayList<Segment> segments = new ArrayList<Segment>();
         URL url = new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/segments");
         HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
@@ -281,13 +248,22 @@ public class List extends MailchimpObject {
     }
 	
 	/**
-	 * Writes the data of this list to an excel file in current directory.
+	 * Writes the data of this list to an excel file in current directory. Define wether to show merge fields or not
+	 * @param show_merge
 	 * @throws Exception
 	 */
-	public void writeToExcel() throws Exception{
+	public void writeToExcel(String filepath,boolean show_merge) throws Exception{
 		ArrayList<Member> members = this.getMembers();
-		
-		WritableWorkbook workbook = Workbook.createWorkbook(new File("listdata_"+this.getId()+"_"+this.getName()+".xls"));
+		int merge_field_count = 0;
+		WritableWorkbook workbook;
+
+
+		if(filepath.contains(".xls")){
+			workbook = Workbook.createWorkbook(new File(filepath));
+		}else{
+			workbook = Workbook.createWorkbook(new File(filepath+".xls"));
+		}
+
 		WritableSheet sheet = workbook.createSheet(this.getName(), 0);
 		
 		
@@ -295,77 +271,80 @@ public class List extends MailchimpObject {
 		WritableCellFormat times16format = new WritableCellFormat (times16font); 
 		
 		Label memberIDLabel = new Label(0, 0, "MemberID",times16format);
-		Label fnameLabel = new Label(1, 0, "Vorname",times16format);
-		Label lnameLabel = new Label(2,0,"Nachname",times16format);
-		Label email_addressLabel = new Label(3,0,"Email Addresse",times16format);
-		Label timestamp_sign_inLabel = new Label(4,0,"Sign up",times16format);
-		Label timestapm_opt_inLabel = new Label(5,0,"Opt in",times16format);
+		Label email_addressLabel = new Label(1,0,"Email Address",times16format);
+		Label timestamp_sign_inLabel = new Label(2,0,"Sign up",times16format);
+		Label ip_signinLabel = new Label(3,0,"IP Sign up", times16format);
+		Label timestamp_opt_inLabel = new Label(4,0,"Opt in",times16format);
+		Label ip_optLabel = new Label(5,0,"IP Opt in", times16format);
 		Label statusLabel = new Label(6,0,"Status",times16format);
 		Label avg_open_rateLabel = new Label(7,0,"Avg. open rate",times16format);
 		Label avg_click_rateLabel = new Label(8,0,"Avg. click rate",times16format);
 		
 
-
-		//Add merge fields to sheet
-		int last_index_column = 9;
-		Iterator it = members.get(0).getMerge_fields().entrySet().iterator(); // sample member
-		while (it.hasNext()) {
-
-			System.out.println(members.get(0).getMerge_fields());
-			Map.Entry pair = (Map.Entry)it.next();
-			Label merge_label = new Label(last_index_column,0, (String)pair.getKey(),times16format);
-			sheet.addCell(merge_label);
-			it.remove(); // avoids a ConcurrentModificationException
-			last_index_column++;
-		}
-
-
-
 		sheet.addCell(memberIDLabel);
 		sheet.addCell(email_addressLabel);
 		sheet.addCell(timestamp_sign_inLabel);
-		sheet.addCell(timestapm_opt_inLabel);
+		sheet.addCell(ip_signinLabel);
+		sheet.addCell(timestamp_opt_inLabel);
+		sheet.addCell(ip_optLabel);
 		sheet.addCell(statusLabel);
 		sheet.addCell(avg_open_rateLabel);
 		sheet.addCell(avg_click_rateLabel);
 
-		
+		if (show_merge){
+			int last_column = 9;
+
+			Iterator iter = members.get(0).getMerge_fields().entrySet().iterator();
+			while (iter.hasNext()) {
+				Map.Entry pair = (Map.Entry)iter.next();
+				sheet.addCell(new Label(last_column,0,(String)pair.getKey(),times16format));
+				iter.remove(); // avoids a ConcurrentModificationException
+				last_column++;
+				merge_field_count++;
+			}
+		}
+
+
 		for(int i = 0 ; i < members.size();i++)
 		{
 			Member member = members.get(i);
 			sheet.addCell(new Label(0,i+1,member.getId()));
-
-			//TODO add support for merge fields
 			sheet.addCell(new Label(1,i+1,member.getEmail_address()));
 			sheet.addCell(new Label(2,i+1,member.getTimestamp_signup()));
-			sheet.addCell(new Label(3,i+1,member.getTimestamp_opt()));
-			sheet.addCell(new Label(4,i+1,member.getStatus().getStringRepresentation()));
-			sheet.addCell(new Number(5,i+1,member.getAvg_open_rate()));
+			sheet.addCell(new Label(3,i+1,member.getIp_signup()));
+			sheet.addCell(new Label(4,i+1,member.getTimestamp_opt()));
+			sheet.addCell(new Label(5,i+1,member.getIp_opt()));
+			sheet.addCell(new Label(6,i+1,member.getStatus().getStringRepresentation()));
+			sheet.addCell(new Number(7,i+1,member.getAvg_open_rate()));
+			sheet.addCell(new Number(8,i+1,member.getAvg_click_rate()));
 
-			//add merge fields values
-			int last_index = 7;
-			Iterator iter = member.getMerge_fields().entrySet().iterator();
-			while (iter.hasNext()) {
-				Map.Entry pair = (Map.Entry)iter.next();
-				sheet.addCell(new Label(last_index,i+1,(String)pair.getValue()));
-				iter.remove(); // avoids a ConcurrentModificationException
-				last_index++;
+			if (show_merge){
+				//add merge fields values
+				int last_index = 9;
+				Iterator iter_member = member.getMerge_fields().entrySet().iterator();
+				while (iter_member.hasNext()) {
+					Map.Entry pair = (Map.Entry)iter_member.next();
+					sheet.addCell(new Label(last_index,i+1,(String)pair.getValue()));
+					iter_member.remove(); // avoids a ConcurrentModificationException
+					last_index++;
+
+				}
 			}
 		}
-		
+
 		CellView cell;
-		
-		for(int x=0;x<9;x++)
+
+		int column_count = 9 + merge_field_count;
+		for(int x=0;x<column_count;x++)
 		{
-		    cell=sheet.getColumnView(x);
-		    cell.setAutosize(true);
-		    sheet.setColumnView(x, cell);
+			cell=sheet.getColumnView(x);
+			cell.setAutosize(true);
+			sheet.setColumnView(x, cell);
 		}
 
-		
+
 		workbook.write(); 
 		workbook.close();
-
 
 		System.out.println("Writing to excel - done");
 	}

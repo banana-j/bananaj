@@ -9,9 +9,7 @@ import java.lang.reflect.Array;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Scanner;
+import java.util.*;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -49,13 +47,13 @@ public class MailchimpConnection {
 
 	private String server;
 	private String apikey;
-	private String APIENDPOINT;
-	private String LISTENDPOINT;
-	private String CAMPAIGNENDPOINT;
-	private String TEMPLATEENDPOINT;
-	private String AUTOMATIONENDPOINT;
-	private String FILEMANAGERFOLDERENDPOINT;
-	private String FILESENDPOINT;
+	private static String APIENDPOINT;
+	private static String LISTENDPOINT;
+	private static String CAMPAIGNENDPOINT;
+	private static String TEMPLATEENDPOINT;
+	private static String AUTOMATIONENDPOINT;
+	private static String FILEMANAGERFOLDERENDPOINT;
+	private static String FILESENDPOINT;
 	private Account account;
 	
 	public MailchimpConnection(String apikey){
@@ -84,6 +82,7 @@ public class MailchimpConnection {
 
         //add request header
         con.setRequestProperty("Authorization",this.getApikey());
+
 
         int responseCode = con.getResponseCode();
         System.out.println("\nSending 'GET' request to URL : " + url);
@@ -152,6 +151,7 @@ public class MailchimpConnection {
         in.close();
         return response.toString();
     }
+
     public String do_Delete(URL url) throws Exception{
         HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
         con.setRequestMethod("DELETE");
@@ -250,8 +250,8 @@ public class MailchimpConnection {
 	 * Write all lists to an Excel file
 	 * @throws Exception
 	 */
-	public void writeAllListToExcel() throws Exception{
-		WritableWorkbook workbook = Workbook.createWorkbook(new File("listdata_allLists.xls"));
+	public void writeAllListToExcel(String filepath, boolean show_merge) throws Exception{
+		WritableWorkbook workbook = Workbook.createWorkbook(new File(filepath+".xls"));
 		WritableFont times16font = new WritableFont(WritableFont.TIMES, 16, WritableFont.BOLD, false);
 		WritableCellFormat times16format = new WritableCellFormat (times16font);
 
@@ -261,47 +261,78 @@ public class MailchimpConnection {
 			WritableSheet sheet = workbook.createSheet(list.getName(), index);
 
 			Label memberIDLabel = new Label(0, 0, "MemberID",times16format);
-			Label fnameLabel = new Label(1, 0, "Vorname",times16format);
-			Label lnameLabel = new Label(2,0,"Nachname",times16format);
-			Label email_addressLabel = new Label(3,0,"Email Addresse",times16format);
-			Label timestamp_sign_inLabel = new Label(4,0,"Sign up",times16format);
-			Label timestapm_opt_inLabel = new Label(5,0,"Opt in",times16format);
+			Label email_addressLabel = new Label(1,0,"Email Address",times16format);
+			Label timestamp_sign_inLabel = new Label(2,0,"Sign up",times16format);
+			Label ip_signinLabel = new Label(3,0,"IP Sign up", times16format);
+			Label timestamp_opt_inLabel = new Label(4,0,"Opt in",times16format);
+			Label ip_optLabel = new Label(5,0,"IP Opt in", times16format);
 			Label statusLabel = new Label(6,0,"Status",times16format);
 			Label avg_open_rateLabel = new Label(7,0,"Avg. open rate",times16format);
 			Label avg_click_rateLabel = new Label(8,0,"Avg. click rate",times16format);
 
+
 			sheet.addCell(memberIDLabel);
-			sheet.addCell(fnameLabel);
-			sheet.addCell(lnameLabel);
 			sheet.addCell(email_addressLabel);
 			sheet.addCell(timestamp_sign_inLabel);
-			sheet.addCell(timestapm_opt_inLabel);
+			sheet.addCell(ip_signinLabel);
+			sheet.addCell(timestamp_opt_inLabel);
+			sheet.addCell(ip_optLabel);
 			sheet.addCell(statusLabel);
 			sheet.addCell(avg_open_rateLabel);
 			sheet.addCell(avg_click_rateLabel);
 
 			ArrayList<Member> members = list.getMembers();
-			for(int i = 0 ; i<members.size();i++)
+			int merge_field_count = 0;
+
+			if (show_merge){
+				int last_column = 9;
+
+				Iterator iter = members.get(0).getMerge_fields().entrySet().iterator();
+				while (iter.hasNext()) {
+					Map.Entry pair = (Map.Entry)iter.next();
+					sheet.addCell(new Label(last_column,0,(String)pair.getKey(),times16format));
+					iter.remove(); // avoids a ConcurrentModificationException
+					last_column++;
+					merge_field_count++;
+				}
+			}
+
+
+			for(int i = 0 ; i < members.size();i++)
 			{
 				Member member = members.get(i);
 				sheet.addCell(new Label(0,i+1,member.getId()));
-				//TODO add support for merge fields
-				//sheet.addCell(new Label(1,i+1,member.getFNAME()));
-				//sheet.addCell(new Label(2,i+1,member.getLNAME()));
-				sheet.addCell(new Label(3,i+1,member.getEmail_address()));
-				sheet.addCell(new Label(4,i+1,member.getTimestamp_signup()));
-				sheet.addCell(new Label(5,i+1,member.getTimestamp_opt()));
+				sheet.addCell(new Label(1,i+1,member.getEmail_address()));
+				sheet.addCell(new Label(2,i+1,member.getTimestamp_signup()));
+				sheet.addCell(new Label(3,i+1,member.getIp_signup()));
+				sheet.addCell(new Label(4,i+1,member.getTimestamp_opt()));
+				sheet.addCell(new Label(5,i+1,member.getIp_opt()));
 				sheet.addCell(new Label(6,i+1,member.getStatus().getStringRepresentation()));
 				sheet.addCell(new Number(7,i+1,member.getAvg_open_rate()));
 				sheet.addCell(new Number(8,i+1,member.getAvg_click_rate()));
+
+				if (show_merge){
+					//add merge fields values
+					int last_index = 9;
+					Iterator iter_member = member.getMerge_fields().entrySet().iterator();
+					while (iter_member.hasNext()) {
+						Map.Entry pair = (Map.Entry)iter_member.next();
+						sheet.addCell(new Label(last_index,i+1,(String)pair.getValue()));
+						iter_member.remove(); // avoids a ConcurrentModificationException
+						last_index++;
+
+					}
+				}
 			}
 
 			CellView cell;
-			for(int x=0;x<9;x++)
+
+			int column_count = 9 + merge_field_count;
+			for(int x=0;x<column_count;x++)
 			{
-			    cell=sheet.getColumnView(x);
-			    cell.setAutosize(true);
-			    sheet.setColumnView(x, cell);
+				cell=sheet.getColumnView(x);
+				cell.setAutosize(true);
+				sheet.setColumnView(x, cell);
 			}
 			index++;
 		}
