@@ -9,87 +9,84 @@ Simple api for accessing Mailchimp - Work in progess
 
 #Introduction
 
-bananaj provides an Java wrapper for the Mailchimp API 3.0. With a lot of functions implemented it will be easy to acces your Mailchimp data through Java. All Mailchimp objects are mapped to Java objects which can be used to write your own java program. Each Object can also be exported to json.
+bananaj provides an Java wrapper for the Mailchimp API 3.0. It is possible acces your Mailchimp data through Java. All Mailchimp objects are mapped to Java objects which can be used to write your own java program. Each Object can also be exported to json.
 
 #How to use
 ## Initial connection
 With the MailchimpConnection object you start to connect to your account. All starts with a connection object. 
 You can get all objects from this connection. First start with getting list informations.
 
-    MailchimpConnection con = new MailchimpConnection("yourAPIkey");
-    con.getLists(); // get all lists in your account
+```
+MailchimpConnection con = new MailchimpConnection("yourAPIkey");
+con.getLists(); // get all lists in your account
+```
     
 ##Get Members
-        MailchimpList listname = con.getList("listId");
-        /*Get all members from a specific list*/
-        ArrayList<Member> membersOfList = listname.getMembers();
-      
-        /*You can also get a specific member by specifying it's id*/
-        Member memberOfList = listname.getMember("MemberID");
+```
+MailchimpList listname = con.getList("listId");
+/*Get all members from a specific list*/
+ ArrayList<Member> membersOfList = listname.getMembers();
+```
+```
+/*You can also get a specific member by specifying it's id*/
+Member memberOfList = listname.getMember("MemberID");
+```
+
 ##Upload file to FileManager
         FileManager fileManager = new FileManager(mailchimpconnection);
         fileManager.upload("Filename", yourFileToUpload);
 
 #Package structure
-   
-    .
-    ├── README.md
-    ├── bananaj.iml
-    ├── lib
-    │   ├── commons-validator-1.5.0.jar
-    │   ├── jxl.jar
-    │   └── org.json-20120521.jar
-    ├── out
-    │   └── artifacts
-    │       └── bananaj_jar
-    │           └── bananaj.jar
-    ├── pom.xml
-    └── src
-        └── main
-            ├── java
-            │   ├── connection
-            │   │   ├── Account.java
-            │   │   └── MailchimpConnection.java
-            │   ├── exceptions
-            │   │   └── emailException.java
-            │   └── model
-            │       ├── MailchimpObject.java
-            │       ├── automation
-            │       │   ├── Automation.java
-            │       │   └── AutomationStatus.java
-            │       ├── campaign
-            │       │   ├── Bounce.java
-            │       │   ├── Campaign.java
-            │       │   ├── CampaignContent.java
-            │       │   ├── CampaignDefaults.java
-            │       │   ├── CampaignSettings.java
-            │       │   ├── CampaignStatus.java
-            │       │   └── CampaignType.java
-            │       ├── conversation
-            │       │   └── Conversation.java
-            │       ├── filemanager
-            │       │   ├── FileManager.java
-            │       │   ├── FileManagerFile.java
-            │       │   └── FileManagerFolder.java
-            │       ├── list
-            │       │   ├── GrowthHistory.java
-            │       │   ├── List.java
-            │       │   └── member
-            │       │       ├── Member.java
-            │       │       ├── MemberActivity.java
-            │       │       └── MemberStatus.java
-            │       ├── report
-            │       │   ├── Click.java
-            │       │   ├── FacebookLikes.java
-            │       │   ├── Forward.java
-            │       │   ├── IndustryStats.java
-            │       │   ├── Open.java
-            │       │   ├── Report.java
-            │       │   └── ReportListStats.java
-            │       └── template
-            │           ├── Template.java
-            │           └── TemplateType.java
-            └── resources
+```
+├── connection
+│   ├── Account.java
+│   └── MailchimpConnection.java
+├── exceptions
+│   ├── EmailException.java
+│   └── FileFormatException.java
+└── model
+    ├── MailchimpObject.java
+    ├── automation
+    │   ├── Automation.java
+    │   └── AutomationStatus.java
+    ├── campaign
+    │   ├── Bounce.java
+    │   ├── Campaign.java
+    │   ├── CampaignContent.java
+    │   ├── CampaignDefaults.java
+    │   ├── CampaignSettings.java
+    │   ├── CampaignStatus.java
+    │   └── CampaignType.java
+    ├── conversation
+    │   └── Conversation.java
+    ├── filemanager
+    │   ├── FileManager.java
+    │   ├── FileManagerFile.java
+    │   └── FileManagerFolder.java
+    ├── list
+    │   ├── GrowthHistory.java
+    │   ├── List.java
+    │   ├── member
+    │   │   ├── Member.java
+    │   │   ├── MemberActivity.java
+    │   │   └── MemberStatus.java
+    │   └── segment
+    │       ├── Options.java
+    │       ├── Segment.java
+    │       └── SegmentType.java
+    ├── report
+    │   ├── Click.java
+    │   ├── FacebookLikes.java
+    │   ├── Forward.java
+    │   ├── IndustryStats.java
+    │   ├── Open.java
+    │   ├── Report.java
+    │   └── ReportListStats.java
+    └── template
+        ├── Template.java
+        └── TemplateType.java
+```
+
 
 #License
 The MIT License (MIT)
