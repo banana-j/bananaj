@@ -5,14 +5,15 @@
 package model.list;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import exceptions.FileFormatException;
 import jxl.*;
 import jxl.read.biff.BiffException;
+import model.list.mergefield.MergeField;
+import model.list.mergefield.MergeFieldOptions;
 import model.list.segment.Segment;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -181,13 +182,6 @@ public class List extends MailchimpObject {
 			}
 
 		}
-
-
-
-
-
-
-
 	}
 
 	/**
@@ -217,36 +211,133 @@ public class List extends MailchimpObject {
 	 * @return
 	 * @throws Exception
      */
-	public ArrayList<Segment> getSegments() throws Exception{
+	//TODO add functionality
+	public ArrayList<Segment> getSegments() throws Exception {
         ArrayList<Segment> segments = new ArrayList<Segment>();
         URL url = new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/segments");
-        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-
-        // optional default is GET
-        con.setRequestMethod("GET");
-
-        //add request header
-        con.setRequestProperty("Authorization",connection.getApikey());
-
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'GET' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode+"\n");
-
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
+		connection.do_Get(url);
 
 
         return segments;
     }
-	
+
+
+	/**
+	 * Get a list of all merge fields of this list
+	 * @return
+	 * @throws Exception
+	 */
+	public ArrayList<MergeField> getMergeFields() throws Exception {
+		ArrayList<MergeField> mergeFields = new ArrayList<MergeField>();
+		URL url = new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/merge-fields");
+
+		JSONObject merge_fields = new JSONObject(connection.do_Get(url));
+		final JSONArray mergeFieldsArray = merge_fields.getJSONArray("merge_fields");
+
+		for (int i = 0 ; i < mergeFieldsArray.length(); i++) {
+			final JSONObject mergeFieldDetail = mergeFieldsArray.getJSONObject(i);
+
+			final JSONObject mergeFieldOptionsJSON = mergeFieldDetail.getJSONObject("options");
+			MergeFieldOptions mergeFieldOptions = new MergeFieldOptions();
+
+			switch(mergeFieldDetail.getString("type")){
+				case "address":mergeFieldOptions.setDefault_country(mergeFieldOptionsJSON.getInt("default_country"));break;
+				case "phone":mergeFieldOptions.setPhone_format(mergeFieldOptionsJSON.getString("phone_format"));break;
+				case "date":mergeFieldOptions.setDate_format(mergeFieldOptionsJSON.getString("date_format"));break;
+				case "birthday":mergeFieldOptions.setDate_format(mergeFieldOptionsJSON.getString("date_format"));break;
+				case "text":mergeFieldOptions.setSize(mergeFieldOptionsJSON.getInt("size"));break;
+				case "radio":
+					JSONArray mergeFieldOptionChoicesRadio = mergeFieldOptionsJSON.getJSONArray("choices");
+					ArrayList<String> choicesRadio = new ArrayList<String>();
+					for (int j = 0; j < mergeFieldOptionChoicesRadio.length(); j++){
+						choicesRadio.add((String )mergeFieldOptionChoicesRadio.get(j));
+					}
+					mergeFieldOptions.setChoices(choicesRadio);
+					break;
+				case "dropdown":
+					JSONArray mergeFieldOptionChoicesDropdown = mergeFieldOptionsJSON.getJSONArray("choices");
+					ArrayList<String> choicesDropdown = new ArrayList<String>();
+					for (int j = 0; j < mergeFieldOptionChoicesDropdown.length(); j++){
+						choicesDropdown.add((String )mergeFieldOptionChoicesDropdown.get(j));
+					}
+					mergeFieldOptions.setChoices(choicesDropdown);
+					break;
+			}
+
+
+			MergeField mergeField = new MergeField(
+					String.valueOf(mergeFieldDetail.getInt("merge_id")),
+					mergeFieldDetail.getString("tag"),
+					mergeFieldDetail.getString("name"),
+					mergeFieldDetail.getString("type"),
+					mergeFieldDetail.getBoolean("required"),
+					mergeFieldDetail.getString("default_value"),
+					mergeFieldDetail.getBoolean("public"),
+					mergeFieldDetail.getString("list_id"),
+					mergeFieldOptions,
+					mergeFieldDetail
+			);
+			mergeFields.add(mergeField);
+		}
+		return mergeFields;
+	}
+
+	/**
+	 * Get a specific merge field of this list
+	 * @param mergeFieldID
+	 * @return
+	 */
+	public MergeField getMergeField(String mergeFieldID) throws Exception{
+		URL url = new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/merge-fields/"+mergeFieldID);
+		JSONObject mergeFieldJSON = new JSONObject(connection.do_Get(url));
+
+		final JSONObject mergeFieldOptionsJSON = mergeFieldJSON.getJSONObject("options");
+		MergeFieldOptions mergeFieldOptions = new MergeFieldOptions();
+
+		switch(mergeFieldJSON.getString("type")){
+			case "address":mergeFieldOptions.setDefault_country(mergeFieldOptionsJSON.getInt("default_country"));break;
+			case "phone":mergeFieldOptions.setPhone_format(mergeFieldOptionsJSON.getString("phone_format"));break;
+			case "date":mergeFieldOptions.setDate_format(mergeFieldOptionsJSON.getString("date_format"));break;
+			case "birthday":mergeFieldOptions.setDate_format(mergeFieldOptionsJSON.getString("date_format"));break;
+			case "text":mergeFieldOptions.setSize(mergeFieldOptionsJSON.getInt("size"));break;
+			case "radio":
+				JSONArray mergeFieldOptionChoicesRadio = mergeFieldOptionsJSON.getJSONArray("choices");
+				ArrayList<String> choicesRadio = new ArrayList<String>();
+				for (int j = 0; j < mergeFieldOptionChoicesRadio.length(); j++){
+					choicesRadio.add((String )mergeFieldOptionChoicesRadio.get(j));
+				}
+				mergeFieldOptions.setChoices(choicesRadio);
+				break;
+			case "dropdown":
+				JSONArray mergeFieldOptionChoicesDropdown = mergeFieldOptionsJSON.getJSONArray("choices");
+				ArrayList<String> choicesDropdown = new ArrayList<String>();
+				for (int j = 0; j < mergeFieldOptionChoicesDropdown.length(); j++){
+					choicesDropdown.add((String )mergeFieldOptionChoicesDropdown.get(j));
+				}
+				mergeFieldOptions.setChoices(choicesDropdown);
+				break;
+		}
+
+
+
+
+		 return new MergeField(
+				String.valueOf(mergeFieldJSON.getInt("merge_id")),
+				mergeFieldJSON.getString("tag"),
+				mergeFieldJSON.getString("name"),
+				mergeFieldJSON.getString("type"),
+				mergeFieldJSON.getBoolean("required"),
+				mergeFieldJSON.getString("default_value"),
+				mergeFieldJSON.getBoolean("public"),
+				mergeFieldJSON.getString("list_id"),
+				mergeFieldOptions,
+				mergeFieldJSON
+		);
+	}
+
+	public void deleteMergeField(String mergeFieldID) throws Exception{
+		connection.do_Delete(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/merge-fields/"+mergeFieldID));
+	}
 	/**
 	 * Writes the data of this list to an excel file in current directory. Define wether to show merge fields or not
 	 * @param show_merge

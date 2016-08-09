@@ -74,7 +74,7 @@ public class MailchimpConnection {
 		}
 	}
 
-    public String do_Get(URL url) throws Exception{
+	public String do_Get(URL url) throws Exception{
         HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
 
         // optional default is GET
@@ -99,7 +99,7 @@ public class MailchimpConnection {
         in.close();
         return response.toString();
     }
-    public String do_Post(URL url, String post_string) throws Exception{
+	public String do_Post(URL url, String post_string) throws Exception{
 
         HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
         con.setRequestProperty("Authorization", getApikey());
@@ -127,7 +127,7 @@ public class MailchimpConnection {
         httpResponseScanner.close();
         return response.toString();
     }
-    public String do_Post(URL url) throws Exception{
+	public String do_Post(URL url) throws Exception{
         HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
 
         // optional default is GET
@@ -152,7 +152,7 @@ public class MailchimpConnection {
         return response.toString();
     }
 
-    public String do_Delete(URL url) throws Exception{
+	public String do_Delete(URL url) throws Exception{
         HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
         con.setRequestMethod("DELETE");
         con.setRequestProperty("Authorization", getApikey());
