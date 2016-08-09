@@ -2,7 +2,7 @@
 Simple api for accessing Mailchimp - Work in progess
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://raw.githubusercontent.com/gr4h4n/bananaj/master/LICENSE.md)
-[![GitHub version](https://img.shields.io/badge/version-v1.1.0--alpha-orange.svg)](https://github.com/gr4h4n/bananaj/releases/tag/v1.0.0-alpha)
+[![GitHub version](https://img.shields.io/badge/version-v1.1.0--alpha-orange.svg)](https://github.com/gr4h4n/bananaj/releases/tag/v1.1.0-alpha)
 [![GitHub version](https://img.shields.io/badge/coverage-45%25-FFEB3B.svg)](https://github.com/gr4h4n/bananaj)
 
 
