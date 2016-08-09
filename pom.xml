@@ -4,9 +4,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>groupId</groupId>
+    <groupId>com.alexanderweiss</groupId>
     <artifactId>bananaj</artifactId>
     <version>1.0.0-alpha</version>
+    <packaging>jar</packaging>
+
+    <name>bananaj</name>
+    <description>A simple MailChimp API wrapper written in Java</description>
+    <url>https://github.com/gr4h4n/bananaj</url>
+
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
 
     <build>
