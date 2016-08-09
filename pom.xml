@@ -6,7 +6,7 @@
 
     <groupId>com.alexanderweiss</groupId>
     <artifactId>bananaj</artifactId>
-    <version>1.0.0-alpha</version>
+    <version>1.1.0-alpha</version>
     <packaging>jar</packaging>
 
     <name>bananaj</name>
