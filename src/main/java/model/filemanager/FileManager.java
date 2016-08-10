@@ -38,7 +38,7 @@ public class FileManager {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
-        JSONObject jsonFileManagerFolders = new JSONObject(getConnection().do_Get(new URL(getConnection().getFILEMANAGERFOLDERENDPOINT())));
+        JSONObject jsonFileManagerFolders = new JSONObject(getConnection().do_Get(new URL(getConnection().getFILEMANAGERFOLDERENDPOINT()),connection.getApikey()));
         JSONArray folderArray = jsonFileManagerFolders.getJSONArray("folders");
         for( int i = 0; i< folderArray.length();i++)
         {
@@ -56,7 +56,7 @@ public class FileManager {
      */
     public FileManagerFolder getFileManagerFolder(int id) throws Exception{
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        JSONObject jsonFileManagerFolder = new JSONObject(getConnection().do_Get(new URL(getConnection().getFILEMANAGERFOLDERENDPOINT()+"/"+id)));
+        JSONObject jsonFileManagerFolder = new JSONObject(getConnection().do_Get(new URL(getConnection().getFILEMANAGERFOLDERENDPOINT()+"/"+id),connection.getApikey()));
         return new FileManagerFolder(jsonFileManagerFolder.getInt("id"),jsonFileManagerFolder.getString("name"),jsonFileManagerFolder.getInt("file_count"),jsonFileManagerFolder.getString("created_at"), jsonFileManagerFolder.getString("created_by"),jsonFileManagerFolder,this.getConnection());
     }
 
@@ -71,7 +71,7 @@ public class FileManager {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         // parse response
-        JSONObject jsonFileManagerFiles = new JSONObject(getConnection().do_Get(new URL(this.getConnection().getFILESENDPOINT())));
+        JSONObject jsonFileManagerFiles = new JSONObject(getConnection().do_Get(new URL(this.getConnection().getFILESENDPOINT()),connection.getApikey()));
         JSONArray filesArray = jsonFileManagerFiles.getJSONArray("files");
         for( int i = 0; i< filesArray.length();i++)
         {
@@ -98,7 +98,7 @@ public class FileManager {
     public FileManagerFile getFileManagerFile(int id) throws Exception{
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         // parse response
-        JSONObject jsonFileManagerFile = new JSONObject(getConnection().do_Get(new URL(this.getConnection().getFILESENDPOINT()+"/"+id)));
+        JSONObject jsonFileManagerFile = new JSONObject(getConnection().do_Get(new URL(this.getConnection().getFILESENDPOINT()+"/"+id),connection.getApikey()));
 
         if(jsonFileManagerFile.getString("type").equals("image")){
             return new FileManagerFile(jsonFileManagerFile.getInt("id"),jsonFileManagerFile.getInt("folder_id"),jsonFileManagerFile.getString("type"),jsonFileManagerFile.getString("name"),jsonFileManagerFile.getString("full_size_url"),jsonFileManagerFile.getInt("size"),formatter.parse(jsonFileManagerFile.getString("created_at")),jsonFileManagerFile.getString("created_by"), jsonFileManagerFile.getInt("width"), jsonFileManagerFile.getInt("height"), jsonFileManagerFile);
@@ -121,7 +121,7 @@ public class FileManager {
         upload_data.put("folder_id", folder_id);
         upload_data.put("name", filename+getExtension(file));
         upload_data.put("file_data",encodeFileToBase64Binary(file));
-        getConnection().do_Post(new URL(connection.getFILESENDPOINT()), upload_data.toString());
+        getConnection().do_Post(new URL(connection.getFILESENDPOINT()), upload_data.toString(),connection.getApikey());
     }
 
     /**
@@ -136,13 +136,13 @@ public class FileManager {
         JSONObject upload_data  = new JSONObject();
         upload_data.put("name", filename+getExtension(file));
         upload_data.put("file_data",encodeFileToBase64Binary(file));
-        getConnection().do_Post(new URL(connection.getFILESENDPOINT()), upload_data.toString());
+        getConnection().do_Post(new URL(connection.getFILESENDPOINT()), upload_data.toString(),connection.getApikey());
     }
 
 
 
     public void deleteFile(String fileID) throws Exception{
-        connection.do_Delete(new URL(connection.getFILESENDPOINT()+"/"+fileID));
+        connection.do_Delete(new URL(connection.getFILESENDPOINT()+"/"+fileID),connection.getApikey());
     }
 
     private String encodeFileToBase64Binary(File file){

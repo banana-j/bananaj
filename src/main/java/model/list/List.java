@@ -59,7 +59,7 @@ public class List extends MailchimpObject {
 	public ArrayList<Member> getMembers() throws Exception{
 
 		ArrayList<Member> members = new ArrayList<Member>();
-		final JSONObject list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getId()+"/members")));
+		final JSONObject list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getId()+"/members"),connection.getApikey()));
 		final JSONArray membersArray = list.getJSONArray("members");
 
 
@@ -92,7 +92,7 @@ public class List extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public Member getMember(String memberID) throws Exception{
-		final JSONObject member = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+getId()+"/members/"+memberID)));
+		final JSONObject member = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+getId()+"/members/"+memberID),connection.getApikey()));
     	final JSONObject memberMergeTags = member.getJSONObject("merge_fields");
     	final JSONObject memberStats = member.getJSONObject("stats");
 
@@ -120,7 +120,7 @@ public class List extends MailchimpObject {
 		member.put("status", status.getStringRepresentation());
 		member.put("email_address", emailAdress);
 
-        getConnection().do_Post(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/members"),member.toString());
+        getConnection().do_Post(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/members"),member.toString(),connection.getApikey());
 	}
 	
 	/**
@@ -146,7 +146,7 @@ public class List extends MailchimpObject {
 		member.put("status", status.getStringRepresentation());
 		member.put("email_address", emailAdress);
 		member.put("merge_fields", merge_fields);
-        getConnection().do_Post(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/members"),member.toString());
+        getConnection().do_Post(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/members"),member.toString(),connection.getApikey());
 	}
 
 	public void importMembersFromFile(File file) throws FileFormatException, IOException{
@@ -190,7 +190,7 @@ public class List extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public void deleteMemberFromList(String memberID) throws Exception{
-		getConnection().do_Delete(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+getId()+"/members/"+memberID));
+		getConnection().do_Delete(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+getId()+"/members/"+memberID),connection.getApikey());
 	}
 	
 	/**
@@ -199,7 +199,7 @@ public class List extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public GrowthHistory getGrowthHistory() throws Exception{
-		final JSONObject growth_history = new JSONObject(getConnection().do_Get(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/growth-history")));
+		final JSONObject growth_history = new JSONObject(getConnection().do_Get(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/growth-history"),connection.getApikey()));
     	final JSONArray history = growth_history.getJSONArray("history");
     	final JSONObject historyDetail = history.getJSONObject(0);
     	
@@ -215,7 +215,7 @@ public class List extends MailchimpObject {
 	public ArrayList<Segment> getSegments() throws Exception {
         ArrayList<Segment> segments = new ArrayList<Segment>();
         URL url = new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/segments");
-		connection.do_Get(url);
+		connection.do_Get(url ,connection.getApikey());
 
 
         return segments;
@@ -231,7 +231,7 @@ public class List extends MailchimpObject {
 		ArrayList<MergeField> mergeFields = new ArrayList<MergeField>();
 		URL url = new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/merge-fields");
 
-		JSONObject merge_fields = new JSONObject(connection.do_Get(url));
+		JSONObject merge_fields = new JSONObject(connection.do_Get(url,connection.getApikey()));
 		final JSONArray mergeFieldsArray = merge_fields.getJSONArray("merge_fields");
 
 		for (int i = 0 ; i < mergeFieldsArray.length(); i++) {
@@ -289,7 +289,7 @@ public class List extends MailchimpObject {
 	 */
 	public MergeField getMergeField(String mergeFieldID) throws Exception{
 		URL url = new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/merge-fields/"+mergeFieldID);
-		JSONObject mergeFieldJSON = new JSONObject(connection.do_Get(url));
+		JSONObject mergeFieldJSON = new JSONObject(connection.do_Get(url,connection.getApikey()));
 
 		final JSONObject mergeFieldOptionsJSON = mergeFieldJSON.getJSONObject("options");
 		MergeFieldOptions mergeFieldOptions = new MergeFieldOptions();
@@ -335,8 +335,13 @@ public class List extends MailchimpObject {
 		);
 	}
 
+	public void addMergeField(MergeField mergeFieldtoAdd){
+
+	}
+
+
 	public void deleteMergeField(String mergeFieldID) throws Exception{
-		connection.do_Delete(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/merge-fields/"+mergeFieldID));
+		connection.do_Delete(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/merge-fields/"+mergeFieldID),connection.getApikey());
 	}
 	/**
 	 * Writes the data of this list to an excel file in current directory. Define wether to show merge fields or not

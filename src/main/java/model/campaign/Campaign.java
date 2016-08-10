@@ -63,7 +63,7 @@ public class Campaign extends MailchimpObject {
      */
 	public Report getReport() throws Exception{
 
-		final JSONObject report = new JSONObject(connection.do_Get(new URL(getREPORTENDPOINT())));
+		final JSONObject report = new JSONObject(connection.do_Get(new URL(getREPORTENDPOINT()),connection.getApikey()));
 		final JSONObject bounces = report.getJSONObject("bounces");
 		final JSONObject forwards = report.getJSONObject("forwards");
 		final JSONObject opens = report.getJSONObject("opens");
@@ -97,7 +97,7 @@ public class Campaign extends MailchimpObject {
 	 * Send the campaign to the list members
 	 */
 	public void send() throws Exception{
-		getConnection().do_Post(new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/actions/send"));
+		getConnection().do_Post(new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/actions/send"),connection.getApikey());
 	}
 	
 	/**
@@ -105,7 +105,7 @@ public class Campaign extends MailchimpObject {
 	 * (!Only included in mailchimp pro)
 	 */
 	public void cancelSend() throws Exception{
-		getConnection().do_Post(new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/actions/cancel-send"));
+		getConnection().do_Post(new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/actions/cancel-send"),connection.getApikey());
 	}
 	
 	/**
@@ -212,7 +212,7 @@ public class Campaign extends MailchimpObject {
 	 * Set the content of this campaign
 	 */
 	private void setContent() throws Exception{
-		JSONObject content = new JSONObject(getConnection().do_Get(new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/content")));
+		JSONObject content = new JSONObject(getConnection().do_Get(new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/content"),connection.getApikey()));
 		this.content = new CampaignContent(content.getString("plain_text"), content.getString("html"), this) ;
 	}
 }

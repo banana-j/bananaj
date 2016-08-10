@@ -85,7 +85,7 @@ public class FileManagerFolder extends MailchimpObject{
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         // parse response
-        JSONObject jsonFileManagerFiles = new JSONObject(getConnection().do_Get(new URL(connection.getFILESENDPOINT())));
+        JSONObject jsonFileManagerFiles = new JSONObject(getConnection().do_Get(new URL(connection.getFILESENDPOINT()),connection.getApikey()));
         JSONArray filesArray = jsonFileManagerFiles.getJSONArray("files");
         for( int i = 0; i< filesArray.length();i++)
         {

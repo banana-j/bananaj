@@ -13,17 +13,14 @@ import java.util.*;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import model.campaign.*;
 import model.filemanager.FileManagerFolder;
+import model.template.TemplateFolder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import model.automation.Automation;
 import model.automation.AutomationStatus;
-import model.campaign.Campaign;
-import model.campaign.CampaignDefaults;
-import model.campaign.CampaignSettings;
-import model.campaign.CampaignStatus;
-import model.campaign.CampaignType;
 import model.list.List;
 import model.list.member.Member;
 import model.template.Template;
@@ -43,13 +40,15 @@ import jxl.write.WritableWorkbook;
  * @author alexanderweiss
  *
  */
-public class MailchimpConnection {
+public class MailchimpConnection extends Connection{
 
 	private String server;
 	private String apikey;
 	private static String APIENDPOINT;
 	private static String LISTENDPOINT;
+    private static String CAMPAIGNFOLDERENDPOINT;
 	private static String CAMPAIGNENDPOINT;
+    private static String TEMPLATEFOLDERENDPOINT;
 	private static String TEMPLATEENDPOINT;
 	private static String AUTOMATIONENDPOINT;
 	private static String FILEMANAGERFOLDERENDPOINT;
@@ -62,7 +61,9 @@ public class MailchimpConnection {
 		setApikey(apikey);
 		setAPIENDPOINT("https://"+server+".api.mailchimp.com/3.0/");
 		setLISTENDPOINT("https://"+server+".api.mailchimp.com/3.0/lists");
+        setCAMPAIGNFOLDERENDPOINT("https://"+server+".api.mailchimp.com/3.0/campaign-folders");
 		setCAMPAIGNENDPOINT("https://"+server+".api.mailchimp.com/3.0/campaigns");
+        setTEMPLATEFOLDERENDPOINT("https://"+server+".api.mailchimp.com/3.0/template-folders");
 		setTEMPLATEENDPOINT("https://"+server+".api.mailchimp.com/3.0/templates");
 		setAUTOMATIONENDPOINT("https://"+server+".api.mailchimp.com/3.0/automations");
 		setFILEMANAGERFOLDERENDPOINT("https://"+server+".api.mailchimp.com/3.0/file-manager/folders");
@@ -74,105 +75,6 @@ public class MailchimpConnection {
 		}
 	}
 
-	public String do_Get(URL url) throws Exception{
-        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-
-        // optional default is GET
-        con.setRequestMethod("GET");
-
-        //add request header
-        con.setRequestProperty("Authorization",this.getApikey());
-
-
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'GET' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode+"\n");
-
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-        return response.toString();
-    }
-	public String do_Post(URL url, String post_string) throws Exception{
-
-        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-        con.setRequestProperty("Authorization", getApikey());
-        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-        // Indicate that we want to write to the HTTP request body
-        con.setDoOutput(true);
-        con.setRequestMethod("POST");
-
-        // Writing the post data to the HTTP request body
-        BufferedWriter httpRequestBodyWriter = new BufferedWriter(new OutputStreamWriter(con.getOutputStream()));
-        httpRequestBodyWriter.write(post_string);
-        httpRequestBodyWriter.close();
-
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'POST' request to URL : " + url + System.lineSeparator() + "Send data: " + post_string);
-        System.out.println("Response Code : " + responseCode+"\n");
-
-        // Reading from the HTTP response body
-        Scanner httpResponseScanner = new Scanner(con.getInputStream());
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-        while ((inputLine = httpResponseScanner.nextLine()) != null) {
-            response.append(inputLine);
-        }
-        httpResponseScanner.close();
-        return response.toString();
-    }
-	public String do_Post(URL url) throws Exception{
-        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-
-        // optional default is GET
-        con.setRequestMethod("POST");
-
-        //add request header
-        con.setRequestProperty("Authorization",getApikey());
-
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'POST' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode+"\n");
-
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-        return response.toString();
-    }
-
-	public String do_Delete(URL url) throws Exception{
-        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-        con.setRequestMethod("DELETE");
-        con.setRequestProperty("Authorization", getApikey());
-
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'DELETE' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode+"\n");
-
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-
-        while ((inputLine = in.readLine()) != null)
-        {
-            response.append(inputLine);
-        }
-        in.close();
-        return response.toString();
-    }
     /**
 	 * Get all lists in your account
 	 * @return Arraylist containing all lists
@@ -181,7 +83,7 @@ public class MailchimpConnection {
 	public ArrayList<List> getLists() throws Exception{
 		ArrayList<List> lists = new ArrayList<List>();
 		// parse response
-		JSONObject jsonLists = new JSONObject(do_Get(new URL(LISTENDPOINT)));
+		JSONObject jsonLists = new JSONObject(do_Get(new URL(LISTENDPOINT),getApikey()));
 		JSONArray listsArray = jsonLists.getJSONArray("lists");
 		for( int i = 0; i< listsArray.length();i++)
 		{
@@ -200,7 +102,7 @@ public class MailchimpConnection {
 	 * @throws Exception
 	 */
 	public List getList(String listID) throws Exception{
-		JSONObject list = new JSONObject(do_Get(new URL(LISTENDPOINT+"/"+listID)));
+		JSONObject list = new JSONObject(do_Get(new URL(LISTENDPOINT+"/"+listID),getApikey()));
 		JSONObject listStats = list.getJSONObject("stats");
 		return new List(list.getString("id"),list.getString("name"),listStats.getInt("member_count"),this.createDateFromISO8601(list.getString("date_created")),this,list);
 	}
@@ -234,7 +136,7 @@ public class MailchimpConnection {
 		jsonList.put("contact", contact);
 		jsonList.put("campaign_defaults", JSONCampaignDefaults);
 
-	    do_Post(new URL(LISTENDPOINT), jsonList.toString());
+	    do_Post(new URL(LISTENDPOINT), jsonList.toString(),getApikey());
 	}
 
 	/**
@@ -243,7 +145,7 @@ public class MailchimpConnection {
 	 * @throws Exception
 	 */
 	public void deleteList(String listID) throws Exception{
-        do_Delete(new URL(LISTENDPOINT+"/"+listID));
+        do_Delete(new URL(LISTENDPOINT+"/"+listID),getApikey());
 	}
 
 	/**
@@ -341,7 +243,64 @@ public class MailchimpConnection {
 		System.out.println("Writing to excel - done");
 	}
 
-	/**
+    /**
+     * Get all template folders from MailChimp
+     * @return
+     */
+    public ArrayList<CampaignFolder> getCampaignFolders() throws Exception{
+        ArrayList<CampaignFolder> campaignFolders = new ArrayList<>();
+        JSONObject campaignFoldersResponse = new JSONObject(do_Get(new URL(CAMPAIGNFOLDERENDPOINT), getApikey()));
+
+        JSONArray campaignFoldersJSON = campaignFoldersResponse.getJSONArray("folders");
+
+        for(int i = 0 ; i < campaignFoldersJSON.length(); i++){
+            JSONObject campaignFolderJSON = campaignFoldersJSON.getJSONObject(i);
+            CampaignFolder campaignFolder = new CampaignFolder(campaignFolderJSON.getString("id"),
+                    campaignFolderJSON.getString("name"),
+                    campaignFolderJSON.getInt("count"),
+                    campaignFolderJSON);
+            campaignFolders.add(campaignFolder);
+        }
+        return campaignFolders;
+    }
+
+    /**
+     * Get a specific template folder
+     * @param folder_id
+     * @return
+     */
+    public CampaignFolder getCampaignFolder(String folder_id) throws Exception{
+
+        JSONObject campaignFoldersResponse = new JSONObject(do_Get(new URL(CAMPAIGNFOLDERENDPOINT+"/"+folder_id), getApikey()));
+
+        return new CampaignFolder(campaignFoldersResponse.getString("id"),
+                campaignFoldersResponse.getString("name"),
+                campaignFoldersResponse.getInt("count"),
+                campaignFoldersResponse);
+    }
+
+    /**
+     * Add a template folder with a specific name
+     * @param name
+     */
+    public void addCampaignFolder(String name) throws Exception{
+        JSONObject campaignFolder = new JSONObject();
+        campaignFolder.put("name", name);
+        do_Post(new URL(CAMPAIGNFOLDERENDPOINT), campaignFolder.toString(), getApikey());
+    }
+
+    /**
+     * Delete a specific template folder
+     * @param folder_id
+     */
+    public void deleteCampaignFolder(String folder_id) throws Exception{
+        do_Delete(new URL(CAMPAIGNFOLDERENDPOINT+"/"+folder_id), getApikey());
+    }
+
+
+
+
+    /**
 	 * Get all camapaigns from mailchimp account
 	 * @return Arraylist containing all campaigns
 	 * @throws Exception
@@ -349,7 +308,7 @@ public class MailchimpConnection {
 	public ArrayList<Campaign> getCampaigns() throws Exception{
 		ArrayList<Campaign> campaigns = new ArrayList<Campaign>();
 		// parse response
-		JSONObject jsonCampaigns = new JSONObject(do_Get(new URL(CAMPAIGNENDPOINT)));
+		JSONObject jsonCampaigns = new JSONObject(do_Get(new URL(CAMPAIGNENDPOINT),getApikey()));
 		JSONArray campaignsArray = jsonCampaigns.getJSONArray("campaigns");
 		for( int i = 0; i< campaignsArray.length();i++)
 		{
@@ -377,9 +336,7 @@ public class MailchimpConnection {
 	 * @throws Exception
 	 */
 	public Campaign getCampaign(String campaignID) throws Exception{
-		URL url = new URL(CAMPAIGNENDPOINT+"/"+campaignID);
-		// parse response
-		JSONObject campaign = new JSONObject(do_Get(new URL(CAMPAIGNENDPOINT+"/"+campaignID)));
+		JSONObject campaign = new JSONObject(do_Get(new URL(CAMPAIGNENDPOINT+"/"+campaignID),getApikey()));
 		JSONObject recipients = campaign.getJSONObject("recipients");
 		JSONObject campaignSettings = campaign.getJSONObject("settings");
 		String campaignType = campaign.getString("type");
@@ -399,7 +356,6 @@ public class MailchimpConnection {
 	 * @param settings
 	 */
 	public void createCampaign(CampaignType type, List list, CampaignSettings settings) throws Exception{
-		URL url = new URL(CAMPAIGNENDPOINT);		
 		
 		JSONObject campaign = new JSONObject();
 		
@@ -416,7 +372,7 @@ public class MailchimpConnection {
 		campaign.put("recipients", recipients);
 		campaign.put("settings", jsonSettings);
 		
-        do_Post(new URL(CAMPAIGNENDPOINT), campaign.toString());
+        do_Post(new URL(CAMPAIGNENDPOINT), campaign.toString(),getApikey());
 	}
 
 	/**
@@ -425,8 +381,64 @@ public class MailchimpConnection {
 	 * @throws Exception
 	 */
 	public void deleteCampaign(String campaignID) throws Exception{
-		do_Delete(new URL(CAMPAIGNENDPOINT+"/"+campaignID));
+		do_Delete(new URL(CAMPAIGNENDPOINT+"/"+campaignID),getApikey());
 	}
+
+    /**
+     * Get all template folders from MailChimp
+     * @return
+     */
+	public ArrayList<TemplateFolder> getTemplateFolders() throws Exception{
+        ArrayList<TemplateFolder> templateFolders = new ArrayList<>();
+        JSONObject templateFoldersResponse = new JSONObject(do_Get(new URL(TEMPLATEFOLDERENDPOINT), getApikey()));
+
+        JSONArray templateFoldersJSON = templateFoldersResponse.getJSONArray("folders");
+
+        for(int i = 0 ; i < templateFoldersJSON.length(); i++){
+            JSONObject templateFolderJSON = templateFoldersJSON.getJSONObject(i);
+            TemplateFolder templateFolder = new TemplateFolder(templateFolderJSON.getString("id"),
+                    templateFolderJSON.getString("name"),
+                    templateFolderJSON.getInt("count"),
+                    templateFolderJSON);
+            templateFolders.add(templateFolder);
+        }
+        return templateFolders;
+	}
+
+    /**
+     * Get a specific template folder
+     * @param folder_id
+     * @return
+     */
+    public TemplateFolder getTemplateFolder(String folder_id) throws Exception{
+
+        JSONObject templateFoldersResponse = new JSONObject(do_Get(new URL(TEMPLATEFOLDERENDPOINT+"/"+folder_id), getApikey()));
+
+        return new TemplateFolder(templateFoldersResponse.getString("id"),
+                templateFoldersResponse.getString("name"),
+                templateFoldersResponse.getInt("count"),
+                templateFoldersResponse);
+    }
+
+    /**
+     * Add a template folder with a specific name
+     * @param name
+     */
+    public void addTemplateFolder(String name) throws Exception{
+        JSONObject templateFolder = new JSONObject();
+        templateFolder.put("name", name);
+        do_Post(new URL(TEMPLATEFOLDERENDPOINT), templateFolder.toString(), getApikey());
+    }
+
+    /**
+     * Delete a specific template folder
+     * @param folder_id
+     */
+    public void deleteTemplateFolder(String folder_id) throws Exception{
+        do_Delete(new URL(TEMPLATEFOLDERENDPOINT+"/"+folder_id), getApikey());
+    }
+
+
 
 	/**
 	 * Get all templates from mailchimp account
@@ -436,14 +448,14 @@ public class MailchimpConnection {
 	public ArrayList<Template> getTemplates() throws Exception{
 		ArrayList<Template> templates = new ArrayList<Template>();
 
-		JSONObject jsonTemplates = new JSONObject(do_Get(new URL(TEMPLATEENDPOINT)));
+		JSONObject jsonTemplates = new JSONObject(do_Get(new URL(TEMPLATEENDPOINT),getApikey()));
 		JSONArray templatesArray = jsonTemplates.getJSONArray("templates");
 		for( int i = 0; i< templatesArray.length();i++)
 		{
 			JSONObject templatesDetail = templatesArray.getJSONObject(i);
 
 
-			Template template = new Template(templatesDetail.getInt("id"),templatesDetail.getString("name"),translateStringIntoTemplateType(templatesDetail.getString("type")),templatesDetail.getString("share_url"),createDateFromNormal(templatesDetail.getString("date_created")),templatesDetail);
+			Template template = new Template(templatesDetail.getInt("id"),templatesDetail.getString("name"),translateStringIntoTemplateType(templatesDetail.getString("type")),templatesDetail.getString("share_url"),createDateFromISO8601(templatesDetail.getString("date_created")),templatesDetail);
 			templates.add(template);
 		}
 		return templates;
@@ -456,9 +468,38 @@ public class MailchimpConnection {
 	 * @throws Exception
 	 */
 	public Template getTemplate(String id) throws Exception{
-		JSONObject jsonTemplate = new JSONObject(do_Get(new URL(TEMPLATEENDPOINT+"/" +id)));
+		JSONObject jsonTemplate = new JSONObject(do_Get(new URL(TEMPLATEENDPOINT+"/" +id),getApikey()));
 		Template template = new Template(jsonTemplate.getInt("id"),jsonTemplate.getString("name"),translateStringIntoTemplateType(jsonTemplate.getString("type")),jsonTemplate.getString("share_url"),createDateFromNormal(jsonTemplate.getString("date_created")),jsonTemplate);
 		return template;
+	}
+
+    /**
+     * Add a template to your MailChimp account
+     * @param name
+     * @param html
+     * @throws Exception
+     */
+    public void addTemplate(String name, String html) throws Exception{
+        JSONObject templateJSON = new JSONObject();
+        templateJSON.put("name", name);
+        templateJSON.put("html", html);
+        do_Post(new URL(TEMPLATEENDPOINT+"/"), templateJSON.toString(),getApikey());
+    }
+
+
+    /**
+     * Add a template to a specific folder to your MailChimp Account
+     * @param name
+     * @param folder_id
+     * @param html
+     * @throws Exception
+     */
+	public void addTemplate(String name, String folder_id, String html) throws Exception{
+		JSONObject templateJSON = new JSONObject();
+		templateJSON.put("name", name);
+		templateJSON.put("folder_id", folder_id);
+		templateJSON.put("html", html);
+		do_Post(new URL(TEMPLATEENDPOINT+"/"), templateJSON.toString(),getApikey());
 	}
 
 	/**
@@ -467,7 +508,7 @@ public class MailchimpConnection {
 	 * @throws Exception
 	 */
 	public void deleteTemplate(String id) throws Exception {
-		do_Delete(new URL(TEMPLATEENDPOINT+"/" +id));
+		do_Delete(new URL(TEMPLATEENDPOINT+"/" +id),getApikey());
 	}
 
 	/**
@@ -478,7 +519,7 @@ public class MailchimpConnection {
 	public ArrayList<Automation> getAutomations() throws Exception{
 		ArrayList<Automation> automations = new ArrayList<Automation>();
 
-		JSONObject jsonAutomations = new JSONObject(do_Get(new URL(AUTOMATIONENDPOINT)));
+		JSONObject jsonAutomations = new JSONObject(do_Get(new URL(AUTOMATIONENDPOINT),getApikey()));
 		JSONArray automationsArray = jsonAutomations.getJSONArray("automations");
 		for( int i = 0; i< automationsArray.length();i++)
 		{
@@ -498,7 +539,7 @@ public class MailchimpConnection {
 	 * @throws Exception
 	 */
 	public Automation getAutomation(String id) throws Exception{
-		JSONObject jsonAutomation = new JSONObject(do_Get(new URL(AUTOMATIONENDPOINT+"/"+id)));
+		JSONObject jsonAutomation = new JSONObject(do_Get(new URL(AUTOMATIONENDPOINT+"/"+id),getApikey()));
 		JSONObject recipients = jsonAutomation.getJSONObject("recipients");
 		Automation automation = new Automation(jsonAutomation.getString("id"),createDateFromISO8601(jsonAutomation.getString("create_time")),createDateFromISO8601(jsonAutomation.getString("start_time")),translateStringIntoAutomationStatus(jsonAutomation.getString("status")),jsonAutomation.getInt("emails_sent"),getList(recipients.getString("list_id")),jsonAutomation);
 		
@@ -689,7 +730,6 @@ public class MailchimpConnection {
 	}
 	
 	/**
-	 * 
 	 * @param automationendpoint the automationendpoint to set
 	 * @return
 	 */
@@ -697,9 +737,7 @@ public class MailchimpConnection {
 		this.AUTOMATIONENDPOINT = automationendpoint;
 	}
 
-
 	/**
-	 *
 	 * @return the filemanagerfolderendpoint
      */
 	public String getFILEMANAGERFOLDERENDPOINT() {
@@ -723,6 +761,21 @@ public class MailchimpConnection {
 		this.FILESENDPOINT = FILESENDPOINT;
 	}
 
+    public static String getCAMPAIGNFOLDERENDPOINT() {
+        return CAMPAIGNFOLDERENDPOINT;
+    }
+
+    public static void setCAMPAIGNFOLDERENDPOINT(String CAMPAIGNFOLDERENDPOINT) {
+        MailchimpConnection.CAMPAIGNFOLDERENDPOINT = CAMPAIGNFOLDERENDPOINT;
+    }
+
+    public static String getTEMPLATEFOLDERENDPOINT() {
+        return TEMPLATEFOLDERENDPOINT;
+    }
+
+    public static void setTEMPLATEFOLDERENDPOINT(String TEMPLATEFOLDERENDPOINT) {
+        MailchimpConnection.TEMPLATEFOLDERENDPOINT = TEMPLATEFOLDERENDPOINT;
+    }
 
 	/**
 	 * @return the account
@@ -736,7 +789,7 @@ public class MailchimpConnection {
 	 */
 	private void setAccount() throws Exception {
 		Account account;
-		JSONObject jsonAPIROOT = new JSONObject(do_Get(new URL(APIENDPOINT)));
+		JSONObject jsonAPIROOT = new JSONObject(do_Get(new URL(APIENDPOINT),getApikey()));
 		JSONObject contact = jsonAPIROOT.getJSONObject("contact");
 		account = new Account(this,contact.getString("company"),contact.getString("addr1"), contact.getString("city"), contact.getString("state"),contact.getString("zip"), contact.getString("country"));
 		this.account = account;

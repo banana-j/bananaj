@@ -108,7 +108,7 @@ public class Member extends MailchimpObject{
 			String url = "https://"+list.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+getList().getId()+"/members/"+this.getId();
 			JSONObject updateMember = new JSONObject();
 			updateMember.put("email_adress", emailAdress);
-            this.getConnection().do_Post(new URL("https://"+list.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+getList().getId()+"/members/"+getId()), updateMember.toString());
+            this.getConnection().do_Post(new URL("https://"+list.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+getList().getId()+"/members/"+getId()), updateMember.toString(),connection.getApikey());
 
 		} else {
 		   throw new EmailException("Email adress is not valid");
@@ -274,7 +274,7 @@ public class Member extends MailchimpObject{
 	public void setMemberActivities(String unique_email_id, String listID) throws Exception{
 		ArrayList<MemberActivity> activities = new ArrayList<MemberActivity>();
 
-		final JSONObject activity = new JSONObject(this.getConnection().do_Get(new URL("https://"+this.list.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+this.list.getId()+"/members/"+this.getId()+"/activity")));
+		final JSONObject activity = new JSONObject(this.getConnection().do_Get(new URL("https://"+this.list.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+this.list.getId()+"/members/"+this.getId()+"/activity"),connection.getApikey()));
 		final JSONArray activityArray = activity.getJSONArray("activity");
 
 		for (int i = 0 ; i < activityArray.length();i++)
