@@ -38,53 +38,71 @@ Member memberOfList = listname.getMember("MemberID");
 
 #Package structure
 ```
-├── connection
-│   ├── Account.java
-│   └── MailchimpConnection.java
-├── exceptions
-│   ├── EmailException.java
-│   └── FileFormatException.java
-└── model
-    ├── MailchimpObject.java
-    ├── automation
-    │   ├── Automation.java
-    │   └── AutomationStatus.java
-    ├── campaign
-    │   ├── Bounce.java
-    │   ├── Campaign.java
-    │   ├── CampaignContent.java
-    │   ├── CampaignDefaults.java
-    │   ├── CampaignSettings.java
-    │   ├── CampaignStatus.java
-    │   └── CampaignType.java
-    ├── conversation
-    │   └── Conversation.java
-    ├── filemanager
-    │   ├── FileManager.java
-    │   ├── FileManagerFile.java
-    │   └── FileManagerFolder.java
-    ├── list
-    │   ├── GrowthHistory.java
-    │   ├── List.java
-    │   ├── member
-    │   │   ├── Member.java
-    │   │   ├── MemberActivity.java
-    │   │   └── MemberStatus.java
-    │   └── segment
-    │       ├── Options.java
-    │       ├── Segment.java
-    │       └── SegmentType.java
-    ├── report
-    │   ├── Click.java
-    │   ├── FacebookLikes.java
-    │   ├── Forward.java
-    │   ├── IndustryStats.java
-    │   ├── Open.java
-    │   ├── Report.java
-    │   └── ReportListStats.java
-    └── template
-        ├── Template.java
-        └── TemplateType.java
++---connection
+|       Account.java
+|       Connection.java
+|       MailchimpConnection.java
+|       
++---exceptions
+|       EmailException.java
+|       FileFormatException.java
+|       
+\---model
+    |   MailchimpObject.java
+    |   
+    +---automation
+    |       Automation.java
+    |       AutomationStatus.java
+    |       
+    +---campaign
+    |       Bounce.java
+    |       Campaign.java
+    |       CampaignContent.java
+    |       CampaignDefaults.java
+    |       CampaignFolder.java
+    |       CampaignSettings.java
+    |       CampaignStatus.java
+    |       CampaignType.java
+    |       
+    +---conversation
+    |       Conversation.java
+    |       
+    +---filemanager
+    |       FileManager.java
+    |       FileManagerFile.java
+    |       FileManagerFolder.java
+    |       
+    +---list
+    |   |   GrowthHistory.java
+    |   |   List.java
+    |   |   
+    |   +---member
+    |   |       Member.java
+    |   |       MemberActivity.java
+    |   |       MemberStatus.java
+    |   |       
+    |   +---mergefield
+    |   |       MergeField.java
+    |   |       MergeFieldOptions.java
+    |   |       
+    |   \---segment
+    |           Options.java
+    |           Segment.java
+    |           SegmentType.java
+    |           
+    +---report
+    |       Click.java
+    |       FacebookLikes.java
+    |       Forward.java
+    |       IndustryStats.java
+    |       Open.java
+    |       Report.java
+    |       ReportListStats.java
+    |       
+    \---template
+            Template.java
+            TemplateFolder.java
+            TemplateType.java
 ```
 
 
