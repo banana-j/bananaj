@@ -1,29 +1,44 @@
 package connection;
 
-	/**
+import model.MailchimpObject;
+import org.json.JSONObject;
+
+import java.util.Date;
+
+/**
 	 * Class for representing your mailchimp account
 	 */
-	 public class Account {
+	 public class Account extends MailchimpObject{
 
 		private MailchimpConnection connection;
 		private String apiKey;
+		private String account_name;
 		private String company;
 		private String address1;
+		private String address2;
 		private String city;
 		private String state;
 		private String zip;
 		private String country;
+		private Date last_login;
+		private int subscriber_count;
 
-		public Account(MailchimpConnection connection, String company, String address1, String city, String state, String zip, String country) {
+		public Account(MailchimpConnection connection,String id, String account_name, String company, String address1, String address2, String city, String state, String zip, String country, Date last_login, int subscriber_count,JSONObject jsonrepresentation) {
+			super(id, jsonrepresentation);
 			setConnection(connection);
+			setAccount_name(account_name);
 			setCompany(company);
 			setAddress1(address1);
+			setAddress2(address2);
 			setCity(city);
 			setState(state);
 			setZip(zip);
 			setCountry(country);
+			setLast_login(last_login);
+			setSubscriber_count(subscriber_count);
 			setApiKey(connection.getApikey());
 		}
+
 
 		/**
 		 * @return the connection
@@ -141,10 +156,44 @@ package connection;
 		public String toString(){
 			return this.company + System.lineSeparator() +
 					this.address1 + System.lineSeparator() +
+					this.address2 + System.lineSeparator() +
+					this.zip + System.lineSeparator() +
 					this.city + System.lineSeparator() +
 					this.state + System.lineSeparator() +
-					this.zip + System.lineSeparator();
+					"Last Login: " + this.last_login + System.lineSeparator() +
+					"Total subscribers: " + this.subscriber_count;
 		}
-		
 
+
+		public String getAddress2() {
+			return address2;
+		}
+
+		public void setAddress2(String address2) {
+			this.address2 = address2;
+		}
+
+	public Date getLast_login() {
+		return last_login;
 	}
+
+	public void setLast_login(Date last_login) {
+		this.last_login = last_login;
+	}
+
+	public String getAccount_name() {
+		return account_name;
+	}
+
+	public void setAccount_name(String account_name) {
+		this.account_name = account_name;
+	}
+
+	public int getSubscriber_count() {
+		return subscriber_count;
+	}
+
+	public void setSubscriber_count(int subscriber_count) {
+		this.subscriber_count = subscriber_count;
+	}
+}

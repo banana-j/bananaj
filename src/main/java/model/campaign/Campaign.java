@@ -4,18 +4,14 @@
  */
 package model.campaign;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Date;
 
-import javax.net.ssl.HttpsURLConnection;
-
+import model.list.MailChimpList;
 import org.json.JSONObject;
 
 import connection.MailchimpConnection;
 import model.MailchimpObject;
-import model.list.List;
 import model.report.Click;
 import model.report.FacebookLikes;
 import model.report.Forward;
@@ -32,7 +28,7 @@ import model.report.ReportListStats;
 public class Campaign extends MailchimpObject {
 
 	private MailchimpConnection connection;
-	private List list;
+	private MailChimpList mailChimpList;
 	private String title;
 	private CampaignContent content;
 	private String REPORTENDPOINT;
@@ -40,10 +36,10 @@ public class Campaign extends MailchimpObject {
 	private CampaignStatus campaign_status;
 	
 	
-	public Campaign(String id, String title, List list, CampaignType campaign_type, CampaignStatus campaign_status,MailchimpConnection connection, JSONObject jsonRepresentation) {
+	public Campaign(String id, String title, MailChimpList mailChimpList, CampaignType campaign_type, CampaignStatus campaign_status, MailchimpConnection connection, JSONObject jsonRepresentation) {
 		super(id,jsonRepresentation);
 		setConnection(connection);
-		setList(list);
+		setMailChimpList(mailChimpList);
 		setTitle(title);
 		try {
 			setContent();
@@ -94,7 +90,7 @@ public class Campaign extends MailchimpObject {
 	}
 	
 	/**
-	 * Send the campaign to the list members
+	 * Send the campaign to the mailChimpList members
 	 */
 	public void send() throws Exception{
 		getConnection().do_Post(new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/actions/send"),connection.getApikey());
@@ -188,17 +184,17 @@ public class Campaign extends MailchimpObject {
 	}
 
 	/**
-	 * @return the list
+	 * @return the mailChimpList
 	 */
-	public List getList() {
-		return list;
+	public MailChimpList getMailChimpList() {
+		return mailChimpList;
 	}
 
 	/**
-	 * @param list the list to set
+	 * @param mailChimpList the mailChimpList to set
 	 */
-	public void setList(List list) {
-		this.list = list;
+	public void setMailChimpList(MailChimpList mailChimpList) {
+		this.mailChimpList = mailChimpList;
 	}
 
 	/**

@@ -6,13 +6,13 @@ package model.list;
 
 
 /**
- * Class for representing a growth history of a list
+ * Class for representing a growth history of a mailChimpList
  * @author alexanderweiss
  *
  */
 public class GrowthHistory {
 
-	private List list;
+	private MailChimpList mailChimpList;
 	private String list_id;
 	private String month;
 	private int existing;
@@ -21,9 +21,9 @@ public class GrowthHistory {
 	
 	
 	
-	public GrowthHistory(List list, String month, int existing, int imports, int optins) {
-		setList(list);
-		setList_id(list.getId());
+	public GrowthHistory(MailChimpList mailChimpList, String month, int existing, int imports, int optins) {
+		setMailChimpList(mailChimpList);
+		setList_id(mailChimpList.getId());
 		setMonth(month);
 		setExisting(existing);
 		setImports(imports);
@@ -31,17 +31,17 @@ public class GrowthHistory {
 	}
 	
 	/**
-	 * @return the list
+	 * @return the mailChimpList
 	 */
-	public List getList() {
-		return list;
+	public MailChimpList getMailChimpList() {
+		return mailChimpList;
 	}
 
 	/**
-	 * @param list the list to set
+	 * @param mailChimpList the mailChimpList to set
 	 */
-	public void setList(List list) {
-		this.list = list;
+	public void setMailChimpList(MailChimpList mailChimpList) {
+		this.mailChimpList = mailChimpList;
 	}
 
 	/**
@@ -116,7 +116,7 @@ public class GrowthHistory {
 
 	@Override
 	public String toString(){
-		return "Growth History for list: " + getList_id() + System.lineSeparator() +
+		return "Growth History for mailChimpList: " + getList_id() + System.lineSeparator() +
 				"Month: " + getMonth() + System.lineSeparator() +
 				"Existing members: " + getExisting() + System.lineSeparator() +
 				"Imported member: " + getImports() + System.lineSeparator() +

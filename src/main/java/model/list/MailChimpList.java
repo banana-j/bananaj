@@ -35,7 +35,7 @@ import model.list.member.MemberStatus;
  * @author alexanderweiss
  *
  */
-public class List extends MailchimpObject {
+public class MailChimpList extends MailchimpObject {
 
 	private String name;
 	private int membercount;
@@ -43,7 +43,7 @@ public class List extends MailchimpObject {
 	private MailchimpConnection connection;
 	
 
-	public List(String id, String name, int membercount, Date dateCreated, MailchimpConnection connection, JSONObject jsonRepresentation){
+	public MailChimpList(String id, String name, int membercount, Date dateCreated, MailchimpConnection connection, JSONObject jsonRepresentation){
 		super(id,jsonRepresentation);
 		setName(name);
 		setMembercount(membercount);

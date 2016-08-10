@@ -6,10 +6,10 @@ package model.automation;
 
 import java.util.Date;
 
+import model.list.MailChimpList;
 import org.json.JSONObject;
 
 import model.MailchimpObject;
-import model.list.List;
 
 /**
  * Class for representing an automation
@@ -22,15 +22,15 @@ public class Automation extends MailchimpObject {
 	private Date start_time;
 	private AutomationStatus status;
 	private int emails_sent;
-	private List list;
+	private MailChimpList mailChimpList;
 		
-	public Automation(String id, Date create_time, Date start_time, AutomationStatus status, int emails_send, List list, JSONObject jsonRepresentation) {
+	public Automation(String id, Date create_time, Date start_time, AutomationStatus status, int emails_send, MailChimpList mailChimpList, JSONObject jsonRepresentation) {
 		super(id,jsonRepresentation);
 		setCreate_time(create_time);
 		setStart_time(start_time);
 		setStatus(status);
 		setEmails_sent(emails_sent);
-		setList(list);
+		setMailChimpList(mailChimpList);
 		
 	}
 
@@ -91,16 +91,16 @@ public class Automation extends MailchimpObject {
 	}
 
 	/**
-	 * @return the list
+	 * @return the mailChimpList
 	 */
-	public List getList() {
-		return list;
+	public MailChimpList getMailChimpList() {
+		return mailChimpList;
 	}
 	
 	/**
-	 * @param list the list to set
+	 * @param mailChimpList the mailChimpList to set
 	 */
-	private void setList(List list) {
-		this.list = list;
+	private void setMailChimpList(MailChimpList mailChimpList) {
+		this.mailChimpList = mailChimpList;
 	}
 }

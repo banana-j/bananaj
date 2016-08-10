@@ -14,27 +14,69 @@ bananaj provides an Java wrapper for the Mailchimp API 3.0. It is possible acces
 #How to use
 ## Initial connection
 With the MailchimpConnection object you start to connect to your account. All starts with a connection object. 
-You can get all objects from this connection. First start with getting list informations.
+You can get all objects from this connection. First start with getting mailChimpList informations.
 
 ```
 MailchimpConnection con = new MailchimpConnection("yourAPIkey");
-con.getLists(); // get all lists in your account
+con.getLists(); // get all mailChimpLists in your account
 ```
-    
+
+##Get mailChimpLists
+```
+//Get all lists
+ArrayList<MailChimpList> allLists = con.getLists();
+```
+```
+//Get a single list
+MailChimpList yourList = con.getList("ListID");
+```
+
 ##Get Members
 ```
-MailchimpList listname = con.getList("listId");
-/*Get all members from a specific list*/
- ArrayList<Member> membersOfList = listname.getMembers();
+/*Get all members from a specific mailChimpList*/
+ ArrayList<Member> membersOfList = yourList.getMembers();
 ```
 ```
 /*You can also get a specific member by specifying it's id*/
-Member memberOfList = listname.getMember("MemberID");
+Member memberOfList = yourList.getMember("MemberID");
 ```
 
-##Upload file to FileManager
-        FileManager fileManager = new FileManager(mailchimpconnection);
-        fileManager.upload("Filename", yourFileToUpload);
+
+##Create template
+To create an email template simply specify a template name and the upload the pure html code to MailChimp
+```
+con.addTemplate("templateName", "htmlCode");
+```
+
+
+##Upload a file to FileManager
+```
+FileManager fileManager = new FileManager(mailchimpconnection);
+
+File myFile = new File("pathToYourFile");
+  
+//Upload a file
+fileManager.upload("filename", myFile);
+  
+Upload a file to a folder
+fileManager.upload("folder_id","filename", myFile);
+```
+
+##Methods
+Every endoint supports GET, POST, and DELETE requests. So it is possible to fully control your MailChimp objects with this wrapper. 
+
+###Endpoints used
+
+- **"https://"+server+".api.mailchimp.com/3.0/"**
+- **"https://"+server+".api.mailchimp.com/3.0/lists"**
+- **"https://"+server+".api.mailchimp.com/3.0/campaign-folders"**
+- **"https://"+server+".api.mailchimp.com/3.0/campaigns"**
+- **"https://"+server+".api.mailchimp.com/3.0/template-folders"**
+- **"https://"+server+".api.mailchimp.com/3.0/templates"**
+- **"https://"+server+".api.mailchimp.com/3.0/automations"**
+- **"https://"+server+".api.mailchimp.com/3.0/file-manager/folders"**
+- **"https://"+server+".api.mailchimp.com/3.0/file-manager/files"**
+
 
 #Package structure
 ```
@@ -74,7 +116,7 @@ Member memberOfList = listname.getMember("MemberID");
     |       
     +---list
     |   |   GrowthHistory.java
-    |   |   List.java
+    |   |   MailChimpList.java
     |   |   
     |   +---member
     |   |       Member.java

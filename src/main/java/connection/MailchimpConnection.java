@@ -5,23 +5,19 @@
 package connection;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import javax.net.ssl.HttpsURLConnection;
-
 import model.campaign.*;
-import model.filemanager.FileManagerFolder;
 import model.template.TemplateFolder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import model.automation.Automation;
 import model.automation.AutomationStatus;
-import model.list.List;
+import model.list.MailChimpList;
 import model.list.member.Member;
 import model.template.Template;
 import model.template.TemplateType;
@@ -80,8 +76,8 @@ public class MailchimpConnection extends Connection{
 	 * @return Arraylist containing all lists
 	 * @throws Exception
 	 */
-	public ArrayList<List> getLists() throws Exception{
-		ArrayList<List> lists = new ArrayList<List>();
+	public ArrayList<MailChimpList> getLists() throws Exception{
+		ArrayList<MailChimpList> mailChimpLists = new ArrayList<MailChimpList>();
 		// parse response
 		JSONObject jsonLists = new JSONObject(do_Get(new URL(LISTENDPOINT),getApikey()));
 		JSONArray listsArray = jsonLists.getJSONArray("lists");
@@ -90,10 +86,10 @@ public class MailchimpConnection extends Connection{
 			JSONObject listDetail = listsArray.getJSONObject(i);
 			JSONObject listStats = listDetail.getJSONObject("stats");
 
-			List list = new List(listDetail.getString("id"),listDetail.getString("name"),listStats.getInt("member_count"),this.createDateFromISO8601(listDetail.getString("date_created")),this,listDetail);
-			lists.add(list);
+			MailChimpList mailChimpList = new MailChimpList(listDetail.getString("id"),listDetail.getString("name"),listStats.getInt("member_count"),this.createDateFromISO8601(listDetail.getString("date_created")),this,listDetail);
+			mailChimpLists.add(mailChimpList);
 		}
-		return lists;
+		return mailChimpLists;
 	}
 
     /**
@@ -101,10 +97,10 @@ public class MailchimpConnection extends Connection{
 	 * @return a Mailchimp list object
 	 * @throws Exception
 	 */
-	public List getList(String listID) throws Exception{
+	public MailChimpList getList(String listID) throws Exception{
 		JSONObject list = new JSONObject(do_Get(new URL(LISTENDPOINT+"/"+listID),getApikey()));
 		JSONObject listStats = list.getJSONObject("stats");
-		return new List(list.getString("id"),list.getString("name"),listStats.getInt("member_count"),this.createDateFromISO8601(list.getString("date_created")),this,list);
+		return new MailChimpList(list.getString("id"),list.getString("name"),listStats.getInt("member_count"),this.createDateFromISO8601(list.getString("date_created")),this,list);
 	}
 
 
@@ -157,10 +153,10 @@ public class MailchimpConnection extends Connection{
 		WritableFont times16font = new WritableFont(WritableFont.TIMES, 16, WritableFont.BOLD, false);
 		WritableCellFormat times16format = new WritableCellFormat (times16font);
 
-		ArrayList<List> lists = getLists();
+		ArrayList<MailChimpList> mailChimpLists = getLists();
 		int index  = 0;
-		for(List list:lists){
-			WritableSheet sheet = workbook.createSheet(list.getName(), index);
+		for(MailChimpList mailChimpList : mailChimpLists){
+			WritableSheet sheet = workbook.createSheet(mailChimpList.getName(), index);
 
 			Label memberIDLabel = new Label(0, 0, "MemberID",times16format);
 			Label email_addressLabel = new Label(1,0,"Email Address",times16format);
@@ -183,7 +179,7 @@ public class MailchimpConnection extends Connection{
 			sheet.addCell(avg_open_rateLabel);
 			sheet.addCell(avg_click_rateLabel);
 
-			ArrayList<Member> members = list.getMembers();
+			ArrayList<Member> members = mailChimpList.getMembers();
 			int merge_field_count = 0;
 
 			if (show_merge){
@@ -352,15 +348,15 @@ public class MailchimpConnection extends Connection{
 	/**
 	 * Create a new campaign in your mailchimp account
 	 * @param type
-	 * @param list
+	 * @param mailChimpList
 	 * @param settings
 	 */
-	public void createCampaign(CampaignType type, List list, CampaignSettings settings) throws Exception{
+	public void createCampaign(CampaignType type, MailChimpList mailChimpList, CampaignSettings settings) throws Exception{
 		
 		JSONObject campaign = new JSONObject();
 		
 		JSONObject recipients = new JSONObject();
-		recipients.put("list_id", list.getId());
+		recipients.put("list_id", mailChimpList.getId());
 		
 		JSONObject jsonSettings = new JSONObject();
 		jsonSettings.put("subject_line", settings.getSubject_line());
@@ -791,7 +787,18 @@ public class MailchimpConnection extends Connection{
 		Account account;
 		JSONObject jsonAPIROOT = new JSONObject(do_Get(new URL(APIENDPOINT),getApikey()));
 		JSONObject contact = jsonAPIROOT.getJSONObject("contact");
-		account = new Account(this,contact.getString("company"),contact.getString("addr1"), contact.getString("city"), contact.getString("state"),contact.getString("zip"), contact.getString("country"));
+		account = new Account(this, jsonAPIROOT.getString("account_id"),
+                jsonAPIROOT.getString("account_name"),
+                contact.getString("company"),
+                contact.getString("addr1"),
+                contact.getString("addr2"),
+                contact.getString("city"),
+                contact.getString("state"),
+                contact.getString("zip"),
+                contact.getString("country"),
+                createDateFromISO8601(jsonAPIROOT.getString("last_login")),
+                jsonAPIROOT.getInt("total_subscribers"),
+                jsonAPIROOT);
 		this.account = account;
 	}
 }

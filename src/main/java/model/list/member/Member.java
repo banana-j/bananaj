@@ -14,15 +14,14 @@ import java.util.Map;
 
 import connection.MailchimpConnection;
 import exceptions.EmailException;
+import model.list.MailChimpList;
 import org.apache.commons.validator.EmailValidator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import exceptions.EmailException;
 import model.MailchimpObject;
-import model.list.List;
 
 
 /**
@@ -32,7 +31,7 @@ import model.list.List;
  */
 public class Member extends MailchimpObject{
 
-	private List list;
+	private MailChimpList mailChimpList;
     private HashMap<String, Object> merge_fields;
 	private String unique_email_id;
 	private String email_address;
@@ -50,10 +49,10 @@ public class Member extends MailchimpObject{
 	
 
 
-	public Member(String id, List list, HashMap<String, Object> merge_fields, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String ip_signup, String timestamp_opt,String ip_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailchimpConnection connection, JSONObject jsonRepresentation){
+	public Member(String id, MailChimpList mailChimpList, HashMap<String, Object> merge_fields, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String ip_signup, String timestamp_opt, String ip_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailchimpConnection connection, JSONObject jsonRepresentation){
 		//TODO Add merge field support
         super(id,jsonRepresentation);
-		setList(list);
+		setMailChimpList(mailChimpList);
         setMerge_fields(merge_fields);
 		setUnique_email_id(unique_email_id);
 		setEmail_address(email_address);
@@ -68,7 +67,7 @@ public class Member extends MailchimpObject{
 		setConnection(connection);
 
 		try{
-			setMemberActivities(unique_email_id, list.getId());
+			setMemberActivities(unique_email_id, mailChimpList.getId());
 		}catch (Exception e){
 			e.printStackTrace();
 		}
@@ -82,18 +81,18 @@ public class Member extends MailchimpObject{
 	public void updateStatus(MemberStatus status) throws Exception{
 		JSONObject updateMember = new JSONObject();
 		updateMember.put("status", status.getStringRepresentation());
-		this.getConnection().do_Post(new URL("https://"+list.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+getList().getId()+"/members/"+getId()), updateMember.toString());
+		this.getConnection().do_Post(new URL("https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString());
 	}
 	
 	/**
-	 * Update the list of this member
+	 * Update the mailChimpList of this member
 	 * @param listId
 	 * @throws Exception 
 	 */
 	public void changeList(String listId) throws Exception{
 		JSONObject updateMember = new JSONObject();
 		updateMember.put("list_id", listId);
-        this.getConnection().do_Post(new URL("https://"+list.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+getList().getId()+"/members/"+getId()), updateMember.toString());
+        this.getConnection().do_Post(new URL("https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString());
 	}
 	
 	/**
@@ -105,10 +104,10 @@ public class Member extends MailchimpObject{
 		
 		EmailValidator validator = EmailValidator.getInstance();
 		if (validator.isValid(emailAdress)) {
-			String url = "https://"+list.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+getList().getId()+"/members/"+this.getId();
+			String url = "https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+this.getId();
 			JSONObject updateMember = new JSONObject();
 			updateMember.put("email_adress", emailAdress);
-            this.getConnection().do_Post(new URL("https://"+list.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+getList().getId()+"/members/"+getId()), updateMember.toString(),connection.getApikey());
+            this.getConnection().do_Post(new URL("https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString(),connection.getApikey());
 
 		} else {
 		   throw new EmailException("Email adress is not valid");
@@ -122,10 +121,10 @@ public class Member extends MailchimpObject{
 	 */
 	public void changeMemberStatus(MemberStatus status) throws Exception{
 
-		String url = "https://"+list.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+getList().getId()+"/members/"+this.getId();
+		String url = "https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+this.getId();
 		JSONObject updateMember = new JSONObject();
 		updateMember.put("status", status.getStringRepresentation());
-		this.getConnection().do_Post(new URL("https://"+list.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+getList().getId()+"/members/"+getId()), updateMember.toString());
+		this.getConnection().do_Post(new URL("https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString());
 	}
 
 	/**
@@ -245,16 +244,16 @@ public class Member extends MailchimpObject{
 	/**
 	 * @return the listId
 	 */
-	public List getList() {
-		return list;
+	public MailChimpList getMailChimpList() {
+		return mailChimpList;
 	}
 
 
 	/**
-	 * @param list the list to set
+	 * @param mailChimpList the mailChimpList to set
 	 */
-	public void setList(List list) {
-		this.list = list;
+	public void setMailChimpList(MailChimpList mailChimpList) {
+		this.mailChimpList = mailChimpList;
 	}
 
 	/**
@@ -274,13 +273,13 @@ public class Member extends MailchimpObject{
 	public void setMemberActivities(String unique_email_id, String listID) throws Exception{
 		ArrayList<MemberActivity> activities = new ArrayList<MemberActivity>();
 
-		final JSONObject activity = new JSONObject(this.getConnection().do_Get(new URL("https://"+this.list.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+this.list.getId()+"/members/"+this.getId()+"/activity"),connection.getApikey()));
+		final JSONObject activity = new JSONObject(this.getConnection().do_Get(new URL("https://"+this.mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+this.mailChimpList.getId()+"/members/"+this.getId()+"/activity"),connection.getApikey()));
 		final JSONArray activityArray = activity.getJSONArray("activity");
 
 		for (int i = 0 ; i < activityArray.length();i++)
 		{
 			final JSONObject activityDetail = activityArray.getJSONObject(i);
-			MemberActivity memberActivity = new MemberActivity(this.unique_email_id, this.list.getId(), activityDetail.getString("action"),activityDetail.getString("timestamp"), activityDetail.getString("campaign_id"), activityDetail.getString("title"));
+			MemberActivity memberActivity = new MemberActivity(this.unique_email_id, this.mailChimpList.getId(), activityDetail.getString("action"),activityDetail.getString("timestamp"), activityDetail.getString("campaign_id"), activityDetail.getString("title"));
 			activities.add(memberActivity);
 		}
 
