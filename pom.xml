@@ -34,6 +34,14 @@
         </developer>
     </developers>
 
+
+    <scm>
+        <connection>scm:git:git://github.com/gr4h4n/bananaj.git</connection>
+        <developerConnection>scm:git:git://github.com/gr4h4n/bananaj.git</developerConnection>
+        <url>https://github.com/gr4h4n/bananaj</url>
+    </scm>
+
+
     <dependencies>
         <dependency>
             <groupId>commons-codec</groupId>
