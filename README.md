@@ -12,6 +12,12 @@ Simple api for accessing Mailchimp - Work in progess
 bananaj provides an Java wrapper for the Mailchimp API 3.0. It is possible acces your Mailchimp data through Java. All Mailchimp objects are mapped to Java objects which can be used to write your own java program. Each Object can also be exported to json.
 
 #How to use
+
+##Add to your project 
+At this point of development this artifact is not hosted at Macen Central. This will come in a future release. To implement this artifact in your project 
+simply donwload the .jar file from [this repository](https://github.com/gr4h4n/bananaj/blob/master/bananaj-1.1.0-alpha.jar) and add it as an external library to your project. 
+
+
 ## Initial connection
 With the MailchimpConnection object you start to connect to your account. All starts with a connection object. 
 You can get all objects from this connection. First start with getting mailChimpList informations.
@@ -146,6 +152,11 @@ Every endoint supports GET, POST, and DELETE requests. So it is possible to full
             TemplateFolder.java
             TemplateType.java
 ```
+
+# To do 
+- Add artifact to Maven Central
+- Add missing edit function to the different endpoints 
+- Clean up code
 
 
 #License
