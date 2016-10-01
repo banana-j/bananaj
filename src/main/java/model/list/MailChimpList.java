@@ -190,7 +190,7 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public void deleteMemberFromList(String memberID) throws Exception{
-		getConnection().do_Delete(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+getId()+"/members/"+memberID),connection.getApikey());
+		getConnection().do_Delete(new URL(connection.getLISTENDPOINT()+getId()+"/members/"+memberID),connection.getApikey());
 	}
 	
 	/**
