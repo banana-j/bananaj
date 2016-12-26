@@ -40,7 +40,8 @@ MailChimpList yourList = con.getList("ListID");
 ##Get Members
 ```
 /*Get all members from a specific mailChimpList*/
- ArrayList<Member> membersOfList = yourList.getMembers();
+ ArrayList<Member> membersOfList = yourList.getMembers(0); // Get all members 
+ ArrayList<Member> partOfMembers = yourList.getMembers(5); // Get first 5 members 
 ```
 ```
 /*You can also get a specific member by specifying it's id*/
