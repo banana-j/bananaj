@@ -4,19 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.gr4h4n</groupId>
+    <groupId>com.github.alexanderwe</groupId>
     <artifactId>bananaj</artifactId>
     <version>1.1.1-alpha</version>
     <packaging>jar</packaging>
 
     <name>bananaj</name>
     <description>A simple MailChimp API wrapper written in Java</description>
-    <url>https://github.com/gr4h4n/bananaj</url>
+    <url>https://github.com/alexanderwe/bananaj</url>
 
     <licenses>
         <license>
             <name>MIT</name>
-            <url>https://raw.githubusercontent.com/gr4h4n/bananaj/master/LICENSE.md</url>
+            <url>https://raw.githubusercontent.com/alexanderwe/bananaj/master/LICENSE.md</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -30,15 +30,15 @@
     <developers>
         <developer>
             <name>Alexander Weiß</name>
-            <url>https://www.github.com/gr4h4n</url>
+            <url>https://www.github.com/alexanderwe</url>
         </developer>
     </developers>
 
 
     <scm>
-        <connection>scm:git:git://github.com/gr4h4n/bananaj.git</connection>
-        <developerConnection>scm:git:git://github.com/gr4h4n/bananaj.git</developerConnection>
-        <url>https://github.com/gr4h4n/bananaj</url>
+        <connection>scm:git:git://github.com/alexanderwe/bananaj.git</connection>
+        <developerConnection>scm:git:git://github.com/alexanderwe/bananaj.git</developerConnection>
+        <url>https://github.com/alexanderwe/bananaj</url>
     </scm>
 
 
