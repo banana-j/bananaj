@@ -1,2 +1,4 @@
 /bin/
-.idea/
+.idea/*
+target/*
+src/test/*

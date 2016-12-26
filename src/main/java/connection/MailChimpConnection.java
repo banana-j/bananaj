@@ -36,7 +36,7 @@ import jxl.write.WritableWorkbook;
  * @author alexanderweiss
  *
  */
-public class MailchimpConnection extends Connection{
+public class MailChimpConnection extends Connection{
 
 	private String server;
 	private String apikey;
@@ -51,7 +51,7 @@ public class MailchimpConnection extends Connection{
 	private static String FILESENDPOINT;
 	private Account account;
 	
-	public MailchimpConnection(String apikey){
+	public MailChimpConnection(String apikey){
 		
 		setServer(apikey.split("-")[1]);
 		setApikey(apikey);
@@ -179,7 +179,7 @@ public class MailchimpConnection extends Connection{
 			sheet.addCell(avg_open_rateLabel);
 			sheet.addCell(avg_click_rateLabel);
 
-			ArrayList<Member> members = mailChimpList.getMembers();
+			ArrayList<Member> members = mailChimpList.getMembers(0);
 			int merge_field_count = 0;
 
 			if (show_merge){
@@ -762,7 +762,7 @@ public class MailchimpConnection extends Connection{
     }
 
     public static void setCAMPAIGNFOLDERENDPOINT(String CAMPAIGNFOLDERENDPOINT) {
-        MailchimpConnection.CAMPAIGNFOLDERENDPOINT = CAMPAIGNFOLDERENDPOINT;
+        MailChimpConnection.CAMPAIGNFOLDERENDPOINT = CAMPAIGNFOLDERENDPOINT;
     }
 
     public static String getTEMPLATEFOLDERENDPOINT() {
@@ -770,7 +770,7 @@ public class MailchimpConnection extends Connection{
     }
 
     public static void setTEMPLATEFOLDERENDPOINT(String TEMPLATEFOLDERENDPOINT) {
-        MailchimpConnection.TEMPLATEFOLDERENDPOINT = TEMPLATEFOLDERENDPOINT;
+        MailChimpConnection.TEMPLATEFOLDERENDPOINT = TEMPLATEFOLDERENDPOINT;
     }
 
 	/**

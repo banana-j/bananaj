@@ -1,17 +1,14 @@
 package model.filemanager;
 
-import connection.MailchimpConnection;
+import connection.MailChimpConnection;
 import model.MailchimpObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Created by alexanderweiss on 22.01.16.
@@ -26,11 +23,11 @@ public class FileManagerFolder extends MailchimpObject{
     private String createdBy;
     private ArrayList<FileManagerFile> files;
     private JSONObject jsonData;
-    private MailchimpConnection connection;
+    private MailChimpConnection connection;
 
 
 
-    public FileManagerFolder(int id, String name, int file_count, String createdAt, String createdBy, JSONObject jsonData, MailchimpConnection connection){
+    public FileManagerFolder(int id, String name, int file_count, String createdAt, String createdBy, JSONObject jsonData, MailChimpConnection connection){
         super(String.valueOf(id),jsonData);
         setName(name);
         setFile_count(file_count);
@@ -83,7 +80,8 @@ public class FileManagerFolder extends MailchimpObject{
     public void setFiles() throws Exception{
         ArrayList<FileManagerFile> files = new ArrayList<FileManagerFile>();
 
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
         // parse response
         JSONObject jsonFileManagerFiles = new JSONObject(getConnection().do_Get(new URL(connection.getFILESENDPOINT()),connection.getApikey()));
         JSONArray filesArray = jsonFileManagerFiles.getJSONArray("files");
@@ -123,11 +121,11 @@ public class FileManagerFolder extends MailchimpObject{
         this.jsonData = jsonData;
     }
 
-    public MailchimpConnection getConnection() {
+    public MailChimpConnection getConnection() {
         return connection;
     }
 
-    public void setConnection(MailchimpConnection connection) {
+    public void setConnection(MailChimpConnection connection) {
         this.connection = connection;
     }
 

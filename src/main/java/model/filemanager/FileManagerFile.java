@@ -3,6 +3,12 @@ package model.filemanager;
 import model.MailchimpObject;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Date;
 
 /**
@@ -21,8 +27,10 @@ public class FileManagerFile extends MailchimpObject {
     private int height;
     private String file_data;
 
+    private static final int BUFFER_SIZE = 4096;
 
-    public FileManagerFile(int id, int folder_id, String type, String name, String full_size_url, int size, Date createdAt, String createdBy, int width, int height, JSONObject jsonData) {
+
+    public FileManagerFile(int id, int folder_id, String type, String name, String full_size_url, int size, Date createdAt, String createdBy, int width, int height,  JSONObject jsonData) {
         super(String.valueOf(id),jsonData);
         setFolder_id(folder_id);
         setType(type);
@@ -46,6 +54,61 @@ public class FileManagerFile extends MailchimpObject {
         setCreatedAt(createdAt);
         setCreatedBy(createdBy);
         setFile_data(file_data);
+    }
+
+    //http://www.codejava.net/java-se/networking/use-httpurlconnection-to-download-file-from-an-http-url
+    public void downloadFile(String saveDir)
+            throws IOException {
+        URL url = new URL(this.getFull_size_url());
+        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+        int responseCode = httpConn.getResponseCode();
+
+        // always check HTTP response code first
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            String fileName = "";
+            String disposition = httpConn.getHeaderField("Content-Disposition");
+            String contentType = httpConn.getContentType();
+            int contentLength = httpConn.getContentLength();
+
+            if (disposition != null) {
+                // extracts file name from header field
+                int index = disposition.indexOf("filename=");
+                if (index > 0) {
+                    fileName = disposition.substring(index + 10,
+                            disposition.length() - 1);
+                }
+            } else {
+                // extracts file name from URL
+                fileName = this.getFull_size_url().substring(this.getFull_size_url().lastIndexOf("/") + 1,
+                        this.getFull_size_url().length());
+            }
+
+            System.out.println("Content-Type = " + contentType);
+            System.out.println("Content-Disposition = " + disposition);
+            System.out.println("Content-Length = " + contentLength);
+            System.out.println("fileName = " + fileName);
+
+            // opens input stream from the HTTP connection
+            InputStream inputStream = httpConn.getInputStream();
+            String saveFilePath = saveDir + File.separator + fileName;
+
+            // opens an output stream to save into file
+            FileOutputStream outputStream = new FileOutputStream(saveFilePath);
+
+            int bytesRead = -1;
+            byte[] buffer = new byte[BUFFER_SIZE];
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
+            outputStream.close();
+            inputStream.close();
+
+            System.out.println("File downloaded");
+        } else {
+            System.out.println("No file to download. Server replied HTTP code: " + responseCode);
+        }
+        httpConn.disconnect();
     }
 
     public int getFolder_id() {
@@ -127,10 +190,9 @@ public class FileManagerFile extends MailchimpObject {
     public void setFile_data(String file_data) {
         this.file_data = file_data;
     }
-
-
+    
     @Override
     public String toString(){
-        return "ID: " + this.getId() +" Name: " + this.getName() + " Type: " +" Width: " + this.getWidth()+"px "  + " Height: "+ this.getHeight()+"px" +" "+this.getType() + " Folder-Id: " + this.getFolder_id();
+        return "ID: " + this.getId() +" Name: " + this.getName() + " Type: " + this.getType() + " Width: " + this.getWidth()+"px "  + " Height: "+ this.getHeight()+"px" +" "+this.getType() + " Folder-Id: " + this.getFolder_id();
     }
 }

@@ -5,10 +5,10 @@
 package model.list;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
+import connection.MailChimpConnection;
 import exceptions.FileFormatException;
 import jxl.*;
 import jxl.read.biff.BiffException;
@@ -18,7 +18,6 @@ import model.list.segment.Segment;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import connection.MailchimpConnection;
 import jxl.write.Label;
 import jxl.write.Number;
 import jxl.write.WritableCellFormat;
@@ -40,10 +39,10 @@ public class MailChimpList extends MailchimpObject {
 	private String name;
 	private int membercount;
 	private Date dateCreated;
-	private MailchimpConnection connection;
+	private MailChimpConnection connection;
 	
 
-	public MailChimpList(String id, String name, int membercount, Date dateCreated, MailchimpConnection connection, JSONObject jsonRepresentation){
+	public MailChimpList(String id, String name, int membercount, Date dateCreated, MailChimpConnection connection, JSONObject jsonRepresentation){
 		super(id,jsonRepresentation);
 		setName(name);
 		setMembercount(membercount);
@@ -56,10 +55,16 @@ public class MailChimpList extends MailchimpObject {
 	 * @return
 	 * @throws Exception
 	 */
-	public ArrayList<Member> getMembers() throws Exception{
+	public ArrayList<Member> getMembers(int count) throws Exception{
 
 		ArrayList<Member> members = new ArrayList<Member>();
-		final JSONObject list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getId()+"/members"),connection.getApikey()));
+		final JSONObject list;
+		if(count != 0){
+			list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getId()+"/members?count="+count),connection.getApikey()));
+		} else {
+			list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getId()+"/members?count="+this.getMembercount()),connection.getApikey()));
+		}
+
 		final JSONArray membersArray = list.getJSONArray("members");
 
 
@@ -75,7 +80,7 @@ public class MailChimpList extends MailchimpObject {
 			while(a.hasNext()) {
 				String key = (String)a.next();
 				// loop to get the dynamic key
-				String value = (String)memberMergeTags.get(key);
+				Object value = memberMergeTags.get(key);
 				merge_fields.put(key, value);
 			}
 			Member member = new Member(memberDetail.getString("id"),this,merge_fields,memberDetail.getString("unique_email_id"), memberDetail.getString("email_address"), translateStringIntoMemberStatus(memberDetail.getString("status")),memberDetail.getString("timestamp_signup"),memberDetail.getString("ip_signup"),memberDetail.getString("timestamp_opt"),memberDetail.getString("ip_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),memberDetail.getString("last_changed"),this.getConnection(),memberDetail);
@@ -349,7 +354,7 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public void writeToExcel(String filepath,boolean show_merge) throws Exception{
-		ArrayList<Member> members = this.getMembers();
+		ArrayList<Member> members = this.getMembers(0);
 		int merge_field_count = 0;
 		WritableWorkbook workbook;
 
@@ -497,11 +502,11 @@ public class MailChimpList extends MailchimpObject {
 		this.dateCreated = dateCreated;
 	}
 	
-	public MailchimpConnection getConnection(){
+	public MailChimpConnection getConnection(){
 		return this.connection;
 	}
 	
-	public void setConnection(MailchimpConnection connection){
+	public void setConnection(MailChimpConnection connection){
 		this.connection = connection;
 	}
 	

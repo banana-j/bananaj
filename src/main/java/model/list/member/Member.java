@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 
-import connection.MailchimpConnection;
+import connection.MailChimpConnection;
 import exceptions.EmailException;
 import model.list.MailChimpList;
 import org.apache.commons.validator.EmailValidator;
@@ -44,12 +44,12 @@ public class Member extends MailchimpObject{
 	private double avg_click_rate;
 	private String last_changed;
 	private ArrayList<MemberActivity> memberActivities;
-	private MailchimpConnection connection;
+	private MailChimpConnection connection;
 
 	
 
 
-	public Member(String id, MailChimpList mailChimpList, HashMap<String, Object> merge_fields, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String ip_signup, String timestamp_opt, String ip_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailchimpConnection connection, JSONObject jsonRepresentation){
+	public Member(String id, MailChimpList mailChimpList, HashMap<String, Object> merge_fields, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String ip_signup, String timestamp_opt, String ip_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailChimpConnection connection, JSONObject jsonRepresentation){
 		//TODO Add merge field support
         super(id,jsonRepresentation);
 		setMailChimpList(mailChimpList);
@@ -292,11 +292,11 @@ public class Member extends MailchimpObject{
 		return this.memberActivities;
 	}
 
-	public MailchimpConnection getConnection() {
+	public MailChimpConnection getConnection() {
 		return connection;
 	}
 
-	public void setConnection(MailchimpConnection connection) {
+	public void setConnection(MailChimpConnection connection) {
 		this.connection = connection;
 	}
 

@@ -7,10 +7,10 @@ package model.campaign;
 import java.net.URL;
 import java.util.Date;
 
+import connection.MailChimpConnection;
 import model.list.MailChimpList;
 import org.json.JSONObject;
 
-import connection.MailchimpConnection;
 import model.MailchimpObject;
 import model.report.Click;
 import model.report.FacebookLikes;
@@ -27,7 +27,7 @@ import model.report.ReportListStats;
  */
 public class Campaign extends MailchimpObject {
 
-	private MailchimpConnection connection;
+	private MailChimpConnection connection;
 	private MailChimpList mailChimpList;
 	private String title;
 	private CampaignContent content;
@@ -36,7 +36,7 @@ public class Campaign extends MailchimpObject {
 	private CampaignStatus campaign_status;
 	
 	
-	public Campaign(String id, String title, MailChimpList mailChimpList, CampaignType campaign_type, CampaignStatus campaign_status, MailchimpConnection connection, JSONObject jsonRepresentation) {
+	public Campaign(String id, String title, MailChimpList mailChimpList, CampaignType campaign_type, CampaignStatus campaign_status, MailChimpConnection connection, JSONObject jsonRepresentation) {
 		super(id,jsonRepresentation);
 		setConnection(connection);
 		setMailChimpList(mailChimpList);
@@ -107,14 +107,14 @@ public class Campaign extends MailchimpObject {
 	/**
 	 * @return the connection
 	 */
-	public MailchimpConnection getConnection() {
+	public MailChimpConnection getConnection() {
 		return connection;
 	}
 
 	/**
 	 * @param connection the connection to set
 	 */
-	public void setConnection(MailchimpConnection connection) {
+	public void setConnection(MailChimpConnection connection) {
 		this.connection = connection;
 	}
 

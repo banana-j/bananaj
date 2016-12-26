@@ -10,7 +10,7 @@ import java.util.Date;
 	 */
 	 public class Account extends MailchimpObject{
 
-		private MailchimpConnection connection;
+		private MailChimpConnection connection;
 		private String apiKey;
 		private String account_name;
 		private String company;
@@ -23,7 +23,7 @@ import java.util.Date;
 		private Date last_login;
 		private int subscriber_count;
 
-		public Account(MailchimpConnection connection,String id, String account_name, String company, String address1, String address2, String city, String state, String zip, String country, Date last_login, int subscriber_count,JSONObject jsonrepresentation) {
+		public Account(MailChimpConnection connection, String id, String account_name, String company, String address1, String address2, String city, String state, String zip, String country, Date last_login, int subscriber_count, JSONObject jsonrepresentation) {
 			super(id, jsonrepresentation);
 			setConnection(connection);
 			setAccount_name(account_name);
@@ -43,14 +43,14 @@ import java.util.Date;
 		/**
 		 * @return the connection
 		 */
-		public MailchimpConnection getConnection() {
+		public MailChimpConnection getConnection() {
 			return connection;
 		}
 
 		/**
 		 * @param connection the connection to set
 		 */
-		public void setConnection(MailchimpConnection connection) {
+		public void setConnection(MailChimpConnection connection) {
 			this.connection = connection;
 		}
 

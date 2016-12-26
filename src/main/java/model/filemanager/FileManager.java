@@ -1,19 +1,19 @@
 package model.filemanager;
 
-import connection.MailchimpConnection;
+import connection.MailChimpConnection;
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.TimeZone;
 
 /**
  * Created by alexanderweiss on 06.02.16.
@@ -21,9 +21,9 @@ import java.util.ArrayList;
 
 public class FileManager {
 
-    private MailchimpConnection connection;
+    private MailChimpConnection connection;
 
-    public FileManager(MailchimpConnection connection){
+    public FileManager(MailChimpConnection connection){
         setConnection(connection);
     }
 
@@ -96,7 +96,8 @@ public class FileManager {
      * @throws Exception
      */
     public FileManagerFile getFileManagerFile(int id) throws Exception{
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
         // parse response
         JSONObject jsonFileManagerFile = new JSONObject(getConnection().do_Get(new URL(this.getConnection().getFILESENDPOINT()+"/"+id),connection.getApikey()));
 
@@ -169,11 +170,11 @@ public class FileManager {
         return "."+extension;
     }
 
-    public MailchimpConnection getConnection() {
+    public MailChimpConnection getConnection() {
         return connection;
     }
 
-    public void setConnection(MailchimpConnection connection) {
+    public void setConnection(MailChimpConnection connection) {
         this.connection = connection;
     }
 }
