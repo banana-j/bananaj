@@ -51,7 +51,7 @@ public class Member extends MailchimpObject{
 	public Member(String id, MailChimpList mailChimpList, HashMap<String, Object> merge_fields, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String ip_signup, String timestamp_opt, String ip_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailChimpConnection connection, JSONObject jsonRepresentation){
         super(id,jsonRepresentation);
 		setMailChimpList(mailChimpList);
-        setMerge_fields(merge_fields);
+		setMerge_fields(merge_fields);
 		setUnique_email_id(unique_email_id);
 		setEmail_address(email_address);
 		setStatus(status);

@@ -2,32 +2,31 @@
 Simple api for accessing Mailchimp - Work in progess
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://raw.githubusercontent.com/gr4h4n/bananaj/master/LICENSE.md)
-[![GitHub version](https://img.shields.io/badge/version-v1.1.0--alpha-orange.svg)](https://github.com/gr4h4n/bananaj/releases/tag/v1.1.0-alpha)
-[![GitHub version](https://img.shields.io/badge/coverage-45%25-FFEB3B.svg)](https://github.com/gr4h4n/bananaj)
+[![GitHub version](https://img.shields.io/badge/version-v1.1.2--alpha-orange.svg)](https://github.com/gr4h4n/bananaj/releases/tag/v1.1.0-alpha)
+[![GitHub version](https://img.shields.io/badge/coverage-50%25-FFEB3B.svg)](https://github.com/gr4h4n/bananaj)
 
 
 
 # Introduction
 
-bananaj provides an Java wrapper for the Mailchimp API 3.0. It is possible acces your Mailchimp data through Java. All Mailchimp objects are mapped to Java objects which can be used to write your own java program. Each Object can also be exported to json.
+bananaj provides an Java wrapper for the MailChimp API 3.0. It is possible access your MailChimp data through Java. All MailChimp objects are mapped to Java objects which can be used to write your own Java program. Each Object can also be exported to JSON.
 
 # How to use
 
 ## Add to your project 
 At this point of development this artifact is not hosted at Macen Central. This will come in a future release. To implement this artifact in your project 
-simply donwload the .jar file from [this repository](https://github.com/gr4h4n/bananaj/blob/master/bananaj-1.1.0-alpha.jar) and add it as an external library to your project. 
+simply download the .jar file from [this repository](https://github.com/gr4h4n/bananaj/blob/master/bananaj-1.1.2-alpha.jar) and add it as an external library to your project. 
 
 
 ## Initial connection
-With the MailchimpConnection object you start to connect to your account. All starts with a connection object. 
-You can get all objects from this connection. First start with getting mailChimpList informations.
+With the MailChimpConnection object you start to connect to your account. 
+You can get all objects from this connection. First start with getting information about a list.
 
 ```
-MailchimpConnection con = new MailchimpConnection("yourAPIkey");
-con.getLists(); // get all mailChimpLists in your account
+MailChimpConnection con = new MailChimpConnection("yourAPIkey");
 ```
 
-## Get mailChimpLists
+## Get a list 
 ```
 //Get all lists
 ArrayList<MailChimpList> allLists = con.getLists();
@@ -36,6 +35,8 @@ ArrayList<MailChimpList> allLists = con.getLists();
 //Get a single list
 MailChimpList yourList = con.getList("ListID");
 ```
+
+## Create a list
 
 ## Get Members
 ```
@@ -57,6 +58,7 @@ con.addTemplate("templateName", "htmlCode");
 
 
 ## Upload a file to FileManager
+MailChimp offers the opportunity to insert images and other files to your emails. To upload a file to MailChimp create a FileManager and specify the file you want to upload.
 ```
 FileManager fileManager = new FileManager(mailchimpconnection);
 
@@ -65,8 +67,14 @@ File myFile = new File("pathToYourFile");
 //Upload a file
 fileManager.upload("filename", myFile);
   
-Upload a file to a folder
+//Upload a file to a folder
 fileManager.upload("folder_id","filename", myFile);
+```
+
+## Download a file
+To download a file from the MailChimp File Manager you have to specifiy the file you want to download and the directory in which it should be saved after download. The file extension is set automatically.
+```
+fileManager.getFileManagerFile("fileID").downloadFile("./") //Download a file in the current directory
 ```
 
 ## Methods

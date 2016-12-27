@@ -11,12 +11,12 @@ public class EmailException extends Exception {
 	 */
 	private static final long serialVersionUID = -8513348757471330966L;
 
-	public EmailException() {
-		// TODO Auto-generated constructor stub
+	public EmailException()  {
+		super("Invalid email address.");
 	}
 
 	public EmailException(String message) {
-		super(message);
+		super("Invalid email address: " + message);
 		// TODO Auto-generated constructor stub
 	}
 

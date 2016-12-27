@@ -9,12 +9,13 @@ import java.net.URL;
 import java.util.*;
 
 import connection.MailChimpConnection;
+import exceptions.EmailException;
 import exceptions.FileFormatException;
 import jxl.*;
 import jxl.read.biff.BiffException;
 import model.list.mergefield.MergeField;
 import model.list.mergefield.MergeFieldOptions;
-import model.list.segment.Segment;
+import model.list.segment.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -27,6 +28,8 @@ import jxl.write.WritableWorkbook;
 import model.MailchimpObject;
 import model.list.member.Member;
 import model.list.member.MemberStatus;
+import utils.DateConverter;
+import utils.EmailValidator;
 
 
 /**
@@ -83,7 +86,7 @@ public class MailChimpList extends MailchimpObject {
 				Object value = memberMergeTags.get(key);
 				merge_fields.put(key, value);
 			}
-			Member member = new Member(memberDetail.getString("id"),this,merge_fields,memberDetail.getString("unique_email_id"), memberDetail.getString("email_address"), translateStringIntoMemberStatus(memberDetail.getString("status")),memberDetail.getString("timestamp_signup"),memberDetail.getString("ip_signup"),memberDetail.getString("timestamp_opt"),memberDetail.getString("ip_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),memberDetail.getString("last_changed"),this.getConnection(),memberDetail);
+			Member member = new Member(memberDetail.getString("id"),this,merge_fields,memberDetail.getString("unique_email_id"), memberDetail.getString("email_address"), MemberStatus.valueOf(memberDetail.getString("status").toUpperCase()),memberDetail.getString("timestamp_signup"),memberDetail.getString("ip_signup"),memberDetail.getString("timestamp_opt"),memberDetail.getString("ip_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),memberDetail.getString("last_changed"),this.getConnection(),memberDetail);
 			members.add(member);
 
 		}
@@ -112,7 +115,7 @@ public class MailChimpList extends MailchimpObject {
 			System.out.println(": "+value);
 			merge_fields.put(key, value);
 		}
-		return new Member(member.getString("id"),this,merge_fields,member.getString("unique_email_id"), member.getString("email_address"),  translateStringIntoMemberStatus(member.getString("status")),member.getString("timestamp_signup"),member.getString("ip_signup"),member.getString("timestamp_opt"),member.getString("ip_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),member.getString("last_changed"),this.getConnection(),member);
+		return new Member(member.getString("id"),this,merge_fields,member.getString("unique_email_id"), member.getString("email_address"),  MemberStatus.valueOf(member.getString("status").toUpperCase()),member.getString("timestamp_signup"),member.getString("ip_signup"),member.getString("timestamp_opt"),member.getString("ip_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),member.getString("last_changed"),this.getConnection(),member);
 	}
 	
 	/**
@@ -212,19 +215,144 @@ public class MailChimpList extends MailchimpObject {
 	}
 
 	/**
-	 * Get the segments of this list
+	 * Get all segments of this list
 	 * @return
 	 * @throws Exception
      */
-	//TODO add functionality
 	public ArrayList<Segment> getSegments() throws Exception {
         ArrayList<Segment> segments = new ArrayList<Segment>();
-        URL url = new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/segments");
-		connection.do_Get(url ,connection.getApikey());
+		JSONObject jsonSegments = new JSONObject(connection.do_Get(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/segments") ,connection.getApikey()));
 
+		final JSONArray segmentsArray = jsonSegments.getJSONArray("segments");
+
+		for (int i = 0; i<segmentsArray.length(); i++){
+			final JSONObject segmentDetail = segmentsArray.getJSONObject(i);
+			Segment segment;
+
+			//Extract options and conditions
+			if (segmentDetail.getString("type").equals(SegmentType.STATIC.getStringRepresentation())) {  //IF SEGMENT IS STATIC NO OPTION FIELD IS PROVIDED
+				segment = new Segment(
+						segmentDetail.getInt("id"),
+						segmentDetail.getString("name"),
+						segmentDetail.getString("list_id"),
+						SegmentType.valueOf(segmentDetail.getString("type").toUpperCase()),
+						DateConverter.getInstance().createDateFromISO8601(segmentDetail.getString("created_at")),
+						DateConverter.getInstance().createDateFromISO8601(segmentDetail.getString("updated_at")),
+						segmentDetail.getInt("member_count"),
+						this.getConnection(),
+						segmentDetail);
+
+			} else {
+				MatchType matchType = MatchType.valueOf(segmentDetail.getJSONObject("options").getString("match").toUpperCase());
+
+				JSONArray jsonConditions = segmentDetail.getJSONObject("options").getJSONArray("conditions");
+
+				ArrayList<Condition> conditions = new ArrayList<>();
+				for (int j = 0; j<jsonConditions.length();j++){
+					JSONObject jsonCondition = jsonConditions.getJSONObject(j);
+
+					conditions.add( new Condition.Builder()
+									.field(jsonCondition.getString("field"))
+									.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+									.value(jsonCondition.getString("value"))
+									.build());
+
+				}
+
+				segment = new Segment(
+						segmentDetail.getInt("id"),
+						segmentDetail.getString("name"),
+						segmentDetail.getString("list_id"),
+						SegmentType.valueOf(segmentDetail.getString("type").toUpperCase()),
+						DateConverter.getInstance().createDateFromISO8601(segmentDetail.getString("created_at")),
+						DateConverter.getInstance().createDateFromISO8601(segmentDetail.getString("updated_at")),
+						segmentDetail.getInt("member_count"),
+						new Options(matchType, conditions),
+						this.getConnection(),
+						segmentDetail);
+			}
+
+
+			segments.add(segment);
+		}
 
         return segments;
     }
+
+	/**
+	 * Get a specific segment of this list
+	 * @param segmentID
+	 * @return
+	 * @throws Exception
+	 */
+	public Segment getSegment(String segmentID) throws Exception {
+		JSONObject jsonSegment = new JSONObject(connection.do_Get(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/segments/"+segmentID) ,connection.getApikey()));
+
+		//Extract options and conditions
+		MatchType matchType = MatchType.valueOf(jsonSegment.getJSONObject("options").getString("match").toUpperCase());
+
+		JSONArray jsonConditions = jsonSegment.getJSONObject("options").getJSONArray("conditions");
+		ArrayList<Condition> conditions = new ArrayList<>();
+		for (int i = 0; i<jsonConditions.length();i++){
+			JSONObject jsonCondition = jsonConditions.getJSONObject(i);
+
+			conditions.add( new Condition.Builder()
+					.field(jsonCondition.getString("field"))
+					.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+					.value(jsonCondition.getString("value"))
+					.build());
+		}
+
+		Segment segment = new Segment(
+				jsonSegment.getInt("id"),
+				jsonSegment.getString("name"),
+				jsonSegment.getString("list_id"),
+				SegmentType.valueOf(jsonSegment.getString("type").toUpperCase()),
+				DateConverter.getInstance().createDateFromISO8601(jsonSegment.getString("created_at")),
+				DateConverter.getInstance().createDateFromISO8601(jsonSegment.getString("updated_at")),
+				jsonSegment.getInt("member_count"),
+				new Options(matchType,conditions),
+				this.getConnection(),
+				jsonSegment);
+		return segment;
+	}
+
+	/**
+	 * Add a segment to the list
+	 * @param name
+	 * @throws Exception
+	 */
+	public void addSegment(String name,Options option) throws Exception {
+		JSONObject segment = new JSONObject();
+		segment.put("name", name);
+
+		segment.put("options",option.getJsonRepresentation());
+		System.out.println(segment.toString());
+
+		getConnection().do_Post(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/segments"),segment.toString(),connection.getApikey());
+	}
+
+
+	/**
+	 * Add a static segment with a name and predefined emails to this list.
+	 * Every E-Mail address which is not present on the list itself will be ignored and not added to the static segment.
+	 * @param name
+	 * @param emails
+	 * @throws Exception
+	 */
+	public void addStaticSegment(String name, String [] emails) throws Exception {
+		URL url = new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/segments");
+		JSONObject segment = new JSONObject();
+		segment.put("name", name);
+		for (String email : emails){
+			if(!EmailValidator.getInstance().validate(email)){
+				throw new EmailException(email);
+			}
+		}
+		segment.put("static_segment", emails);
+		getConnection().do_Post(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/segments"),segment.toString(),connection.getApikey());
+
+	}
 
 
 	/**
@@ -448,21 +576,6 @@ public class MailChimpList extends MailchimpObject {
 		workbook.close();
 
 		System.out.println("Writing to excel - done");
-	}
-	
-	/**
-	 * Convert a string containing the type of a campaign in CompaignType enum
-	 * @param campaignType
-	 * @return
-	 */
-	private MemberStatus translateStringIntoMemberStatus(String campaignType){
-		switch(campaignType){
-		case "pending": return MemberStatus.PENDING;
-		case "subscribed": return MemberStatus.SUBSCRIBED;
-		case "unsubscribed": return MemberStatus.UNSUBSCRIBED;
-		case "cleaned":  return MemberStatus.CLEANED;
-		default:return null;
-		}
 	}
 
 	/**
