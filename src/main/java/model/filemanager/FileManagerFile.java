@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.Date;
 
 /**
+ * Class for representing one specific file manager file.
  * Created by alexanderweiss on 22.01.16.
  */
 public class FileManagerFile extends MailchimpObject {

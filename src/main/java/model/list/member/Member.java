@@ -15,13 +15,14 @@ import java.util.Map;
 import connection.MailChimpConnection;
 import exceptions.EmailException;
 import model.list.MailChimpList;
-import org.apache.commons.validator.EmailValidator;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import model.MailchimpObject;
+import utils.EmailValidator;
 
 
 /**
@@ -46,11 +47,8 @@ public class Member extends MailchimpObject{
 	private ArrayList<MemberActivity> memberActivities;
 	private MailChimpConnection connection;
 
-	
-
 
 	public Member(String id, MailChimpList mailChimpList, HashMap<String, Object> merge_fields, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String ip_signup, String timestamp_opt, String ip_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailChimpConnection connection, JSONObject jsonRepresentation){
-		//TODO Add merge field support
         super(id,jsonRepresentation);
 		setMailChimpList(mailChimpList);
         setMerge_fields(merge_fields);
@@ -103,7 +101,7 @@ public class Member extends MailchimpObject{
 	public void changeEmailAdress(String emailAdress) throws EmailException, JSONException, MalformedURLException, Exception{
 		
 		EmailValidator validator = EmailValidator.getInstance();
-		if (validator.isValid(emailAdress)) {
+		if (validator.validate(emailAdress)) {
 			String url = "https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+this.getId();
 			JSONObject updateMember = new JSONObject();
 			updateMember.put("email_adress", emailAdress);

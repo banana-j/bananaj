@@ -51,7 +51,6 @@ public class Campaign extends MailchimpObject {
 		setCampaign_status(campaign_status);
 	}
 
-
 	/**
 	 * Get the report of this campaign
 	 * @return

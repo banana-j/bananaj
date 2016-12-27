@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.TimeZone;
 
 /**
+ * Class for uploading and deleting files
  * Created by alexanderweiss on 06.02.16.
  */
 
@@ -26,7 +27,6 @@ public class FileManager {
     public FileManager(MailChimpConnection connection){
         setConnection(connection);
     }
-
 
     /**
      * Get all file manager folders in mailchimp account account
@@ -59,7 +59,6 @@ public class FileManager {
         JSONObject jsonFileManagerFolder = new JSONObject(getConnection().do_Get(new URL(getConnection().getFILEMANAGERFOLDERENDPOINT()+"/"+id),connection.getApikey()));
         return new FileManagerFolder(jsonFileManagerFolder.getInt("id"),jsonFileManagerFolder.getString("name"),jsonFileManagerFolder.getInt("file_count"),jsonFileManagerFolder.getString("created_at"), jsonFileManagerFolder.getString("created_by"),jsonFileManagerFolder,this.getConnection());
     }
-
 
     /**
      * Get all files in your account
@@ -140,8 +139,11 @@ public class FileManager {
         getConnection().do_Post(new URL(connection.getFILESENDPOINT()), upload_data.toString(),connection.getApikey());
     }
 
-
-
+    /**
+     * Delete a file with specific fileID
+     * @param fileID
+     * @throws Exception
+     */
     public void deleteFile(String fileID) throws Exception{
         connection.do_Delete(new URL(connection.getFILESENDPOINT()+"/"+fileID),connection.getApikey());
     }
@@ -157,8 +159,11 @@ public class FileManager {
         return new String(encodedBytes);
     }
 
-
-
+    /**
+     * Extract the file extension
+     * @param file
+     * @return
+     */
     private String getExtension(File file){
         String extension = "";
 

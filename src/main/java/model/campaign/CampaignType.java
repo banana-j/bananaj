@@ -4,9 +4,11 @@
  */
 package model.campaign;
 
+/**
+ * Enum for representing different campaign types
+ */
 public enum CampaignType {
 
-	
 	REGULAR("regular"), PLAINTEXT("plaintext"), ABSPLIT("absplit"), RSS("rss"), AUTOMATION("automation"), VARIATE("variate"), AUTO("auto");
 	
 	private String stringRepresentation;

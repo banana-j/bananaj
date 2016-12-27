@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.TimeZone;
 
 /**
+ * Class for representing a file manager folder.
  * Created by alexanderweiss on 22.01.16.
  */
 public class FileManagerFolder extends MailchimpObject{

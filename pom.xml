@@ -6,7 +6,7 @@
 
     <groupId>com.github.alexanderwe</groupId>
     <artifactId>bananaj</artifactId>
-    <version>1.1.1-alpha</version>
+    <version>1.1.2-alpha</version>
     <packaging>jar</packaging>
 
     <name>bananaj</name>
@@ -21,11 +21,6 @@
         </license>
     </licenses>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
 
     <developers>
         <developer>
@@ -41,18 +36,29 @@
         <url>https://github.com/alexanderwe/bananaj</url>
     </scm>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
 
     <dependencies>
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.10</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-validator</groupId>
-            <artifactId>commons-validator</artifactId>
-            <version>1.5.1</version>
         </dependency>
 
         <dependency>

@@ -293,9 +293,6 @@ public class MailChimpConnection extends Connection{
         do_Delete(new URL(CAMPAIGNFOLDERENDPOINT+"/"+folder_id), getApikey());
     }
 
-
-
-
     /**
 	 * Get all camapaigns from mailchimp account
 	 * @return Arraylist containing all campaigns
@@ -433,8 +430,6 @@ public class MailChimpConnection extends Connection{
     public void deleteTemplateFolder(String folder_id) throws Exception{
         do_Delete(new URL(TEMPLATEFOLDERENDPOINT+"/"+folder_id), getApikey());
     }
-
-
 
 	/**
 	 * Get all templates from mailchimp account
@@ -596,10 +591,10 @@ public class MailChimpConnection extends Connection{
 	private AutomationStatus translateStringIntoAutomationStatus(String automationStatus){
 
 		switch(automationStatus){
-		case "save": return AutomationStatus.SAVE;
-		case "paused": return AutomationStatus.PAUSED;
-		case "sending":  return AutomationStatus.SENDING;
-		default:return null;
+			case "save": return AutomationStatus.SAVE;
+			case "paused": return AutomationStatus.PAUSED;
+			case "sending":  return AutomationStatus.SENDING;
+			default:return null;
 		}
 	}
 
@@ -610,11 +605,12 @@ public class MailChimpConnection extends Connection{
 	 */
 	private Date createDateFromISO8601(String dateString){
 		Date date;
-		try{
+		try {
 			date = javax.xml.bind.DatatypeConverter.parseDateTime(dateString).getTime();
-		}catch(IllegalArgumentException iae){
+		} catch(IllegalArgumentException iae) {
 			date = null;
 		}
+
 		return date;
 	}
 	
@@ -781,7 +777,7 @@ public class MailChimpConnection extends Connection{
 	}
 
 	/**
-	 * Set the account, of this connection. 
+	 * Set the account of this connection.
 	 */
 	private void setAccount() throws Exception {
 		Account account;

@@ -59,11 +59,18 @@ public class CampaignContent {
 		this.html = html;
 	}
 
-
+	/**
+	 *
+	 * @return the campaign this content belongs to
+	 */
 	public Campaign getCampaign() {
 		return campaign;
 	}
 
+	/**
+	 * Set the campaign of this content
+	 * @param campaign
+	 */
 	public void setCampaign(Campaign campaign) {
 		this.campaign = campaign;
 	}
