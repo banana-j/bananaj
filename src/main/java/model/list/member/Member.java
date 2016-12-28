@@ -50,8 +50,8 @@ public class Member extends MailchimpObject{
 
 	public Member(String id, MailChimpList mailChimpList, HashMap<String, Object> merge_fields, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String ip_signup, String timestamp_opt, String ip_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailChimpConnection connection, JSONObject jsonRepresentation){
         super(id,jsonRepresentation);
-		setMailChimpList(mailChimpList);
-		setMerge_fields(merge_fields);
+		this.setMailChimpList(mailChimpList);
+		this.setMerge_fields(merge_fields);
 		setUnique_email_id(unique_email_id);
 		setEmail_address(email_address);
 		setStatus(status);
@@ -94,26 +94,26 @@ public class Member extends MailchimpObject{
 	}
 	
 	/**
-	 * Update the email adress of this memeber
-	 * @param emailAdress
+	 * Update the email Address of this memeber
+	 * @param emailAddress
 	 * @throws Exception
 	 */
-	public void changeEmailAdress(String emailAdress) throws EmailException, JSONException, MalformedURLException, Exception{
+	public void changeEmailAddress(String emailAddress) throws EmailException, JSONException, MalformedURLException, Exception{
 		
 		EmailValidator validator = EmailValidator.getInstance();
-		if (validator.validate(emailAdress)) {
+		if (validator.validate(emailAddress)) {
 			String url = "https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+this.getId();
 			JSONObject updateMember = new JSONObject();
-			updateMember.put("email_adress", emailAdress);
+			updateMember.put("email_Address", emailAddress);
             this.getConnection().do_Post(new URL("https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString(),connection.getApikey());
 
 		} else {
-		   throw new EmailException("Email adress is not valid");
+		   throw new EmailException("Email Address is not valid");
 		}
 	}
 
 	/**
-	 * Update the email adress of this memeber
+	 * Update the email Address of this memeber
 	 * @param status
 	 * @throws Exception
 	 */
@@ -138,13 +138,13 @@ public class Member extends MailchimpObject{
 		this.unique_email_id = unique_email_id;
 	}
 	/**
-	 * @return the email_adress
+	 * @return the email_Address
 	 */
 	public String getEmail_address() {
 		return email_address;
 	}
 	/**
-	 * @param email_address the email_adress to set
+	 * @param email_address the email_Address to set
 	 */
 	public void setEmail_address(String email_address) {
 		this.email_address = email_address;
@@ -197,7 +197,7 @@ public class Member extends MailchimpObject{
         }
 
 		return System.lineSeparator()+"ID: " + this.getId() + "\t"+  System.getProperty("line.separator")
-				+ "Unique email adress: " + this.getUnique_email_id() + System.getProperty("line.separator")
+				+ "Unique email Address: " + this.getUnique_email_id() + System.getProperty("line.separator")
 				+ "Email address: " + this.getEmail_address() + System.getProperty("line.separator") 
 				+ "Status: " + this.getStatus().getStringRepresentation() + System.getProperty("line.separator") 
 				+ "Sign_Up: " + this.getTimestamp_signup() + System.getProperty("line.separator")

@@ -39,6 +39,7 @@ public class Connection {
         in.close();
         return response.toString();
     }
+
     public String do_Post(URL url, String post_string, String authorization) throws Exception{
 
         HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
@@ -55,6 +56,41 @@ public class Connection {
 
         int responseCode = con.getResponseCode();
         System.out.println("\nSending 'POST' request to URL : " + url + System.lineSeparator() + "Send data: " + post_string);
+        System.out.println("Response Code : " + responseCode+"\n");
+
+        // Reading from the HTTP response body
+        Scanner httpResponseScanner = new Scanner(con.getInputStream());
+        String inputLine;
+        StringBuilder response = new StringBuilder();
+        try{
+            while ((inputLine = httpResponseScanner.nextLine()) != null) {
+                response.append(inputLine);
+            }
+        }catch (NoSuchElementException nsee){
+            System.out.println("Line not found error");
+        }
+
+        httpResponseScanner.close();
+        return response.toString();
+    }
+
+    public String do_Patch(URL url, String patch_string, String authorization) throws Exception{
+
+        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+        con.setRequestProperty("Authorization", authorization);
+        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        con.setRequestProperty("X-HTTP-Method-Override", "PATCH");
+        // Indicate that we want to write to the HTTP request body
+        con.setDoOutput(true);
+        con.setRequestMethod("POST");
+
+        // Writing the post data to the HTTP request body
+        BufferedWriter httpRequestBodyWriter = new BufferedWriter(new OutputStreamWriter(con.getOutputStream()));
+        httpRequestBodyWriter.write(patch_string);
+        httpRequestBodyWriter.close();
+
+        int responseCode = con.getResponseCode();
+        System.out.println("\nSending 'PATCH' request to URL : " + url + System.lineSeparator() + "Send data: " + patch_string);
         System.out.println("Response Code : " + responseCode+"\n");
 
         // Reading from the HTTP response body

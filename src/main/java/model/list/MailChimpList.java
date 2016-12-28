@@ -272,7 +272,6 @@ public class MailChimpList extends MailchimpObject {
 						segmentDetail);
 			}
 
-
 			segments.add(segment);
 		}
 
@@ -341,7 +340,6 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public void addStaticSegment(String name, String [] emails) throws Exception {
-		URL url = new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/segments");
 		JSONObject segment = new JSONObject();
 		segment.put("name", name);
 		for (String email : emails){
@@ -354,6 +352,14 @@ public class MailChimpList extends MailchimpObject {
 
 	}
 
+	/**
+	 * Delete a specific segment
+	 * @param segmentId
+	 * @throws Exception
+	 */
+	public void deleteSegment(String segmentId) throws Exception{
+		getConnection().do_Delete(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/segments/"+segmentId),connection.getApikey());
+	}
 
 	/**
 	 * Get a list of all merge fields of this list

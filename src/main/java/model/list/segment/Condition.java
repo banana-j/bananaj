@@ -12,33 +12,11 @@ public class Condition {
     private Operator operator;
     private String value;
 
-
-
-    public static class Builder {
-        private String field;
-        private Operator operator;
-        private String value;
-
-        public Builder field(String s) {
-            this.field = s;
-            return this;
-        }
-
-        public Builder operator(Operator op) {
-            this.operator = op;
-            return this;
-        }
-
-        public Builder value(String value) {
-            this.value = value;
-            return this;
-        }
-
-        public Condition build() {
-            return new Condition(this);
-        }
-    }
-
+    /**
+     * Used when created a Condition locally with the Builder class
+     * @see Builder
+     * @param b
+     */
     public Condition(Builder b){
         this.setOp(b.operator);
         this.setField(b.field);
@@ -85,4 +63,30 @@ public class Condition {
                 "Operator: " + this.getOp().getStringRepresentation() +  System.lineSeparator() +
                 "Value: " + this.getValue();
     }
+
+    public static class Builder {
+        private String field;
+        private Operator operator;
+        private String value;
+
+        public Builder field(String s) {
+            this.field = s;
+            return this;
+        }
+
+        public Builder operator(Operator op) {
+            this.operator = op;
+            return this;
+        }
+
+        public Builder value(String value) {
+            this.value = value;
+            return this;
+        }
+
+        public Condition build() {
+            return new Condition(this);
+        }
+    }
+
 }

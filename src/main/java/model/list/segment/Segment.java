@@ -56,6 +56,16 @@ public class Segment extends MailchimpObject {
     }
 
     /**
+     * Used when created a Segment locally with the Builder class
+     * @see Builder
+     * @param b
+     */
+    public Segment(Builder b){
+        this.name = b.name;
+        setJSONRepresentation(b.jsonRepresentation);
+    }
+
+    /**
      * Add a member to this segment, only STATIC segments allowed
      * @param member
      * @throws Exception
@@ -117,6 +127,10 @@ public class Segment extends MailchimpObject {
             throw new SegmentException();
         }
         getConnection().do_Delete(new URL(connection.getLISTENDPOINT()+"/"+this.getList_id()+"/segments/"+this.getId()+"/members/"+member.getId()),connection.getApikey());
+    }
+
+    public void update(Segment updatedSegment) throws Exception{
+        getConnection().do_Patch(new URL(connection.getLISTENDPOINT()+"/"+this.getList_id()+"/segments/"+this.getId()),updatedSegment.getJSONRepresentation().toString(),connection.getApikey());
     }
 
 
@@ -194,5 +208,20 @@ public class Segment extends MailchimpObject {
 
     public void setConnection(MailChimpConnection connection) {
         this.connection = connection;
+    }
+
+    public static class Builder {
+        private String name;
+        private JSONObject jsonRepresentation = new JSONObject();
+
+        public Builder name(String s) {
+            this.name = s;
+            jsonRepresentation.put("name", s);
+            return this;
+        }
+
+        public Segment build() {
+            return new Segment(this);
+        }
     }
 }

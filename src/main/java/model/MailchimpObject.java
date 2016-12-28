@@ -22,6 +22,10 @@ public class MailchimpObject{
 		setJSONRepresentation(jsonResponse);
 	}
 
+	public MailchimpObject () {
+
+	}
+
 	/**
 	 * @return the id of this mailchimp object (m5 hash value)
 	 */
