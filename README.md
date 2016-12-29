@@ -14,10 +14,16 @@ bananaj provides an Java wrapper for the MailChimp API 3.0. It is possible acces
 # How to use
 
 ## Add to your project 
-At this point of development this artifact is not hosted at Macen Central. This will come in a future release. To implement this artifact in your project 
-simply download the .jar file from [this repository](https://github.com/gr4h4n/bananaj/blob/master/bananaj-1.1.2-alpha.jar) and add it as an external library to your project. 
+BE AWARE THIS IS STILL AN ALPHA VERSION !
 
-
+Add this to your pom.xml to use bananaj in your project.
+```
+<dependency>
+    <groupId>com.github.alexanderwe</groupId>
+    <artifactId>bananaj</artifactId>
+    <version>1.1.3-alpha</version>
+</dependency>
+```
 ## Initial connection
 With the MailChimpConnection object you start to connect to your account. 
 You can get all objects from this connection. First start with getting information about a list.
