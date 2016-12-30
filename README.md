@@ -2,14 +2,14 @@
 Simple api for accessing Mailchimp - Work in progess
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://raw.githubusercontent.com/gr4h4n/bananaj/master/LICENSE.md)
-[![GitHub version](https://img.shields.io/badge/version-v1.1.2--alpha-orange.svg)](https://github.com/gr4h4n/bananaj/releases/tag/v1.1.0-alpha)
+[![GitHub version](https://img.shields.io/badge/version-v1.2.0--alpha-orange.svg)](https://github.com/gr4h4n/bananaj/releases/tag/v1.2.0-alpha)
 [![GitHub version](https://img.shields.io/badge/coverage-50%25-FFEB3B.svg)](https://github.com/gr4h4n/bananaj)
 
 
 
 # Introduction
 
-bananaj provides an Java wrapper for the MailChimp API 3.0. It is possible access your MailChimp data through Java. All MailChimp objects are mapped to Java objects which can be used to write your own Java program. Each Object can also be exported to JSON.
+bananaj provides an Java wrapper for the MailChimp API 3.0. It is possible access your MailChimp data through Java. 
 
 # How to use
 
@@ -24,6 +24,13 @@ Add this to your pom.xml to use bananaj in your project.
     <version>1.1.3-alpha</version>
 </dependency>
 ```
+
+## MailChimpObject class
+Most of them are immutable, to prevent asynchronous data between localhost and server. 
+When you execute methods like `object.changeName("new Name")` the local and server data is updated simultaneously.
+
+Most of the model classes can also be exported to JSON.
+
 ## Initial connection
 With the MailChimpConnection object you start to connect to your account. 
 You can get all objects from this connection. First start with getting information about a list.
@@ -31,7 +38,6 @@ You can get all objects from this connection. First start with getting informati
 ```
 MailChimpConnection con = new MailChimpConnection("yourAPIkey");
 ```
-
 ## Get a list 
 ```
 //Get all lists
@@ -84,7 +90,7 @@ fileManager.getFileManagerFile("fileID").downloadFile("./") //Download a file in
 ```
 
 ## Methods
-Every endoint supports GET, POST, and DELETE requests. So it is possible to fully control your MailChimp objects with this wrapper. 
+Every endpoint supports GET, POST, and DELETE requests. So it is possible to fully control your MailChimp objects with this wrapper. 
 
 ### Endpoints used
 
@@ -101,66 +107,71 @@ Every endoint supports GET, POST, and DELETE requests. So it is possible to full
 
 # Package structure
 ```
-├── connection
-│   ├── Account.java
-│   ├── Connection.java
-│   └── MailChimpConnection.java
-├── exceptions
-│   ├── EmailException.java
-│   └── FileFormatException.java
-└── model
-    ├── MailchimpObject.java
-    ├── automation
-    │   ├── Automation.java
-    │   └── AutomationStatus.java
-    ├── campaign
-    │   ├── Bounce.java
-    │   ├── Campaign.java
-    │   ├── CampaignContent.java
-    │   ├── CampaignDefaults.java
-    │   ├── CampaignFolder.java
-    │   ├── CampaignSettings.java
-    │   ├── CampaignStatus.java
-    │   └── CampaignType.java
-    ├── conversation
-    │   └── Conversation.java
-    ├── filemanager
-    │   ├── FileManager.java
-    │   ├── FileManagerFile.java
-    │   └── FileManagerFolder.java
-    ├── list
-    │   ├── GrowthHistory.java
-    │   ├── MailChimpList.java
-    │   ├── member
-    │   │   ├── Member.java
-    │   │   ├── MemberActivity.java
-    │   │   └── MemberStatus.java
-    │   ├── mergefield
-    │   │   ├── MergeField.java
-    │   │   └── MergeFieldOptions.java
-    │   └── segment
-    │       ├── Options.java
-    │       ├── Segment.java
-    │       └── SegmentType.java
-    ├── report
-    │   ├── Click.java
-    │   ├── FacebookLikes.java
-    │   ├── Forward.java
-    │   ├── IndustryStats.java
-    │   ├── Open.java
-    │   ├── Report.java
-    │   └── ReportListStats.java
-    └── template
-        ├── Template.java
-        ├── TemplateFolder.java
-        └── TemplateType.java
+|-- connection
+|   |-- Account.java
+|   |-- Connection.java
+|   `-- MailChimpConnection.java
+|-- exceptions
+|   |-- EmailException.java
+|   |-- FileFormatException.java
+|   `-- SegmentException.java
+|-- model
+|   |-- MailchimpObject.java
+|   |-- automation
+|   |   |-- Automation.java
+|   |   `-- AutomationStatus.java
+|   |-- campaign
+|   |   |-- Bounce.java
+|   |   |-- Campaign.java
+|   |   |-- CampaignContent.java
+|   |   |-- CampaignDefaults.java
+|   |   |-- CampaignFolder.java
+|   |   |-- CampaignSettings.java
+|   |   |-- CampaignStatus.java
+|   |   `-- CampaignType.java
+|   |-- conversation
+|   |   `-- Conversation.java
+|   |-- filemanager
+|   |   |-- FileManager.java
+|   |   |-- FileManagerFile.java
+|   |   `-- FileManagerFolder.java
+|   |-- list
+|   |   |-- GrowthHistory.java
+|   |   |-- MailChimpList.java
+|   |   |-- member
+|   |   |   |-- Member.java
+|   |   |   |-- MemberActivity.java
+|   |   |   `-- MemberStatus.java
+|   |   |-- mergefield
+|   |   |   |-- MergeField.java
+|   |   |   `-- MergeFieldOptions.java
+|   |   `-- segment
+|   |       |-- Condition.java
+|   |       |-- MatchType.java
+|   |       |-- Operator.java
+|   |       |-- Options.java
+|   |       |-- Segment.java
+|   |       `-- SegmentType.java
+|   |-- report
+|   |   |-- Click.java
+|   |   |-- FacebookLikes.java
+|   |   |-- Forward.java
+|   |   |-- IndustryStats.java
+|   |   |-- Open.java
+|   |   |-- Report.java
+|   |   `-- ReportListStats.java
+|   `-- template
+|       |-- Template.java
+|       |-- TemplateFolder.java
+|       `-- TemplateType.java
+`-- utils
+    |-- DateConverter.java
+    |-- EmailValidator.java
+    `-- FileInspector.java
 ```
 
 # To do 
-- Add artifact to Maven Central
 - Add missing edit function to the different endpoints 
-- Clean up code
-
 
 # License
 The MIT License (MIT)
