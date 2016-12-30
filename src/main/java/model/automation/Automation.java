@@ -4,6 +4,7 @@
  */
 package model.automation;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import model.list.MailChimpList;
@@ -18,48 +19,34 @@ import model.MailchimpObject;
  */
 public class Automation extends MailchimpObject {
 
-	private Date create_time;
-	private Date start_time;
+	private LocalDateTime create_time;
+	private LocalDateTime start_time;
 	private AutomationStatus status;
 	private int emails_sent;
 	private MailChimpList mailChimpList;
 		
-	public Automation(String id, Date create_time, Date start_time, AutomationStatus status, int emails_send, MailChimpList mailChimpList, JSONObject jsonRepresentation) {
+	public Automation(String id, LocalDateTime create_time, LocalDateTime start_time, AutomationStatus status, int emails_sent, MailChimpList mailChimpList, JSONObject jsonRepresentation) {
 		super(id,jsonRepresentation);
-		setCreate_time(create_time);
-		setStart_time(start_time);
-		setStatus(status);
-		setEmails_sent(emails_sent);
-		setMailChimpList(mailChimpList);
+		this.create_time = create_time;
+		this.start_time = start_time;
+		this.status = status;
+		this.emails_sent = emails_sent;
+		this.mailChimpList = mailChimpList;
 		
 	}
 
 	/**
 	 * @return the create_time
 	 */
-	public Date getCreate_time() {
+	public LocalDateTime getCreate_time() {
 		return create_time;
-	}
-	
-	/**
-	 * @param create_time the create_time to set
-	 */
-	private void setCreate_time(Date create_time) {
-		this.create_time = create_time;
 	}
 
 	/**
 	 * @return the start_time
 	 */
-	public Date getStart_time() {
+	public LocalDateTime getStart_time() {
 		return start_time;
-	}
-
-	/**
-	 * @param start_time the start_time to set
-	 */
-	private void setStart_time(Date start_time) {
-		this.start_time = start_time;
 	}
 
 	/**
@@ -70,24 +57,10 @@ public class Automation extends MailchimpObject {
 	}
 
 	/**
-	 * @param status the status to set
-	 */
-	private void setStatus(AutomationStatus status) {
-		this.status = status;
-	}
-	
-	/**
 	 * @return the emails_sent
 	 */
 	public int getEmails_sent() {
 		return emails_sent;
-	}
-
-	/**
-	 * @param emails_sent the emails_sent to set
-	 */
-	private void setEmails_sent(int emails_sent) {
-		this.emails_sent = emails_sent;
 	}
 
 	/**
@@ -96,11 +69,5 @@ public class Automation extends MailchimpObject {
 	public MailChimpList getMailChimpList() {
 		return mailChimpList;
 	}
-	
-	/**
-	 * @param mailChimpList the mailChimpList to set
-	 */
-	private void setMailChimpList(MailChimpList mailChimpList) {
-		this.mailChimpList = mailChimpList;
-	}
+
 }

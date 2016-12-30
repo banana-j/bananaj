@@ -8,13 +8,11 @@ import java.util.ArrayList;
  */
 public class MergeFieldOptions {
 
-
     private int default_country;
     private String phone_format;
     private String date_format;
     private ArrayList<String> choices;
     private int size;
-
 
     /**
      * Default constructor
@@ -23,53 +21,48 @@ public class MergeFieldOptions {
     }
 
     public MergeFieldOptions(int default_country, String phone_format, String date_format, ArrayList<String> choices, int size){
-        setDefault_country(default_country);
-        setPhone_format(phone_format);
-        setDate_format(date_format);
-        setChoices(choices);
-        setSize(size);
+        this.default_country = default_country;
+        this.phone_format = phone_format;
+        this.date_format = date_format;
+        this.choices = choices;
+        this.size = size;
     }
 
     public int getDefault_country() {
         return default_country;
     }
 
-    public void setDefault_country(int default_country) {
-        this.default_country = default_country;
-    }
-
     public String getPhone_format() {
         return phone_format;
-    }
-
-    public void setPhone_format(String phone_format) {
-        this.phone_format = phone_format;
     }
 
     public String getDate_format() {
         return date_format;
     }
 
-    public void setDate_format(String date_format) {
-        this.date_format = date_format;
-    }
-
     public ArrayList<String> getChoices() {
         return choices;
-    }
-
-    public void setChoices(ArrayList<String> choices) {
-        this.choices = choices;
     }
 
     public int getSize() {
         return size;
     }
 
+    public void setPhone_format(String phone_format) {
+        this.phone_format = phone_format;
+    }
+
+    public void setDate_format(String date_format) {
+        this.date_format = date_format;
+    }
+
+    public void setChoices(ArrayList<String> choices) {
+        this.choices = choices;
+    }
+
     public void setSize(int size) {
         this.size = size;
     }
-
 
     @Override
     public String toString(){
@@ -80,4 +73,7 @@ public class MergeFieldOptions {
                 "Size: " + this.size;
     }
 
+    public void setDefault_country(int default_country) {
+        this.default_country = default_country;
+    }
 }

@@ -5,10 +5,10 @@
 package model.campaign;
 
 import java.net.URL;
-import java.util.Date;
 
 import connection.MailChimpConnection;
 import model.list.MailChimpList;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import model.MailchimpObject;
@@ -19,6 +19,7 @@ import model.report.IndustryStats;
 import model.report.Open;
 import model.report.Report;
 import model.report.ReportListStats;
+import utils.DateConverter;
 
 /**
  * Class for representing a mailchimp campaign
@@ -31,24 +32,24 @@ public class Campaign extends MailchimpObject {
 	private MailChimpList mailChimpList;
 	private String title;
 	private CampaignContent content;
-	private String REPORTENDPOINT;
+	private static String REPORTENDPOINT;
 	private CampaignType campaign_type;
 	private CampaignStatus campaign_status;
 	
 	
 	public Campaign(String id, String title, MailChimpList mailChimpList, CampaignType campaign_type, CampaignStatus campaign_status, MailChimpConnection connection, JSONObject jsonRepresentation) {
 		super(id,jsonRepresentation);
-		setConnection(connection);
-		setMailChimpList(mailChimpList);
-		setTitle(title);
+		this.connection = connection;
+		this.mailChimpList = mailChimpList;
+		this.title = title;
+		this.REPORTENDPOINT = "https://"+this.connection.getServer()+".api.mailchimp.com/3.0/reports/"+this.getId();
+		this.campaign_type = campaign_type;
+		this.campaign_status = campaign_status;
 		try {
 			setContent();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		setREPORTENDPOINT("https://"+this.connection.getServer()+".api.mailchimp.com/3.0/reports/"+this.getId());
-		setCampaign_type(campaign_type);
-		setCampaign_status(campaign_status);
 	}
 
 	/**
@@ -70,29 +71,21 @@ public class Campaign extends MailchimpObject {
 		
 		Bounce bouncesObject = new Bounce(bounces.getInt("hard_bounces"),bounces.getInt("soft_bounces"),bounces.getInt("syntax_errors"));
 		Forward forwardsObject = new Forward(forwards.getInt("forwards_count"), forwards.getInt("forwards_opens"));
-		Date last_click;
-		try{
-			last_click = javax.xml.bind.DatatypeConverter.parseDateTime(clicks.getString("last_click")).getTime();
-		}catch(IllegalArgumentException iae){
-			last_click = null;
-		}
-    	
-		Click clicksObject = new Click(clicks.getInt("clicks_total"),clicks.getInt("unique_clicks"),clicks.getInt("unique_subscriber_clicks"),clicks.getDouble("click_rate"),last_click);
-    	Date send_time = javax.xml.bind.DatatypeConverter.parseDateTime(report.getString("send_time")).getTime();
+		Click clicksObject = new Click(clicks.getInt("clicks_total"),clicks.getInt("unique_clicks"),clicks.getInt("unique_subscriber_clicks"),clicks.getDouble("click_rate"), DateConverter.getInstance().createDateFromISO8601(clicks.getString("last_click")));
     	Open opensObject = new Open(opens.getInt("opens_total"),opens.getInt("unique_opens"), opens.getDouble("open_rate"), opens.getString("last_open"));
     	FacebookLikes facebookObject = new FacebookLikes(facebook_likes.getInt("recipient_likes"),facebook_likes.getInt("unique_likes"),facebook_likes.getInt("facebook_likes"));
     	IndustryStats industryStatsObject = new IndustryStats(industry_stats.getString("type"), industry_stats.getDouble("open_rate"),industry_stats.getDouble("click_rate"),industry_stats.getDouble("bounce_rate"),industry_stats.getDouble("unopen_rate"),industry_stats.getDouble("unsub_rate"), industry_stats.getDouble("abuse_rate"));
     	ReportListStats reportListStatsObject = new ReportListStats(report_list_stats.getDouble("sub_rate"), report_list_stats.getDouble("unsub_rate"), report_list_stats.getDouble("open_rate"), report_list_stats.getDouble("click_rate"));
     	
     	
-		return new Report(report.getString("id"), report.getString("campaign_title"),report.getInt("emails_sent"),report.getInt("abuse_reports"), report.getInt("unsubscribed"),send_time,bouncesObject,forwardsObject,clicksObject,opensObject,facebookObject,industryStatsObject,reportListStatsObject,report);	
+		return new Report(report.getString("id"), report.getString("campaign_title"),report.getInt("emails_sent"),report.getInt("abuse_reports"), report.getInt("unsubscribed"),DateConverter.getInstance().createDateFromISO8601(report.getString("send_time")),bouncesObject,forwardsObject,clicksObject,opensObject,facebookObject,industryStatsObject,reportListStatsObject,report);
 	}
 	
 	/**
 	 * Send the campaign to the mailChimpList members
 	 */
 	public void send() throws Exception{
-		getConnection().do_Post(new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/actions/send"),connection.getApikey());
+		getConnection().do_Post(new URL(connection.getCampaignendpoint()+"/"+this.getId()+"/actions/send"),connection.getApikey());
 	}
 	
 	/**
@@ -100,30 +93,14 @@ public class Campaign extends MailchimpObject {
 	 * (!Only included in mailchimp pro)
 	 */
 	public void cancelSend() throws Exception{
-		getConnection().do_Post(new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/actions/cancel-send"),connection.getApikey());
+		getConnection().do_Post(new URL(connection.getCampaignendpoint()+"/"+this.getId()+"/actions/cancel-send"),connection.getApikey());
 	}
-	
+
 	/**
 	 * @return the connection
 	 */
 	public MailChimpConnection getConnection() {
 		return connection;
-	}
-
-	/**
-	 * @param connection the connection to set
-	 */
-	public void setConnection(MailChimpConnection connection) {
-		this.connection = connection;
-	}
-
-	
-	@Override
-	public String toString(){
-		return "ID: " + this.getId() + System.lineSeparator() +
-				"Title: " +this.getTitle() + System.lineSeparator() + 
-				"Type of campaign: " + this.getCampaign_type().getStringRepresentation() +  System.lineSeparator() + 
-				"Status of campaign: " + this.getCampaign_status().getStringRepresentation() + System.lineSeparator();
 	}
 
 	/**
@@ -134,24 +111,10 @@ public class Campaign extends MailchimpObject {
 	}
 
 	/**
-	 * @param title the name to set
-	 */
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	/**
 	 * @return the REPORTSENDPOINT
 	 */
 	public String getREPORTENDPOINT() {
 		return REPORTENDPOINT;
-	}
-
-	/**
-	 * @param rEPORTSENDPOINT the rEPORTSENDPOINT to set
-	 */
-	public void setREPORTENDPOINT(String rEPORTSENDPOINT) {
-		REPORTENDPOINT = rEPORTSENDPOINT;
 	}
 
 	/**
@@ -162,13 +125,6 @@ public class Campaign extends MailchimpObject {
 	}
 
 	/**
-	 * @param campaign_type the campaign_type to set
-	 */
-	public void setCampaign_type(CampaignType campaign_type) {
-		this.campaign_type = campaign_type;
-	}
-
-	/**
 	 * @return the campaign_status
 	 */
 	public CampaignStatus getCampaign_status() {
@@ -176,24 +132,10 @@ public class Campaign extends MailchimpObject {
 	}
 
 	/**
-	 * @param campaign_status the campaign_status to set
-	 */
-	public void setCampaign_status(CampaignStatus campaign_status) {
-		this.campaign_status = campaign_status;
-	}
-
-	/**
 	 * @return the mailChimpList
 	 */
 	public MailChimpList getMailChimpList() {
 		return mailChimpList;
-	}
-
-	/**
-	 * @param mailChimpList the mailChimpList to set
-	 */
-	public void setMailChimpList(MailChimpList mailChimpList) {
-		this.mailChimpList = mailChimpList;
 	}
 
 	/**
@@ -207,7 +149,20 @@ public class Campaign extends MailchimpObject {
 	 * Set the content of this campaign
 	 */
 	private void setContent() throws Exception{
-		JSONObject content = new JSONObject(getConnection().do_Get(new URL(connection.getCAMPAIGNENDPOINT()+"/"+this.getId()+"/content"),connection.getApikey()));
-		this.content = new CampaignContent(content.getString("plain_text"), content.getString("html"), this) ;
+		JSONObject content = new JSONObject(getConnection().do_Get(new URL(connection.getCampaignendpoint()+"/"+this.getId()+"/content"),connection.getApikey()));
+		try{
+			this.content = new CampaignContent(content.getString("plain_text"), content.getString("html"), this) ;
+		} catch (JSONException jsone) { //no plain_text available
+			this.content = new CampaignContent(null, content.getString("html"), this) ;
+		}
 	}
+
+	@Override
+	public String toString(){
+		return "ID: " + this.getId() + System.lineSeparator() +
+				"Title: " +this.getTitle() + System.lineSeparator() +
+				"Type of campaign: " + this.getCampaign_type().getStringRepresentation() +  System.lineSeparator() +
+				"Status of campaign: " + this.getCampaign_status().getStringRepresentation() + System.lineSeparator();
+	}
+
 }

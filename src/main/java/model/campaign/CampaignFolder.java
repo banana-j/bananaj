@@ -15,24 +15,24 @@ public class CampaignFolder extends MailchimpObject{
 
     public CampaignFolder(String id, String name, int count, JSONObject jsonResponse) {
         super(id, jsonResponse);
-        setName(name);
-        setCount(count);
+        this.name = name;
+        this.count = count;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
+    /**
+     *
+     * @return
+     */
     public int getCount() {
         return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
     }
 
     @Override

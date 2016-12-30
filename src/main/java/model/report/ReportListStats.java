@@ -18,10 +18,10 @@ public class ReportListStats {
 	private double click_rate;
 	
 	public ReportListStats(double sub_rate, double unsub_rate, double open_rate, double click_rate) {
-		setSub_rate(sub_rate);
-		setUnsub_rate(unsub_rate);
-		setOpen_rate(open_rate);
-		setClick_rate(click_rate);
+		this.sub_rate = sub_rate;
+		this.unsub_rate = unsub_rate;
+		this.open_rate = open_rate;
+		this.click_rate = click_rate;
 	}
 
 	/**
@@ -32,24 +32,10 @@ public class ReportListStats {
 	}
 
 	/**
-	 * @param sub_rate the sub_rate to set
-	 */
-	public void setSub_rate(double sub_rate) {
-		this.sub_rate = sub_rate;
-	}
-
-	/**
 	 * @return the unsub_rate
 	 */
 	public double getUnsub_rate() {
 		return unsub_rate;
-	}
-
-	/**
-	 * @param unsub_rate the unsub_rate to set
-	 */
-	public void setUnsub_rate(double unsub_rate) {
-		this.unsub_rate = unsub_rate;
 	}
 
 	/**
@@ -60,24 +46,10 @@ public class ReportListStats {
 	}
 
 	/**
-	 * @param open_rate the open_rate to set
-	 */
-	public void setOpen_rate(double open_rate) {
-		this.open_rate = open_rate;
-	}
-
-	/**
 	 * @return the click_rate
 	 */
 	public double getClick_rate() {
 		return click_rate;
-	}
-
-	/**
-	 * @param click_rate the click_rate to set
-	 */
-	public void setClick_rate(double click_rate) {
-		this.click_rate = click_rate;
 	}
 
 }

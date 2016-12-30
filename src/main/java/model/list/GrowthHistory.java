@@ -18,16 +18,14 @@ public class GrowthHistory {
 	private int existing;
 	private int imports;
 	private int optins;
-	
-	
-	
+
 	public GrowthHistory(MailChimpList mailChimpList, String month, int existing, int imports, int optins) {
-		setMailChimpList(mailChimpList);
-		setList_id(mailChimpList.getId());
-		setMonth(month);
-		setExisting(existing);
-		setImports(imports);
-		setOptins(optins);
+		this.mailChimpList = mailChimpList;
+		this.list_id = mailChimpList.getId();
+		this.month = month;
+		this.existing = existing;
+		this.imports = imports;
+		this.optins = optins;
 	}
 	
 	/**
@@ -38,24 +36,10 @@ public class GrowthHistory {
 	}
 
 	/**
-	 * @param mailChimpList the mailChimpList to set
-	 */
-	public void setMailChimpList(MailChimpList mailChimpList) {
-		this.mailChimpList = mailChimpList;
-	}
-
-	/**
 	 * @return the list_id
 	 */
 	public String getList_id() {
 		return list_id;
-	}
-
-	/**
-	 * @param list_id the list_id to set
-	 */
-	public void setList_id(String list_id) {
-		this.list_id = list_id;
 	}
 
 	/**
@@ -66,24 +50,10 @@ public class GrowthHistory {
 	}
 
 	/**
-	 * @param month the month to set
-	 */
-	public void setMonth(String month) {
-		this.month = month;
-	}
-
-	/**
 	 * @return the existing
 	 */
 	public int getExisting() {
 		return existing;
-	}
-
-	/**
-	 * @param existing the existing to set
-	 */
-	public void setExisting(int existing) {
-		this.existing = existing;
 	}
 
 	/**
@@ -94,24 +64,10 @@ public class GrowthHistory {
 	}
 
 	/**
-	 * @param imports the imports to set
-	 */
-	public void setImports(int imports) {
-		this.imports = imports;
-	}
-
-	/**
 	 * @return the optins
 	 */
 	public int getOptins() {
 		return optins;
-	}
-
-	/**
-	 * @param optins the optins to set
-	 */
-	public void setOptins(int optins) {
-		this.optins = optins;
 	}
 
 	@Override

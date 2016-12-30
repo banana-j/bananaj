@@ -3,6 +3,7 @@ package connection;
 import model.MailchimpObject;
 import org.json.JSONObject;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -20,38 +21,30 @@ import java.util.Date;
 	private String state;
 	private String zip;
 	private String country;
-	private Date last_login;
+	private LocalDateTime last_login;
 	private int subscriber_count;
 
-	public Account(MailChimpConnection connection, String id, String account_name, String company, String address1, String address2, String city, String state, String zip, String country, Date last_login, int subscriber_count, JSONObject jsonrepresentation) {
+	public Account(MailChimpConnection connection, String id, String account_name, String company, String address1, String address2, String city, String state, String zip, String country, LocalDateTime last_login, int subscriber_count, JSONObject jsonrepresentation) {
 		super(id, jsonrepresentation);
-		setConnection(connection);
-		setAccount_name(account_name);
-		setCompany(company);
-		setAddress1(address1);
-		setAddress2(address2);
-		setCity(city);
-		setState(state);
-		setZip(zip);
-		setCountry(country);
-		setLast_login(last_login);
-		setSubscriber_count(subscriber_count);
-		setApiKey(connection.getApikey());
+		this.connection = connection;
+		this.account_name = account_name;
+		this.company = company;
+		this.address1 = address1;
+		this.address2 = address2;
+		this.city = city;
+		this.state = state;
+		this.zip = zip;
+		this.country = country;
+		this.last_login = last_login;
+		this.subscriber_count = subscriber_count;
+		this.apiKey = getApiKey();
 	}
-
 
 	/**
 	 * @return the connection
 	 */
 	public MailChimpConnection getConnection() {
 		return connection;
-	}
-
-	/**
-	 * @param connection the connection to set
-	 */
-	public void setConnection(MailChimpConnection connection) {
-		this.connection = connection;
 	}
 
 	/**
@@ -62,24 +55,10 @@ import java.util.Date;
 	}
 
 	/**
-	 * @param company the company to set
-	 */
-	public void setCompany(String company) {
-		this.company = company;
-	}
-
-	/**
 	 * @return the address1
 	 */
 	public String getAddress1() {
 		return address1;
-	}
-
-	/**
-	 * @param address1 the address1 to set
-	 */
-	public void setAddress1(String address1) {
-		this.address1 = address1;
 	}
 
 	/**
@@ -90,24 +69,10 @@ import java.util.Date;
 	}
 
 	/**
-	 * @param city the city to set
-	 */
-	public void setCity(String city) {
-		this.city = city;
-	}
-
-	/**
 	 * @return the state
 	 */
 	public String getState() {
 		return state;
-	}
-
-	/**
-	 * @param state the state to set
-	 */
-	public void setState(String state) {
-		this.state = state;
 	}
 
 	/**
@@ -117,12 +82,6 @@ import java.util.Date;
 		return zip;
 	}
 
-	/**
-	 * @param zip the zip to set
-	 */
-	public void setZip(String zip) {
-		this.zip = zip;
-	}
 
 	/**
 	 * @return the country
@@ -132,24 +91,26 @@ import java.util.Date;
 	}
 
 	/**
-	 * @param country the country to set
-	 */
-	public void setCountry(String country) {
-		this.country = country;
-	}
-
-	/**
 	 * @return the apiKey
 	 */
 	protected String getApiKey() {
 		return apiKey;
 	}
 
-	/**
-	 * @param apiKey the apiKey to set
-	 */
-	public void setApiKey(String apiKey) {
-		this.apiKey = apiKey;
+	public String getAddress2() {
+		return address2;
+	}
+
+	public LocalDateTime getLast_login() {
+	return last_login;
+}
+
+	public String getAccount_name() {
+		return account_name;
+	}
+
+	public int getSubscriber_count() {
+		return subscriber_count;
 	}
 
 	@Override
@@ -162,37 +123,5 @@ import java.util.Date;
 				this.state + System.lineSeparator() +
 				"Last Login: " + this.last_login + System.lineSeparator() +
 				"Total subscribers: " + this.subscriber_count;
-	}
-
-	public String getAddress2() {
-		return address2;
-	}
-
-	public void setAddress2(String address2) {
-		this.address2 = address2;
-	}
-
-	public Date getLast_login() {
-	return last_login;
-}
-
-	public void setLast_login(Date last_login) {
-	this.last_login = last_login;
-}
-
-	public String getAccount_name() {
-		return account_name;
-	}
-
-	public void setAccount_name(String account_name) {
-		this.account_name = account_name;
-	}
-
-	public int getSubscriber_count() {
-		return subscriber_count;
-	}
-
-	public void setSubscriber_count(int subscriber_count) {
-		this.subscriber_count = subscriber_count;
 	}
 }

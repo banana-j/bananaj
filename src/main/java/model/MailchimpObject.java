@@ -18,8 +18,8 @@ public class MailchimpObject{
 	private JSONObject jsonRepresentation;
 	
 	public MailchimpObject(String id, JSONObject jsonResponse){
-		setId(id);
-		setJSONRepresentation(jsonResponse);
+		this.id = id;
+		this.jsonRepresentation = jsonResponse;
 	}
 
 	public MailchimpObject () {
@@ -34,13 +34,6 @@ public class MailchimpObject{
 	}
 
 	/**
-	 * @param id the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	/**
 	 * @return the jsonRepresentation
 	 */
 	public JSONObject getJSONRepresentation() {
@@ -49,7 +42,7 @@ public class MailchimpObject{
 
 	/**
 	 * @param jsonRepresentation the jsonRepresentation to set
-	 * @throws JSONException 
+	 * @throws JSONException
 	 */
 	public void setJSONRepresentation(JSONObject jsonRepresentation) {
 		this.jsonRepresentation = jsonRepresentation;

@@ -50,36 +50,25 @@ public class Member extends MailchimpObject{
 
 	public Member(String id, MailChimpList mailChimpList, HashMap<String, Object> merge_fields, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String ip_signup, String timestamp_opt, String ip_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailChimpConnection connection, JSONObject jsonRepresentation){
         super(id,jsonRepresentation);
-		this.setMailChimpList(mailChimpList);
-		this.setMerge_fields(merge_fields);
-		setUnique_email_id(unique_email_id);
-		setEmail_address(email_address);
-		setStatus(status);
-		setTimestamp_signup(timestamp_signup);
-		setIp_signup(ip_signup);
-		setTimestamp_opt(timestamp_opt);
-		setIp_opt(ip_opt);
-		setAvg_open_rate(avg_open_rate);
-		setAvg_click_rate(avg_click_rate);
-		setLast_changed(last_changed);
-		setConnection(connection);
+        this.mailChimpList = mailChimpList;
+        this.merge_fields = merge_fields;
+        this.unique_email_id = unique_email_id;
+        this.email_address = email_address;
+        this.status = status;
+        this.timestamp_signup = timestamp_signup;
+        this.timestamp_opt = timestamp_opt;
+        this.ip_signup = ip_signup;
+        this.ip_opt = ip_opt;
+        this.avg_open_rate = avg_open_rate;
+        this.avg_click_rate = avg_click_rate;
+        this.last_changed = last_changed;
+        this.connection = connection;
 
 		try{
 			setMemberActivities(unique_email_id, mailChimpList.getId());
 		}catch (Exception e){
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * Update the status of a member manually
-	 * @param status
-	 * @throws Exception
-	 */
-	public void updateStatus(MemberStatus status) throws Exception{
-		JSONObject updateMember = new JSONObject();
-		updateMember.put("status", status.getStringRepresentation());
-		this.getConnection().do_Post(new URL("https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString());
 	}
 	
 	/**
@@ -90,7 +79,8 @@ public class Member extends MailchimpObject{
 	public void changeList(String listId) throws Exception{
 		JSONObject updateMember = new JSONObject();
 		updateMember.put("list_id", listId);
-        this.getConnection().do_Post(new URL("https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString());
+        this.getConnection().do_Patch(new URL("https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString(),connection.getApikey());
+		this.mailChimpList = this.getConnection().getList(listId);
 	}
 	
 	/**
@@ -102,13 +92,12 @@ public class Member extends MailchimpObject{
 		
 		EmailValidator validator = EmailValidator.getInstance();
 		if (validator.validate(emailAddress)) {
-			String url = "https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+this.getId();
 			JSONObject updateMember = new JSONObject();
 			updateMember.put("email_Address", emailAddress);
-            this.getConnection().do_Post(new URL("https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString(),connection.getApikey());
-
+            this.getConnection().do_Patch(new URL("https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString(),connection.getApikey());
+			this.email_address = emailAddress;
 		} else {
-		   throw new EmailException("Email Address is not valid");
+		   throw new EmailException(emailAddress);
 		}
 	}
 
@@ -118,11 +107,10 @@ public class Member extends MailchimpObject{
 	 * @throws Exception
 	 */
 	public void changeMemberStatus(MemberStatus status) throws Exception{
-
-		String url = "https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+this.getId();
 		JSONObject updateMember = new JSONObject();
 		updateMember.put("status", status.getStringRepresentation());
-		this.getConnection().do_Post(new URL("https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString());
+		this.getConnection().do_Patch(new URL("https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString(),connection.getApikey());
+		this.status = status;
 	}
 
 	/**
@@ -131,80 +119,33 @@ public class Member extends MailchimpObject{
 	public String getUnique_email_id() {
 		return unique_email_id;
 	}
-	/**
-	 * @param unique_email_id the unique_email_id to set
-	 */
-	public void setUnique_email_id(String unique_email_id) {
-		this.unique_email_id = unique_email_id;
-	}
+
 	/**
 	 * @return the email_Address
 	 */
 	public String getEmail_address() {
 		return email_address;
 	}
-	/**
-	 * @param email_address the email_Address to set
-	 */
-	public void setEmail_address(String email_address) {
-		this.email_address = email_address;
-	}
+
 	/**
 	 * @return the status
 	 */
 	public MemberStatus getStatus() {
 		return status;
 	}
-	/**
-	 * @param status the status to set
-	 */
-	public void setStatus(MemberStatus status) {
-		this.status = status;
-	}
+
 	/**
 	 * @return the timestamp_signup
 	 */
 	public String getTimestamp_signup() {
 		return timestamp_signup;
 	}
-	/**
-	 * @param timestamp_signup the timestamp_signup to set
-	 */
-	public void setTimestamp_signup(String timestamp_signup) {
-		this.timestamp_signup = timestamp_signup;
-	}
+
 	/**
 	 * @return the timestamp_opt
 	 */
 	public String getTimestamp_opt() {
 		return timestamp_opt;
-	}
-	/**
-	 * @param timestamp_opt the timestamp_opt to set
-	 */
-	public void setTimestamp_opt(String timestamp_opt) {
-		this.timestamp_opt = timestamp_opt;
-	}
-	
-	@Override
-	public String toString(){
-        StringBuilder stringBuilder = new StringBuilder();
-        Iterator it = getMerge_fields().entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
-            stringBuilder.append(pair.getKey()+ ": " + pair.getValue() +  "\n");
-            it.remove(); // avoids a ConcurrentModificationException
-        }
-
-		return System.lineSeparator()+"ID: " + this.getId() + "\t"+  System.getProperty("line.separator")
-				+ "Unique email Address: " + this.getUnique_email_id() + System.getProperty("line.separator")
-				+ "Email address: " + this.getEmail_address() + System.getProperty("line.separator") 
-				+ "Status: " + this.getStatus().getStringRepresentation() + System.getProperty("line.separator") 
-				+ "Sign_Up: " + this.getTimestamp_signup() + System.getProperty("line.separator")
-				+ "Opt_In: " + this.getTimestamp_opt() + System.lineSeparator()
-				+ "Last changed: " + this.getLast_changed() + System.lineSeparator()
-                + stringBuilder.toString()
-                + "_________________________________________________";
 	}
 
 	/**
@@ -214,30 +155,12 @@ public class Member extends MailchimpObject{
 		return avg_open_rate;
 	}
 
-
-	/**
-	 * @param avg_open_rate the avg_open_rate to set
-	 */
-	public void setAvg_open_rate(double avg_open_rate) {
-		this.avg_open_rate = avg_open_rate;
-	}
-
-
 	/**
 	 * @return the avg_click_rate
 	 */
 	public double getAvg_click_rate() {
 		return avg_click_rate;
 	}
-
-
-	/**
-	 * @param avg_click_rate the avg_click_rate to set
-	 */
-	public void setAvg_click_rate(double avg_click_rate) {
-		this.avg_click_rate = avg_click_rate;
-	}
-
 
 	/**
 	 * @return the listId
@@ -246,29 +169,20 @@ public class Member extends MailchimpObject{
 		return mailChimpList;
 	}
 
-
 	/**
-	 * @param mailChimpList the mailChimpList to set
-	 */
-	public void setMailChimpList(MailChimpList mailChimpList) {
-		this.mailChimpList = mailChimpList;
-	}
-
-	/**
-	 * @return the last_changed
+	 * @return the last_changed date
 	 */
 	public String getLast_changed() {
 		return last_changed;
 	}
 
 	/**
-	 * @param last_changed the last_changed to set
+	 * Set the member activities fot this specific member
+	 * @param unique_email_id
+	 * @param listID
+	 * @throws Exception
 	 */
-	public void setLast_changed(String last_changed) {
-		this.last_changed = last_changed;
-	}
-
-	public void setMemberActivities(String unique_email_id, String listID) throws Exception{
+	private void setMemberActivities(String unique_email_id, String listID) throws Exception{
 		ArrayList<MemberActivity> activities = new ArrayList<MemberActivity>();
 
 		final JSONObject activity = new JSONObject(this.getConnection().do_Get(new URL("https://"+this.mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+this.mailChimpList.getId()+"/members/"+this.getId()+"/activity"),connection.getApikey()));
@@ -276,49 +190,76 @@ public class Member extends MailchimpObject{
 
 		for (int i = 0 ; i < activityArray.length();i++)
 		{
-			final JSONObject activityDetail = activityArray.getJSONObject(i);
-			MemberActivity memberActivity = new MemberActivity(this.unique_email_id, this.mailChimpList.getId(), activityDetail.getString("action"),activityDetail.getString("timestamp"), activityDetail.getString("campaign_id"), activityDetail.getString("title"));
-			activities.add(memberActivity);
+			try{
+				final JSONObject activityDetail = activityArray.getJSONObject(i);
+				MemberActivity memberActivity = new MemberActivity(this.unique_email_id, this.mailChimpList.getId(), activityDetail.getString("action"),activityDetail.getString("timestamp"), activityDetail.getString("campaign_id"), activityDetail.getString("title"));
+				activities.add(memberActivity);
+			} catch (JSONException jsone){
+				final JSONObject activityDetail = activityArray.getJSONObject(i);
+				MemberActivity memberActivity = new MemberActivity(this.unique_email_id, this.mailChimpList.getId(), activityDetail.getString("action"),activityDetail.getString("timestamp"), activityDetail.getString("campaign_id"));
+				activities.add(memberActivity);
+			}
+
 		}
 
 		this.memberActivities = activities;
-
-
 	}
 
+	/**
+	 * @return the member activities
+	 */
 	public ArrayList<MemberActivity> getMemberActivities(){
 		return this.memberActivities;
 	}
 
+	/**
+	 * @return the MailChimp connection
+	 */
 	public MailChimpConnection getConnection() {
 		return connection;
 	}
 
-	public void setConnection(MailChimpConnection connection) {
-		this.connection = connection;
-	}
-
+	/**
+	 * @return a HashMap of all merge fields
+	 */
     public HashMap<String, Object> getMerge_fields() {
         return merge_fields;
     }
 
-    public void setMerge_fields(HashMap<String, Object> merge_fields) {
-        this.merge_fields = merge_fields;
-    }
-
+	/**
+	 * @return the sign up IP Address
+	 */
 	public String getIp_signup() {
 		return ip_signup;
 	}
 
-	public void setIp_signup(String ip_signup) {
-		this.ip_signup = ip_signup;
-	}
-
+	/**
+	 * @return the opt-in IP Address
+	 */
 	public String getIp_opt() {
 		return ip_opt;
 	}
 
-	public void setIp_opt(String ip_opt) {
-		this.ip_opt = ip_opt;
+	@Override
+	public String toString(){
+		StringBuilder stringBuilder = new StringBuilder();
+		Iterator it = getMerge_fields().entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry pair = (Map.Entry)it.next();
+			stringBuilder.append(pair.getKey()+ ": " + pair.getValue() +  "\n");
+			it.remove(); // avoids a ConcurrentModificationException
+		}
+
+		return System.lineSeparator()+"ID: " + this.getId() + "\t"+  System.getProperty("line.separator")
+				+ "Unique email Address: " + this.getUnique_email_id() + System.getProperty("line.separator")
+				+ "Email address: " + this.getEmail_address() + System.getProperty("line.separator")
+				+ "Status: " + this.getStatus().getStringRepresentation() + System.getProperty("line.separator")
+				+ "Sign_Up: " + this.getTimestamp_signup() + System.getProperty("line.separator")
+				+ "Opt_In: " + this.getTimestamp_opt() + System.lineSeparator()
+				+ "Last changed: " + this.getLast_changed() + System.lineSeparator()
+				+ stringBuilder.toString()
+				+ "_________________________________________________";
 	}
+
+
 }

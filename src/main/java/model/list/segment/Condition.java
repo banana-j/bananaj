@@ -7,7 +7,6 @@ import org.json.JSONObject;
  */
 public class Condition {
 
-
     private String field;
     private Operator operator;
     private String value;
@@ -17,35 +16,23 @@ public class Condition {
      * @see Builder
      * @param b
      */
-    public Condition(Builder b){
-        this.setOp(b.operator);
-        this.setField(b.field);
-        this.setValue(b.value);
-    }
 
+    public Condition(Builder b){
+        this.operator = b.operator;
+        this.field = b.field;
+        this.value = b.value;
+    }
 
     public String getField() {
         return field;
-    }
-
-    public void setField(String field) {
-        this.field = field;
     }
 
     public Operator getOp() {
         return operator;
     }
 
-    public void setOp(Operator operator) {
-        this.operator = operator;
-    }
-
     public String getValue() {
         return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
     public JSONObject getJsonRepresentation(){

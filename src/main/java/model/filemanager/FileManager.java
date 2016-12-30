@@ -1,19 +1,17 @@
 package model.filemanager;
 
 import connection.MailChimpConnection;
-import org.apache.commons.codec.binary.Base64;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import utils.DateConverter;
+import utils.FileInspector;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.TimeZone;
 
 /**
  * Class for uploading and deleting files
@@ -25,7 +23,7 @@ public class FileManager {
     private MailChimpConnection connection;
 
     public FileManager(MailChimpConnection connection){
-        setConnection(connection);
+       this.connection = connection;
     }
 
     /**
@@ -38,12 +36,12 @@ public class FileManager {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
-        JSONObject jsonFileManagerFolders = new JSONObject(getConnection().do_Get(new URL(getConnection().getFILEMANAGERFOLDERENDPOINT()),connection.getApikey()));
+        JSONObject jsonFileManagerFolders = new JSONObject(getConnection().do_Get(new URL(getConnection().getFilemanagerfolderendpoint()),connection.getApikey()));
         JSONArray folderArray = jsonFileManagerFolders.getJSONArray("folders");
         for( int i = 0; i< folderArray.length();i++)
         {
             JSONObject folderDetail = folderArray.getJSONObject(i);
-            FileManagerFolder folder = new FileManagerFolder(folderDetail.getInt("id"),folderDetail.getString("name"),folderDetail.getInt("file_count"),folderDetail.getString("created_at"), folderDetail.getString("created_by"),folderDetail,this.getConnection());
+            FileManagerFolder folder = new FileManagerFolder(folderDetail.getInt("id"),folderDetail.getString("name"),folderDetail.getInt("file_count"),DateConverter.getInstance().createDateFromISO8601(folderDetail.getString("created_at")), folderDetail.getString("created_by"),folderDetail,this.getConnection());
             fileManagerFolders.add(folder);
         }
         return fileManagerFolders;
@@ -56,8 +54,8 @@ public class FileManager {
      */
     public FileManagerFolder getFileManagerFolder(int id) throws Exception{
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        JSONObject jsonFileManagerFolder = new JSONObject(getConnection().do_Get(new URL(getConnection().getFILEMANAGERFOLDERENDPOINT()+"/"+id),connection.getApikey()));
-        return new FileManagerFolder(jsonFileManagerFolder.getInt("id"),jsonFileManagerFolder.getString("name"),jsonFileManagerFolder.getInt("file_count"),jsonFileManagerFolder.getString("created_at"), jsonFileManagerFolder.getString("created_by"),jsonFileManagerFolder,this.getConnection());
+        JSONObject jsonFileManagerFolder = new JSONObject(getConnection().do_Get(new URL(getConnection().getFilemanagerfolderendpoint()+"/"+id),connection.getApikey()));
+        return new FileManagerFolder(jsonFileManagerFolder.getInt("id"),jsonFileManagerFolder.getString("name"),jsonFileManagerFolder.getInt("file_count"),DateConverter.getInstance().createDateFromISO8601(jsonFileManagerFolder.getString("created_at")), jsonFileManagerFolder.getString("created_by"),jsonFileManagerFolder,this.getConnection());
     }
 
     /**
@@ -68,18 +66,18 @@ public class FileManager {
     public ArrayList<FileManagerFile> getFileManagerFiles() throws Exception{
         ArrayList<FileManagerFile> files = new ArrayList<FileManagerFile>();
 
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
         // parse response
-        JSONObject jsonFileManagerFiles = new JSONObject(getConnection().do_Get(new URL(this.getConnection().getFILESENDPOINT()),connection.getApikey()));
+        JSONObject jsonFileManagerFiles = new JSONObject(getConnection().do_Get(new URL(this.getConnection().getFilesendpoint()),connection.getApikey()));
         JSONArray filesArray = jsonFileManagerFiles.getJSONArray("files");
         for( int i = 0; i< filesArray.length();i++)
         {
             FileManagerFile file = null;
             JSONObject fileDetail = filesArray.getJSONObject(i);
             if(fileDetail.getString("type").equals("image")){
-                file = new FileManagerFile(fileDetail.getInt("id"),fileDetail.getInt("folder_id"),fileDetail.getString("type"),fileDetail.getString("name"),fileDetail.getString("full_size_url"),fileDetail.getInt("size"),formatter.parse(fileDetail.getString("created_at")),fileDetail.getString("created_by"), fileDetail.getInt("width"), fileDetail.getInt("height"), fileDetail);
+                file = new FileManagerFile(fileDetail.getInt("id"),fileDetail.getInt("folder_id"),fileDetail.getString("type"),fileDetail.getString("name"),fileDetail.getString("full_size_url"),fileDetail.getInt("size"), DateConverter.getInstance().createDateFromISO8601(fileDetail.getString("created_at")),fileDetail.getString("created_by"), fileDetail.getInt("width"), fileDetail.getInt("height"), this.getConnection(), fileDetail);
             }else{
-                file = new FileManagerFile(fileDetail.getInt("id"),fileDetail.getInt("folder_id"),fileDetail.getString("type"),fileDetail.getString("name"),fileDetail.getString("full_size_url"),fileDetail.getInt("size"),formatter.parse(fileDetail.getString("created_at")),fileDetail.getString("created_by"), fileDetail);
+                file = new FileManagerFile(fileDetail.getInt("id"),fileDetail.getInt("folder_id"),fileDetail.getString("type"),fileDetail.getString("name"),fileDetail.getString("full_size_url"),fileDetail.getInt("size"),DateConverter.getInstance().createDateFromISO8601(fileDetail.getString("created_at")),fileDetail.getString("created_by"), this.getConnection(),fileDetail);
 
             }
 
@@ -88,22 +86,19 @@ public class FileManager {
         return files;
     }
 
-
     /**
      * Get all files in your account
      * @return
      * @throws Exception
      */
     public FileManagerFile getFileManagerFile(int id) throws Exception{
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
         // parse response
-        JSONObject jsonFileManagerFile = new JSONObject(getConnection().do_Get(new URL(this.getConnection().getFILESENDPOINT()+"/"+id),connection.getApikey()));
+        JSONObject jsonFileManagerFile = new JSONObject(getConnection().do_Get(new URL(this.getConnection().getFilesendpoint()+"/"+id),connection.getApikey()));
 
         if(jsonFileManagerFile.getString("type").equals("image")){
-            return new FileManagerFile(jsonFileManagerFile.getInt("id"),jsonFileManagerFile.getInt("folder_id"),jsonFileManagerFile.getString("type"),jsonFileManagerFile.getString("name"),jsonFileManagerFile.getString("full_size_url"),jsonFileManagerFile.getInt("size"),formatter.parse(jsonFileManagerFile.getString("created_at")),jsonFileManagerFile.getString("created_by"), jsonFileManagerFile.getInt("width"), jsonFileManagerFile.getInt("height"), jsonFileManagerFile);
+            return new FileManagerFile(jsonFileManagerFile.getInt("id"),jsonFileManagerFile.getInt("folder_id"),jsonFileManagerFile.getString("type"),jsonFileManagerFile.getString("name"),jsonFileManagerFile.getString("full_size_url"),jsonFileManagerFile.getInt("size"),DateConverter.getInstance().createDateFromISO8601(jsonFileManagerFile.getString("created_at")),jsonFileManagerFile.getString("created_by"), jsonFileManagerFile.getInt("width"), jsonFileManagerFile.getInt("height"), this.getConnection(),jsonFileManagerFile);
         }else{
-            return new FileManagerFile(jsonFileManagerFile.getInt("id"),jsonFileManagerFile.getInt("folder_id"),jsonFileManagerFile.getString("type"),jsonFileManagerFile.getString("name"),jsonFileManagerFile.getString("full_size_url"),jsonFileManagerFile.getInt("size"),formatter.parse(jsonFileManagerFile.getString("created_at")),jsonFileManagerFile.getString("created_by"), jsonFileManagerFile);
+            return new FileManagerFile(jsonFileManagerFile.getInt("id"),jsonFileManagerFile.getInt("folder_id"),jsonFileManagerFile.getString("type"),jsonFileManagerFile.getString("name"),jsonFileManagerFile.getString("full_size_url"),jsonFileManagerFile.getInt("size"),DateConverter.getInstance().createDateFromISO8601(jsonFileManagerFile.getString("created_at")),jsonFileManagerFile.getString("created_by"), this.getConnection(), jsonFileManagerFile);
         }
     }
 
@@ -119,9 +114,9 @@ public class FileManager {
     public void upload(int folder_id,String filename, File file) throws JSONException, MalformedURLException, Exception{
         JSONObject upload_data  = new JSONObject();
         upload_data.put("folder_id", folder_id);
-        upload_data.put("name", filename+getExtension(file));
-        upload_data.put("file_data",encodeFileToBase64Binary(file));
-        getConnection().do_Post(new URL(connection.getFILESENDPOINT()), upload_data.toString(),connection.getApikey());
+        upload_data.put("name", filename+FileInspector.getInstance().getExtension(file));
+        upload_data.put("file_data",FileInspector.getInstance().encodeFileToBase64Binary(file));
+        getConnection().do_Post(new URL(connection.getFilesendpoint()), upload_data.toString(),connection.getApikey());
     }
 
     /**
@@ -134,9 +129,9 @@ public class FileManager {
      */
     public void upload(String filename, File file) throws JSONException, MalformedURLException, Exception{
         JSONObject upload_data  = new JSONObject();
-        upload_data.put("name", filename+getExtension(file));
-        upload_data.put("file_data",encodeFileToBase64Binary(file));
-        getConnection().do_Post(new URL(connection.getFILESENDPOINT()), upload_data.toString(),connection.getApikey());
+        upload_data.put("name", filename+ FileInspector.getInstance().getExtension(file));
+        upload_data.put("file_data",FileInspector.getInstance().encodeFileToBase64Binary(file));
+        getConnection().do_Post(new URL(connection.getFilesendpoint()), upload_data.toString(),connection.getApikey());
     }
 
     /**
@@ -145,41 +140,11 @@ public class FileManager {
      * @throws Exception
      */
     public void deleteFile(String fileID) throws Exception{
-        connection.do_Delete(new URL(connection.getFILESENDPOINT()+"/"+fileID),connection.getApikey());
-    }
-
-    private String encodeFileToBase64Binary(File file){
-        byte[] encodedBytes = null;
-        try {
-            encodedBytes = Base64.encodeBase64(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return new String(encodedBytes);
-    }
-
-    /**
-     * Extract the file extension
-     * @param file
-     * @return
-     */
-    private String getExtension(File file){
-        String extension = "";
-
-        int i = file.getName().lastIndexOf('.');
-        if (i >= 0) {
-            extension = file.getName().substring(i+1);
-        }
-
-        return "."+extension;
+        connection.do_Delete(new URL(connection.getFilesendpoint()+"/"+fileID),connection.getApikey());
     }
 
     public MailChimpConnection getConnection() {
         return connection;
     }
 
-    public void setConnection(MailChimpConnection connection) {
-        this.connection = connection;
-    }
 }

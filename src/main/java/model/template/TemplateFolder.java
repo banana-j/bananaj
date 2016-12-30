@@ -15,24 +15,16 @@ public class TemplateFolder extends MailchimpObject{
 
     public TemplateFolder(String id, String name, int count, JSONObject jsonResponse) {
         super(id, jsonResponse);
-        setName(name);
-        setCount(count);
+        this.name = name;
+        this.count = count;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public int getCount() {
         return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
     }
 
     @Override

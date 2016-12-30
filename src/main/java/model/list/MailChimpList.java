@@ -6,6 +6,7 @@ package model.list;
 
 import java.io.*;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import connection.MailChimpConnection;
@@ -30,6 +31,7 @@ import model.list.member.Member;
 import model.list.member.MemberStatus;
 import utils.DateConverter;
 import utils.EmailValidator;
+import utils.FileInspector;
 
 
 /**
@@ -41,31 +43,33 @@ public class MailChimpList extends MailchimpObject {
 
 	private String name;
 	private int membercount;
-	private Date dateCreated;
+	private LocalDateTime dateCreated;
 	private MailChimpConnection connection;
 	
 
-	public MailChimpList(String id, String name, int membercount, Date dateCreated, MailChimpConnection connection, JSONObject jsonRepresentation){
+	public MailChimpList(String id, String name, int membercount, LocalDateTime dateCreated, MailChimpConnection connection, JSONObject jsonRepresentation){
 		super(id,jsonRepresentation);
-		setName(name);
-		setMembercount(membercount);
-		setDateCreated(dateCreated);
-		setConnection(connection);
+		this.name = name;
+		this.membercount = membercount;
+		this.dateCreated = dateCreated;
+		this.connection = connection;
 	}
 
 	/**
-	 * Get all members in this list, with all statuses
+	 * Get all members in this list
+	 * @param count x first members
+	 * @param offset skip x first members
 	 * @return
 	 * @throws Exception
 	 */
-	public ArrayList<Member> getMembers(int count) throws Exception{
+	public ArrayList<Member> getMembers(int count, int offset) throws Exception{
 
 		ArrayList<Member> members = new ArrayList<Member>();
 		final JSONObject list;
 		if(count != 0){
-			list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getId()+"/members?count="+count),connection.getApikey()));
+			list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getId()+"/members?count="+count+"&offset="+offset),connection.getApikey()));
 		} else {
-			list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getId()+"/members?count="+this.getMembercount()),connection.getApikey()));
+			list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getId()+"/members?count="+this.getMembercount()+"&offset="+offset),connection.getApikey()));
 		}
 
 		final JSONArray membersArray = list.getJSONArray("members");
@@ -128,7 +132,8 @@ public class MailChimpList extends MailchimpObject {
 		member.put("status", status.getStringRepresentation());
 		member.put("email_address", emailAdress);
 
-        getConnection().do_Post(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/members"),member.toString(),connection.getApikey());
+        getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getId()+"/members"),member.toString(),connection.getApikey());
+        this.membercount++;
 	}
 	
 	/**
@@ -139,7 +144,7 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public void addMember(MemberStatus status, String emailAdress, HashMap<String, Object> merge_fields_values) throws Exception{
-		URL url = new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/members");			
+		URL url = new URL(connection.getListendpoint()+"/"+this.getId()+"/members");
 		
 		JSONObject member = new JSONObject();
 		JSONObject merge_fields = new JSONObject();
@@ -154,12 +159,13 @@ public class MailChimpList extends MailchimpObject {
 		member.put("status", status.getStringRepresentation());
 		member.put("email_address", emailAdress);
 		member.put("merge_fields", merge_fields);
-        getConnection().do_Post(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/members"),member.toString(),connection.getApikey());
+        getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getId()+"/members"),member.toString(),connection.getApikey());
+		this.membercount++;
 	}
 
 	public void importMembersFromFile(File file) throws FileFormatException, IOException{
 		//TODO fully implement read from xls
-		String extension = getExtension(file);
+		String extension = FileInspector.getInstance().getExtension(file);
 
 		if(extension.equals(".xls")|| extension.equals(".xlsx")){
 			Workbook w;
@@ -198,7 +204,8 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public void deleteMemberFromList(String memberID) throws Exception{
-		getConnection().do_Delete(new URL(connection.getLISTENDPOINT()+getId()+"/members/"+memberID),connection.getApikey());
+		getConnection().do_Delete(new URL(connection.getListendpoint()+getId()+"/members/"+memberID),connection.getApikey());
+		this.membercount--;
 	}
 	
 	/**
@@ -207,7 +214,7 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public GrowthHistory getGrowthHistory() throws Exception{
-		final JSONObject growth_history = new JSONObject(getConnection().do_Get(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/growth-history"),connection.getApikey()));
+		final JSONObject growth_history = new JSONObject(getConnection().do_Get(new URL(connection.getListendpoint()+"/"+this.getId()+"/growth-history"),connection.getApikey()));
     	final JSONArray history = growth_history.getJSONArray("history");
     	final JSONObject historyDetail = history.getJSONObject(0);
     	
@@ -221,7 +228,7 @@ public class MailChimpList extends MailchimpObject {
      */
 	public ArrayList<Segment> getSegments() throws Exception {
         ArrayList<Segment> segments = new ArrayList<Segment>();
-		JSONObject jsonSegments = new JSONObject(connection.do_Get(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/segments") ,connection.getApikey()));
+		JSONObject jsonSegments = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+this.getId()+"/segments") ,connection.getApikey()));
 
 		final JSONArray segmentsArray = jsonSegments.getJSONArray("segments");
 
@@ -285,7 +292,7 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public Segment getSegment(String segmentID) throws Exception {
-		JSONObject jsonSegment = new JSONObject(connection.do_Get(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/segments/"+segmentID) ,connection.getApikey()));
+		JSONObject jsonSegment = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+this.getId()+"/segments/"+segmentID) ,connection.getApikey()));
 
 		//Extract options and conditions
 		MatchType matchType = MatchType.valueOf(jsonSegment.getJSONObject("options").getString("match").toUpperCase());
@@ -328,7 +335,7 @@ public class MailChimpList extends MailchimpObject {
 		segment.put("options",option.getJsonRepresentation());
 		System.out.println(segment.toString());
 
-		getConnection().do_Post(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/segments"),segment.toString(),connection.getApikey());
+		getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getId()+"/segments"),segment.toString(),connection.getApikey());
 	}
 
 
@@ -348,7 +355,7 @@ public class MailChimpList extends MailchimpObject {
 			}
 		}
 		segment.put("static_segment", emails);
-		getConnection().do_Post(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/segments"),segment.toString(),connection.getApikey());
+		getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getId()+"/segments"),segment.toString(),connection.getApikey());
 
 	}
 
@@ -358,7 +365,7 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public void deleteSegment(String segmentId) throws Exception{
-		getConnection().do_Delete(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/segments/"+segmentId),connection.getApikey());
+		getConnection().do_Delete(new URL(connection.getListendpoint()+"/"+this.getId()+"/segments/"+segmentId),connection.getApikey());
 	}
 
 	/**
@@ -368,7 +375,7 @@ public class MailChimpList extends MailchimpObject {
 	 */
 	public ArrayList<MergeField> getMergeFields() throws Exception {
 		ArrayList<MergeField> mergeFields = new ArrayList<MergeField>();
-		URL url = new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/merge-fields");
+		URL url = new URL(connection.getListendpoint()+"/"+this.getId()+"/merge-fields");
 
 		JSONObject merge_fields = new JSONObject(connection.do_Get(url,connection.getApikey()));
 		final JSONArray mergeFieldsArray = merge_fields.getJSONArray("merge_fields");
@@ -427,7 +434,7 @@ public class MailChimpList extends MailchimpObject {
 	 * @return
 	 */
 	public MergeField getMergeField(String mergeFieldID) throws Exception{
-		URL url = new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/merge-fields/"+mergeFieldID);
+		URL url = new URL(connection.getListendpoint()+"/"+this.getId()+"/merge-fields/"+mergeFieldID);
 		JSONObject mergeFieldJSON = new JSONObject(connection.do_Get(url,connection.getApikey()));
 
 		final JSONObject mergeFieldOptionsJSON = mergeFieldJSON.getJSONObject("options");
@@ -480,15 +487,15 @@ public class MailChimpList extends MailchimpObject {
 
 
 	public void deleteMergeField(String mergeFieldID) throws Exception{
-		connection.do_Delete(new URL(connection.getLISTENDPOINT()+"/"+this.getId()+"/merge-fields/"+mergeFieldID),connection.getApikey());
+		connection.do_Delete(new URL(connection.getListendpoint()+"/"+this.getId()+"/merge-fields/"+mergeFieldID),connection.getApikey());
 	}
 	/**
-	 * Writes the data of this list to an excel file in current directory. Define wether to show merge fields or not
+	 * Writes the data of this list to an excel file in current directory. Define whether to show merge fields or not
 	 * @param show_merge
 	 * @throws Exception
 	 */
 	public void writeToExcel(String filepath,boolean show_merge) throws Exception{
-		ArrayList<Member> members = this.getMembers(0);
+		ArrayList<Member> members = this.getMembers(0,0);
 		int merge_field_count = 0;
 		WritableWorkbook workbook;
 
@@ -590,60 +597,34 @@ public class MailChimpList extends MailchimpObject {
 	public String getName() {
 		return name;
 	}
-	/**
-	 * @param name the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+
 	/**
 	 * @return the membercount
 	 */
 	public int getMembercount() {
 		return membercount;
 	}
-	/**
-	 * @param membercount the membercount to set
-	 */
-	public void setMembercount(int membercount) {
-		this.membercount = membercount;
-	}
+
 	/**
 	 * @return the dateCreated
 	 */
-	public Date getDateCreated() {
+	public LocalDateTime getDateCreated() {
 		return dateCreated;
 	}
+
 	/**
-	 * @param dateCreated the dateCreated to set
+	 *
+	 * @return the MailChimp connection
 	 */
-	public void setDateCreated(Date dateCreated) {
-		this.dateCreated = dateCreated;
-	}
-	
 	public MailChimpConnection getConnection(){
 		return this.connection;
 	}
-	
-	public void setConnection(MailChimpConnection connection){
-		this.connection = connection;
-	}
-	
+
 	@Override
 	public String toString(){
 		return this.getId() + " " + this.name + " " + this.membercount + System.lineSeparator() +
 				"Date created: " + this.getDateCreated() + System.lineSeparator();
 	}
 
-	private String getExtension(File file){
-		String extension = "";
-
-		int i = file.getName().lastIndexOf('.');
-		if (i >= 0) {
-			extension = file.getName().substring(i+1);
-		}
-
-		return "."+extension;
-	}
 
 }

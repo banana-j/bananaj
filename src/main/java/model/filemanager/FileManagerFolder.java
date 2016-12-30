@@ -4,9 +4,11 @@ import connection.MailChimpConnection;
 import model.MailchimpObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import utils.DateConverter;
 
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.TimeZone;
 
@@ -20,7 +22,7 @@ public class FileManagerFolder extends MailchimpObject{
     private int id;
     private String name;
     private int file_count;
-    private String createdAt;
+    private LocalDateTime createdAt;
     private String createdBy;
     private ArrayList<FileManagerFile> files;
     private JSONObject jsonData;
@@ -28,13 +30,13 @@ public class FileManagerFolder extends MailchimpObject{
 
 
 
-    public FileManagerFolder(int id, String name, int file_count, String createdAt, String createdBy, JSONObject jsonData, MailChimpConnection connection){
+    public FileManagerFolder(int id, String name, int file_count, LocalDateTime createdAt, String createdBy, JSONObject jsonData, MailChimpConnection connection){
         super(String.valueOf(id),jsonData);
-        setName(name);
-        setFile_count(file_count);
-        setCreatedAt(createdAt);
-        setCreatedBy(createdBy);
-        setConnection(connection);
+        this.name = name;
+        this.file_count = file_count;
+        this.createdAt = createdAt;
+        this.createdBy = createdBy;
+        this.connection = connection;
         try{
             setFiles();
         }catch(Exception e){
@@ -42,36 +44,28 @@ public class FileManagerFolder extends MailchimpObject{
         }
     }
 
-    public String getName() {
-        return name;
+    public void changeName(String name) throws Exception{
+        JSONObject changedFolder  = new JSONObject();
+        changedFolder.put("name", name);
+        this.connection.do_Patch(new URL(this.getConnection().getFilemanagerfolderendpoint()+"/"+this.getId()), changedFolder.toString(), this.getConnection().getApikey());
+
     }
 
-    public void setName(String name) {
-        this.name = name;
+
+    public String getName() {
+        return name;
     }
 
     public int getFile_count() {
         return file_count;
     }
 
-    public void setFile_count(int file_count) {
-        this.file_count = file_count;
-    }
-
-    public String getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
     }
 
     public String getCreatedBy() {
         return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
     }
 
     public ArrayList<FileManagerFile> getFiles() {
@@ -84,16 +78,16 @@ public class FileManagerFolder extends MailchimpObject{
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
         // parse response
-        JSONObject jsonFileManagerFiles = new JSONObject(getConnection().do_Get(new URL(connection.getFILESENDPOINT()),connection.getApikey()));
+        JSONObject jsonFileManagerFiles = new JSONObject(getConnection().do_Get(new URL(connection.getFilesendpoint()),connection.getApikey()));
         JSONArray filesArray = jsonFileManagerFiles.getJSONArray("files");
         for( int i = 0; i< filesArray.length();i++)
         {
             FileManagerFile file = null;
             JSONObject fileDetail = filesArray.getJSONObject(i);
             if(fileDetail.getString("type").equals("image")){
-                file = new FileManagerFile(fileDetail.getInt("id"),fileDetail.getInt("folder_id"),fileDetail.getString("type"),fileDetail.getString("name"),fileDetail.getString("full_size_url"),fileDetail.getInt("size"),formatter.parse(fileDetail.getString("created_at")),fileDetail.getString("created_by"), fileDetail.getInt("width"), fileDetail.getInt("height"), fileDetail);
+                file = new FileManagerFile(fileDetail.getInt("id"),fileDetail.getInt("folder_id"),fileDetail.getString("type"),fileDetail.getString("name"),fileDetail.getString("full_size_url"),fileDetail.getInt("size"), DateConverter.getInstance().createDateFromISO8601(fileDetail.getString("created_at")),fileDetail.getString("created_by"), fileDetail.getInt("width"), fileDetail.getInt("height"), this.getConnection(), fileDetail);
             }else{
-                file = new FileManagerFile(fileDetail.getInt("id"),fileDetail.getInt("folder_id"),fileDetail.getString("type"),fileDetail.getString("name"),fileDetail.getString("full_size_url"),fileDetail.getInt("size"),formatter.parse(fileDetail.getString("created_at")),fileDetail.getString("created_by"), fileDetail);
+                file = new FileManagerFile(fileDetail.getInt("id"),fileDetail.getInt("folder_id"),fileDetail.getString("type"),fileDetail.getString("name"),fileDetail.getString("full_size_url"),fileDetail.getInt("size"),DateConverter.getInstance().createDateFromISO8601(fileDetail.getString("created_at")),fileDetail.getString("created_by"), this.getConnection(),fileDetail);
 
             }
 
@@ -118,17 +112,10 @@ public class FileManagerFolder extends MailchimpObject{
         return jsonData;
     }
 
-    public void setJsonData(JSONObject jsonData) {
-        this.jsonData = jsonData;
-    }
-
     public MailChimpConnection getConnection() {
         return connection;
     }
 
-    public void setConnection(MailChimpConnection connection) {
-        this.connection = connection;
-    }
 
 
     @Override

@@ -2,6 +2,9 @@ package utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,7 +16,6 @@ import java.util.regex.Pattern;
 public class DateConverter {
 
     private static DateConverter instance = null;
-    private static final String emailRegex  = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$"; // RFC 5322 Internet Message Format characters allowed
 
     protected DateConverter () {
 
@@ -31,31 +33,17 @@ public class DateConverter {
      * @param dateString
      * @return Date
      */
-    public Date createDateFromISO8601(String dateString){
-        Date date;
-        try {
-            date = javax.xml.bind.DatatypeConverter.parseDateTime(dateString).getTime();
-        } catch(IllegalArgumentException iae) {
-            date = null;
-        }
-
-        return date;
+    public LocalDateTime createDateFromISO8601(String dateString){
+        ZonedDateTime zdt = ZonedDateTime.parse(dateString);
+        return zdt.toLocalDateTime();
     }
 
     /* Convert a date formatted in IS8601 to a normal java date
      * @param dateString
      * @return Date
      */
-    public Date createDateFromNormal(String dateString){
-        Date date;
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-        try {
-            date = df.parse(dateString);
-        } catch (ParseException e) {
-            throw new RuntimeException("Failed to parse date: ", e);
-        }
-
-        return date;
+    public LocalDateTime createDateFromNormal(String dateString) {
+        String formatIn = "yyyy-MM-dd HH:mm:ss";
+        return LocalDateTime.parse(dateString, DateTimeFormatter.ofPattern(formatIn));
     }
 }

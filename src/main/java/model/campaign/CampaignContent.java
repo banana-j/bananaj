@@ -15,9 +15,9 @@ public class CampaignContent {
 	private String html;
 	
 	protected CampaignContent(String plain_text, String html, Campaign campaign) {
-		setCampaign(campaign);
-		setPlain_text(plain_text);
-		setHtml(html);
+		this.campaign = campaign;
+		this.plain_text = plain_text;
+		this.html = html;
 	}
 
 	/**
@@ -28,7 +28,8 @@ public class CampaignContent {
 	public void changeHTMLContent(String htmlContent) throws Exception{
 		JSONObject content = new JSONObject();
 		content.put("html", htmlContent);
-		getCampaign().getConnection().do_Post(new URL(getCampaign().getConnection().getCAMPAIGNENDPOINT()+"/"+this.getCampaign().getId()+"content"),content.toString());
+		getCampaign().getConnection().do_Post(new URL(getCampaign().getConnection().getCampaignendpoint()+"/"+this.getCampaign().getId()+"content"),content.toString());
+		this.html = htmlContent;
 	}
 
 	/**
@@ -39,24 +40,10 @@ public class CampaignContent {
 	}
 
 	/**
-	 * @param plain_text the plain_text to set
-	 */
-	public void setPlain_text(String plain_text) {
-		this.plain_text = plain_text;
-	}
-
-	/**
 	 * @return the html
 	 */
 	public String getHtml() {
 		return html;
-	}
-
-	/**
-	 * @param html the html to set
-	 */
-	public void setHtml(String html) {
-		this.html = html;
 	}
 
 	/**
@@ -67,11 +54,4 @@ public class CampaignContent {
 		return campaign;
 	}
 
-	/**
-	 * Set the campaign of this content
-	 * @param campaign
-	 */
-	public void setCampaign(Campaign campaign) {
-		this.campaign = campaign;
-	}
 }
