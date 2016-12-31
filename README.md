@@ -14,19 +14,19 @@ bananaj provides an Java wrapper for the MailChimp API 3.0. It is possible acces
 # How to use
 
 ## Add to your project 
-BE AWARE THIS IS STILL AN ALPHA VERSION !
+This is still in alpha. If you encounter some bugs or issues, please feel free to report them to the [Issues section](https://github.com/alexanderwe/bananaj/issues).
 
-Add this to your pom.xml to use bananaj in your project.
+Add this dependency to your pom.xml to use **bananaj** in your project.
 ```
 <dependency>
-    <groupId>com.github.alexanderwe</groupId>
-    <artifactId>bananaj</artifactId>
-    <version>1.1.3-alpha</version>
+  <groupId>com.github.alexanderwe</groupId>
+  <artifactId>bananaj</artifactId>
+  <version>1.2.1-alpha</version>
 </dependency>
 ```
 
 ## MailChimpObject class
-Most of them are immutable, to prevent asynchronous data between localhost and server. 
+Most of the model classes extend the MailChimpObject class.They are immutable, to prevent asynchronous data between the client and the MailChimp server. 
 When you execute methods like `object.changeName("new Name")` the local and server data is updated simultaneously.
 
 Most of the model classes can also be exported to JSON.
