@@ -114,8 +114,6 @@ public class MailChimpList extends MailchimpObject {
 			String key = (String)a.next();
 			// loop to get the dynamic key
 			String value = (String)memberMergeTags.get(key);
-			System.out.print(key);
-			System.out.println(": "+value);
 			merge_fields.put(key, value);
 		}
 		return new Member(member.getString("id"),this,merge_fields,member.getString("unique_email_id"), member.getString("email_address"),  MemberStatus.valueOf(member.getString("status").toUpperCase()),member.getString("timestamp_signup"),member.getString("ip_signup"),member.getString("timestamp_opt"),member.getString("ip_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),member.getString("last_changed"),this.getConnection(),member);
