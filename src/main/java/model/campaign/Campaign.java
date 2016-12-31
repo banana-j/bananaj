@@ -4,22 +4,15 @@
  */
 package model.campaign;
 
-import java.net.URL;
-
 import connection.MailChimpConnection;
+import model.MailchimpObject;
 import model.list.MailChimpList;
+import model.report.*;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import model.MailchimpObject;
-import model.report.Click;
-import model.report.FacebookLikes;
-import model.report.Forward;
-import model.report.IndustryStats;
-import model.report.Open;
-import model.report.Report;
-import model.report.ReportListStats;
 import utils.DateConverter;
+
+import java.net.URL;
 
 /**
  * Class for representing a mailchimp campaign

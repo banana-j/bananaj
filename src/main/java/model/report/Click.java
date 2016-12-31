@@ -5,7 +5,6 @@
 package model.report;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * Class for representing clicks for a campaign

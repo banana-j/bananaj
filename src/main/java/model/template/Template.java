@@ -4,13 +4,12 @@
  */
 package model.template;
 
-import java.net.URL;
-import java.time.LocalDateTime;
-
 import connection.MailChimpConnection;
+import model.MailchimpObject;
 import org.json.JSONObject;
 
-import model.MailchimpObject;
+import java.net.URL;
+import java.time.LocalDateTime;
 
 public class Template extends MailchimpObject  {
 

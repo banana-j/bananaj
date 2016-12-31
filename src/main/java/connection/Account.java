@@ -4,7 +4,6 @@ import model.MailchimpObject;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * Class for representing your mailchimp account

@@ -4,25 +4,21 @@
  */
 package model.list.member;
 
+import connection.MailChimpConnection;
+import exceptions.EmailException;
+import model.MailchimpObject;
+import model.list.MailChimpList;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import utils.EmailValidator;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-
-import connection.MailChimpConnection;
-import exceptions.EmailException;
-import model.list.MailChimpList;
-
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import model.MailchimpObject;
-import utils.EmailValidator;
 
 
 /**

@@ -2,7 +2,6 @@ package model.list.mergefield;
 
 import model.MailchimpObject;
 import org.json.JSONObject;
-import org.omg.CORBA.SystemException;
 
 /**
  * Created by Alexander on 09.08.2016.

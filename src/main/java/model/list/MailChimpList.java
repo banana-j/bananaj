@@ -4,34 +4,33 @@
  */
 package model.list;
 
-import java.io.*;
-import java.net.URL;
-import java.time.LocalDateTime;
-import java.util.*;
-
 import connection.MailChimpConnection;
 import exceptions.EmailException;
 import exceptions.FileFormatException;
 import jxl.*;
 import jxl.read.biff.BiffException;
+import jxl.write.*;
+import jxl.write.Number;
+import model.MailchimpObject;
+import model.list.member.Member;
+import model.list.member.MemberStatus;
 import model.list.mergefield.MergeField;
 import model.list.mergefield.MergeFieldOptions;
 import model.list.segment.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import jxl.write.Label;
-import jxl.write.Number;
-import jxl.write.WritableCellFormat;
-import jxl.write.WritableFont;
-import jxl.write.WritableSheet;
-import jxl.write.WritableWorkbook;
-import model.MailchimpObject;
-import model.list.member.Member;
-import model.list.member.MemberStatus;
 import utils.DateConverter;
 import utils.EmailValidator;
 import utils.FileInspector;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 
 /**

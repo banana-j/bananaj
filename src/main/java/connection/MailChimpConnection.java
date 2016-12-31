@@ -4,31 +4,29 @@
  */
 package connection;
 
-import java.io.*;
-import java.net.URL;
-import java.util.*;
-
-import model.campaign.*;
-import model.template.TemplateFolder;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import jxl.CellView;
+import jxl.Workbook;
+import jxl.write.*;
+import jxl.write.Number;
 import model.automation.Automation;
 import model.automation.AutomationStatus;
+import model.campaign.*;
 import model.list.MailChimpList;
 import model.list.member.Member;
 import model.template.Template;
+import model.template.TemplateFolder;
 import model.template.TemplateType;
-import jxl.CellView;
-import jxl.Workbook;
-import jxl.write.Label;
-import jxl.write.Number;
-import jxl.write.WritableCellFormat;
-import jxl.write.WritableFont;
-import jxl.write.WritableSheet;
-import jxl.write.WritableWorkbook;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import utils.DateConverter;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
 
 
 /**

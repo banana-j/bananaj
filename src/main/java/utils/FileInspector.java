@@ -5,9 +5,6 @@ import org.apache.commons.codec.binary.Base64;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * Class for util method for files.
  * Created by alexanderweiss on 30.12.16.

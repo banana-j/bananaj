@@ -4,13 +4,11 @@
  */
 package model.automation;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-
+import model.MailchimpObject;
 import model.list.MailChimpList;
 import org.json.JSONObject;
 
-import model.MailchimpObject;
+import java.time.LocalDateTime;
 
 /**
  * Class for representing an automation

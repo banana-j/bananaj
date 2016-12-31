@@ -4,12 +4,11 @@
  */
 package model.report;
 
-import java.time.LocalDateTime;
-
-import org.json.JSONObject;
-
 import model.MailchimpObject;
 import model.campaign.Bounce;
+import org.json.JSONObject;
+
+import java.time.LocalDateTime;
 
 /**
  * Object for representing a report of a campaign
