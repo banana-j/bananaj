@@ -28,7 +28,7 @@ public class CampaignContent {
 	public void changeHTMLContent(String htmlContent) throws Exception{
 		JSONObject content = new JSONObject();
 		content.put("html", htmlContent);
-		getCampaign().getConnection().do_Post(new URL(getCampaign().getConnection().getCampaignendpoint()+"/"+this.getCampaign().getId()+"content"),content.toString());
+		getCampaign().getConnection().do_Post(new URL(getCampaign().getConnection().getCampaignendpoint()+"/"+this.getCampaign().getId()+"/content"),content.toString(), this.getCampaign().getConnection().getApikey());
 		this.html = htmlContent;
 	}
 

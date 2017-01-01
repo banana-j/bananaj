@@ -294,6 +294,7 @@ public class MailChimpConnection extends Connection{
 	 * Get all camapaigns from mailchimp account
 	 * @return Arraylist containing all campaigns
 	 * @throws Exception
+	 *  * TODO add campaignsettings
 	 */
 	public ArrayList<Campaign> getCampaigns() throws Exception{
 		ArrayList<Campaign> campaigns = new ArrayList<Campaign>();
@@ -310,9 +311,31 @@ public class MailChimpConnection extends Connection{
 
 			Campaign campaign = null;
 			try{
-				campaign = new Campaign(campaignDetail.getString("id"),campaignSettings.getString("title"),getList(recipients.getString("list_id")),CampaignType.valueOf(campaignType.toUpperCase()),CampaignStatus.valueOf(campaignStatus.toUpperCase()),this,campaignDetail);
+				campaign = new Campaign(campaignDetail.getString("id"),
+						getList(recipients.getString("list_id")),
+						CampaignType.valueOf(campaignType.toUpperCase()),
+						CampaignStatus.valueOf(campaignStatus.toUpperCase()),
+						new CampaignSettings(campaignSettings.getString("subject_line"),
+								campaignSettings.getString("title"),
+								campaignSettings.getString("from_name"),
+								campaignSettings.getString("reply_to"),
+								campaignDetail.getString("id"),
+								this),
+						this,
+						campaignDetail);
 			}catch (FileNotFoundException fnfe){ // If list to campaign is deleted then just a null reference to list is added
-                campaign = new Campaign(campaignDetail.getString("id"),campaignSettings.getString("title"),null,CampaignType.valueOf(campaignType.toUpperCase()),CampaignStatus.valueOf(campaignStatus.toUpperCase()),this,campaignDetail);
+                campaign = new Campaign(campaignDetail.getString("id"),
+						null,
+						CampaignType.valueOf(campaignType.toUpperCase()),
+						CampaignStatus.valueOf(campaignStatus.toUpperCase()),
+						new CampaignSettings(campaignSettings.getString("subject_line"),
+								campaignSettings.getString("title"),
+								campaignSettings.getString("from_name"),
+								campaignSettings.getString("reply_to"),
+								campaignDetail.getString("id"),
+								this),
+						this,
+						campaignDetail);
 			}
 			campaigns.add(campaign);
 		}
@@ -324,6 +347,7 @@ public class MailChimpConnection extends Connection{
 	 * @param campaignID
 	 * @return a campaign object
 	 * @throws Exception
+	 * TODO add campaignsettings
 	 */
 	public Campaign getCampaign(String campaignID) throws Exception{
 		JSONObject campaign = new JSONObject(do_Get(new URL(campaignendpoint +"/"+campaignID),getApikey()));
@@ -333,9 +357,31 @@ public class MailChimpConnection extends Connection{
 		String campaignStatus = campaign.getString("status");
 
         try{
-            return new Campaign(campaign.getString("id"), campaignSettings.getString("title"),getList(recipients.getString("list_id")),CampaignType.valueOf(campaignType.toUpperCase()),CampaignStatus.valueOf(campaignStatus.toUpperCase()),this,campaign);
+            return new Campaign(campaign.getString("id"),
+					getList(recipients.getString("list_id")),
+					CampaignType.valueOf(campaignType.toUpperCase()),
+					CampaignStatus.valueOf(campaignStatus.toUpperCase()),
+					new CampaignSettings(campaignSettings.getString("subject_line"),
+							campaignSettings.getString("title"),
+							campaignSettings.getString("from_name"),
+							campaignSettings.getString("reply_to"),
+							campaign.getString("id"),
+							this),
+					this,
+					campaign);
         }catch(FileNotFoundException fnfe){
-            return new Campaign(campaign.getString("id"), campaignSettings.getString("title"),null,CampaignType.valueOf(campaignType.toUpperCase()),CampaignStatus.valueOf(campaignStatus.toUpperCase()),this,campaign);
+            return new Campaign(campaign.getString("id"),
+					getList(recipients.getString("list_id")),
+					CampaignType.valueOf(campaignType.toUpperCase()),
+					CampaignStatus.valueOf(campaignStatus.toUpperCase()),
+					new CampaignSettings(campaignSettings.getString("subject_line"),
+							campaignSettings.getString("title"),
+							campaignSettings.getString("from_name"),
+							campaignSettings.getString("reply_to"),
+							campaign.getString("id"),
+							this),
+					this,
+					campaign);
         }
 	}
 

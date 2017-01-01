@@ -6,11 +6,6 @@ package exceptions;
 
 public class EmailException extends Exception {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8513348757471330966L;
-
 	public EmailException()  {
 		super("Invalid email address.");
 	}
