@@ -50,9 +50,6 @@ public class Campaign extends MailchimpObject {
 	/**
 	 * Replace the campaign settings with a new one.
 	 * @param campaignSettings
-	 * TODO
-	 *
-	 *
 	 */
 	public void overwriteSettings (CampaignSettings campaignSettings) throws CampaignSettingsException, Exception {
 		campaignSettings.setCampaignId(this.getId());
@@ -67,7 +64,6 @@ public class Campaign extends MailchimpObject {
 		updatedCampaign.put("settings", updatedSettings);
 		this.getConnection().do_Patch(new URL(this.getConnection().getCampaignendpoint()+"/"+this.getId()),updatedCampaign.toString(),this.getConnection().getApikey());
 		this.campaignSettings = campaignSettings;
-
 	}
 
 	/**

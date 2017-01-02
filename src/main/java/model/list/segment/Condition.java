@@ -1,5 +1,6 @@
 package model.list.segment;
 
+import exceptions.ConditionException;
 import org.json.JSONObject;
 
 /**
@@ -17,10 +18,24 @@ public class Condition {
      * @param b
      */
 
-    public Condition(Builder b){
-        this.operator = b.operator;
-        this.field = b.field;
-        this.value = b.value;
+    public Condition(Builder b) throws ConditionException{
+        if (b.operator == null) {
+            throw new ConditionException("A condition need an operator.");
+        } else {
+            this.operator = b.operator;
+        }
+
+        if (b.field == null) {
+            throw new ConditionException("A condition need a field to operate on.");
+        } else {
+            this.field = b.field;
+        }
+
+        if (b.value == null) {
+            throw new ConditionException("A condition need a value to compare on.");
+        } else {
+            this.value = b.value;
+        }
     }
 
     public String getField() {
@@ -72,7 +87,12 @@ public class Condition {
         }
 
         public Condition build() {
-            return new Condition(this);
+            try {
+                return new Condition(this);
+            } catch (ConditionException e) {
+                e.printStackTrace();
+            }
+            return null;
         }
     }
 
