@@ -80,7 +80,7 @@ public class Member extends MailchimpObject{
 	}
 	
 	/**
-	 * Update the email Address of this memeber
+	 * Update the email Address of this member
 	 * @param emailAddress
 	 * @throws Exception
 	 */
@@ -98,7 +98,7 @@ public class Member extends MailchimpObject{
 	}
 
 	/**
-	 * Update the email Address of this memeber
+	 * Update the email address of this member
 	 * @param status
 	 * @throws Exception
 	 */

@@ -574,18 +574,18 @@ public class MailChimpConnection extends Connection{
 	}
 
 	/**
-	 * Get all autmations from mailchimp account
-	 * @return Arraylist containing all automations
+	 * Get all automations from mailchimp account
+	 * @return ArrayList containing all automations
 	 * @throws Exception
 	 */
 	public ArrayList<Automation> getAutomations() throws Exception{
 		ArrayList<Automation> automations = new ArrayList<Automation>();
 
 		JSONObject jsonAutomations = new JSONObject(do_Get(new URL(automationendpoint),getApikey()));
-		JSONArray automatationsArray = jsonAutomations.getJSONArray("automations");
-		for( int i = 0; i< automatationsArray.length();i++)
+		JSONArray automationsArray = jsonAutomations.getJSONArray("automations");
+		for( int i = 0; i< automationsArray.length();i++)
 		{
-			JSONObject automationDetail = automatationsArray.getJSONObject(i);
+			JSONObject automationDetail = automationsArray.getJSONObject(i);
 			JSONObject recipients = automationDetail.getJSONObject("recipients");
 
 			Automation automation = new Automation(automationDetail.getString("id"), DateConverter.getInstance().createDateFromISO8601(automationDetail.getString("create_time")),DateConverter.getInstance().createDateFromISO8601(automationDetail.getString("start_time")),AutomationStatus.valueOf(automationDetail.getString("status").toUpperCase()),automationDetail.getInt("emails_sent"),getList(recipients.getString("list_id")),automationDetail);
@@ -604,7 +604,7 @@ public class MailChimpConnection extends Connection{
 		JSONObject jsonAutomation = new JSONObject(do_Get(new URL(automationendpoint +"/"+id),getApikey()));
 		JSONObject recipients = jsonAutomation.getJSONObject("recipients");
 		Automation automation = new Automation(jsonAutomation.getString("id"),DateConverter.getInstance().createDateFromISO8601(jsonAutomation.getString("create_time")),DateConverter.getInstance().createDateFromISO8601(jsonAutomation.getString("start_time")),AutomationStatus.valueOf(jsonAutomation.getString("status").toUpperCase()),jsonAutomation.getInt("emails_sent"),getList(recipients.getString("list_id")),jsonAutomation);
-		
+
 		return automation;
 	}
 

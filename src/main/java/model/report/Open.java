@@ -5,7 +5,7 @@
 package model.report;
 
 /**
- * Class for representing the opens of a campaing
+ * Class for representing the opens of a campaign
  * @author alexanderweiss
  *
  */

@@ -122,12 +122,12 @@ public class MailChimpList extends MailchimpObject {
 	/**
 	 * Add a member with the minimum of information
 	 * @param status
-	 * @param emailAdress
+	 * @param emailAddress
 	 */
-	public void addMember(MemberStatus status, String emailAdress) throws Exception{
+	public void addMember(MemberStatus status, String emailAddress) throws Exception{
 		JSONObject member = new JSONObject();
 		member.put("status", status.getStringRepresentation());
-		member.put("email_address", emailAdress);
+		member.put("email_address", emailAddress);
 
         getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getId()+"/members"),member.toString(),connection.getApikey());
         this.membercount++;
@@ -136,11 +136,11 @@ public class MailChimpList extends MailchimpObject {
 	/**
 	 * Add a member with first and last name
 	 * @param status
-	 * @param emailAdress
+	 * @param emailAddress
 	 * @param merge_fields_values
 	 * @throws Exception
 	 */
-	public void addMember(MemberStatus status, String emailAdress, HashMap<String, Object> merge_fields_values) throws Exception{
+	public void addMember(MemberStatus status, String emailAddress, HashMap<String, Object> merge_fields_values) throws Exception{
 		URL url = new URL(connection.getListendpoint()+"/"+this.getId()+"/members");
 		
 		JSONObject member = new JSONObject();
@@ -154,7 +154,7 @@ public class MailChimpList extends MailchimpObject {
 		}
 		
 		member.put("status", status.getStringRepresentation());
-		member.put("email_address", emailAdress);
+		member.put("email_address", emailAddress);
 		member.put("merge_fields", merge_fields);
         getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getId()+"/members"),member.toString(),connection.getApikey());
 		this.membercount++;

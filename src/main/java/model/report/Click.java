@@ -19,10 +19,10 @@ public class Click {
 	private double click_rate;
 	private LocalDateTime last_click;
 
-	public Click(int clicks_total, int unique_clicks, int unique_subsciber_clicks, double click_rate, LocalDateTime last_click) {
+	public Click(int clicks_total, int unique_clicks, int unique_subscriber_clicks, double click_rate, LocalDateTime last_click) {
 		this.clicks_total = clicks_total;
 		this.unique_clicks = unique_clicks;
-		this.unique_subscriber_clicks = unique_subsciber_clicks;
+		this.unique_subscriber_clicks = unique_subscriber_clicks;
 		this.click_rate = click_rate;
 		this.last_click = last_click;
 	}
