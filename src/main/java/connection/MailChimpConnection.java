@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 
@@ -73,8 +74,8 @@ public class MailChimpConnection extends Connection{
 	 * @return Arraylist containing all lists
 	 * @throws Exception
 	 */
-	public ArrayList<MailChimpList> getLists() throws Exception{
-		ArrayList<MailChimpList> mailChimpLists = new ArrayList<MailChimpList>();
+	public List<MailChimpList> getLists() throws Exception{
+		List<MailChimpList> mailChimpLists = new ArrayList<MailChimpList>();
 		// parse response
 		JSONObject jsonLists = new JSONObject(do_Get(new URL(listendpoint),getApikey()));
 		JSONArray listsArray = jsonLists.getJSONArray("lists");
@@ -106,7 +107,6 @@ public class MailChimpConnection extends Connection{
 	 * @param listName
 	 */
 	public void createList(String listName, String permission_reminder, boolean email_type_option, CampaignDefaults campaignDefaults) throws Exception{
-		URL url = new URL(listendpoint);
 		JSONObject jsonList = new JSONObject();
 		
 		JSONObject contact = new JSONObject();
@@ -150,7 +150,7 @@ public class MailChimpConnection extends Connection{
 		WritableFont times16font = new WritableFont(WritableFont.TIMES, 16, WritableFont.BOLD, false);
 		WritableCellFormat times16format = new WritableCellFormat (times16font);
 
-		ArrayList<MailChimpList> mailChimpLists = getLists();
+		List<MailChimpList> mailChimpLists = getLists();
 		int index  = 0;
 		for(MailChimpList mailChimpList : mailChimpLists){
 			WritableSheet sheet = workbook.createSheet(mailChimpList.getName(), index);
@@ -176,7 +176,7 @@ public class MailChimpConnection extends Connection{
 			sheet.addCell(avg_open_rateLabel);
 			sheet.addCell(avg_click_rateLabel);
 
-			ArrayList<Member> members = mailChimpList.getMembers(0,0);
+			List<Member> members = mailChimpList.getMembers(0,0);
 			int merge_field_count = 0;
 
 			if (show_merge){
@@ -240,8 +240,8 @@ public class MailChimpConnection extends Connection{
      * Get all template folders from MailChimp
      * @return
      */
-    public ArrayList<CampaignFolder> getCampaignFolders() throws Exception{
-        ArrayList<CampaignFolder> campaignFolders = new ArrayList<>();
+    public List<CampaignFolder> getCampaignFolders() throws Exception{
+        List<CampaignFolder> campaignFolders = new ArrayList<>();
         JSONObject campaignFoldersResponse = new JSONObject(do_Get(new URL(campaignfolderendpoint), getApikey()));
 
         JSONArray campaignFoldersJSON = campaignFoldersResponse.getJSONArray("folders");
@@ -296,8 +296,8 @@ public class MailChimpConnection extends Connection{
 	 * @throws Exception
 	 *  * TODO add campaignsettings
 	 */
-	public ArrayList<Campaign> getCampaigns() throws Exception{
-		ArrayList<Campaign> campaigns = new ArrayList<Campaign>();
+	public List<Campaign> getCampaigns() throws Exception{
+		List<Campaign> campaigns = new ArrayList<Campaign>();
 		// parse response
 		JSONObject jsonCampaigns = new JSONObject(do_Get(new URL(campaignendpoint),getApikey()));
 		JSONArray campaignsArray = jsonCampaigns.getJSONArray("campaigns");
@@ -424,8 +424,8 @@ public class MailChimpConnection extends Connection{
      * Get all template folders from MailChimp
      * @return
      */
-	public ArrayList<TemplateFolder> getTemplateFolders() throws Exception{
-        ArrayList<TemplateFolder> templateFolders = new ArrayList<>();
+	public List<TemplateFolder> getTemplateFolders() throws Exception{
+        List<TemplateFolder> templateFolders = new ArrayList<>();
         JSONObject templateFoldersResponse = new JSONObject(do_Get(new URL(templatefolderendpoint), getApikey()));
 
         JSONArray templateFoldersJSON = templateFoldersResponse.getJSONArray("folders");
@@ -479,8 +479,8 @@ public class MailChimpConnection extends Connection{
 	 * @return Arraylist containing all templates
 	 * @throws Exception
 	 */
-	public ArrayList<Template> getTemplates() throws Exception{
-		ArrayList<Template> templates = new ArrayList<Template>();
+	public List<Template> getTemplates() throws Exception{
+		List<Template> templates = new ArrayList<Template>();
 
 		JSONObject jsonTemplates = new JSONObject(do_Get(new URL(templateendpoint),getApikey()));
 		JSONArray templatesArray = jsonTemplates.getJSONArray("templates");
@@ -583,8 +583,8 @@ public class MailChimpConnection extends Connection{
 	 * @return Arraylist containing all automations
 	 * @throws Exception
 	 */
-	public ArrayList<Automation> getAutomations() throws Exception{
-		ArrayList<Automation> automations = new ArrayList<Automation>();
+	public List<Automation> getAutomations() throws Exception{
+		List<Automation> automations = new ArrayList<Automation>();
 
 		JSONObject jsonAutomations = new JSONObject(do_Get(new URL(automationendpoint),getApikey()));
 		JSONArray automatationsArray = jsonAutomations.getJSONArray("automations");

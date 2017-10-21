@@ -15,10 +15,7 @@ import utils.EmailValidator;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -40,7 +37,7 @@ public class Member extends MailchimpObject{
 	private double avg_open_rate;
 	private double avg_click_rate;
 	private String last_changed;
-	private ArrayList<MemberActivity> memberActivities;
+	private List<MemberActivity> memberActivities;
 	private MailChimpConnection connection;
 
 
@@ -179,7 +176,7 @@ public class Member extends MailchimpObject{
 	 * @throws Exception
 	 */
 	private void setMemberActivities(String unique_email_id, String listID) throws Exception{
-		ArrayList<MemberActivity> activities = new ArrayList<MemberActivity>();
+		List<MemberActivity> activities = new ArrayList<MemberActivity>();
 
 		final JSONObject activity = new JSONObject(this.getConnection().do_Get(new URL("https://"+this.mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+this.mailChimpList.getId()+"/members/"+this.getId()+"/activity"),connection.getApikey()));
 		final JSONArray activityArray = activity.getJSONArray("activity");
@@ -204,7 +201,7 @@ public class Member extends MailchimpObject{
 	/**
 	 * @return the member activities
 	 */
-	public ArrayList<MemberActivity> getMemberActivities(){
+	public List<MemberActivity> getMemberActivities(){
 		return this.memberActivities;
 	}
 

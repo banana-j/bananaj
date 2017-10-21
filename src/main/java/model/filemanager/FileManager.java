@@ -10,8 +10,8 @@ import utils.FileInspector;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class for uploading and deleting files
@@ -31,10 +31,8 @@ public class FileManager {
      * @return
      * @throws Exception
      */
-    public ArrayList<FileManagerFolder> getFileManagerFolders() throws Exception{
-        ArrayList<FileManagerFolder> fileManagerFolders = new ArrayList<FileManagerFolder>();
-
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    public List<FileManagerFolder> getFileManagerFolders() throws Exception{
+        List<FileManagerFolder> fileManagerFolders = new ArrayList<FileManagerFolder>();
 
         JSONObject jsonFileManagerFolders = new JSONObject(getConnection().do_Get(new URL(getConnection().getFilemanagerfolderendpoint()),connection.getApikey()));
         JSONArray folderArray = jsonFileManagerFolders.getJSONArray("folders");
@@ -53,7 +51,6 @@ public class FileManager {
      * @throws Exception
      */
     public FileManagerFolder getFileManagerFolder(int id) throws Exception{
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         JSONObject jsonFileManagerFolder = new JSONObject(getConnection().do_Get(new URL(getConnection().getFilemanagerfolderendpoint()+"/"+id),connection.getApikey()));
         return new FileManagerFolder(jsonFileManagerFolder.getInt("id"),jsonFileManagerFolder.getString("name"),jsonFileManagerFolder.getInt("file_count"),DateConverter.getInstance().createDateFromISO8601(jsonFileManagerFolder.getString("created_at")), jsonFileManagerFolder.getString("created_by"),jsonFileManagerFolder,this.getConnection());
     }
@@ -63,8 +60,8 @@ public class FileManager {
      * @return
      * @throws Exception
      */
-    public ArrayList<FileManagerFile> getFileManagerFiles() throws Exception{
-        ArrayList<FileManagerFile> files = new ArrayList<FileManagerFile>();
+    public List<FileManagerFile> getFileManagerFiles() throws Exception{
+        List<FileManagerFile> files = new ArrayList<FileManagerFile>();
 
 
         // parse response

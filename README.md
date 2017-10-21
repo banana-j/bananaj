@@ -41,7 +41,7 @@ MailChimpConnection con = new MailChimpConnection("yourAPIkey");
 ## Get a list 
 ```
 //Get all lists
-ArrayList<MailChimpList> allLists = con.getLists();
+List<MailChimpList> allLists = con.getLists();
 ```
 ```
 //Get a single list
@@ -53,8 +53,8 @@ MailChimpList yourList = con.getList("ListID");
 ## Get Members
 ```
 /*Get all members from a specific mailChimpList*/
- ArrayList<Member> membersOfList = yourList.getMembers(0,0); // Get all members, skip none
- ArrayList<Member> partOfMembers = yourList.getMembers(5,2); // Get first 5 members, but skip 2 members 
+ List<Member> membersOfList = yourList.getMembers(0,0); // Get all members, skip none
+ List<Member> partOfMembers = yourList.getMembers(5,2); // Get first 5 members, but skip 2 members 
 ```
 ```
 /*You can also get a specific member by specifying it's id*/

@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by alexanderweiss on 04.02.16.
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 public class Options {
 
     private MatchType matchType;
-    private ArrayList<Condition> conditions;
+    private List<Condition> conditions;
 
 
     public Options(){
@@ -36,7 +37,7 @@ public class Options {
         this.matchType = matchType;
     }
 
-    public ArrayList<Condition> getConditions() {
+    public List<Condition> getConditions() {
         return conditions;
     }
 
