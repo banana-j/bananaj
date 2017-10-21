@@ -1,7 +1,3 @@
-/**
- * @author alexanderweiss
- * @date 15.11.2015
- */
 package connection;
 
 import jxl.CellView;
@@ -27,7 +23,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
-
 
 /**
  * Class for the connection to mailchimp servers. Used to get lists from mailchimp account.
