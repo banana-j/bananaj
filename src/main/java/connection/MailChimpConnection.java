@@ -309,7 +309,7 @@ public class MailChimpConnection extends Connection{
 			String campaignType = campaignDetail.getString("type");
 			String campaignStatus = campaignDetail.getString("status");
 
-			Campaign campaign = null;
+			Campaign campaign;
 			try{
 				campaign = new Campaign(campaignDetail.getString("id"),
 						getList(recipients.getString("list_id")),
