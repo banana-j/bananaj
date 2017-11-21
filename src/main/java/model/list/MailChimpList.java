@@ -306,7 +306,7 @@ public class MailChimpList extends MailchimpObject {
 					.build());
 		}
 
-		Segment segment = new Segment(
+		return new Segment(
 				jsonSegment.getInt("id"),
 				jsonSegment.getString("name"),
 				jsonSegment.getString("list_id"),
@@ -317,7 +317,6 @@ public class MailChimpList extends MailchimpObject {
 				new Options(matchType,conditions),
 				this.getConnection(),
 				jsonSegment);
-		return segment;
 	}
 
 	/**

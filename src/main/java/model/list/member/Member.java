@@ -13,7 +13,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import utils.EmailValidator;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -84,7 +83,7 @@ public class Member extends MailchimpObject{
 	 * @param emailAddress
 	 * @throws Exception
 	 */
-	public void changeEmailAddress(String emailAddress) throws EmailException, JSONException, MalformedURLException, Exception{
+	public void changeEmailAddress(String emailAddress) throws Exception{
 		
 		EmailValidator validator = EmailValidator.getInstance();
 		if (validator.validate(emailAddress)) {
@@ -242,7 +241,7 @@ public class Member extends MailchimpObject{
 		Iterator it = getMerge_fields().entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry pair = (Map.Entry)it.next();
-			stringBuilder.append(pair.getKey()+ ": " + pair.getValue() +  "\n");
+			stringBuilder.append(pair.getKey()).append(": ").append(pair.getValue()).append("\n");
 			it.remove(); // avoids a ConcurrentModificationException
 		}
 
