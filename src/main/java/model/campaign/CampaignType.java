@@ -31,9 +31,4 @@ public enum CampaignType {
 		this.stringRepresentation = stringRepresentation;
 	}
 	
-
-
-
-	
-	
 }

@@ -1,6 +1,7 @@
 package model.list.mergefield;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *  Class for representing merge field options.
@@ -11,7 +12,7 @@ public class MergeFieldOptions {
     private int default_country;
     private String phone_format;
     private String date_format;
-    private ArrayList<String> choices;
+    private List<String> choices;
     private int size;
 
     /**
@@ -40,7 +41,7 @@ public class MergeFieldOptions {
         return date_format;
     }
 
-    public ArrayList<String> getChoices() {
+    public List<String> getChoices() {
         return choices;
     }
 

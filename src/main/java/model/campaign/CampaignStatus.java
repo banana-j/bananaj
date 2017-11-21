@@ -29,9 +29,4 @@ public enum CampaignStatus {
 		this.stringRepresentation = stringRepresentation;
 	}
 	
-
-
-
-	
-	
 }
