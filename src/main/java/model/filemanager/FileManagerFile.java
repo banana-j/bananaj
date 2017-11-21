@@ -61,7 +61,6 @@ public class FileManagerFile extends MailchimpObject {
         this.createdBy = createdBy;
         this.width = width;
         this.height = height;
-        this.file_data = file_data;
         this.connection = connection;
         this.isImage = true;
     }
@@ -87,7 +86,6 @@ public class FileManagerFile extends MailchimpObject {
         this.size = size;
         this.createdAt = createdAt;
         this.createdBy = createdBy;
-        this.file_data = file_data;
         this.connection = connection;
         this.isImage = false;
     }
@@ -177,7 +175,7 @@ public class FileManagerFile extends MailchimpObject {
             // opens an output stream to save into file
             FileOutputStream outputStream = new FileOutputStream(saveFilePath);
 
-            int bytesRead = -1;
+            int bytesRead;
             byte[] buffer = new byte[BUFFER_SIZE];
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, bytesRead);

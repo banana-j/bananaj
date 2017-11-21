@@ -31,8 +31,8 @@ public class Report extends MailchimpObject{
 	private ReportListStats report_list_stats;
 	
 	
-	public Report(String camapignID,String campaign_title, int emails_sent_total, int abuse_report, int unsubscribe_total, LocalDateTime time_sent, Bounce bounces, Forward forwards,Click clicks,Open opens,FacebookLikes facebook_likes,IndustryStats industry_stats,ReportListStats report_list_stats,JSONObject jsonRepresentation) {
-		super(camapignID,jsonRepresentation);
+	public Report(String campaignID,String campaign_title, int emails_sent_total, int abuse_report, int unsubscribe_total, LocalDateTime time_sent, Bounce bounces, Forward forwards,Click clicks,Open opens,FacebookLikes facebook_likes,IndustryStats industry_stats,ReportListStats report_list_stats,JSONObject jsonRepresentation) {
+		super(campaignID,jsonRepresentation);
 		this.campaign_title = campaign_title;
 		this.emails_sent_total = emails_sent_total;
 		this.abuse_report = abuse_report;
@@ -145,7 +145,7 @@ public class Report extends MailchimpObject{
 				"    Syntax error bounces: " + this.getBounces().getSyntax_error_bounces() + System.lineSeparator() +
 				"Forwards: " + System.lineSeparator() +
 				"    Forward count: " + this.getForwards().getCount() + System.lineSeparator() +
-				"    Forward open: " + this.getForwards().getFowards_open() + System.lineSeparator() +
+				"    Forward open: " + this.getForwards().getForwards_open() + System.lineSeparator() +
 				"Clicks: " + System.lineSeparator() +
 				"    Clicks total: " + this.getClicks().getClicks_total() + System.lineSeparator() +
 				"    Unique clicks: " + this.getClicks().getUnique_clicks() + System.lineSeparator() +

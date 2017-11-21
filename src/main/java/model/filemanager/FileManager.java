@@ -69,7 +69,7 @@ public class FileManager {
         JSONArray filesArray = jsonFileManagerFiles.getJSONArray("files");
         for( int i = 0; i< filesArray.length();i++)
         {
-            FileManagerFile file = null;
+            FileManagerFile file;
             JSONObject fileDetail = filesArray.getJSONObject(i);
             if(fileDetail.getString("type").equals("image")){
                 file = new FileManagerFile(fileDetail.getInt("id"),fileDetail.getInt("folder_id"),fileDetail.getString("type"),fileDetail.getString("name"),fileDetail.getString("full_size_url"),fileDetail.getInt("size"), DateConverter.getInstance().createDateFromISO8601(fileDetail.getString("created_at")),fileDetail.getString("created_by"), fileDetail.getInt("width"), fileDetail.getInt("height"), this.getConnection(), fileDetail);

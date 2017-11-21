@@ -6,7 +6,7 @@ package model.report;
 
 
 /**
- * Class for representing the average campaign statictics for your industry
+ * Class for representing the average campaign statistics for your industry
  * @author alexanderweiss
  *
  */
