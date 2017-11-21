@@ -61,11 +61,7 @@ public class CampaignSettings {
 			this.reply_to = b.reply_to;
 		}
 
-		if(b.reply_to == null){
-			throw new CampaignSettingsException("You need to provide a 'Reply to email address' for a campaign setting");
-		} else {
-			this.reply_to = b.reply_to;
-		}
+		this.reply_to = b.reply_to;
 	}
 
 	/**
