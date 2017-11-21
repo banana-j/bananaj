@@ -68,7 +68,7 @@ public class Connection {
                 response.append(inputLine);
             }
         }catch (NoSuchElementException nsee){
-            System.out.println("Line not found error");
+            System.out.println("Line not found error: "+nsee.toString());
         }
 
         httpResponseScanner.close();
@@ -103,7 +103,7 @@ public class Connection {
                 response.append(inputLine);
             }
         }catch (NoSuchElementException nsee){
-            System.out.println("Line not found error");
+            System.out.println("Line not found error: "+nsee.toString());
         }
 
         httpResponseScanner.close();

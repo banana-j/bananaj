@@ -12,11 +12,11 @@ package model.report;
 public class Forward{
 
 	private int count;
-	private int fowards_open;
+	private int forwards_open;
 	
 	public Forward(int count, int forward_open) {
 		this.count = count;
-		this.fowards_open = forward_open;
+		this.forwards_open = forward_open;
 	}
 
 	/**
@@ -27,9 +27,9 @@ public class Forward{
 	}
 
 	/**
-	 * @return the fowards_open
+	 * @return the forwards_open
 	 */
-	public int getFowards_open() {
-		return fowards_open;
+	public int getForwards_open() {
+		return forwards_open;
 	}
 }

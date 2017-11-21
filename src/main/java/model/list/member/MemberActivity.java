@@ -20,8 +20,6 @@ public class MemberActivity {
         this.list_id = list_id;
         this.action = action;
         this.timestamp = timestamp;
-        this.url = url;
-        this.type = type;
         this.campaign_id = campaign_id;
         this.title = title;
     }
@@ -39,8 +37,6 @@ public class MemberActivity {
         this.list_id = list_id;
         this.action = action;
         this.timestamp = timestamp;
-        this.url = url;
-        this.type = type;
         this.campaign_id = campaign_id;
     }
 
