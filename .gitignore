@@ -3,3 +3,7 @@
 target/*
 src/test/*
 *.iml
+.DS_Store
+
+
+Test.java
