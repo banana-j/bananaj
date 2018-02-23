@@ -1,4 +1,4 @@
-package model.list.segment;
+package com.github.alexanderwe.bananaj.model.list.segment;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

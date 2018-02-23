@@ -1,4 +1,4 @@
-package exceptions;
+package com.github.alexanderwe.bananaj.exceptions;
 
 /**
  * Created by alexanderweiss on 11.02.16.

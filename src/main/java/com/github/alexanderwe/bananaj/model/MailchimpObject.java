@@ -2,7 +2,7 @@
  * @author alexanderweiss
  * @date 19.11.2015
  */
-package model;
+package com.github.alexanderwe.bananaj.model;
 
 import org.json.JSONException;
 import org.json.JSONObject;

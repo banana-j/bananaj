@@ -2,7 +2,7 @@
  * @author alexanderweiss
  * @date 05.12.2015
  */
-package model.campaign;
+package com.github.alexanderwe.bananaj.model.campaign;
 
 public class CampaignDefaults {
 

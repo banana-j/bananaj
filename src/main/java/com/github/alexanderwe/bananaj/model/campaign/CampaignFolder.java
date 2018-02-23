@@ -1,6 +1,6 @@
-package model.campaign;
+package com.github.alexanderwe.bananaj.model.campaign;
 
-import model.MailchimpObject;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import org.json.JSONObject;
 
 /**

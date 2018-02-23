@@ -2,7 +2,7 @@
  * @author alexanderweiss
  * @date 13.12.2015
  */
-package model.report;
+package com.github.alexanderwe.bananaj.model.report;
 
 
 /**

@@ -1,4 +1,4 @@
-package model.conversation;
+package com.github.alexanderwe.bananaj.model.conversation;
 
 /**
  * Created by alexanderweiss on 03.01.16.

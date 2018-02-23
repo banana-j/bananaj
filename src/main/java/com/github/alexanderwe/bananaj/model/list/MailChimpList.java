@@ -2,26 +2,26 @@
  * @author alexanderweiss
  * @date 06.11.2015
  */
-package model.list;
+package com.github.alexanderwe.bananaj.model.list;
 
-import connection.MailChimpConnection;
-import exceptions.EmailException;
-import exceptions.FileFormatException;
+import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.exceptions.EmailException;
+import com.github.alexanderwe.bananaj.exceptions.FileFormatException;
 import jxl.*;
 import jxl.read.biff.BiffException;
 import jxl.write.*;
 import jxl.write.Number;
-import model.MailchimpObject;
-import model.list.member.Member;
-import model.list.member.MemberStatus;
-import model.list.mergefield.MergeField;
-import model.list.mergefield.MergeFieldOptions;
-import model.list.segment.*;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
+import com.github.alexanderwe.bananaj.model.list.member.Member;
+import com.github.alexanderwe.bananaj.model.list.member.MemberStatus;
+import com.github.alexanderwe.bananaj.model.list.mergefield.MergeField;
+import com.github.alexanderwe.bananaj.model.list.mergefield.MergeFieldOptions;
+import com.github.alexanderwe.bananaj.model.list.segment.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import utils.DateConverter;
-import utils.EmailValidator;
-import utils.FileInspector;
+import com.github.alexanderwe.bananaj.utils.DateConverter;
+import com.github.alexanderwe.bananaj.utils.EmailValidator;
+import com.github.alexanderwe.bananaj.utils.FileInspector;
 
 import java.io.File;
 import java.io.IOException;
@@ -610,7 +610,7 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 *
-	 * @return the MailChimp connection
+	 * @return the MailChimp com.github.alexanderwe.bananaj.connection
 	 */
 	public MailChimpConnection getConnection(){
 		return this.connection;

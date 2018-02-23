@@ -2,10 +2,10 @@
  * @author alexanderweiss
  * @date 19.11.2015
  */
-package model.report;
+package com.github.alexanderwe.bananaj.model.report;
 
-import model.MailchimpObject;
-import model.campaign.Bounce;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
+import com.github.alexanderwe.bananaj.model.campaign.Bounce;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;

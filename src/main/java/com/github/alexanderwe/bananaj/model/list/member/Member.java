@@ -2,16 +2,16 @@
  * @author alexanderweiss
  * @date 06.11.2015
  */
-package model.list.member;
+package com.github.alexanderwe.bananaj.model.list.member;
 
-import connection.MailChimpConnection;
-import exceptions.EmailException;
-import model.MailchimpObject;
-import model.list.MailChimpList;
+import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.exceptions.EmailException;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
+import com.github.alexanderwe.bananaj.model.list.MailChimpList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import utils.EmailValidator;
+import com.github.alexanderwe.bananaj.utils.EmailValidator;
 
 import java.net.URL;
 import java.util.*;
@@ -205,7 +205,7 @@ public class Member extends MailchimpObject{
 	}
 
 	/**
-	 * @return the MailChimp connection
+	 * @return the MailChimp com.github.alexanderwe.bananaj.connection
 	 */
 	public MailChimpConnection getConnection() {
 		return connection;

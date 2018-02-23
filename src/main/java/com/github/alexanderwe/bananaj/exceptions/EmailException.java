@@ -2,7 +2,7 @@
  * @author alexanderweiss
  * @date 05.12.2015
  */
-package exceptions;
+package com.github.alexanderwe.bananaj.exceptions;
 
 public class EmailException extends Exception {
 

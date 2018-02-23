@@ -2,7 +2,7 @@
  * @author alexanderweiss
  * @date 30.11.2015
  */
-package model.automation;
+package com.github.alexanderwe.bananaj.model.automation;
 
 public enum AutomationStatus {
 

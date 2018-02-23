@@ -1,6 +1,6 @@
-package model.template;
+package com.github.alexanderwe.bananaj.model.template;
 
-import model.MailchimpObject;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import org.json.JSONObject;
 
 /**

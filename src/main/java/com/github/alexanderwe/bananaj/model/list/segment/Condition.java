@@ -1,6 +1,6 @@
-package model.list.segment;
+package com.github.alexanderwe.bananaj.model.list.segment;
 
-import exceptions.ConditionException;
+import com.github.alexanderwe.bananaj.exceptions.ConditionException;
 import org.json.JSONObject;
 
 /**

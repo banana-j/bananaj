@@ -2,7 +2,7 @@
  * @author alexanderweiss
  * @date 20.11.2015
  */
-package model.report;
+package com.github.alexanderwe.bananaj.model.report;
 
 import java.time.LocalDateTime;
 

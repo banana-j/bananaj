@@ -2,7 +2,7 @@
  * @author alexanderweiss
  * @date 19.11.2015
  */
-package model.template;
+package com.github.alexanderwe.bananaj.model.template;
 
 public enum TemplateType {
 

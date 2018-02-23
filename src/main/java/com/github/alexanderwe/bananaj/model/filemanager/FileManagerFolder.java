@@ -1,10 +1,10 @@
-package model.filemanager;
+package com.github.alexanderwe.bananaj.model.filemanager;
 
-import connection.MailChimpConnection;
-import model.MailchimpObject;
+import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import utils.DateConverter;
+import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 import java.net.URL;
 import java.text.SimpleDateFormat;

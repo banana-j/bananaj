@@ -1,4 +1,4 @@
-package model.list.mergefield;
+package com.github.alexanderwe.bananaj.model.list.mergefield;
 
 import java.util.ArrayList;
 import java.util.List;

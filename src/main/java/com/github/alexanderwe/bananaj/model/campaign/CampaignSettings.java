@@ -2,16 +2,16 @@
  * @author alexanderweiss
  * @date 06.12.2015
  */
-package model.campaign;
+package com.github.alexanderwe.bananaj.model.campaign;
 
 import java.net.URL;
 
 import org.json.JSONObject;
 
-import connection.MailChimpConnection;
-import exceptions.CampaignSettingsException;
-import exceptions.EmailException;
-import utils.EmailValidator;
+import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.exceptions.CampaignSettingsException;
+import com.github.alexanderwe.bananaj.exceptions.EmailException;
+import com.github.alexanderwe.bananaj.utils.EmailValidator;
 
 /**
  * Class for representing settings for a campaign, including subject, from name, reply-to address, and more.

@@ -1,6 +1,6 @@
-package connection;
+package com.github.alexanderwe.bananaj.connection;
 
-import model.MailchimpObject;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
@@ -40,7 +40,7 @@ import java.time.LocalDateTime;
 	}
 
 	/**
-	 * @return the connection
+	 * @return the com.github.alexanderwe.bananaj.connection
 	 */
 	public MailChimpConnection getConnection() {
 		return connection;

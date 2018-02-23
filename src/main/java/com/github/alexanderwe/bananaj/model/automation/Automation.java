@@ -2,10 +2,10 @@
  * @author alexanderweiss
  * @date 30.11.2015
  */
-package model.automation;
+package com.github.alexanderwe.bananaj.model.automation;
 
-import model.MailchimpObject;
-import model.list.MailChimpList;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
+import com.github.alexanderwe.bananaj.model.list.MailChimpList;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;

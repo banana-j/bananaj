@@ -1,11 +1,11 @@
-package model.filemanager;
+package com.github.alexanderwe.bananaj.model.filemanager;
 
-import connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import utils.DateConverter;
-import utils.FileInspector;
+import com.github.alexanderwe.bananaj.utils.DateConverter;
+import com.github.alexanderwe.bananaj.utils.FileInspector;
 
 import java.io.File;
 import java.net.MalformedURLException;

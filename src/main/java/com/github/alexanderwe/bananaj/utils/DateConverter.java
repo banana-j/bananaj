@@ -1,4 +1,4 @@
-package utils;
+package com.github.alexanderwe.bananaj.utils;
 
 
 import java.time.LocalDateTime;

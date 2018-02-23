@@ -1,4 +1,4 @@
-package model.list.member;
+package com.github.alexanderwe.bananaj.model.list.member;
 
 /**
  * Created by alexanderweiss on 20.01.16.

@@ -2,7 +2,7 @@
  * @author alexanderweiss
  * @date 12.12.2015
  */
-package model.campaign;
+package com.github.alexanderwe.bananaj.model.campaign;
 
 import org.json.JSONObject;
 

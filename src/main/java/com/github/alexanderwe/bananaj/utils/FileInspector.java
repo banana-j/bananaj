@@ -1,4 +1,4 @@
-package utils;
+package com.github.alexanderwe.bananaj.utils;
 
 import org.apache.commons.codec.binary.Base64;
 

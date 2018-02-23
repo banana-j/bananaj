@@ -1,10 +1,10 @@
-package model.list.segment;
+package com.github.alexanderwe.bananaj.model.list.segment;
 
-import connection.MailChimpConnection;
-import exceptions.SegmentException;
-import model.MailchimpObject;
-import model.list.member.Member;
-import model.list.member.MemberStatus;
+import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.exceptions.SegmentException;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
+import com.github.alexanderwe.bananaj.model.list.member.Member;
+import com.github.alexanderwe.bananaj.model.list.member.MemberStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

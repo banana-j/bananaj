@@ -2,7 +2,7 @@
  * @author alexanderweiss
  * @date 12.11.2015
  */
-package model.list.member;
+package com.github.alexanderwe.bananaj.model.list.member;
 
 /**
  * Possible status of a member of a list

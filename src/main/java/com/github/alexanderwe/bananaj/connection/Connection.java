@@ -1,4 +1,4 @@
-package connection;
+package com.github.alexanderwe.bananaj.connection;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;

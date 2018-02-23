@@ -1,4 +1,4 @@
-package connection;
+package com.github.alexanderwe.bananaj.connection;
 
 import java.io.File;
 import java.net.URL;
@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import jxl.CellView;
@@ -19,23 +18,22 @@ import jxl.write.WritableCellFormat;
 import jxl.write.WritableFont;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
-import model.automation.Automation;
-import model.automation.AutomationStatus;
-import model.campaign.Campaign;
-import model.campaign.CampaignDefaults;
-import model.campaign.CampaignFolder;
-import model.campaign.CampaignSettings;
-import model.campaign.CampaignStatus;
-import model.campaign.CampaignType;
-import model.list.MailChimpList;
-import model.list.member.Member;
-import model.template.Template;
-import model.template.TemplateFolder;
-import model.template.TemplateType;
-import utils.DateConverter;
+import com.github.alexanderwe.bananaj.model.automation.Automation;
+import com.github.alexanderwe.bananaj.model.automation.AutomationStatus;
+import com.github.alexanderwe.bananaj.model.campaign.Campaign;
+import com.github.alexanderwe.bananaj.model.campaign.CampaignDefaults;
+import com.github.alexanderwe.bananaj.model.campaign.CampaignFolder;
+import com.github.alexanderwe.bananaj.model.campaign.CampaignSettings;
+import com.github.alexanderwe.bananaj.model.campaign.CampaignType;
+import com.github.alexanderwe.bananaj.model.list.MailChimpList;
+import com.github.alexanderwe.bananaj.model.list.member.Member;
+import com.github.alexanderwe.bananaj.model.template.Template;
+import com.github.alexanderwe.bananaj.model.template.TemplateFolder;
+import com.github.alexanderwe.bananaj.model.template.TemplateType;
+import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 /**
- * Class for the connection to mailchimp servers. Used to get lists from mailchimp account.
+ * Class for the com.github.alexanderwe.bananaj.connection to mailchimp servers. Used to get lists from mailchimp account.
  * @author alexanderweiss
  *
  */
@@ -636,7 +634,7 @@ public class MailChimpConnection extends Connection{
 	}
 
 	/**
-	 * Set the account of this connection.
+	 * Set the account of this com.github.alexanderwe.bananaj.connection.
 	 */
 	private void setAccount() throws Exception {
 		Account account;

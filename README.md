@@ -26,14 +26,14 @@ Add this dependency to your pom.xml to use **bananaj** in your project.
 ```
 
 ## MailChimpObject class
-Most of the model classes extend the MailChimpObject class.They are immutable, to prevent asynchronous data between the client and the MailChimp server. 
+Most of the com.github.alexanderwe.bananaj.model classes extend the MailChimpObject class.They are immutable, to prevent asynchronous data between the client and the MailChimp server. 
 When you execute methods like `object.changeName("new Name")` the local and server data is updated simultaneously.
 
-Most of the model classes can also be exported to JSON.
+Most of the com.github.alexanderwe.bananaj.model classes can also be exported to JSON.
 
-## Initial connection
+## Initial com.github.alexanderwe.bananaj.connection
 With the MailChimpConnection object you start to connect to your account. 
-You can get all objects from this connection. First start with getting information about a list.
+You can get all objects from this com.github.alexanderwe.bananaj.connection. First start with getting information about a list.
 
 ```
 MailChimpConnection con = new MailChimpConnection("yourAPIkey");
@@ -122,15 +122,15 @@ Every endpoint supports GET, POST, and DELETE requests. So it is possible to ful
 
 # Package structure
 ```
-|-- connection
+|-- com.github.alexanderwe.bananaj.connection
 |   |-- Account.java
 |   |-- Connection.java
 |   `-- MailChimpConnection.java
-|-- exceptions
+|-- com.github.alexanderwe.bananaj.exceptions
 |   |-- EmailException.java
 |   |-- FileFormatException.java
 |   `-- SegmentException.java
-|-- model
+|-- com.github.alexanderwe.bananaj.model
 |   |-- MailchimpObject.java
 |   |-- automation
 |   |   |-- Automation.java
@@ -179,7 +179,7 @@ Every endpoint supports GET, POST, and DELETE requests. So it is possible to ful
 |       |-- Template.java
 |       |-- TemplateFolder.java
 |       `-- TemplateType.java
-`-- utils
+`-- com.github.alexanderwe.bananaj.utils
     |-- DateConverter.java
     |-- EmailValidator.java
     `-- FileInspector.java

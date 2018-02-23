@@ -2,7 +2,7 @@
  * @author alexanderweiss
  * @date 12.12.2015
  */
-package model.report;
+package com.github.alexanderwe.bananaj.model.report;
 
 /**
  * Class for representing the opens of a campaign

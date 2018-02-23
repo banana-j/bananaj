@@ -1,6 +1,6 @@
-package model.list.mergefield;
+package com.github.alexanderwe.bananaj.model.list.mergefield;
 
-import model.MailchimpObject;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import org.json.JSONObject;
 
 /**

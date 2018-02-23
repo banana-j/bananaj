@@ -2,10 +2,10 @@
  * @author alexanderweiss
  * @date 19.11.2015
  */
-package model.template;
+package com.github.alexanderwe.bananaj.model.template;
 
-import connection.MailChimpConnection;
-import model.MailchimpObject;
+import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import org.json.JSONObject;
 
 import java.net.URL;
@@ -132,7 +132,7 @@ public class Template extends MailchimpObject  {
 	}
 
 	/**
-	 * @return the connection to MailChimp
+	 * @return the com.github.alexanderwe.bananaj.connection to MailChimp
 	 */
 	public MailChimpConnection getConnection() {
 		return connection;

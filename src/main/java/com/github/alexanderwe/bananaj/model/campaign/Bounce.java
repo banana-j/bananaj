@@ -2,7 +2,7 @@
  * @author alexanderweiss
  * @date 20.11.2015
  */
-package model.campaign;
+package com.github.alexanderwe.bananaj.model.campaign;
 
 /**
  * Class representing a bounce for a campaign

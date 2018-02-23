@@ -1,9 +1,9 @@
-package model.filemanager;
+package com.github.alexanderwe.bananaj.model.filemanager;
 
-import connection.MailChimpConnection;
-import model.MailchimpObject;
+import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import org.json.JSONObject;
-import utils.FileInspector;
+import com.github.alexanderwe.bananaj.utils.FileInspector;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -168,7 +168,7 @@ public class FileManagerFile extends MailchimpObject {
             System.out.println("Content-Length = " + contentLength);
             System.out.println("fileName = " + fileName);
 
-            // opens input stream from the HTTP connection
+            // opens input stream from the HTTP com.github.alexanderwe.bananaj.connection
             InputStream inputStream = httpConn.getInputStream();
             String saveFilePath = saveDir + File.separator + fileName;
 

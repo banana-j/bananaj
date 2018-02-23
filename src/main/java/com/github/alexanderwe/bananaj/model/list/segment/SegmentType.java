@@ -1,4 +1,4 @@
-package model.list.segment;
+package com.github.alexanderwe.bananaj.model.list.segment;
 
 /**
  * Created by alexanderweiss on 04.02.16.

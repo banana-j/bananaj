@@ -2,24 +2,24 @@
  * @author alexanderweiss
  * @date 19.11.2015
  */
-package model.campaign;
+package com.github.alexanderwe.bananaj.model.campaign;
 
 import java.net.URL;
 
 import org.json.JSONObject;
 
-import connection.MailChimpConnection;
-import exceptions.CampaignSettingsException;
-import model.MailchimpObject;
-import model.list.MailChimpList;
-import model.report.Click;
-import model.report.FacebookLikes;
-import model.report.Forward;
-import model.report.IndustryStats;
-import model.report.Open;
-import model.report.Report;
-import model.report.ReportListStats;
-import utils.DateConverter;
+import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.exceptions.CampaignSettingsException;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
+import com.github.alexanderwe.bananaj.model.list.MailChimpList;
+import com.github.alexanderwe.bananaj.model.report.Click;
+import com.github.alexanderwe.bananaj.model.report.FacebookLikes;
+import com.github.alexanderwe.bananaj.model.report.Forward;
+import com.github.alexanderwe.bananaj.model.report.IndustryStats;
+import com.github.alexanderwe.bananaj.model.report.Open;
+import com.github.alexanderwe.bananaj.model.report.Report;
+import com.github.alexanderwe.bananaj.model.report.ReportListStats;
+import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 /**
  * Class for representing a mailchimp campaign
@@ -140,7 +140,7 @@ public class Campaign extends MailchimpObject {
 	}
 
 	/**
-	 * @return the connection
+	 * @return the com.github.alexanderwe.bananaj.connection
 	 */
 	public MailChimpConnection getConnection() {
 		return connection;
