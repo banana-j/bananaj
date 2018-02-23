@@ -4,21 +4,26 @@
  */
 package model.campaign;
 
+import java.net.URL;
+
+import org.json.JSONObject;
+
 import connection.MailChimpConnection;
 import exceptions.CampaignSettingsException;
 import model.MailchimpObject;
 import model.list.MailChimpList;
-import model.report.*;
-import org.json.JSONException;
-import org.json.JSONObject;
+import model.report.Click;
+import model.report.FacebookLikes;
+import model.report.Forward;
+import model.report.IndustryStats;
+import model.report.Open;
+import model.report.Report;
+import model.report.ReportListStats;
 import utils.DateConverter;
-
-import java.net.URL;
 
 /**
  * Class for representing a mailchimp campaign
  * @author alexanderweiss
- * TODO add campaing settings
  *
  */
 public class Campaign extends MailchimpObject {
@@ -26,7 +31,7 @@ public class Campaign extends MailchimpObject {
 	private MailChimpConnection connection;
 	private MailChimpList mailChimpList;
 	private CampaignContent content;
-	private static String REPORTENDPOINT;
+	private String REPORTENDPOINT;
 	private CampaignType campaign_type;
 	private CampaignStatus campaign_status;
 	private CampaignSettings campaignSettings;
@@ -40,6 +45,30 @@ public class Campaign extends MailchimpObject {
 		this.campaign_type = campaign_type;
 		this.campaign_status = campaign_status;
 		this.campaignSettings = campaignSettings;
+		try {
+			setContent();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public Campaign(MailChimpConnection connection, JSONObject campaign) throws Exception {
+		super(campaign.getString("id"), campaign);
+		this.connection = connection;
+		
+		JSONObject recipients = campaign.getJSONObject("recipients");
+		JSONObject campaignSettings = campaign.getJSONObject("settings");
+		String campaignType = campaign.getString("type");
+		String campaignStatus = campaign.getString("status");
+		CampaignSettings settings = new CampaignSettings(connection, this.getId(), campaignSettings);
+		
+		if (recipients.has("list_id")) {
+			this.mailChimpList = connection.getList(recipients.getString("list_id"));
+		}
+		this.REPORTENDPOINT = "https://"+this.connection.getServer()+".api.mailchimp.com/3.0/reports/"+this.getId();
+		this.campaign_type = CampaignType.valueOf(campaignType.toUpperCase());
+		this.campaign_status = CampaignStatus.valueOf(campaignStatus.toUpperCase());
+		this.campaignSettings = settings;
 		try {
 			setContent();
 		} catch (Exception e) {
@@ -157,11 +186,10 @@ public class Campaign extends MailchimpObject {
 	 */
 	private void setContent() throws Exception{
 		JSONObject content = new JSONObject(getConnection().do_Get(new URL(connection.getCampaignendpoint()+"/"+this.getId()+"/content"),connection.getApikey()));
-		try{
-			this.content = new CampaignContent(content.getString("plain_text"), content.getString("html"), this) ;
-		} catch (JSONException jsone) { //no plain_text available
-			this.content = new CampaignContent(null, content.getString("html"), this) ;
-		}
+		this.content = new CampaignContent(
+				content.has("plain_text") ? content.getString("plain_text") : null, 
+				content.has("html") ? content.getString("html") : null, 
+				this) ;
 	}
 
 	public CampaignSettings getCampaignSettings() {

@@ -1,29 +1,38 @@
 package connection;
 
-import jxl.CellView;
-import jxl.Workbook;
-import jxl.write.*;
-import jxl.write.Number;
-import model.automation.Automation;
-import model.automation.AutomationStatus;
-import model.campaign.*;
-import model.list.MailChimpList;
-import model.list.member.Member;
-import model.template.Template;
-import model.template.TemplateFolder;
-import model.template.TemplateType;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import utils.DateConverter;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import jxl.CellView;
+import jxl.Workbook;
+import jxl.write.Label;
+import jxl.write.Number;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableFont;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+import model.automation.Automation;
+import model.automation.AutomationStatus;
+import model.campaign.Campaign;
+import model.campaign.CampaignDefaults;
+import model.campaign.CampaignFolder;
+import model.campaign.CampaignSettings;
+import model.campaign.CampaignStatus;
+import model.campaign.CampaignType;
+import model.list.MailChimpList;
+import model.list.member.Member;
+import model.template.Template;
+import model.template.TemplateFolder;
+import model.template.TemplateType;
+import utils.DateConverter;
 
 /**
  * Class for the connection to mailchimp servers. Used to get lists from mailchimp account.
@@ -291,7 +300,7 @@ public class MailChimpConnection extends Connection{
 	 * @throws Exception
 	 *  * TODO add campaignsettings
 	 */
-	public List<Campaign> getCampaigns() throws Exception{
+	public List<Campaign> getCampaigns() throws Exception {
 		List<Campaign> campaigns = new ArrayList<Campaign>();
 		// parse response
 		JSONObject jsonCampaigns = new JSONObject(do_Get(new URL(campaignendpoint),getApikey()));
@@ -299,39 +308,7 @@ public class MailChimpConnection extends Connection{
 		for( int i = 0; i< campaignsArray.length();i++)
 		{
 			JSONObject campaignDetail = campaignsArray.getJSONObject(i);
-			JSONObject campaignSettings = campaignDetail.getJSONObject("settings");
-			JSONObject recipients = campaignDetail.getJSONObject("recipients");
-			String campaignType = campaignDetail.getString("type");
-			String campaignStatus = campaignDetail.getString("status");
-
-			Campaign campaign;
-			try{
-				campaign = new Campaign(campaignDetail.getString("id"),
-						getList(recipients.getString("list_id")),
-						CampaignType.valueOf(campaignType.toUpperCase()),
-						CampaignStatus.valueOf(campaignStatus.toUpperCase()),
-						new CampaignSettings(campaignSettings.getString("subject_line"),
-								campaignSettings.getString("title"),
-								campaignSettings.getString("from_name"),
-								campaignSettings.getString("reply_to"),
-								campaignDetail.getString("id"),
-								this),
-						this,
-						campaignDetail);
-			}catch (FileNotFoundException fnfe){ // If list to campaign is deleted then just a null reference to list is added
-				campaign = new Campaign(campaignDetail.getString("id"),
-						null,
-						CampaignType.valueOf(campaignType.toUpperCase()),
-						CampaignStatus.valueOf(campaignStatus.toUpperCase()),
-						new CampaignSettings(campaignSettings.getString("subject_line"),
-								campaignSettings.getString("title"),
-								campaignSettings.getString("from_name"),
-								campaignSettings.getString("reply_to"),
-								campaignDetail.getString("id"),
-								this),
-						this,
-						campaignDetail);
-			}
+			Campaign campaign = new Campaign(this, campaignDetail);
 			campaigns.add(campaign);
 		}
 		return campaigns;
@@ -344,40 +321,9 @@ public class MailChimpConnection extends Connection{
 	 * @throws Exception
 	 * TODO add campaignsettings
 	 */
-	public Campaign getCampaign(String campaignID) throws Exception{
+	public Campaign getCampaign(String campaignID) throws Exception {
 		JSONObject campaign = new JSONObject(do_Get(new URL(campaignendpoint +"/"+campaignID),getApikey()));
-		JSONObject recipients = campaign.getJSONObject("recipients");
-		JSONObject campaignSettings = campaign.getJSONObject("settings");
-		String campaignType = campaign.getString("type");
-		String campaignStatus = campaign.getString("status");
-
-		try{
-			return new Campaign(campaign.getString("id"),
-					getList(recipients.getString("list_id")),
-					CampaignType.valueOf(campaignType.toUpperCase()),
-					CampaignStatus.valueOf(campaignStatus.toUpperCase()),
-					new CampaignSettings(campaignSettings.getString("subject_line"),
-							campaignSettings.getString("title"),
-							campaignSettings.getString("from_name"),
-							campaignSettings.getString("reply_to"),
-							campaign.getString("id"),
-							this),
-					this,
-					campaign);
-		}catch(FileNotFoundException fnfe){
-			return new Campaign(campaign.getString("id"),
-					getList(recipients.getString("list_id")),
-					CampaignType.valueOf(campaignType.toUpperCase()),
-					CampaignStatus.valueOf(campaignStatus.toUpperCase()),
-					new CampaignSettings(campaignSettings.getString("subject_line"),
-							campaignSettings.getString("title"),
-							campaignSettings.getString("from_name"),
-							campaignSettings.getString("reply_to"),
-							campaign.getString("id"),
-							this),
-					this,
-					campaign);
-		}
+		return new Campaign(this, campaign);
 	}
 
 	/**
@@ -386,7 +332,7 @@ public class MailChimpConnection extends Connection{
 	 * @param mailChimpList
 	 * @param settings
 	 */
-	public void createCampaign(CampaignType type, MailChimpList mailChimpList, CampaignSettings settings) throws Exception{
+	public Campaign createCampaign(CampaignType type, MailChimpList mailChimpList, CampaignSettings settings) throws Exception{
 		
 		JSONObject campaign = new JSONObject();
 		
@@ -394,18 +340,46 @@ public class MailChimpConnection extends Connection{
 		recipients.put("list_id", mailChimpList.getId());
 		
 		JSONObject jsonSettings = new JSONObject();
-		jsonSettings.put("subject_line", settings.getSubject_line());
-		jsonSettings.put("from_name", settings.getFrom_name());
-		jsonSettings.put("reply_to", settings.getReply_to());
-	
+		put(jsonSettings, "subject_line", settings.getSubject_line());
+		put(jsonSettings, "title", settings.getTitle());
+		put(jsonSettings, "to_name", settings.getTo_name());
+		put(jsonSettings, "from_name", settings.getFrom_name());
+		put(jsonSettings, "reply_to", settings.getReply_to());
+		if(settings.getTemplate_id() != 0 ) {
+			jsonSettings.put("template_id", settings.getTemplate_id());
+		}
+		put(jsonSettings, "auto_footer", settings.getAuto_footer());
+		put(jsonSettings, "use_conversation", settings.getUse_conversation());
+		put(jsonSettings, "authenticate", settings.getAuthenticate());
+		put(jsonSettings, "timewarp", settings.getTimewarp());
+		put(jsonSettings, "auto_tweet", settings.getAuto_tweet());
+		put(jsonSettings, "fb_comments", settings.getFb_comments());
+		put(jsonSettings, "drag_and_drop", settings.getDrag_and_drop());
+		put(jsonSettings, "inline_css", settings.getInline_css());
+		put(jsonSettings, "folder_id", settings.getFolder_id());
 		
 		campaign.put("type", type.getStringRepresentation());
 		campaign.put("recipients", recipients);
 		campaign.put("settings", jsonSettings);
 		
-		do_Post(new URL(campaignendpoint), campaign.toString(),getApikey());
+		campaign = new JSONObject(do_Post(new URL(campaignendpoint), campaign.toString(), getApikey()));
+		return new Campaign(this, campaign);
 	}
 
+	private JSONObject put(JSONObject settings, String key, String value) {
+		if (value != null) {
+			return settings.put(key, value);
+		}
+		return settings;
+	}
+
+	private JSONObject put(JSONObject settings, String key, Boolean value) {
+		if (value != null) {
+			return settings.put(key, value);
+		}
+		return settings;
+	}
+	
 	/**
 	 * Delete a campaign from mailchimp account
 	 * @param campaignID
@@ -483,24 +457,14 @@ public class MailChimpConnection extends Connection{
 		{
 			JSONObject templatesDetail = templatesArray.getJSONObject(i);
 
-			Template template;
-			try{
-				template = new Template(templatesDetail.getInt("id"),
-						templatesDetail.getString("name"),
-						TemplateType.valueOf(templatesDetail.getString("type").toUpperCase()),
-						templatesDetail.getString("share_url"),
-						DateConverter.getInstance().createDateFromISO8601(templatesDetail.getString("date_created")),
-						templatesDetail.getString("folder_id"),
-						this,templatesDetail);
-			} catch (JSONException jsone){
-				template = new Template(templatesDetail.getInt("id"),
-						templatesDetail.getString("name"),
-						TemplateType.valueOf(templatesDetail.getString("type").toUpperCase()),
-						templatesDetail.getString("share_url"),
-						DateConverter.getInstance().createDateFromISO8601(templatesDetail.getString("date_created")),
-						null,
-						this,templatesDetail);
-			}
+			Template template = new Template(templatesDetail.getInt("id"),
+					templatesDetail.getString("name"),
+					TemplateType.valueOf(templatesDetail.getString("type").toUpperCase()),
+					templatesDetail.getString("share_url"),
+					DateConverter.getInstance().createDateFromISO8601(templatesDetail.getString("date_created")),
+					templatesDetail.has("folder_id") ? templatesDetail.getString("folder_id") : null, 
+					this,
+					templatesDetail);
 			templates.add(template);
 		}
 		return templates;
@@ -514,25 +478,14 @@ public class MailChimpConnection extends Connection{
 	 */
 	public Template getTemplate(String id) throws Exception{
 		JSONObject jsonTemplate = new JSONObject(do_Get(new URL(templateendpoint +"/" +id),getApikey()));
-		Template template;
-
-		try{
-			template = new Template(jsonTemplate.getInt("id"),
-					jsonTemplate.getString("name"),
-					TemplateType.valueOf(jsonTemplate.getString("type").toUpperCase()),
-					jsonTemplate.getString("share_url"),
-					DateConverter.getInstance().createDateFromISO8601(jsonTemplate.getString("date_created")),
-					jsonTemplate.getString("folder_id"),
-					this,jsonTemplate);
-		} catch (JSONException jsone){ //No folder_id found
-			template = new Template(jsonTemplate.getInt("id"),
-					jsonTemplate.getString("name"),
-					TemplateType.valueOf(jsonTemplate.getString("type").toUpperCase()),
-					jsonTemplate.getString("share_url"),
-					DateConverter.getInstance().createDateFromISO8601(jsonTemplate.getString("date_created")),
-					null,
-					this,jsonTemplate);
-		}
+		Template template = new Template(jsonTemplate.getInt("id"),
+				jsonTemplate.getString("name"),
+				TemplateType.valueOf(jsonTemplate.getString("type").toUpperCase()),
+				jsonTemplate.getString("share_url"),
+				DateConverter.getInstance().createDateFromISO8601(jsonTemplate.getString("date_created")),
+				jsonTemplate.has("folder_id") ? jsonTemplate.getString("folder_id") : null,
+				this,
+				jsonTemplate);
 		return template;
 	}
 
