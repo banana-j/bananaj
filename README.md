@@ -69,6 +69,21 @@ con.addTemplate("templateName", "htmlCode");
 ```
 
 
+## Create campaign
+To create an email template simply specify a template name and the upload the pure html code to MailChimp
+```
+CampaignSettings settings = new CampaignSettings.Builder()
+		.title("myTitle")
+		.subject_line("mySubject")
+		.to_name("*|FNAME|*")
+		.from_name("myRobot")
+		.reply_to("myEmail@my.domain.com")
+		.template_id(12345)
+		.build();
+Campaign campaign = con.createCampaign(CampaignType.REGULAR, analyticsrList, settings);
+```
+
+
 ## Upload a file to FileManager
 MailChimp offers the opportunity to insert images and other files to your emails. To upload a file to MailChimp create a FileManager and specify the file you want to upload.
 ```
