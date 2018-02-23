@@ -192,7 +192,7 @@ Every endpoint supports GET, POST, and DELETE requests. So it is possible to ful
 # License
 The MIT License (MIT)
 
-Copyright (c) 2015 - 2017 Alexander Weiß
+Copyright (c) 2015 - 2018 Alexander Weiß
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
