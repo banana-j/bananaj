@@ -1,13 +1,23 @@
 package com.github.alexanderwe.bananaj.connection;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.net.URL;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.client.entity.EntityBuilder;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 /**
  * Created by Alexander on 10.08.2016.
@@ -15,145 +25,191 @@ import java.util.Scanner;
 public class Connection {
 
 
-    public String do_Get(URL url, String authorization) throws Exception{
-        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+	public String do_Get(URL url, String authorization) throws Exception{
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		HttpGet httpget = new HttpGet(url.toURI());
+		httpget.addHeader("Authorization", authorization);
+		CloseableHttpResponse response = httpclient. execute(httpget);
 
-        // optional default is GET
-        con.setRequestMethod("GET");
+		InputStream entityStream = null;
+		try {
+			int responseCode = response.getStatusLine().getStatusCode();
+			System.out.println("\nSending 'GET' request to URL : " + url + System.lineSeparator());
+			System.out.println("Response Code : " + responseCode+"\n");
 
-        //add request header
-        con.setRequestProperty("Authorization",authorization);
+			HttpEntity entity = response.getEntity();
+			long length = entity.getContentLength();
+			entityStream = entity.getContent();
+			StringBuilder strbuilder = new StringBuilder(length > 16  && length < Integer.MAX_VALUE ? (int)length : 200);
+			try (Reader reader = new BufferedReader(new InputStreamReader
+					(entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
+				int c = 0;
+				while ((c = reader.read()) != -1) {
+					strbuilder.append((char) c);
+				}
+			}
+			return strbuilder.toString();
+		} finally {
+			if (entityStream != null) {entityStream.close();}
+			response.close();
+		}
+	}
 
+	public String do_Post(URL url, String post_string, String authorization) throws Exception{
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		HttpPost httppost = new HttpPost(url.toURI());
+		httppost.addHeader("Authorization", authorization);
+		httppost.addHeader("Content-Type", "application/json; charset=UTF-8");
+		httppost.setEntity(EntityBuilder.create().setText(post_string).build());
+		CloseableHttpResponse response = httpclient. execute(httppost);
 
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'GET' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode+"\n");
+		InputStream entityStream = null;
+		try {
+			int responseCode = response.getStatusLine().getStatusCode();
+			System.out.println("\nSending 'POST' request to URL : " + url + System.lineSeparator() + "Send data: " + post_string);
+			System.out.println("Response Code : " + responseCode+"\n");
 
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
+			HttpEntity entity = response.getEntity();
+			long length = entity.getContentLength();
+			entityStream = entity.getContent();
+			StringBuilder strbuilder = new StringBuilder(length > 16  && length < Integer.MAX_VALUE ? (int)length : 200);
+			try (Reader reader = new BufferedReader(new InputStreamReader
+					(entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
+				int c = 0;
+				while ((c = reader.read()) != -1) {
+					strbuilder.append((char) c);
+				}
+			}
+			return strbuilder.toString();
+		} finally {
+			if (entityStream != null) {entityStream.close();}
+			response.close();
+		}
+	}
 
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-        return response.toString();
-    }
+	public String do_Patch(URL url, String patch_string, String authorization) throws Exception{
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		HttpPatch httppatch = new HttpPatch(url.toURI());
+		httppatch.addHeader("Authorization", authorization);
+		httppatch.addHeader("Content-Type", "application/json; charset=UTF-8");
+		httppatch.setEntity(EntityBuilder.create().setText(patch_string).build());
+		CloseableHttpResponse response = httpclient. execute(httppatch);
 
-    public String do_Post(URL url, String post_string, String authorization) throws Exception{
+		InputStream entityStream = null;
+		try {
+			int responseCode = response.getStatusLine().getStatusCode();
+			System.out.println("\nSending 'PATCH' request to URL : " + url + System.lineSeparator() + "Send data: " + patch_string);
+			System.out.println("Response Code : " + responseCode+"\n");
 
-        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-        con.setRequestProperty("Authorization", authorization);
-        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-        // Indicate that we want to write to the HTTP request body
-        con.setDoOutput(true);
-        con.setRequestMethod("POST");
+			HttpEntity entity = response.getEntity();
+			long length = entity.getContentLength();
+			entityStream = entity.getContent();
+			StringBuilder strbuilder = new StringBuilder(length > 16  && length < Integer.MAX_VALUE ? (int)length : 200);
+			try (Reader reader = new BufferedReader(new InputStreamReader
+					(entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
+				int c = 0;
+				while ((c = reader.read()) != -1) {
+					strbuilder.append((char) c);
+				}
+			}
+			return strbuilder.toString();
+		} finally {
+			if (entityStream != null) {entityStream.close();}
+			response.close();
+		}
+	}
 
-        // Writing the post data to the HTTP request body
-        BufferedWriter httpRequestBodyWriter = new BufferedWriter(new OutputStreamWriter(con.getOutputStream()));
-        httpRequestBodyWriter.write(post_string);
-        httpRequestBodyWriter.close();
+	public String do_Put(URL url, String patch_string, String authorization) throws Exception{
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		HttpPut httpput = new HttpPut(url.toURI());
+		httpput.addHeader("Authorization", authorization);
+		httpput.addHeader("Content-Type", "application/json; charset=UTF-8");
+		httpput.setEntity(EntityBuilder.create().setText(patch_string).build());
+		CloseableHttpResponse response = httpclient. execute(httpput);
 
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'POST' request to URL : " + url + System.lineSeparator() + "Send data: " + post_string);
-        System.out.println("Response Code : " + responseCode+"\n");
+		InputStream entityStream = null;
+		try {
+			int responseCode = response.getStatusLine().getStatusCode();
+			System.out.println("\nSending 'PUT' request to URL : " + url + System.lineSeparator() + "Send data: " + patch_string);
+			System.out.println("Response Code : " + responseCode+"\n");
 
-        // Reading from the HTTP response body
-        Scanner httpResponseScanner = new Scanner(con.getInputStream());
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-        try{
-            while ((inputLine = httpResponseScanner.nextLine()) != null) {
-                response.append(inputLine);
-            }
-        }catch (NoSuchElementException nsee){
-            System.out.println("Line not found error: "+nsee.toString());
-        }
+			HttpEntity entity = response.getEntity();
+			long length = entity.getContentLength();
+			entityStream = entity.getContent();
+			StringBuilder strbuilder = new StringBuilder(length > 16  && length < Integer.MAX_VALUE ? (int)length : 200);
+			try (Reader reader = new BufferedReader(new InputStreamReader
+					(entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
+				int c = 0;
+				while ((c = reader.read()) != -1) {
+					strbuilder.append((char) c);
+				}
+			}
+			return strbuilder.toString();
+		} finally {
+			if (entityStream != null) {entityStream.close();}
+			response.close();
+		}
+	}
 
-        httpResponseScanner.close();
-        return response.toString();
-    }
+	public String do_Post(URL url, String authorization) throws Exception{
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		HttpPost httppost = new HttpPost(url.toURI());
+		httppost.addHeader("Authorization", authorization);
+		httppost.addHeader("Content-Type", "application/json; charset=UTF-8");
+		CloseableHttpResponse response = httpclient. execute(httppost);
 
-    public String do_Patch(URL url, String patch_string, String authorization) throws Exception{
+		InputStream entityStream = null;
+		try {
+			int responseCode = response.getStatusLine().getStatusCode();
+			System.out.println("\nSending 'POST' request to URL : " + url);
+			System.out.println("Response Code : " + responseCode+"\n");
 
-        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-        con.setRequestProperty("Authorization", authorization);
-        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-        con.setRequestProperty("X-HTTP-Method-Override", "PATCH");
-        // Indicate that we want to write to the HTTP request body
-        con.setDoOutput(true);
-        con.setRequestMethod("POST");
+			HttpEntity entity = response.getEntity();
+			long length = entity.getContentLength();
+			entityStream = entity.getContent();
+			StringBuilder strbuilder = new StringBuilder(length > 16  && length < Integer.MAX_VALUE ? (int)length : 200);
+			try (Reader reader = new BufferedReader(new InputStreamReader
+					(entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
+				int c = 0;
+				while ((c = reader.read()) != -1) {
+					strbuilder.append((char) c);
+				}
+			}
+			return strbuilder.toString();
+		} finally {
+			if (entityStream != null) {entityStream.close();}
+			response.close();
+		}
+	}
 
-        // Writing the post data to the HTTP request body
-        BufferedWriter httpRequestBodyWriter = new BufferedWriter(new OutputStreamWriter(con.getOutputStream()));
-        httpRequestBodyWriter.write(patch_string);
-        httpRequestBodyWriter.close();
+	public String do_Delete(URL url, String authorization) throws Exception{
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		HttpDelete httpdelete = new HttpDelete(url.toURI());
+		httpdelete.addHeader("Authorization", authorization);
+		httpdelete.addHeader("Content-Type", "application/json; charset=UTF-8");
+		CloseableHttpResponse response = httpclient. execute(httpdelete);
 
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'PATCH' request to URL : " + url + System.lineSeparator() + "Send data: " + patch_string);
-        System.out.println("Response Code : " + responseCode+"\n");
+		InputStream entityStream = null;
+		try {
+			int responseCode = response.getStatusLine().getStatusCode();
+			System.out.println("\nSending 'DELETE' request to URL : " + url);
+			System.out.println("Response Code : " + responseCode+"\n");
 
-        // Reading from the HTTP response body
-        Scanner httpResponseScanner = new Scanner(con.getInputStream());
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-        try{
-            while ((inputLine = httpResponseScanner.nextLine()) != null) {
-                response.append(inputLine);
-            }
-        }catch (NoSuchElementException nsee){
-            System.out.println("Line not found error: "+nsee.toString());
-        }
-
-        httpResponseScanner.close();
-        return response.toString();
-    }
-
-    public String do_Post(URL url, String authorization) throws Exception{
-        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-
-        // optional default is GET
-        con.setRequestMethod("POST");
-
-        //add request header
-        con.setRequestProperty("Authorization",authorization);
-
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'POST' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode+"\n");
-
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-        return response.toString();
-    }
-
-    public String do_Delete(URL url, String authorization) throws Exception{
-        HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-        con.setRequestMethod("DELETE");
-        con.setRequestProperty("Authorization", authorization);
-
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'DELETE' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode+"\n");
-
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-
-        while ((inputLine = in.readLine()) != null)
-        {
-            response.append(inputLine);
-        }
-        in.close();
-        return response.toString();
-    }
+			HttpEntity entity = response.getEntity();
+			long length = entity.getContentLength();
+			entityStream = entity.getContent();
+			StringBuilder strbuilder = new StringBuilder(length > 16  && length < Integer.MAX_VALUE ? (int)length : 200);
+			try (Reader reader = new BufferedReader(new InputStreamReader
+					(entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
+				int c = 0;
+				while ((c = reader.read()) != -1) {
+					strbuilder.append((char) c);
+				}
+			}
+			return strbuilder.toString();
+		} finally {
+			if (entityStream != null) {entityStream.close();}
+			response.close();
+		}
+	}
 }
