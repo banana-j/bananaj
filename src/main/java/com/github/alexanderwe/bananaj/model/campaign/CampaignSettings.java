@@ -137,7 +137,7 @@ public class CampaignSettings {
 	public void changeSubjectLine(String newSubject) throws Exception{
 		JSONObject updatedCampaign = new JSONObject();
 		JSONObject updatedSettings = new JSONObject();
-		updatedSettings.put("subject", newSubject);
+		updatedSettings.put("subject_line", newSubject);
 		updatedCampaign.put("settings", updatedSettings);
 		this.getConnection().do_Patch(new URL(this.getConnection().getCampaignendpoint()+"/"+this.getCampaignId()),updatedCampaign.toString(),this.getConnection().getApikey());
 		this.subject_line = newSubject;
