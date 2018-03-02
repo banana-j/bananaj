@@ -1,16 +1,18 @@
 package com.github.alexanderwe.bananaj.model.list.segment;
 
-import com.github.alexanderwe.bananaj.exceptions.ConditionException;
 import org.json.JSONObject;
 
+import com.github.alexanderwe.bananaj.exceptions.ConditionException;
+
 /**
- * Created by alexanderweiss on 27.12.16.
+ * Segment option condition condition_type uses an integer value
  */
-public class Condition {
+public class IntegerCondition implements AbstractCondition {
 
     private String field;
     private Operator operator;
-    private String value;
+    private Integer extra;
+    private Integer value;
 
     /**
      * Used when created a Condition locally with the Builder class
@@ -18,7 +20,7 @@ public class Condition {
      * @param b
      */
 
-    public Condition(Builder b) throws ConditionException{
+    public IntegerCondition(Builder b) throws ConditionException{
         if (b.operator == null) {
             throw new ConditionException("A condition need an operator.");
         } else {
@@ -31,6 +33,8 @@ public class Condition {
             this.field = b.field;
         }
 
+        this.extra = b.extra;
+        
         if (b.value == null) {
             throw new ConditionException("A condition need a value to compare on.");
         } else {
@@ -46,33 +50,40 @@ public class Condition {
         return operator;
     }
 
-    public String getValue() {
+    public Integer getExtra() {
+        return extra;
+    }
+
+    public Integer getValue() {
         return value;
     }
 
+    @Override
     public JSONObject getJsonRepresentation(){
         JSONObject condition = new JSONObject();
-        condition.put("op", this.getOp().getStringRepresentation());
-        condition.put("field", this.getField());
-        condition.put("value", this.getValue());
+        condition.put("op", getOp().value());
+        condition.put("field", getField());
+        condition.put("value", getValue());
 
         return condition;
     }
 
     @Override
     public String toString(){
-        return "Field: " + this.getField() + System.lineSeparator() +
-                "Operator: " + this.getOp().getStringRepresentation() +  System.lineSeparator() +
-                "Value: " + this.getValue();
+        return "Field: " + getField() + System.lineSeparator() +
+                "Operator: " + getOp().value() +  System.lineSeparator() +
+                getExtra() != null ? "Extra: " + getExtra() + System.lineSeparator() : "" +
+                "Value: " + getValue() + System.lineSeparator();
     }
 
     public static class Builder {
         private String field;
         private Operator operator;
-        private String value;
+        private Integer extra;
+        private Integer value;
 
-        public Builder field(String s) {
-            this.field = s;
+        public Builder field(String field) {
+            this.field = field;
             return this;
         }
 
@@ -81,14 +92,19 @@ public class Condition {
             return this;
         }
 
-        public Builder value(String value) {
+        public Builder extra(Integer extra) {
+            this.extra = extra;
+            return this;
+        }
+
+       public Builder value(Integer value) {
             this.value = value;
             return this;
         }
 
-        public Condition build() {
+        public IntegerCondition build() {
             try {
-                return new Condition(this);
+                return new IntegerCondition(this);
             } catch (ConditionException e) {
                 e.printStackTrace();
             }

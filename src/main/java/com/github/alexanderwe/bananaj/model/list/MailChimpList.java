@@ -4,25 +4,6 @@
  */
 package com.github.alexanderwe.bananaj.model.list;
 
-import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
-import com.github.alexanderwe.bananaj.exceptions.EmailException;
-import com.github.alexanderwe.bananaj.exceptions.FileFormatException;
-import jxl.*;
-import jxl.read.biff.BiffException;
-import jxl.write.*;
-import jxl.write.Number;
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
-import com.github.alexanderwe.bananaj.model.list.member.Member;
-import com.github.alexanderwe.bananaj.model.list.member.MemberStatus;
-import com.github.alexanderwe.bananaj.model.list.mergefield.MergeField;
-import com.github.alexanderwe.bananaj.model.list.mergefield.MergeFieldOptions;
-import com.github.alexanderwe.bananaj.model.list.segment.*;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import com.github.alexanderwe.bananaj.utils.DateConverter;
-import com.github.alexanderwe.bananaj.utils.EmailValidator;
-import com.github.alexanderwe.bananaj.utils.FileInspector;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -30,7 +11,49 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
+import java.util.Map.Entry;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.exceptions.EmailException;
+import com.github.alexanderwe.bananaj.exceptions.FileFormatException;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
+import com.github.alexanderwe.bananaj.model.list.member.Member;
+import com.github.alexanderwe.bananaj.model.list.member.MemberStatus;
+import com.github.alexanderwe.bananaj.model.list.mergefield.MergeField;
+import com.github.alexanderwe.bananaj.model.list.mergefield.MergeFieldOptions;
+import com.github.alexanderwe.bananaj.model.list.segment.AbstractCondition;
+import com.github.alexanderwe.bananaj.model.list.segment.ConditionType;
+import com.github.alexanderwe.bananaj.model.list.segment.DoubleCondition;
+import com.github.alexanderwe.bananaj.model.list.segment.IPGeoInCondition;
+import com.github.alexanderwe.bananaj.model.list.segment.IntegerCondition;
+import com.github.alexanderwe.bananaj.model.list.segment.MatchType;
+import com.github.alexanderwe.bananaj.model.list.segment.OpCondition;
+import com.github.alexanderwe.bananaj.model.list.segment.Operator;
+import com.github.alexanderwe.bananaj.model.list.segment.Options;
+import com.github.alexanderwe.bananaj.model.list.segment.Segment;
+import com.github.alexanderwe.bananaj.model.list.segment.SegmentType;
+import com.github.alexanderwe.bananaj.model.list.segment.StringArrayCondition;
+import com.github.alexanderwe.bananaj.model.list.segment.StringCondition;
+import com.github.alexanderwe.bananaj.utils.DateConverter;
+import com.github.alexanderwe.bananaj.utils.EmailValidator;
+import com.github.alexanderwe.bananaj.utils.FileInspector;
+
+import jxl.Cell;
+import jxl.CellType;
+import jxl.CellView;
+import jxl.Sheet;
+import jxl.Workbook;
+import jxl.read.biff.BiffException;
+import jxl.write.Label;
+import jxl.write.Number;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableFont;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
 
 
 /**
@@ -82,7 +105,7 @@ public class MailChimpList extends MailchimpObject {
 
 			HashMap<String, Object> merge_fields = new HashMap<String, Object>();
 
-			Iterator a = memberMergeTags.keys();
+			Iterator<String> a = memberMergeTags.keys();
 			while(a.hasNext()) {
 				String key = (String)a.next();
 				// loop to get the dynamic key
@@ -109,7 +132,7 @@ public class MailChimpList extends MailchimpObject {
 
 		HashMap<String, Object> merge_fields = new HashMap<String, Object>();
 
-		Iterator a = memberMergeTags.keys();
+		Iterator<String> a = memberMergeTags.keys();
 		while(a.hasNext()) {
 			String key = (String)a.next();
 			// loop to get the dynamic key
@@ -146,9 +169,9 @@ public class MailChimpList extends MailchimpObject {
 		JSONObject member = new JSONObject();
 		JSONObject merge_fields = new JSONObject();
 
-		Iterator it = merge_fields_values.entrySet().iterator();
+		Iterator<Entry<String, Object>> it = merge_fields_values.entrySet().iterator();
 		while (it.hasNext()) {
-			Map.Entry pair = (Map.Entry)it.next();
+			Entry<String, Object> pair = it.next();
 			it.remove(); // avoids a ConcurrentModificationException
 			merge_fields.put(pair.getKey().toString(), pair.getValue());
 		}
@@ -156,7 +179,7 @@ public class MailChimpList extends MailchimpObject {
 		member.put("status", status.getStringRepresentation());
 		member.put("email_address", emailAddress);
 		member.put("merge_fields", merge_fields);
-        getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getId()+"/members"),member.toString(),connection.getApikey());
+        getConnection().do_Post(url,member.toString(),connection.getApikey());
 		this.membercount++;
 	}
 
@@ -231,51 +254,7 @@ public class MailChimpList extends MailchimpObject {
 
 		for (int i = 0; i<segmentsArray.length(); i++){
 			final JSONObject segmentDetail = segmentsArray.getJSONObject(i);
-			Segment segment;
-
-			//Extract options and conditions
-			if (segmentDetail.getString("type").equals(SegmentType.STATIC.getStringRepresentation())) {  //IF SEGMENT IS STATIC NO OPTION FIELD IS PROVIDED
-				segment = new Segment(
-						segmentDetail.getInt("id"),
-						segmentDetail.getString("name"),
-						segmentDetail.getString("list_id"),
-						SegmentType.valueOf(segmentDetail.getString("type").toUpperCase()),
-						DateConverter.getInstance().createDateFromISO8601(segmentDetail.getString("created_at")),
-						DateConverter.getInstance().createDateFromISO8601(segmentDetail.getString("updated_at")),
-						segmentDetail.getInt("member_count"),
-						this.getConnection(),
-						segmentDetail);
-
-			} else {
-				MatchType matchType = MatchType.valueOf(segmentDetail.getJSONObject("options").getString("match").toUpperCase());
-
-				JSONArray jsonConditions = segmentDetail.getJSONObject("options").getJSONArray("conditions");
-
-				ArrayList<Condition> conditions = new ArrayList<>();
-				for (int j = 0; j<jsonConditions.length();j++){
-					JSONObject jsonCondition = jsonConditions.getJSONObject(j);
-
-					conditions.add( new Condition.Builder()
-									.field(jsonCondition.getString("field"))
-									.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
-									.value(jsonCondition.getString("value"))
-									.build());
-
-				}
-
-				segment = new Segment(
-						segmentDetail.getInt("id"),
-						segmentDetail.getString("name"),
-						segmentDetail.getString("list_id"),
-						SegmentType.valueOf(segmentDetail.getString("type").toUpperCase()),
-						DateConverter.getInstance().createDateFromISO8601(segmentDetail.getString("created_at")),
-						DateConverter.getInstance().createDateFromISO8601(segmentDetail.getString("updated_at")),
-						segmentDetail.getInt("member_count"),
-						new Options(matchType, conditions),
-						this.getConnection(),
-						segmentDetail);
-			}
-
+			Segment segment = getSegment(segmentDetail);
 			segments.add(segment);
 		}
 
@@ -290,20 +269,133 @@ public class MailChimpList extends MailchimpObject {
 	 */
 	public Segment getSegment(String segmentID) throws Exception {
 		JSONObject jsonSegment = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+this.getId()+"/segments/"+segmentID) ,connection.getApikey()));
+		return getSegment(jsonSegment);
+	}
 
-		//Extract options and conditions
-		MatchType matchType = MatchType.valueOf(jsonSegment.getJSONObject("options").getString("match").toUpperCase());
+	private Segment getSegment(JSONObject jsonSegment) {
+		Options options = null;
+		SegmentType segmenttype = SegmentType.fromValue(jsonSegment.getString("type"));
 
-		JSONArray jsonConditions = jsonSegment.getJSONObject("options").getJSONArray("conditions");
-		ArrayList<Condition> conditions = new ArrayList<>();
-		for (int i = 0; i<jsonConditions.length();i++){
-			JSONObject jsonCondition = jsonConditions.getJSONObject(i);
+		if (segmenttype == SegmentType.SAVED) {  // STATIC and FUZZY segments don't have conditions
+			//Extract options and conditions
+			ArrayList<AbstractCondition> conditions = null;
+			conditions = new ArrayList<>();
+			MatchType matchType = MatchType.fromValue(jsonSegment.getJSONObject("options").getString("match"));
 
-			conditions.add( new Condition.Builder()
-					.field(jsonCondition.getString("field"))
-					.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
-					.value(jsonCondition.getString("value"))
-					.build());
+			JSONArray jsonConditions = jsonSegment.getJSONObject("options").getJSONArray("conditions");
+			for (int i = 0; i<jsonConditions.length();i++){
+				JSONObject jsonCondition = jsonConditions.getJSONObject(i);
+
+				ConditionType conditiontype = ConditionType.fromValue(jsonCondition.getString("condition_type"));
+				switch(conditiontype) {
+			    case AIM:
+			    case AUTOMATION:
+			    case CONVERSATION:
+			    case EMAIL_CLIENT:
+			    case LANGUAGE:
+			    case SIGNUP_SOURCE:
+			    case SURVEY_MONKEY:
+			    case ECOMM_CATEGORY:
+			    case ECOMM_STORE:
+			    case GOAL_ACTIVITY:
+			    case IP_GEO_COUNTRY_STATE:
+			    case SOCIAL_AGE:
+			    case SOCIAL_GENDER:
+			    case SOCIAL_NETWORK_MEMBER:
+			    case SOCIAL_NETWORK_FOLLOW:
+			    case ADDRESS_MERGE:
+			    case BIRTHDAY_MERGE:
+			    case DATE_MERGE:
+			    case TEXT_MERGE:
+			    case SELECT_MERGE:
+			    case EMAIL_ADDRESS:
+					conditions.add( new StringCondition.Builder()
+							.field(jsonCondition.getString("field"))
+							.operator(Operator.fromValue(jsonCondition.getString("op")))
+							.value(jsonCondition.getString("value"))
+							.build());
+					break;
+					
+			    case ECOMM_SPENT:
+			    case IP_GEO_ZIP:
+					conditions.add( new IntegerCondition.Builder()
+							.field(jsonCondition.getString("field"))
+							.operator(Operator.fromValue(jsonCondition.getString("op")))
+							.value(jsonCondition.getInt("value"))
+							.build());
+					break;
+					
+			    case CAMPAIGN_POLL:
+			    case MEMBER_RATING:
+			    case ECOMM_NUMBER:
+			    case FUZZY_SEGMENT:
+			    case STATIC_SEGMENT:
+			    case SOCIAL_INFLUENCE:
+					conditions.add( new DoubleCondition.Builder()
+							.field(jsonCondition.getString("field"))
+							.operator(Operator.fromValue(jsonCondition.getString("op")))
+							.value(jsonCondition.getDouble("value"))
+							.build());
+					break;
+					
+			    case DATE:
+			    case GOAL_TIMESTAMP:
+			    case ZIP_MERGE:
+					conditions.add( new StringCondition.Builder()
+							.field(jsonCondition.getString("field"))
+							.operator(Operator.fromValue(jsonCondition.getString("op")))
+							.extra(jsonCondition.getString("extra"))
+							.value(jsonCondition.getString("value"))
+							.build());
+					break;
+					
+			    	
+			    case MANDRILL:
+			    case VIP:
+			    case ECOMM_PURCHASED:
+			    case IP_GEO_UNKNOWN:
+					conditions.add( new OpCondition.Builder()
+							.field(jsonCondition.getString("field"))
+							.operator(Operator.fromValue(jsonCondition.getString("op")))
+							.build());
+					break;
+					
+			    	
+			    case INTERESTS:
+					JSONArray jsonArray = jsonCondition.getJSONArray("value");
+					List<String> values = new ArrayList<String>();
+					for (int j=0; j<jsonArray.length(); j++) {
+						values.add( jsonArray.getString(j) );
+					}
+					conditions.add( new StringArrayCondition.Builder()
+							.field(jsonCondition.getString("field"))
+							.operator(Operator.fromValue(jsonCondition.getString("op")))
+							.value(values)
+							.build());
+					break;
+					
+			    case IP_GEO_IN_ZIP:
+					conditions.add( new IntegerCondition.Builder()
+							.field(jsonCondition.getString("field"))
+							.operator(Operator.fromValue(jsonCondition.getString("op")))
+							.extra(jsonCondition.getInt("extra"))
+							.value(jsonCondition.getInt("value"))
+							.build());
+					break;
+					
+			    case IP_GEO_IN:
+					conditions.add( new IPGeoInCondition.Builder()
+							.field(jsonCondition.getString("field"))
+							.operator(Operator.fromValue(jsonCondition.getString("op")))
+							.lng(jsonCondition.getString("lng"))
+							.lat(jsonCondition.getString("lat"))
+							.value(jsonCondition.getInt("value"))
+							.addr(jsonCondition.getString("addr"))
+							.build());
+					break;
+				}
+			}
+			options = new Options(matchType,conditions);
 		}
 
 		return new Segment(
@@ -314,7 +406,7 @@ public class MailChimpList extends MailchimpObject {
 				DateConverter.getInstance().createDateFromISO8601(jsonSegment.getString("created_at")),
 				DateConverter.getInstance().createDateFromISO8601(jsonSegment.getString("updated_at")),
 				jsonSegment.getInt("member_count"),
-				new Options(matchType,conditions),
+				options,
 				this.getConnection(),
 				jsonSegment);
 	}
@@ -532,9 +624,9 @@ public class MailChimpList extends MailchimpObject {
 		if (show_merge){
 			int last_column = 9;
 
-			Iterator iter = members.get(0).getMerge_fields().entrySet().iterator();
+			Iterator<Entry<String, Object>> iter = members.get(0).getMerge_fields().entrySet().iterator();
 			while (iter.hasNext()) {
-				Map.Entry pair = (Map.Entry)iter.next();
+				Entry<String, Object> pair = iter.next();
 				sheet.addCell(new Label(last_column,0,(String)pair.getKey(),times16format));
 				iter.remove(); // avoids a ConcurrentModificationException
 				last_column++;
@@ -559,9 +651,9 @@ public class MailChimpList extends MailchimpObject {
 			if (show_merge){
 				//add merge fields values
 				int last_index = 9;
-				Iterator iter_member = member.getMerge_fields().entrySet().iterator();
+				Iterator<Entry<String, Object>> iter_member = member.getMerge_fields().entrySet().iterator();
 				while (iter_member.hasNext()) {
-					Map.Entry pair = (Map.Entry)iter_member.next();
+					Entry<String, Object> pair = iter_member.next();
 					sheet.addCell(new Label(last_index,i+1,(String)pair.getValue()));
 					iter_member.remove(); // avoids a ConcurrentModificationException
 					last_index++;
