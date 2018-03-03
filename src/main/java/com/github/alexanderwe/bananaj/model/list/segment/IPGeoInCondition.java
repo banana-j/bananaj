@@ -3,12 +3,14 @@ package com.github.alexanderwe.bananaj.model.list.segment;
 import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.exceptions.ConditionException;
+import com.github.alexanderwe.bananaj.model.list.segment.StringCondition.Builder;
 
 /**
  * Segment option condition condition_type for "IPGeoIn"
  */
 public class IPGeoInCondition implements AbstractCondition {
 
+	private ConditionType condition_type;
     private Operator op;
     private String field;
     private String lng;
@@ -22,14 +24,39 @@ public class IPGeoInCondition implements AbstractCondition {
      * @param b
      */
 
-    public IPGeoInCondition(Builder b) throws ConditionException{
-    	this.op = b.op;
-    	this.field = b.field;
+    public IPGeoInCondition(Builder b) throws ConditionException {
+        if (b.condition_type == null) {
+            throw new ConditionException("A condition need a condition_type.");
+        } else {
+            this.condition_type = b.condition_type;
+        }
+
+        if (b.op == null) {
+            throw new ConditionException("A condition need an operator.");
+        } else {
+        	this.op = b.op;
+        }
+
+        if (b.field == null) {
+            throw new ConditionException("A condition need a field to operate on.");
+        } else {
+            this.field = b.field;
+        }
+
+        if (b.value == null) {
+            throw new ConditionException("A condition need a value to compare on.");
+        } else {
+            this.value = b.value;
+        }
+
     	this.lng = b.lng;
     	this.lat = b.lat;
     	this.addr = b.addr;
-    	this.value = b.value;
     }
+
+	public ConditionType getConditionType() {
+		return condition_type;
+	}
 
     public String getField() {
         return field;
@@ -58,6 +85,7 @@ public class IPGeoInCondition implements AbstractCondition {
 	@Override
     public JSONObject getJsonRepresentation(){
         JSONObject condition = new JSONObject();
+        condition.put("condition_type", getConditionType());
         condition.put("op", getOp().value());
         condition.put("field", getField());
         condition.put("value", getValue());
@@ -67,7 +95,8 @@ public class IPGeoInCondition implements AbstractCondition {
 
     @Override
     public String toString(){
-        return "Field: " + getField() + System.lineSeparator() +
+        return "ConditionType: " + getConditionType() + System.lineSeparator() +
+        		"Field: " + getField() + System.lineSeparator() +
                 "Operator: " + getOp().value() +  System.lineSeparator() +
                 "Lat: " + getLat() + System.lineSeparator() +
                 "Lng: " + getLng() + System.lineSeparator() +
@@ -76,12 +105,18 @@ public class IPGeoInCondition implements AbstractCondition {
     }
 
     public static class Builder {
+    	private ConditionType condition_type;
         private Operator op;
         private String field;
         private String lng;
         private String lat;
         private Integer value;
         private String addr;
+
+        public Builder conditionType(ConditionType condition_type) {
+            this.condition_type = condition_type;
+            return this;
+        }
 
         public Builder field(String field) {
             this.field = field;

@@ -310,6 +310,7 @@ public class MailChimpList extends MailchimpObject {
 			    case SELECT_MERGE:
 			    case EMAIL_ADDRESS:
 					conditions.add( new StringCondition.Builder()
+							.conditionType(conditiontype)
 							.field(jsonCondition.getString("field"))
 							.operator(Operator.fromValue(jsonCondition.getString("op")))
 							.value(jsonCondition.getString("value"))
@@ -319,6 +320,7 @@ public class MailChimpList extends MailchimpObject {
 			    case ECOMM_SPENT:
 			    case IP_GEO_ZIP:
 					conditions.add( new IntegerCondition.Builder()
+							.conditionType(conditiontype)
 							.field(jsonCondition.getString("field"))
 							.operator(Operator.fromValue(jsonCondition.getString("op")))
 							.value(jsonCondition.getInt("value"))
@@ -332,6 +334,7 @@ public class MailChimpList extends MailchimpObject {
 			    case STATIC_SEGMENT:
 			    case SOCIAL_INFLUENCE:
 					conditions.add( new DoubleCondition.Builder()
+							.conditionType(conditiontype)
 							.field(jsonCondition.getString("field"))
 							.operator(Operator.fromValue(jsonCondition.getString("op")))
 							.value(jsonCondition.getDouble("value"))
@@ -342,6 +345,7 @@ public class MailChimpList extends MailchimpObject {
 			    case GOAL_TIMESTAMP:
 			    case ZIP_MERGE:
 					conditions.add( new StringCondition.Builder()
+							.conditionType(conditiontype)
 							.field(jsonCondition.getString("field"))
 							.operator(Operator.fromValue(jsonCondition.getString("op")))
 							.extra(jsonCondition.getString("extra"))
@@ -355,6 +359,7 @@ public class MailChimpList extends MailchimpObject {
 			    case ECOMM_PURCHASED:
 			    case IP_GEO_UNKNOWN:
 					conditions.add( new OpCondition.Builder()
+							.conditionType(conditiontype)
 							.field(jsonCondition.getString("field"))
 							.operator(Operator.fromValue(jsonCondition.getString("op")))
 							.build());
@@ -368,6 +373,7 @@ public class MailChimpList extends MailchimpObject {
 						values.add( jsonArray.getString(j) );
 					}
 					conditions.add( new StringArrayCondition.Builder()
+							.conditionType(conditiontype)
 							.field(jsonCondition.getString("field"))
 							.operator(Operator.fromValue(jsonCondition.getString("op")))
 							.value(values)
@@ -376,6 +382,7 @@ public class MailChimpList extends MailchimpObject {
 					
 			    case IP_GEO_IN_ZIP:
 					conditions.add( new IntegerCondition.Builder()
+							.conditionType(conditiontype)
 							.field(jsonCondition.getString("field"))
 							.operator(Operator.fromValue(jsonCondition.getString("op")))
 							.extra(jsonCondition.getInt("extra"))
@@ -385,6 +392,7 @@ public class MailChimpList extends MailchimpObject {
 					
 			    case IP_GEO_IN:
 					conditions.add( new IPGeoInCondition.Builder()
+							.conditionType(conditiontype)
 							.field(jsonCondition.getString("field"))
 							.operator(Operator.fromValue(jsonCondition.getString("op")))
 							.lng(jsonCondition.getString("lng"))

@@ -8,12 +8,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.exceptions.ConditionException;
+import com.github.alexanderwe.bananaj.model.list.segment.StringCondition.Builder;
 
 /**
  * Segment option condition condition_type uses a String array value
  */
 public class StringArrayCondition implements AbstractCondition {
 
+	private ConditionType condition_type;
     private String field;
     private Operator op;
     private List<String> value = new ArrayList<String>();
@@ -24,7 +26,13 @@ public class StringArrayCondition implements AbstractCondition {
      * @param b
      */
 
-    public StringArrayCondition(Builder b) throws ConditionException{
+    public StringArrayCondition(Builder b) throws ConditionException {
+        if (b.condition_type == null) {
+            throw new ConditionException("A condition need a condition_type.");
+        } else {
+            this.condition_type = b.condition_type;
+        }
+
         if (b.operator == null) {
             throw new ConditionException("A condition need an operator.");
         } else {
@@ -43,6 +51,10 @@ public class StringArrayCondition implements AbstractCondition {
             this.value = b.value;
         }
     }
+
+	public ConditionType getConditionType() {
+		return condition_type;
+	}
 
     public String getField() {
         return field;
@@ -66,6 +78,7 @@ public class StringArrayCondition implements AbstractCondition {
         	valuearray.put(v.next());
         }
         
+        condition.put("condition_type", getConditionType());
         condition.put("op", getOp().value());
         condition.put("field", getField());
         condition.put("value", valuearray);
@@ -75,15 +88,22 @@ public class StringArrayCondition implements AbstractCondition {
 
     @Override
     public String toString(){
-        return "Field: " + getField() + System.lineSeparator() +
+        return "ConditionType: " + getConditionType() + System.lineSeparator() +
+        		"Field: " + getField() + System.lineSeparator() +
                 "Operator: " + getOp().value() +  System.lineSeparator() +
                 "Value: " + getValue() + System.lineSeparator();
     }
 
     public static class Builder {
+    	private ConditionType condition_type;
         private String field;
         private Operator operator;
         private List<String> value = new ArrayList<String>();
+
+        public Builder conditionType(ConditionType condition_type) {
+            this.condition_type = condition_type;
+            return this;
+        }
 
         public Builder field(String field) {
             this.field = field;

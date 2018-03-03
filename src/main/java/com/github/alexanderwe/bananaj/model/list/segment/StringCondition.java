@@ -9,6 +9,7 @@ import com.github.alexanderwe.bananaj.exceptions.ConditionException;
  */
 public class StringCondition implements AbstractCondition {
 
+	private ConditionType condition_type;
     private String field;
     private Operator operator;
     private String extra;
@@ -20,7 +21,13 @@ public class StringCondition implements AbstractCondition {
      * @param b
      */
 
-    public StringCondition(Builder b) throws ConditionException{
+    public StringCondition(Builder b) throws ConditionException {
+        if (b.condition_type == null) {
+            throw new ConditionException("A condition need a condition_type.");
+        } else {
+            this.condition_type = b.condition_type;
+        }
+
         if (b.operator == null) {
             throw new ConditionException("A condition need an operator.");
         } else {
@@ -42,7 +49,11 @@ public class StringCondition implements AbstractCondition {
         }
     }
 
-    public String getField() {
+	public ConditionType getConditionType() {
+		return condition_type;
+	}
+
+	public String getField() {
         return field;
     }
 
@@ -61,6 +72,7 @@ public class StringCondition implements AbstractCondition {
     @Override
     public JSONObject getJsonRepresentation(){
         JSONObject condition = new JSONObject();
+        condition.put("condition_type", getConditionType());
         condition.put("op", getOp().value());
         condition.put("field", getField());
         if (getExtra() != null) {
@@ -72,18 +84,25 @@ public class StringCondition implements AbstractCondition {
     }
 
     @Override
-    public String toString(){
-        return "Field: " + getField() + System.lineSeparator() +
+    public String toString() {
+        return "ConditionType: " + getConditionType() + System.lineSeparator() +
+        		"Field: " + getField() + System.lineSeparator() +
                 "Operator: " + getOp().value() +  System.lineSeparator() +
                 getExtra() != null ? "Extra: " + getExtra() + System.lineSeparator() : "" +
                 "Value: " + getValue() + System.lineSeparator();
     }
 
     public static class Builder {
+    	private ConditionType condition_type;
         private String field;
         private Operator operator;
         private String extra;
         private String value;
+
+        public Builder conditionType(ConditionType condition_type) {
+            this.condition_type = condition_type;
+            return this;
+        }
 
         public Builder field(String field) {
             this.field = field;
