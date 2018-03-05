@@ -1,10 +1,10 @@
 package com.github.alexanderwe.bananaj.model.list.segment;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * Created by alexanderweiss on 04.02.16.
@@ -12,20 +12,20 @@ import java.util.List;
 public class Options {
 
     private MatchType matchType;
-    private List<Condition> conditions;
+    private List<AbstractCondition> conditions;
 
 
     public Options(){
 
     }
 
-    public Options (MatchType matchType, ArrayList<Condition> conditions){
+    public Options (MatchType matchType, ArrayList<AbstractCondition> conditions){
         setMatchType(matchType);
         setConditions(conditions);
     }
 
 
-    public void addCondition(Condition condition){
+    public void addCondition(AbstractCondition condition){
         this.conditions.add(condition);
     }
 
@@ -37,21 +37,21 @@ public class Options {
         this.matchType = matchType;
     }
 
-    public List<Condition> getConditions() {
+    public List<AbstractCondition> getConditions() {
         return conditions;
     }
 
-    public void setConditions(ArrayList<Condition> conditions) {
+    public void setConditions(ArrayList<AbstractCondition> conditions) {
         this.conditions = conditions;
     }
 
     public JSONObject getJsonRepresentation(){
         JSONObject options = new JSONObject();
-        options.put("match", this.getMatchType().getStringRepresentation());
+        options.put("match", this.getMatchType().value());
 
         JSONArray conditions = new JSONArray();
 
-        for(Condition condition: this.getConditions()){
+        for(AbstractCondition condition: this.getConditions()){
             conditions.put(condition.getJsonRepresentation());
         }
 
@@ -62,7 +62,7 @@ public class Options {
 
     @Override
     public String toString(){
-        return "Match type: " + this.getMatchType().getStringRepresentation() +  System.lineSeparator() +
+        return "Match type: " + this.getMatchType().value() +  System.lineSeparator() +
                 "Conditions: " + this.getConditions() + System.lineSeparator();
     }
 

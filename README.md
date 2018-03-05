@@ -73,6 +73,7 @@ con.addTemplate("templateName", "htmlCode");
 ## Create campaign
 To create an email template simply specify a template name and the upload the pure html code to MailChimp
 ```
+MailChimpList myList = con.getList("myListId");
 CampaignSettings settings = new CampaignSettings.Builder()
 		.title("myTitle")
 		.subject_line("mySubject")
@@ -81,7 +82,7 @@ CampaignSettings settings = new CampaignSettings.Builder()
 		.reply_to("myEmail@my.domain.com")
 		.template_id(12345)
 		.build();
-Campaign campaign = con.createCampaign(CampaignType.REGULAR, analyticsrList, settings);
+Campaign campaign = con.createCampaign(CampaignType.REGULAR, myList, settings);
 ```
 
 
