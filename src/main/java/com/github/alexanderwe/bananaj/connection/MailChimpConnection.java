@@ -23,6 +23,7 @@ import com.github.alexanderwe.bananaj.model.automation.AutomationStatus;
 import com.github.alexanderwe.bananaj.model.campaign.Campaign;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignDefaults;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignFolder;
+import com.github.alexanderwe.bananaj.model.campaign.CampaignRecipients;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignSettings;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignType;
 import com.github.alexanderwe.bananaj.model.list.MailChimpList;
@@ -364,6 +365,38 @@ public class MailChimpConnection extends Connection{
 		return new Campaign(this, campaign);
 	}
 
+	public Campaign createCampaign(CampaignType type, CampaignRecipients mailRecipients, CampaignSettings settings) throws Exception{
+		
+		JSONObject campaign = new JSONObject();
+		JSONObject recipients = mailRecipients.getJsonRepresentation();
+		
+		JSONObject jsonSettings = new JSONObject();
+		put(jsonSettings, "subject_line", settings.getSubject_line());
+		put(jsonSettings, "title", settings.getTitle());
+		put(jsonSettings, "to_name", settings.getTo_name());
+		put(jsonSettings, "from_name", settings.getFrom_name());
+		put(jsonSettings, "reply_to", settings.getReply_to());
+		if(settings.getTemplate_id() != 0 ) {
+			jsonSettings.put("template_id", settings.getTemplate_id());
+		}
+		put(jsonSettings, "auto_footer", settings.getAuto_footer());
+		put(jsonSettings, "use_conversation", settings.getUse_conversation());
+		put(jsonSettings, "authenticate", settings.getAuthenticate());
+		put(jsonSettings, "timewarp", settings.getTimewarp());
+		put(jsonSettings, "auto_tweet", settings.getAuto_tweet());
+		put(jsonSettings, "fb_comments", settings.getFb_comments());
+		put(jsonSettings, "drag_and_drop", settings.getDrag_and_drop());
+		put(jsonSettings, "inline_css", settings.getInline_css());
+		put(jsonSettings, "folder_id", settings.getFolder_id());
+		
+		campaign.put("type", type.getStringRepresentation());
+		campaign.put("recipients", recipients);
+		campaign.put("settings", jsonSettings);
+		
+		campaign = new JSONObject(do_Post(new URL(campaignendpoint), campaign.toString(), getApikey()));
+		return new Campaign(this, campaign);
+	}
+	
 	private JSONObject put(JSONObject settings, String key, String value) {
 		if (value != null) {
 			return settings.put(key, value);
