@@ -1,6 +1,6 @@
 /bin/
 .idea/*
-target/*
+/target/
 src/test/*
 *.iml
 .DS_Store
