@@ -34,7 +34,7 @@ public class Connection {
 		InputStream entityStream = null;
 		try {
 			int responseCode = response.getStatusLine().getStatusCode();
-			System.out.println("\nSending 'GET' request to URL : " + url + System.lineSeparator());
+			System.out.println("\nSending 'GET' request to URL : " + url);
 			System.out.println("Response Code : " + responseCode+"\n");
 
 			HttpEntity entity = response.getEntity();
@@ -196,17 +196,20 @@ public class Connection {
 			System.out.println("Response Code : " + responseCode+"\n");
 
 			HttpEntity entity = response.getEntity();
-			long length = entity.getContentLength();
-			entityStream = entity.getContent();
-			StringBuilder strbuilder = new StringBuilder(length > 16  && length < Integer.MAX_VALUE ? (int)length : 200);
-			try (Reader reader = new BufferedReader(new InputStreamReader
-					(entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
-				int c = 0;
-				while ((c = reader.read()) != -1) {
-					strbuilder.append((char) c);
+			if (entity != null) {
+				long length = entity.getContentLength();
+				entityStream = entity.getContent();
+				StringBuilder strbuilder = new StringBuilder(length > 16  && length < Integer.MAX_VALUE ? (int)length : 200);
+				try (Reader reader = new BufferedReader(new InputStreamReader
+						(entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
+					int c = 0;
+					while ((c = reader.read()) != -1) {
+						strbuilder.append((char) c);
+					}
 				}
+				return strbuilder.toString();
 			}
-			return strbuilder.toString();
+			return null;
 		} finally {
 			if (entityStream != null) {entityStream.close();}
 			response.close();
