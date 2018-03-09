@@ -6,6 +6,7 @@ package com.github.alexanderwe.bananaj.model.campaign;
 
 import java.net.URL;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
@@ -100,6 +101,20 @@ public class Campaign extends MailchimpObject {
 	 */
 	public void send() throws Exception{
 		getConnection().do_Post(new URL(connection.getCampaignendpoint()+"/"+this.getId()+"/actions/send"),connection.getApikey());
+	}
+	
+	/**
+	 * Send the campaign to the mailChimpList members
+	 */
+	public void sendTestEmail(String[] emails, CampaignSendType type) throws Exception {
+		JSONObject data = new JSONObject();
+		JSONArray testEmails = new JSONArray();
+		for (String email : emails) {
+			testEmails.put(email);
+		}
+		data.put("test_emails", testEmails);
+		data.put("send_type", type.toString());
+		getConnection().do_Post(new URL(connection.getCampaignendpoint()+"/"+this.getId()+"/actions/test"), data.toString(), connection.getApikey());
 	}
 	
 	/**
