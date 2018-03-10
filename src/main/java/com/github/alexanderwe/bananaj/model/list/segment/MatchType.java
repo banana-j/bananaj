@@ -1,29 +1,44 @@
 package com.github.alexanderwe.bananaj.model.list.segment;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by alexanderweiss on 27.12.16.
  */
 public enum MatchType {
 
-    ANY("any"),ALL("all");
+    ANY("any"),
+    ALL("all");
 
-    private String stringRepresentation;
+    private final String value;
+    private final static Map<String, MatchType> CONSTANTS = new HashMap<String, MatchType>();
 
-    MatchType(String stringRepresentation ){
-        setStringRepresentation(stringRepresentation);
+    static {
+        for (MatchType c: values()) {
+            CONSTANTS.put(c.value, c);
+        }
     }
 
-    /**
-     * @return the stringRepresentation
-     */
-    public String getStringRepresentation() {
-        return stringRepresentation;
+    private MatchType(String value) {
+        this.value = value;
     }
 
-    /**
-     * @param stringRepresentation the stringRepresentation to set
-     */
-    private void setStringRepresentation(String stringRepresentation) {
-        this.stringRepresentation = stringRepresentation;
+    @Override
+    public String toString() {
+        return this.value;
+    }
+    
+    public String value() {
+        return value;
+    }
+
+    public static MatchType fromValue(String value) {
+    	MatchType constant = CONSTANTS.get(value);
+        if (constant == null) {
+            throw new IllegalArgumentException(value);
+        } else {
+            return constant;
+        }
     }
 }

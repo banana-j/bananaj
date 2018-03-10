@@ -70,17 +70,20 @@ public class Connection {
 			System.out.println("Response Code : " + responseCode+"\n");
 
 			HttpEntity entity = response.getEntity();
-			long length = entity.getContentLength();
-			entityStream = entity.getContent();
-			StringBuilder strbuilder = new StringBuilder(length > 16  && length < Integer.MAX_VALUE ? (int)length : 200);
-			try (Reader reader = new BufferedReader(new InputStreamReader
-					(entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
-				int c = 0;
-				while ((c = reader.read()) != -1) {
-					strbuilder.append((char) c);
+			if (entity != null) {
+				long length = entity.getContentLength();
+				entityStream = entity.getContent();
+				StringBuilder strbuilder = new StringBuilder(length > 16  && length < Integer.MAX_VALUE ? (int)length : 200);
+				try (Reader reader = new BufferedReader(new InputStreamReader
+						(entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
+					int c = 0;
+					while ((c = reader.read()) != -1) {
+						strbuilder.append((char) c);
+					}
 				}
+				return strbuilder.toString();
 			}
-			return strbuilder.toString();
+			return null;
 		} finally {
 			if (entityStream != null) {entityStream.close();}
 			response.close();
@@ -102,49 +105,55 @@ public class Connection {
 			System.out.println("Response Code : " + responseCode+"\n");
 
 			HttpEntity entity = response.getEntity();
-			long length = entity.getContentLength();
-			entityStream = entity.getContent();
-			StringBuilder strbuilder = new StringBuilder(length > 16  && length < Integer.MAX_VALUE ? (int)length : 200);
-			try (Reader reader = new BufferedReader(new InputStreamReader
-					(entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
-				int c = 0;
-				while ((c = reader.read()) != -1) {
-					strbuilder.append((char) c);
+			if (entity != null) {
+				long length = entity.getContentLength();
+				entityStream = entity.getContent();
+				StringBuilder strbuilder = new StringBuilder(length > 16  && length < Integer.MAX_VALUE ? (int)length : 200);
+				try (Reader reader = new BufferedReader(new InputStreamReader
+						(entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
+					int c = 0;
+					while ((c = reader.read()) != -1) {
+						strbuilder.append((char) c);
+					}
 				}
+				return strbuilder.toString();
 			}
-			return strbuilder.toString();
+			return null;
 		} finally {
 			if (entityStream != null) {entityStream.close();}
 			response.close();
 		}
 	}
 
-	public String do_Put(URL url, String patch_string, String authorization) throws Exception{
+	public String do_Put(URL url, String put_string, String authorization) throws Exception{
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		HttpPut httpput = new HttpPut(url.toURI());
 		httpput.addHeader("Authorization", authorization);
 		httpput.addHeader("Content-Type", "application/json; charset=UTF-8");
-		httpput.setEntity(EntityBuilder.create().setText(patch_string).build());
+		httpput.setEntity(EntityBuilder.create().setText(put_string).build());
 		CloseableHttpResponse response = httpclient. execute(httpput);
 
 		InputStream entityStream = null;
 		try {
 			int responseCode = response.getStatusLine().getStatusCode();
-			System.out.println("\nSending 'PUT' request to URL : " + url + System.lineSeparator() + "Send data: " + patch_string);
+			System.out.println("\nSending 'PUT' request to URL : " + url + System.lineSeparator() + "Send data: " + put_string);
 			System.out.println("Response Code : " + responseCode+"\n");
 
 			HttpEntity entity = response.getEntity();
-			long length = entity.getContentLength();
-			entityStream = entity.getContent();
-			StringBuilder strbuilder = new StringBuilder(length > 16  && length < Integer.MAX_VALUE ? (int)length : 200);
-			try (Reader reader = new BufferedReader(new InputStreamReader
-					(entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
-				int c = 0;
-				while ((c = reader.read()) != -1) {
-					strbuilder.append((char) c);
+			if (entity != null) {
+				long length = entity.getContentLength();
+				entityStream = entity.getContent();
+				StringBuilder strbuilder = new StringBuilder(length > 16  && length < Integer.MAX_VALUE ? (int)length : 200);
+				try (Reader reader = new BufferedReader(new InputStreamReader
+						(entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
+					int c = 0;
+					while ((c = reader.read()) != -1) {
+						strbuilder.append((char) c);
+					}
 				}
+				return strbuilder.toString();
 			}
-			return strbuilder.toString();
+			return null;
 		} finally {
 			if (entityStream != null) {entityStream.close();}
 			response.close();
@@ -165,17 +174,20 @@ public class Connection {
 			System.out.println("Response Code : " + responseCode+"\n");
 
 			HttpEntity entity = response.getEntity();
-			long length = entity.getContentLength();
-			entityStream = entity.getContent();
-			StringBuilder strbuilder = new StringBuilder(length > 16  && length < Integer.MAX_VALUE ? (int)length : 200);
-			try (Reader reader = new BufferedReader(new InputStreamReader
-					(entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
-				int c = 0;
-				while ((c = reader.read()) != -1) {
-					strbuilder.append((char) c);
+			if (entity != null) {
+				long length = entity.getContentLength();
+				entityStream = entity.getContent();
+				StringBuilder strbuilder = new StringBuilder(length > 16  && length < Integer.MAX_VALUE ? (int)length : 200);
+				try (Reader reader = new BufferedReader(new InputStreamReader
+						(entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
+					int c = 0;
+					while ((c = reader.read()) != -1) {
+						strbuilder.append((char) c);
+					}
 				}
+				return strbuilder.toString();
 			}
-			return strbuilder.toString();
+			return null;
 		} finally {
 			if (entityStream != null) {entityStream.close();}
 			response.close();
