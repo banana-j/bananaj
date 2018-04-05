@@ -127,19 +127,7 @@ public class MailChimpList extends MailchimpObject {
 	 */
 	public Member getMember(String memberID) throws Exception{
 		final JSONObject member = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+getId()+"/members/"+memberID),connection.getApikey()));
-    	final JSONObject memberMergeTags = member.getJSONObject("merge_fields");
-    	final JSONObject memberStats = member.getJSONObject("stats");
-
-		HashMap<String, Object> merge_fields = new HashMap<String, Object>();
-
-		Iterator<String> a = memberMergeTags.keys();
-		while(a.hasNext()) {
-			String key = (String)a.next();
-			// loop to get the dynamic key
-			String value = (String)memberMergeTags.get(key);
-			merge_fields.put(key, value);
-		}
-		return new Member(member.getString("id"),this,merge_fields,member.getString("unique_email_id"), member.getString("email_address"),  MemberStatus.valueOf(member.getString("status").toUpperCase()),member.getString("timestamp_signup"),member.getString("ip_signup"),member.getString("timestamp_opt"),member.getString("ip_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),member.getString("last_changed"),this.getConnection(),member);
+    	return new Member(this, member);
 	}
 	
 	/**

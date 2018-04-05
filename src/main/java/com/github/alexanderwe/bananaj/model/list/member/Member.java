@@ -4,17 +4,22 @@
  */
 package com.github.alexanderwe.bananaj.model.list.member;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map.Entry;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
 import com.github.alexanderwe.bananaj.exceptions.EmailException;
 import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import com.github.alexanderwe.bananaj.model.list.MailChimpList;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import com.github.alexanderwe.bananaj.utils.EmailValidator;
-
-import java.net.URL;
-import java.util.*;
 
 
 /**
@@ -40,6 +45,36 @@ public class Member extends MailchimpObject{
 	private MailChimpConnection connection;
 
 
+	public Member(MailChimpList mailChimpList, JSONObject member) {
+        super(member.getString("id"), member);
+    	final JSONObject memberMergeTags = member.getJSONObject("merge_fields");
+    	final JSONObject memberStats = member.getJSONObject("stats");
+    	
+		HashMap<String, Object> merge_fields = new HashMap<String, Object>();
+
+		Iterator<String> a = memberMergeTags.keys();
+		while(a.hasNext()) {
+			String key = a.next();
+			// loop to get the dynamic key
+			String value = (String)memberMergeTags.get(key);
+			merge_fields.put(key, value);
+		}
+		
+        this.mailChimpList = mailChimpList;
+        this.merge_fields = merge_fields;
+        this.unique_email_id = member.getString("unique_email_id");
+        this.email_address = member.getString("email_address");
+        this.status = MemberStatus.valueOf(member.getString("status").toUpperCase());
+        this.timestamp_signup = member.getString("timestamp_signup");
+        this.timestamp_opt = member.getString("timestamp_opt");
+        this.ip_signup = member.getString("ip_signup");
+        this.ip_opt = member.getString("ip_opt");
+        this.avg_open_rate = memberStats.getDouble("avg_open_rate");
+        this.avg_click_rate = memberStats.getDouble("avg_click_rate");
+        this.last_changed = member.getString("last_changed");
+        this.connection = mailChimpList.getConnection();
+	}
+	
 	public Member(String id, MailChimpList mailChimpList, HashMap<String, Object> merge_fields, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String ip_signup, String timestamp_opt, String ip_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailChimpConnection connection, JSONObject jsonRepresentation){
         super(id,jsonRepresentation);
         this.mailChimpList = mailChimpList;
@@ -55,12 +90,6 @@ public class Member extends MailchimpObject{
         this.avg_click_rate = avg_click_rate;
         this.last_changed = last_changed;
         this.connection = connection;
-
-		try{
-			setMemberActivities(unique_email_id, mailChimpList.getId());
-		}catch (Exception e){
-			e.printStackTrace();
-		}
 	}
 	
 	/**
@@ -200,7 +229,19 @@ public class Member extends MailchimpObject{
 	/**
 	 * @return the member activities
 	 */
-	public List<MemberActivity> getMemberActivities(){
+	public List<MemberActivity> getMemberActivities() {
+		if (memberActivities == null) {
+			try {
+				// cache member activity
+				synchronized(this) {
+					if (memberActivities == null) {
+						setMemberActivities(unique_email_id, mailChimpList.getId());
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		return this.memberActivities;
 	}
 
@@ -235,9 +276,9 @@ public class Member extends MailchimpObject{
 	@Override
 	public String toString(){
 		StringBuilder stringBuilder = new StringBuilder();
-		Iterator it = getMerge_fields().entrySet().iterator();
+		Iterator<Entry<String, Object>> it = getMerge_fields().entrySet().iterator();
 		while (it.hasNext()) {
-			Map.Entry pair = (Map.Entry)it.next();
+			Entry<String, Object> pair = it.next();
 			stringBuilder.append(pair.getKey()).append(": ").append(pair.getValue()).append("\n");
 			it.remove(); // avoids a ConcurrentModificationException
 		}
