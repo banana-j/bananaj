@@ -42,6 +42,7 @@ public class Member extends MailchimpObject{
 	private double avg_click_rate;
 	private String last_changed;
 	private List<MemberActivity> memberActivities;
+	private List<MemberInterest> memberInterest;
 	private MailChimpConnection connection;
 
 
@@ -49,18 +50,30 @@ public class Member extends MailchimpObject{
         super(member.getString("id"), member);
     	final JSONObject memberMergeTags = member.getJSONObject("merge_fields");
     	final JSONObject memberStats = member.getJSONObject("stats");
-    	
-		HashMap<String, Object> merge_fields = new HashMap<String, Object>();
+    	final JSONObject interests = member.getJSONObject("interests");
 
-		Iterator<String> a = memberMergeTags.keys();
-		while(a.hasNext()) {
-			String key = a.next();
-			// loop to get the dynamic key
-			String value = (String)memberMergeTags.get(key);
-			merge_fields.put(key, value);
+    	HashMap<String, Object> merge_fields = new HashMap<String, Object>();
+    	if (memberMergeTags != null) {
+    		Iterator<String> mergeTagsI = memberMergeTags.keys();
+    		while(mergeTagsI.hasNext()) {
+    			String key = mergeTagsI.next();
+    			// loop to get the dynamic key
+    			String value = memberMergeTags.getString(key);
+    			merge_fields.put(key, value);
+    		}
+    	}
+
+    	ArrayList<MemberInterest> memberInterest = new ArrayList<MemberInterest>();
+    	if (interests != null) {
+			Iterator<String> interestsI = interests.keys();
+			while(interestsI.hasNext()) {
+				String key = interestsI.next();
+				boolean value = interests.getBoolean(key);
+				memberInterest.add(new MemberInterest(key,value));
+			}
 		}
-		
-        this.mailChimpList = mailChimpList;
+
+		this.mailChimpList = mailChimpList;
         this.merge_fields = merge_fields;
         this.unique_email_id = member.getString("unique_email_id");
         this.email_address = member.getString("email_address");
@@ -72,6 +85,7 @@ public class Member extends MailchimpObject{
         this.avg_open_rate = memberStats.getDouble("avg_open_rate");
         this.avg_click_rate = memberStats.getDouble("avg_click_rate");
         this.last_changed = member.getString("last_changed");
+        this.memberInterest = memberInterest;
         this.connection = mailChimpList.getConnection();
 	}
 	
