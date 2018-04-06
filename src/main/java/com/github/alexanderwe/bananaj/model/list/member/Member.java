@@ -42,7 +42,7 @@ public class Member extends MailchimpObject{
 	private double avg_click_rate;
 	private String last_changed;
 	private List<MemberActivity> memberActivities;
-	private List<MemberInterest> memberInterest;
+	private HashMap<String, Boolean> memberInterest;
 	private MailChimpConnection connection;
 
 
@@ -63,16 +63,16 @@ public class Member extends MailchimpObject{
     		}
     	}
 
-    	ArrayList<MemberInterest> memberInterest = new ArrayList<MemberInterest>();
+    	HashMap<String, Boolean> memberInterest = new HashMap<String, Boolean>();
     	if (interests != null) {
 			Iterator<String> interestsI = interests.keys();
 			while(interestsI.hasNext()) {
 				String key = interestsI.next();
 				boolean value = interests.getBoolean(key);
-				memberInterest.add(new MemberInterest(key,value));
+				memberInterest.put(key,value);
 			}
 		}
-
+    	
 		this.mailChimpList = mailChimpList;
         this.merge_fields = merge_fields;
         this.unique_email_id = member.getString("unique_email_id");
@@ -238,6 +238,13 @@ public class Member extends MailchimpObject{
 		}
 
 		this.memberActivities = activities;
+	}
+
+	/**
+	 * @return the member interests. The map key is the interest/segment identifier and value is the subscription boolean.
+	 */
+	public HashMap<String, Boolean> getInterest() {
+		return memberInterest;
 	}
 
 	/**
