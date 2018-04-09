@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -65,11 +66,6 @@ public class MailChimpConnection extends Connection{
 		this.automationendpoint = "https://"+server+".api.mailchimp.com/3.0/automations";
 		this.filemanagerfolderendpoint = "https://"+server+".api.mailchimp.com/3.0/file-manager/folders";
 		this.filesendpoint = "https://"+server+".api.mailchimp.com/3.0/file-manager/files";
-		try {
-			setAccount();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	/**
@@ -110,6 +106,7 @@ public class MailChimpConnection extends Connection{
 	 * @param listName
 	 */
 	public void createList(String listName, String permission_reminder, boolean email_type_option, CampaignDefaults campaignDefaults) throws Exception{
+		setAccount();
 		JSONObject jsonList = new JSONObject();
 		
 		JSONObject contact = new JSONObject();
@@ -185,10 +182,10 @@ public class MailChimpConnection extends Connection{
 			if (show_merge){
 				int last_column = 9;
 
-				Iterator iter = members.get(0).getMerge_fields().entrySet().iterator();
+				Iterator<Entry<String, String>> iter = members.get(0).getMerge_fields().entrySet().iterator();
 				while (iter.hasNext()) {
-					Map.Entry pair = (Map.Entry)iter.next();
-					sheet.addCell(new Label(last_column,0,(String)pair.getKey(),times16format));
+					Entry<String, String> pair = iter.next();
+					sheet.addCell(new Label(last_column,0,pair.getKey(),times16format));
 					iter.remove(); // avoids a ConcurrentModificationException
 					last_column++;
 					merge_field_count++;
@@ -212,10 +209,10 @@ public class MailChimpConnection extends Connection{
 				if (show_merge){
 					//add merge fields values
 					int last_index = 9;
-					Iterator iter_member = member.getMerge_fields().entrySet().iterator();
+					Iterator<Entry<String, String>> iter_member = member.getMerge_fields().entrySet().iterator();
 					while (iter_member.hasNext()) {
-						Map.Entry pair = (Map.Entry)iter_member.next();
-						sheet.addCell(new Label(last_index,i+1,(String)pair.getValue()));
+						Entry<String, String> pair = iter_member.next();
+						sheet.addCell(new Label(last_index,i+1,pair.getValue()));
 						iter_member.remove(); // avoids a ConcurrentModificationException
 						last_index++;
 
@@ -661,30 +658,38 @@ public class MailChimpConnection extends Connection{
 
 	/**
 	 * @return the account
+	 * @throws Exception 
 	 */
-	public Account getAccount() {
-		return this.account;
+	public Account getAccount() throws Exception {
+		setAccount();
+		return account;
 	}
 
 	/**
 	 * Set the account of this com.github.alexanderwe.bananaj.connection.
 	 */
 	private void setAccount() throws Exception {
-		Account account;
-		JSONObject jsonAPIROOT = new JSONObject(do_Get(new URL(apiendpoint),getApikey()));
-		JSONObject contact = jsonAPIROOT.getJSONObject("contact");
-		account = new Account(this, jsonAPIROOT.getString("account_id"),
-				jsonAPIROOT.getString("account_name"),
-				contact.getString("company"),
-				contact.getString("addr1"),
-				contact.getString("addr2"),
-				contact.getString("city"),
-				contact.getString("state"),
-				contact.getString("zip"),
-				contact.getString("country"),
-				DateConverter.getInstance().createDateFromISO8601(jsonAPIROOT.getString("last_login")),
-				jsonAPIROOT.getInt("total_subscribers"),
-				jsonAPIROOT);
-		this.account = account;
+		if (account == null) {
+			synchronized(this) {
+				if (account == null) {
+					Account account;
+					JSONObject jsonAPIROOT = new JSONObject(do_Get(new URL(apiendpoint),getApikey()));
+					JSONObject contact = jsonAPIROOT.getJSONObject("contact");
+					account = new Account(this, jsonAPIROOT.getString("account_id"),
+							jsonAPIROOT.getString("account_name"),
+							contact.getString("company"),
+							contact.getString("addr1"),
+							contact.getString("addr2"),
+							contact.getString("city"),
+							contact.getString("state"),
+							contact.getString("zip"),
+							contact.getString("country"),
+							DateConverter.getInstance().createDateFromISO8601(jsonAPIROOT.getString("last_login")),
+							jsonAPIROOT.getInt("total_subscribers"),
+							jsonAPIROOT);
+					this.account = account;
+				}
+			}
+		}
 	}
 }

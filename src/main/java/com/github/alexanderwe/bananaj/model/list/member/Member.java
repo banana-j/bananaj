@@ -30,7 +30,7 @@ import com.github.alexanderwe.bananaj.utils.EmailValidator;
 public class Member extends MailchimpObject{
 
 	private MailChimpList mailChimpList;
-    private HashMap<String, Object> merge_fields;
+    private HashMap<String, String> merge_fields;
 	private String unique_email_id;
 	private String email_address;
 	private MemberStatus status;
@@ -52,7 +52,7 @@ public class Member extends MailchimpObject{
     	final JSONObject memberStats = member.getJSONObject("stats");
     	final JSONObject interests = member.getJSONObject("interests");
 
-    	HashMap<String, Object> merge_fields = new HashMap<String, Object>();
+    	HashMap<String, String> merge_fields = new HashMap<String, String>();
     	if (memberMergeTags != null) {
     		Iterator<String> mergeTagsI = memberMergeTags.keys();
     		while(mergeTagsI.hasNext()) {
@@ -89,7 +89,7 @@ public class Member extends MailchimpObject{
         this.connection = mailChimpList.getConnection();
 	}
 	
-	public Member(String id, MailChimpList mailChimpList, HashMap<String, Object> merge_fields, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String ip_signup, String timestamp_opt, String ip_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailChimpConnection connection, JSONObject jsonRepresentation){
+	public Member(String id, MailChimpList mailChimpList, HashMap<String, String> merge_fields, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String ip_signup, String timestamp_opt, String ip_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailChimpConnection connection, JSONObject jsonRepresentation){
         super(id,jsonRepresentation);
         this.mailChimpList = mailChimpList;
         this.merge_fields = merge_fields;
@@ -276,7 +276,7 @@ public class Member extends MailchimpObject{
 	/**
 	 * @return a HashMap of all merge fields
 	 */
-    public HashMap<String, Object> getMerge_fields() {
+    public HashMap<String, String> getMerge_fields() {
         return merge_fields;
     }
 
@@ -297,9 +297,9 @@ public class Member extends MailchimpObject{
 	@Override
 	public String toString(){
 		StringBuilder stringBuilder = new StringBuilder();
-		Iterator<Entry<String, Object>> it = getMerge_fields().entrySet().iterator();
+		Iterator<Entry<String, String>> it = getMerge_fields().entrySet().iterator();
 		while (it.hasNext()) {
-			Entry<String, Object> pair = it.next();
+			Entry<String, String> pair = it.next();
 			stringBuilder.append(pair.getKey()).append(": ").append(pair.getValue()).append("\n");
 			it.remove(); // avoids a ConcurrentModificationException
 		}
