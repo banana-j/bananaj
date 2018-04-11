@@ -4,9 +4,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+	<!-- bananaj 
+	forked from: https://github.com/alexanderwe/bananaj
+	This has diverged from the original source to meet our specific needs. 
+	A pull request is pending with our changes in the original repository.
+	Due to time constraints we could not wait for completion of the source
+	repository so we have made a private release branch to meet our needs. 
+	-->
+	
+	<!-- 
     <groupId>com.github.alexanderwe</groupId>
     <artifactId>bananaj</artifactId>
-    <version>1.2.5-alpha</version>
+    <version>1.2.5-SNAPSHOT</version>
+    -->
+    <groupId>com.pearson.analytics</groupId>
+    <artifactId>bananaj</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>bananaj</name>
@@ -31,21 +44,26 @@
 
 
     <scm>
-        <connection>scm:git:git://github.com/alexanderwe/bananaj.git</connection>
-        <developerConnection>scm:git:git://github.com/alexanderwe/bananaj.git</developerConnection>
+        <connection>scm:git:ssh://git@bitbucket.pearson.com/dslal/bananaj.git</connection>
         <url>https://github.com/alexanderwe/bananaj</url>
     </scm>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
+	<distributionManagement>
+		<site>
+			<id>Pearson-Nexus-Site</id>
+			<url>https://devops-tools.pearson.com/nexus-deps/content/sites/site</url>
+		</site>
+		<repository>
+			<id>Pearson-Nexus-Releases</id>
+			<name>Pearson-Nexus-Releases</name>
+			<url>https://devops-tools.pearson.com/nexus-master/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>Pearson-Nexus-Snapshots</id>
+			<name>Pearson-Nexus-Snapshots</name>
+			<url>https://devops-tools.pearson.com/nexus-deps/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -92,7 +110,7 @@
                 </configuration>
             </plugin>
 
-            <plugin>
+            <!--  <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>1.6</version>
@@ -105,7 +123,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin> -->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -137,13 +137,110 @@ public class MailChimpList extends MailchimpObject {
 	 * @param status
 	 * @param emailAddress
 	 */
-	public void addMember(MemberStatus status, String emailAddress) throws Exception{
+	public void addMember(MemberStatus status, String emailAddress) throws Exception {
 		JSONObject member = new JSONObject();
-		member.put("status", status.getStringRepresentation());
 		member.put("email_address", emailAddress);
+		member.put("status", status.getStringRepresentation());
 
         getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getId()+"/members"),member.toString(),connection.getApikey());
         this.membercount++;
+	}
+	
+	public Member updateMember(Member member) throws Exception {
+		JSONObject json = new JSONObject();
+		json.put("email_address", member.getEmail_address());
+		if (member.getEmail_type() != null) {
+			json.put("email_type", member.getEmail_type().value());
+		}
+		jsonPut(json, "status", member.getStatus().getStringRepresentation());
+
+		{
+			JSONObject mergeFields = new JSONObject();
+			HashMap<String, String> mergeFieldsMap = member.getMerge_fields();
+			Iterator<String> it = mergeFieldsMap.keySet().iterator();
+			while (it.hasNext()) {
+				String key = it.next();
+				mergeFields.put(key, mergeFieldsMap.get(key));
+			}
+			json.put("merge_fields", mergeFields);
+		}
+		
+		{
+			JSONObject interests = new JSONObject();
+			HashMap<String, Boolean> interestsMap = member.getInterest();
+			Iterator<String> it = interestsMap.keySet().iterator();
+			while (it.hasNext()) {
+				String key = it.next();
+				interests.put(key, interestsMap.get(key));
+			}
+			json.put("interests",interests);
+		}
+		jsonPut(json, "ip_signup", member.getIp_signup());
+		jsonPut(json, "timestamp_signup", member.getTimestamp_signup());
+		jsonPut(json, "ip_opt", member.getIp_opt());
+		jsonPut(json, "timestamp_opt", member.getTimestamp_opt());
+		
+		try {
+			String results = getConnection().do_Patch(new URL(connection.getListendpoint()+"/"+this.getId()+"/members/"+member.getId()),json.toString(),connection.getApikey());
+			//this.membercount++;
+			return new Member(this, new JSONObject(results)); 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null; 
+	}
+	
+	public Member createUpdateMember(Member member) throws Exception {
+		JSONObject json = new JSONObject();
+		json.put("email_address", member.getEmail_address());
+		if (member.getStatus_if_new() != null) {
+			json.put("status_if_new", member.getStatus_if_new().getStringRepresentation());
+		}
+		if (member.getEmail_type() != null) {
+			json.put("email_type", member.getEmail_type().value());
+		}
+		jsonPut(json, "status", member.getStatus().getStringRepresentation());
+
+		{
+			JSONObject mergeFields = new JSONObject();
+			HashMap<String, String> mergeFieldsMap = member.getMerge_fields();
+			Iterator<String> it = mergeFieldsMap.keySet().iterator();
+			while (it.hasNext()) {
+				String key = it.next();
+				mergeFields.put(key, mergeFieldsMap.get(key));
+			}
+			json.put("merge_fields", mergeFields);
+		}
+		
+		{
+			JSONObject interests = new JSONObject();
+			HashMap<String, Boolean> interestsMap = member.getInterest();
+			Iterator<String> it = interestsMap.keySet().iterator();
+			while (it.hasNext()) {
+				String key = it.next();
+				interests.put(key, interestsMap.get(key));
+			}
+			json.put("interests",interests);
+		}
+		jsonPut(json, "ip_signup", member.getIp_signup());
+		jsonPut(json, "timestamp_signup", member.getTimestamp_signup());
+		jsonPut(json, "ip_opt", member.getIp_opt());
+		jsonPut(json, "timestamp_opt", member.getTimestamp_opt());
+		
+		try {
+			String results = getConnection().do_Put(new URL(connection.getListendpoint()+"/"+this.getId()+"/members/"+member.getId()),json.toString(),connection.getApikey());
+			//this.membercount++;
+			return new Member(this, new JSONObject(results)); 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null; 
+	}
+	
+	private void jsonPut(JSONObject json, String fieldName, String value) {
+		if (value != null) {
+			json.put(fieldName, value);
+		}
 	}
 	
 	/**

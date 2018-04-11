@@ -33,6 +33,8 @@ public class Member extends MailchimpObject{
     private HashMap<String, String> merge_fields;
 	private String unique_email_id;
 	private String email_address;
+	private MemberStatus status_if_new;
+	private EmailType email_type;
 	private MemberStatus status;
 	private String timestamp_signup;
 	private String timestamp_opt;
@@ -77,6 +79,13 @@ public class Member extends MailchimpObject{
         this.merge_fields = merge_fields;
         this.unique_email_id = member.getString("unique_email_id");
         this.email_address = member.getString("email_address");
+        if(member.has("status_if_new")) {
+        	String value = member.getString("status_if_new");
+        	if (value.length() > 0) {
+        		this.status = MemberStatus.valueOf(member.getString("status_if_new").toUpperCase());
+        	}
+        }
+        this.email_type =  EmailType.fromValue(member.getString("email_type"));
         this.status = MemberStatus.valueOf(member.getString("status").toUpperCase());
         this.timestamp_signup = member.getString("timestamp_signup");
         this.timestamp_opt = member.getString("timestamp_opt");
@@ -103,6 +112,7 @@ public class Member extends MailchimpObject{
         this.avg_open_rate = avg_open_rate;
         this.avg_click_rate = avg_click_rate;
         this.last_changed = last_changed;
+    	this.memberInterest = new HashMap<String, Boolean>();
         this.connection = connection;
 	}
 	
@@ -167,6 +177,34 @@ public class Member extends MailchimpObject{
 	 */
 	public MemberStatus getStatus() {
 		return status;
+	}
+
+	public void setStatus(MemberStatus status) {
+		this.status = status;
+	}
+
+	/**
+	 * 
+	 * @return the status_if_new
+	 */
+	public MemberStatus getStatus_if_new() {
+		return status_if_new;
+	}
+
+	/**
+	 * Set the status_if_new when creating a new member
+	 * @param status_if_new
+	 */
+	public void setStatus_if_new(MemberStatus status_if_new) {
+		this.status_if_new = status_if_new;
+	}
+
+	public EmailType getEmail_type() {
+		return email_type;
+	}
+
+	public void setEmail_type(EmailType email_type) {
+		this.email_type = email_type;
 	}
 
 	/**
@@ -248,6 +286,16 @@ public class Member extends MailchimpObject{
 	}
 
 	/**
+	 * Add/Update an intrests subscription
+	 * @param key
+	 * @param subscribe
+	 * @return the previous value associated with key, or null if there was none.)
+	 */
+	public Boolean putInterest(String key, Boolean subscribe) {
+		return memberInterest.put(key, subscribe);
+	}
+	
+	/**
 	 * @return the member activities
 	 */
 	public List<MemberActivity> getMemberActivities() {
@@ -279,6 +327,16 @@ public class Member extends MailchimpObject{
     public HashMap<String, String> getMerge_fields() {
         return merge_fields;
     }
+    
+    /**
+     * Add/update a merge field
+     * @param key
+     * @param value
+     * @return the previous value associated with key, or null if there was none.)
+     */
+	public String putMerge_fields(String key, String value) {
+		return merge_fields.put(key, value);
+	}
 
 	/**
 	 * @return the sign up IP Address
