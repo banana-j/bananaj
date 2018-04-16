@@ -34,6 +34,13 @@
         </license>
     </licenses>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+		<java.version>1.8</java.version>
+		<nexus.repo>https://devops-tools.pearson.com</nexus.repo>
+    </properties>
 
     <developers>
         <developer>
@@ -53,20 +60,33 @@
 	<distributionManagement>
 		<site>
 			<id>Pearson-Nexus-Site</id>
-			<url>https://devops-tools.pearson.com/nexus-deps/content/sites/site</url>
+			<url>${nexus.repo}/nexus-deps/content/sites/site</url>
 		</site>
 		<repository>
 			<id>Pearson-Nexus-Releases</id>
 			<name>Pearson-Nexus-Releases</name>
-			<url>https://devops-tools.pearson.com/nexus-master/content/repositories/releases</url>
+			<url>${nexus.repo}/nexus-master/content/repositories/releases</url>
 		</repository>
 		<snapshotRepository>
 			<id>Pearson-Nexus-Snapshots</id>
 			<name>Pearson-Nexus-Snapshots</name>
-			<url>https://devops-tools.pearson.com/nexus-deps/content/repositories/snapshots</url>
+			<url>${nexus.repo}/nexus-deps/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
 	-->
+	<!-- use Pearson SETS Nexus repository -->
+	<!-- distributionManagement>
+		<repository>
+			<id>sets.nexus</id>
+			<name>nexus-release</name>
+			<url>${nexus.repo}/nexus-master/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>sets.nexus</id>
+			<name>nexus-snapshots</name>
+			<url>${nexus.repo}/nexus-deps/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement -->
 	<!-- use S3 repository -->
 	<distributionManagement>
 		<site>
@@ -82,13 +102,6 @@
 			<url>s3://repo.learning-gadgets-lab.io/snapshot</url>
 		</snapshotRepository>
 	</distributionManagement>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
-
 
     <dependencies>
         <dependency>
