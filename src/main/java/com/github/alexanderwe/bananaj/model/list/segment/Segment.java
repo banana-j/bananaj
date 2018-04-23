@@ -90,13 +90,13 @@ public class Segment extends MailchimpObject {
             final JSONObject memberMergeTags = memberDetail.getJSONObject("merge_fields");
             final JSONObject memberStats = memberDetail.getJSONObject("stats");
 
-            HashMap<String, Object> merge_fields = new HashMap<String, Object>();
+            HashMap<String, String> merge_fields = new HashMap<String, String>();
 
             Iterator<String> a = memberMergeTags.keys();
             while(a.hasNext()) {
                 String key = a.next();
                 // loop to get the dynamic key
-                Object value = memberMergeTags.get(key);
+                String value = memberMergeTags.getString(key);
                 merge_fields.put(key, value);
             }
             Member member = new Member(memberDetail.getString("id"),connection.getList(this.getList_id()),merge_fields,memberDetail.getString("unique_email_id"), memberDetail.getString("email_address"), MemberStatus.valueOf(memberDetail.getString("status").toUpperCase()),memberDetail.getString("timestamp_signup"),memberDetail.getString("ip_signup"),memberDetail.getString("timestamp_opt"),memberDetail.getString("ip_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),memberDetail.getString("last_changed"),this.getConnection(),memberDetail);

@@ -21,6 +21,8 @@ import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
 import com.github.alexanderwe.bananaj.exceptions.EmailException;
 import com.github.alexanderwe.bananaj.exceptions.FileFormatException;
 import com.github.alexanderwe.bananaj.model.MailchimpObject;
+import com.github.alexanderwe.bananaj.model.list.interests.Interest;
+import com.github.alexanderwe.bananaj.model.list.interests.InterestCategory;
 import com.github.alexanderwe.bananaj.model.list.member.Member;
 import com.github.alexanderwe.bananaj.model.list.member.MemberStatus;
 import com.github.alexanderwe.bananaj.model.list.mergefield.MergeField;
@@ -69,7 +71,7 @@ public class MailChimpList extends MailchimpObject {
 	private MailChimpConnection connection;
 	
 
-	public MailChimpList(String id, String name, int membercount, LocalDateTime dateCreated, MailChimpConnection connection, JSONObject jsonRepresentation){
+	public MailChimpList(String id, String name, int membercount, LocalDateTime dateCreated, MailChimpConnection connection, JSONObject jsonRepresentation) {
 		super(id,jsonRepresentation);
 		this.name = name;
 		this.membercount = membercount;
@@ -103,13 +105,13 @@ public class MailChimpList extends MailchimpObject {
 			final JSONObject memberMergeTags = memberDetail.getJSONObject("merge_fields");
 			final JSONObject memberStats = memberDetail.getJSONObject("stats");
 
-			HashMap<String, Object> merge_fields = new HashMap<String, Object>();
+			HashMap<String, String> merge_fields = new HashMap<String, String>();
 
 			Iterator<String> a = memberMergeTags.keys();
 			while(a.hasNext()) {
-				String key = (String)a.next();
+				String key = a.next();
 				// loop to get the dynamic key
-				Object value = memberMergeTags.get(key);
+				String value = memberMergeTags.getString(key);
 				merge_fields.put(key, value);
 			}
 			Member member = new Member(memberDetail.getString("id"),this,merge_fields,memberDetail.getString("unique_email_id"), memberDetail.getString("email_address"), MemberStatus.valueOf(memberDetail.getString("status").toUpperCase()),memberDetail.getString("timestamp_signup"),memberDetail.getString("ip_signup"),memberDetail.getString("timestamp_opt"),memberDetail.getString("ip_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),memberDetail.getString("last_changed"),this.getConnection(),memberDetail);
@@ -127,19 +129,7 @@ public class MailChimpList extends MailchimpObject {
 	 */
 	public Member getMember(String memberID) throws Exception{
 		final JSONObject member = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+getId()+"/members/"+memberID),connection.getApikey()));
-    	final JSONObject memberMergeTags = member.getJSONObject("merge_fields");
-    	final JSONObject memberStats = member.getJSONObject("stats");
-
-		HashMap<String, Object> merge_fields = new HashMap<String, Object>();
-
-		Iterator<String> a = memberMergeTags.keys();
-		while(a.hasNext()) {
-			String key = (String)a.next();
-			// loop to get the dynamic key
-			String value = (String)memberMergeTags.get(key);
-			merge_fields.put(key, value);
-		}
-		return new Member(member.getString("id"),this,merge_fields,member.getString("unique_email_id"), member.getString("email_address"),  MemberStatus.valueOf(member.getString("status").toUpperCase()),member.getString("timestamp_signup"),member.getString("ip_signup"),member.getString("timestamp_opt"),member.getString("ip_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),member.getString("last_changed"),this.getConnection(),member);
+    	return new Member(this, member);
 	}
 	
 	/**
@@ -147,13 +137,110 @@ public class MailChimpList extends MailchimpObject {
 	 * @param status
 	 * @param emailAddress
 	 */
-	public void addMember(MemberStatus status, String emailAddress) throws Exception{
+	public void addMember(MemberStatus status, String emailAddress) throws Exception {
 		JSONObject member = new JSONObject();
-		member.put("status", status.getStringRepresentation());
 		member.put("email_address", emailAddress);
+		member.put("status", status.getStringRepresentation());
 
         getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getId()+"/members"),member.toString(),connection.getApikey());
         this.membercount++;
+	}
+	
+	public Member updateMember(Member member) throws Exception {
+		JSONObject json = new JSONObject();
+		json.put("email_address", member.getEmail_address());
+		if (member.getEmail_type() != null) {
+			json.put("email_type", member.getEmail_type().value());
+		}
+		jsonPut(json, "status", member.getStatus().getStringRepresentation());
+
+		{
+			JSONObject mergeFields = new JSONObject();
+			HashMap<String, String> mergeFieldsMap = member.getMerge_fields();
+			Iterator<String> it = mergeFieldsMap.keySet().iterator();
+			while (it.hasNext()) {
+				String key = it.next();
+				mergeFields.put(key, mergeFieldsMap.get(key));
+			}
+			json.put("merge_fields", mergeFields);
+		}
+		
+		{
+			JSONObject interests = new JSONObject();
+			HashMap<String, Boolean> interestsMap = member.getInterest();
+			Iterator<String> it = interestsMap.keySet().iterator();
+			while (it.hasNext()) {
+				String key = it.next();
+				interests.put(key, interestsMap.get(key));
+			}
+			json.put("interests",interests);
+		}
+		jsonPut(json, "ip_signup", member.getIp_signup());
+		jsonPut(json, "timestamp_signup", member.getTimestamp_signup());
+		jsonPut(json, "ip_opt", member.getIp_opt());
+		jsonPut(json, "timestamp_opt", member.getTimestamp_opt());
+		
+		try {
+			String results = getConnection().do_Patch(new URL(connection.getListendpoint()+"/"+this.getId()+"/members/"+member.getId()),json.toString(),connection.getApikey());
+			//this.membercount++;
+			return new Member(this, new JSONObject(results)); 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null; 
+	}
+	
+	public Member createUpdateMember(Member member) throws Exception {
+		JSONObject json = new JSONObject();
+		json.put("email_address", member.getEmail_address());
+		if (member.getStatus_if_new() != null) {
+			json.put("status_if_new", member.getStatus_if_new().getStringRepresentation());
+		}
+		if (member.getEmail_type() != null) {
+			json.put("email_type", member.getEmail_type().value());
+		}
+		jsonPut(json, "status", member.getStatus().getStringRepresentation());
+
+		{
+			JSONObject mergeFields = new JSONObject();
+			HashMap<String, String> mergeFieldsMap = member.getMerge_fields();
+			Iterator<String> it = mergeFieldsMap.keySet().iterator();
+			while (it.hasNext()) {
+				String key = it.next();
+				mergeFields.put(key, mergeFieldsMap.get(key));
+			}
+			json.put("merge_fields", mergeFields);
+		}
+		
+		{
+			JSONObject interests = new JSONObject();
+			HashMap<String, Boolean> interestsMap = member.getInterest();
+			Iterator<String> it = interestsMap.keySet().iterator();
+			while (it.hasNext()) {
+				String key = it.next();
+				interests.put(key, interestsMap.get(key));
+			}
+			json.put("interests",interests);
+		}
+		jsonPut(json, "ip_signup", member.getIp_signup());
+		jsonPut(json, "timestamp_signup", member.getTimestamp_signup());
+		jsonPut(json, "ip_opt", member.getIp_opt());
+		jsonPut(json, "timestamp_opt", member.getTimestamp_opt());
+		
+		try {
+			String results = getConnection().do_Put(new URL(connection.getListendpoint()+"/"+this.getId()+"/members/"+member.getId()),json.toString(),connection.getApikey());
+			//this.membercount++;
+			return new Member(this, new JSONObject(results)); 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null; 
+	}
+	
+	private void jsonPut(JSONObject json, String fieldName, String value) {
+		if (value != null) {
+			json.put(fieldName, value);
+		}
 	}
 	
 	/**
@@ -241,6 +328,46 @@ public class MailChimpList extends MailchimpObject {
     	return new GrowthHistory(this, historyDetail.getString("month"), historyDetail.getInt("existing"), historyDetail.getInt("imports"), historyDetail.getInt("optins"));
 	}
 
+	public ArrayList<InterestCategory> getInterestCategories(int count, int offset) throws Exception {
+		ArrayList<InterestCategory> categories = new ArrayList<InterestCategory>();
+		JSONObject list = new JSONObject(getConnection().do_Get(new URL(connection.getListendpoint()+"/"+this.getId()+"/interest-categories?count="+count+"&offset="+offset),connection.getApikey()));
+		JSONArray categoryArray = list.getJSONArray("categories");
+
+		for (int i = 0 ; i < categoryArray.length();i++)
+		{
+			final JSONObject jsonCategory = categoryArray.getJSONObject(i);
+			InterestCategory category = InterestCategory.build(connection, jsonCategory);
+			categories.add(category);
+
+		}
+		return categories;
+	}
+	
+	public InterestCategory getInterestCategory(String interestCategoryId) throws Exception {
+		JSONObject jsonCategory = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+this.getId()+"/interest-categories/"+interestCategoryId) ,connection.getApikey()));
+		return InterestCategory.build(connection, jsonCategory);
+	}
+	
+	public ArrayList<Interest> getInterests(String interestCategoryId, int count, int offset) throws Exception {
+		ArrayList<Interest> interests = new ArrayList<Interest>();
+		JSONObject list = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+this.getId()+"/interest-categories/"+interestCategoryId+"/interests?count="+count+"&offset="+offset) ,connection.getApikey()));
+		JSONArray interestArray = list.getJSONArray("interests");
+
+		for (int i = 0 ; i < interestArray.length();i++)
+		{
+			final JSONObject jsonInterest = interestArray.getJSONObject(i);
+			Interest interest = Interest.build(jsonInterest);
+			interests.add(interest);
+
+		}
+		return interests;
+	}
+	
+	public Interest getInterest(String interestCategoryId, String interestId) throws Exception {
+		JSONObject jsonInterests = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+this.getId()+"/interest-categories/"+interestCategoryId+"/interests/"+interestId) ,connection.getApikey()));
+		return Interest.build(jsonInterests);
+	}
+	
 	/**
 	 * Get all segments of this list
 	 * @return
@@ -632,10 +759,10 @@ public class MailChimpList extends MailchimpObject {
 		if (show_merge){
 			int last_column = 9;
 
-			Iterator<Entry<String, Object>> iter = members.get(0).getMerge_fields().entrySet().iterator();
+			Iterator<Entry<String, String>> iter = members.get(0).getMerge_fields().entrySet().iterator();
 			while (iter.hasNext()) {
-				Entry<String, Object> pair = iter.next();
-				sheet.addCell(new Label(last_column,0,(String)pair.getKey(),times16format));
+				Entry<String, String> pair = iter.next();
+				sheet.addCell(new Label(last_column,0,pair.getKey(),times16format));
 				iter.remove(); // avoids a ConcurrentModificationException
 				last_column++;
 				merge_field_count++;
@@ -659,10 +786,10 @@ public class MailChimpList extends MailchimpObject {
 			if (show_merge){
 				//add merge fields values
 				int last_index = 9;
-				Iterator<Entry<String, Object>> iter_member = member.getMerge_fields().entrySet().iterator();
+				Iterator<Entry<String, String>> iter_member = member.getMerge_fields().entrySet().iterator();
 				while (iter_member.hasNext()) {
-					Entry<String, Object> pair = iter_member.next();
-					sheet.addCell(new Label(last_index,i+1,(String)pair.getValue()));
+					Entry<String, String> pair = iter_member.next();
+					sheet.addCell(new Label(last_index,i+1,pair.getValue()));
 					iter_member.remove(); // avoids a ConcurrentModificationException
 					last_index++;
 
