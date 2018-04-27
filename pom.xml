@@ -48,6 +48,13 @@
         <url>https://github.com/alexanderwe/bananaj</url>
     </scm>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+		<nexus.repo>https://devops-tools.pearson.com</nexus.repo>
+    </properties>
+
 	<!-- use Pearson Nexus repository -->
 	<!--
 	<distributionManagement>
@@ -67,8 +74,21 @@
 		</snapshotRepository>
 	</distributionManagement>
 	-->
-	<!-- use S3 repository -->
+	<!-- use Pearson SETS Nexus repository -->
 	<distributionManagement>
+		<repository>
+			<id>sets.nexus</id>
+			<name>nexus-release</name>
+			<url>${nexus.repo}/nexus-master/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>sets.nexus</id>
+			<name>nexus-snapshots</name>
+			<url>${nexus.repo}/nexus-deps/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+	<!-- use S3 repository -->
+	<!-- distributionManagement>
 		<site>
 			<id>repo.learning-gadgets-lab.site</id>
 			<url>s3://repo.learning-gadgets-lab.io/site</url>
@@ -81,14 +101,7 @@
 			<id>repo.learning-gadgets-lab.snapshot</id>
 			<url>s3://repo.learning-gadgets-lab.io/snapshot</url>
 		</snapshotRepository>
-	</distributionManagement>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
-
+	</distributionManagement -->
 
     <dependencies>
         <dependency>
@@ -110,7 +123,6 @@
         </dependency>
 
         <dependency>
-			<!-- use S3 repository -->
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.5</version>
@@ -178,13 +190,13 @@
         </plugins>
 		
  		<!-- use S3 repository -->
-		<extensions>
+		<!-- extensions>
 			<extension>
 				<groupId>org.kuali.maven.wagons</groupId>
 				<artifactId>maven-s3-wagon</artifactId>
 				<version>1.2.1</version>
 			</extension>
-		</extensions>
+		</extensions -->
    </build>
 
 </project>
