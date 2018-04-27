@@ -55,25 +55,6 @@
 		<nexus.repo>https://devops-tools.pearson.com</nexus.repo>
     </properties>
 
-	<!-- use Pearson Nexus repository -->
-	<!--
-	<distributionManagement>
-		<site>
-			<id>Pearson-Nexus-Site</id>
-			<url>https://devops-tools.pearson.com/nexus-deps/content/sites/site</url>
-		</site>
-		<repository>
-			<id>Pearson-Nexus-Releases</id>
-			<name>Pearson-Nexus-Releases</name>
-			<url>https://devops-tools.pearson.com/nexus-master/content/repositories/releases</url>
-		</repository>
-		<snapshotRepository>
-			<id>Pearson-Nexus-Snapshots</id>
-			<name>Pearson-Nexus-Snapshots</name>
-			<url>https://devops-tools.pearson.com/nexus-deps/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
-	-->
 	<!-- use Pearson SETS Nexus repository -->
 	<distributionManagement>
 		<repository>
