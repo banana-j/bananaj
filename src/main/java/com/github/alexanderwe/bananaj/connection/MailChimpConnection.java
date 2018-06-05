@@ -69,14 +69,25 @@ public class MailChimpConnection extends Connection{
 	}
 
 	/**
-	 * Get all lists in your account
-	 * @return Arraylist containing all lists
+	 * Get the lists in your account
+	 * @return List containing the first 100 lists
 	 * @throws Exception
 	 */
-	public List<MailChimpList> getLists() throws Exception{
+	public List<MailChimpList> getLists() throws Exception {
+		return getLists(100,0);
+	}
+
+	/**
+	 * Get lists in your account with pagination
+	 * @param count Number of lists to return
+	 * @param offset Zero based offset
+	 * @return List containing Mailchimp lists
+	 * @throws Exception
+	 */
+	public List<MailChimpList> getLists(int count, int offset) throws Exception{
 		List<MailChimpList> mailChimpLists = new ArrayList<MailChimpList>();
 		// parse response
-		JSONObject jsonLists = new JSONObject(do_Get(new URL(listendpoint),getApikey()));
+		JSONObject jsonLists = new JSONObject(do_Get(new URL(listendpoint + "?offset=" + offset + "&count=" + count),getApikey()));
 		JSONArray listsArray = jsonLists.getJSONArray("lists");
 		for( int i = 0; i< listsArray.length();i++)
 		{
@@ -88,7 +99,7 @@ public class MailChimpConnection extends Connection{
 		}
 		return mailChimpLists;
 	}
-
+	
 	/**
 	 * Get a specific mailchimp list
 	 * @return a Mailchimp list object
@@ -237,24 +248,34 @@ public class MailChimpConnection extends Connection{
 	}
 
     /**
-     * Get all template folders from MailChimp
-     * @return
+     * Get campaign folders from MailChimp
+     * @return List containing the first 100 campaign folders
      */
     public List<CampaignFolder> getCampaignFolders() throws Exception{
-        List<CampaignFolder> campaignFolders = new ArrayList<>();
-        JSONObject campaignFoldersResponse = new JSONObject(do_Get(new URL(campaignfolderendpoint), getApikey()));
+        return getCampaignFolders(100,0);
+    }
 
-        JSONArray campaignFoldersJSON = campaignFoldersResponse.getJSONArray("folders");
+    /**
+     * Get campaign folders from MailChimp with pagination
+     * @param count Number of campaign folders to return
+     * @param offset Zero based offset
+     * @return List containing the campaign folders
+     */
+    public List<CampaignFolder> getCampaignFolders(int count, int offset) throws Exception{
+    	List<CampaignFolder> campaignFolders = new ArrayList<>();
+    	JSONObject campaignFoldersResponse = new JSONObject(do_Get(new URL(campaignfolderendpoint + "?offset=" + offset + "&count=" + count), getApikey()));
 
-        for(int i = 0 ; i < campaignFoldersJSON.length(); i++){
-            JSONObject campaignFolderJSON = campaignFoldersJSON.getJSONObject(i);
-            CampaignFolder campaignFolder = new CampaignFolder(campaignFolderJSON.getString("id"),
-                    campaignFolderJSON.getString("name"),
-                    campaignFolderJSON.getInt("count"),
-                    campaignFolderJSON);
-            campaignFolders.add(campaignFolder);
-        }
-        return campaignFolders;
+    	JSONArray campaignFoldersJSON = campaignFoldersResponse.getJSONArray("folders");
+
+    	for(int i = 0 ; i < campaignFoldersJSON.length(); i++){
+    		JSONObject campaignFolderJSON = campaignFoldersJSON.getJSONObject(i);
+    		CampaignFolder campaignFolder = new CampaignFolder(campaignFolderJSON.getString("id"),
+    				campaignFolderJSON.getString("name"),
+    				campaignFolderJSON.getInt("count"),
+    				campaignFolderJSON);
+    		campaignFolders.add(campaignFolder);
+    	}
+    	return campaignFolders;
     }
 
     /**
@@ -264,12 +285,12 @@ public class MailChimpConnection extends Connection{
      */
     public CampaignFolder getCampaignFolder(String folder_id) throws Exception{
 
-        JSONObject campaignFoldersResponse = new JSONObject(do_Get(new URL(campaignfolderendpoint +"/"+folder_id), getApikey()));
+    	JSONObject campaignFoldersResponse = new JSONObject(do_Get(new URL(campaignfolderendpoint +"/"+folder_id), getApikey()));
 
-        return new CampaignFolder(campaignFoldersResponse.getString("id"),
-                campaignFoldersResponse.getString("name"),
-                campaignFoldersResponse.getInt("count"),
-                campaignFoldersResponse);
+    	return new CampaignFolder(campaignFoldersResponse.getString("id"),
+    			campaignFoldersResponse.getString("name"),
+    			campaignFoldersResponse.getInt("count"),
+    			campaignFoldersResponse);
     }
 
     /**
@@ -277,9 +298,9 @@ public class MailChimpConnection extends Connection{
      * @param name
      */
     public void addCampaignFolder(String name) throws Exception{
-        JSONObject campaignFolder = new JSONObject();
-        campaignFolder.put("name", name);
-        do_Post(new URL(campaignfolderendpoint), campaignFolder.toString(), getApikey());
+    	JSONObject campaignFolder = new JSONObject();
+    	campaignFolder.put("name", name);
+    	do_Post(new URL(campaignfolderendpoint), campaignFolder.toString(), getApikey());
     }
 
     /**
@@ -287,28 +308,39 @@ public class MailChimpConnection extends Connection{
      * @param folder_id
      */
     public void deleteCampaignFolder(String folder_id) throws Exception{
-        do_Delete(new URL(campaignfolderendpoint +"/"+folder_id), getApikey());
+    	do_Delete(new URL(campaignfolderendpoint +"/"+folder_id), getApikey());
     }
 
-   /**
-	 * Get all camapaigns from mailchimp account
-	 * @return Arraylist containing all campaigns
-	 * @throws Exception
-	 *  * TODO add campaignsettings
-	 */
-	public List<Campaign> getCampaigns() throws Exception {
-		List<Campaign> campaigns = new ArrayList<Campaign>();
-		// parse response
-		JSONObject jsonCampaigns = new JSONObject(do_Get(new URL(campaignendpoint),getApikey()));
-		JSONArray campaignsArray = jsonCampaigns.getJSONArray("campaigns");
-		for( int i = 0; i< campaignsArray.length();i++)
-		{
-			JSONObject campaignDetail = campaignsArray.getJSONObject(i);
-			Campaign campaign = new Campaign(this, campaignDetail);
-			campaigns.add(campaign);
-		}
-		return campaigns;
-	}
+    /**
+     * Get campaigns from mailchimp account
+     * @return List containing the first 100 campaigns
+     * @throws Exception
+     */
+    public List<Campaign> getCampaigns() throws Exception {
+    	return getCampaigns(100,0);
+    }
+
+    /**
+     * Get campaigns from mailchimp account with pagination
+     * @param count Number of campaigns to return
+     * @param offset Zero based offset
+     * @return List containing campaigns
+     * @throws Exception
+     *  * TODO add campaignsettings
+     */
+    public List<Campaign> getCampaigns(int count, int offset) throws Exception {
+    	List<Campaign> campaigns = new ArrayList<Campaign>();
+    	// parse response
+    	JSONObject jsonCampaigns = new JSONObject(do_Get(new URL(campaignendpoint+ "?offset=" + offset + "&count=" + count),getApikey()));
+    	JSONArray campaignsArray = jsonCampaigns.getJSONArray("campaigns");
+    	for( int i = 0; i< campaignsArray.length();i++)
+    	{
+    		JSONObject campaignDetail = campaignsArray.getJSONObject(i);
+    		Campaign campaign = new Campaign(this, campaignDetail);
+    		campaigns.add(campaign);
+    	}
+    	return campaigns;
+    }
 
 	/**
 	 * Get a campaign from mailchimp account
@@ -418,12 +450,22 @@ public class MailChimpConnection extends Connection{
 	}
 
     /**
-     * Get all template folders from MailChimp
-     * @return
+     * Get template folders from MailChimp
+     * @return List containing the first 100 template folders
      */
 	public List<TemplateFolder> getTemplateFolders() throws Exception{
+        return getTemplateFolders(100,0);
+	}
+
+    /**
+     * Get template folders from MailChimp with pagination
+	 * @param count Number of templates to return
+	 * @param offset Zero based offset
+     * @return List of template folders
+     */
+	public List<TemplateFolder> getTemplateFolders(int count, int offset) throws Exception{
         List<TemplateFolder> templateFolders = new ArrayList<>();
-        JSONObject templateFoldersResponse = new JSONObject(do_Get(new URL(templatefolderendpoint), getApikey()));
+        JSONObject templateFoldersResponse = new JSONObject(do_Get(new URL(templatefolderendpoint + "?offset=" + offset + "&count=" + count), getApikey()));
 
         JSONArray templateFoldersJSON = templateFoldersResponse.getJSONArray("folders");
 
@@ -472,14 +514,25 @@ public class MailChimpConnection extends Connection{
     }
 
 	/**
-	 * Get all templates from mailchimp account
-	 * @return Arraylist containing all templates
+	 * Get templates from mailchimp account
+	 * @return List containing the first 100 templates
 	 * @throws Exception
 	 */
 	public List<Template> getTemplates() throws Exception{
+		return getTemplates(100,0);
+	}
+
+	/**
+	 * Get templates from mailchimp account with pagination
+	 * @param count Number of templates to return
+	 * @param offset Zero based offset
+	 * @return list of templates
+	 * @throws Exception
+	 */
+	public List<Template> getTemplates(int count, int offset) throws Exception{
 		List<Template> templates = new ArrayList<Template>();
 
-		JSONObject jsonTemplates = new JSONObject(do_Get(new URL(templateendpoint),getApikey()));
+		JSONObject jsonTemplates = new JSONObject(do_Get(new URL(templateendpoint + "?offset=" + offset + "&count=" + count),getApikey()));
 		JSONArray templatesArray = jsonTemplates.getJSONArray("templates");
 		for( int i = 0; i< templatesArray.length();i++)
 		{
@@ -499,7 +552,7 @@ public class MailChimpConnection extends Connection{
 	}
 
 	/**
-	 * Get a template fom mailchimp account
+	 * Get a template from mailchimp account
 	 * @param id
 	 * @return a template object
 	 * @throws Exception
@@ -555,14 +608,25 @@ public class MailChimpConnection extends Connection{
 	}
 
 	/**
-	 * Get all automations from mailchimp account
-	 * @return ArrayList containing all automations
+	 * Get automations from mailchimp account
+	 * @return List containing the first 100 automations
 	 * @throws Exception
 	 */
 	public List<Automation> getAutomations() throws Exception{
+		return getAutomations(100,0);
+	}
+	
+	/**
+	 * Get all automations from mailchimp account with pagination
+	 * @param count Number of templates to return
+	 * @param offset Zero based offset
+	 * @return List containing automations
+	 * @throws Exception
+	 */
+	public List<Automation> getAutomations(int count, int offset) throws Exception{
 		List<Automation> automations = new ArrayList<Automation>();
 
-		JSONObject jsonAutomations = new JSONObject(do_Get(new URL(automationendpoint),getApikey()));
+		JSONObject jsonAutomations = new JSONObject(do_Get(new URL(automationendpoint + "?offset=" + offset + "&count=" + count),getApikey()));
 		JSONArray automationsArray = jsonAutomations.getJSONArray("automations");
 		for( int i = 0; i< automationsArray.length();i++)
 		{
