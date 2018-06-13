@@ -27,6 +27,7 @@ import com.github.alexanderwe.bananaj.model.campaign.CampaignFolder;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignRecipients;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignSettings;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignType;
+import com.github.alexanderwe.bananaj.model.filemanager.FileManager;
 import com.github.alexanderwe.bananaj.model.list.MailChimpList;
 import com.github.alexanderwe.bananaj.model.list.member.Member;
 import com.github.alexanderwe.bananaj.model.template.Template;
@@ -53,6 +54,7 @@ public class MailChimpConnection extends Connection{
 	private final String filemanagerfolderendpoint;
 	private final String filesendpoint;
 	private Account account;
+	private FileManager fileManager;
 	
 	public MailChimpConnection(String apikey){
 		this.server = apikey.split("-")[1];
@@ -649,6 +651,17 @@ public class MailChimpConnection extends Connection{
 		JSONObject jsonAutomation = new JSONObject(do_Get(new URL(automationendpoint +"/"+id),getApikey()));
 		JSONObject recipients = jsonAutomation.getJSONObject("recipients");
 		return new Automation(jsonAutomation.getString("id"),DateConverter.getInstance().createDateFromISO8601(jsonAutomation.getString("create_time")),DateConverter.getInstance().createDateFromISO8601(jsonAutomation.getString("start_time")),AutomationStatus.valueOf(jsonAutomation.getString("status").toUpperCase()),jsonAutomation.getInt("emails_sent"),getList(recipients.getString("list_id")),jsonAutomation);
+	}
+
+	/**
+	 * Get the File/Folder Manager for accessing files and folders in your account.
+	 * @return
+	 */
+	public FileManager getFileManager() {
+		if (fileManager == null) {
+			fileManager = new FileManager(this);
+		}
+		return fileManager;
 	}
 
 	/**

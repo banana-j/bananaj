@@ -1,10 +1,5 @@
 package com.github.alexanderwe.bananaj.model.filemanager;
 
-import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
-import org.json.JSONObject;
-import com.github.alexanderwe.bananaj.utils.FileInspector;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,6 +7,13 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDateTime;
+
+import org.json.JSONObject;
+
+import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
+import com.github.alexanderwe.bananaj.utils.DateConverter;
+import com.github.alexanderwe.bananaj.utils.FileInspector;
 
 /**
  * Class for representing one specific file manager file.
@@ -90,6 +92,27 @@ public class FileManagerFile extends MailchimpObject {
         this.isImage = false;
     }
 
+    public FileManagerFile(MailChimpConnection connection, JSONObject jsonFileManagerFile) {
+        super(String.valueOf(jsonFileManagerFile.getInt("id")), jsonFileManagerFile);
+        this.folder_id = jsonFileManagerFile.getInt("id");
+        this.folder_id = jsonFileManagerFile.getInt("folder_id");
+        this.type = jsonFileManagerFile.getString("type");
+        this.name = jsonFileManagerFile.getString("name");
+        this.full_size_url = jsonFileManagerFile.getString("full_size_url");
+        this.size = jsonFileManagerFile.getInt("size");
+        this.createdAt = DateConverter.getInstance().createDateFromISO8601(jsonFileManagerFile.getString("created_at"));
+        this.createdBy = jsonFileManagerFile.getString("created_by");
+        this.connection = connection;
+        this.isImage = false;
+        
+        if(jsonFileManagerFile.getString("type").equals("image")) {
+            this.isImage = true;
+            this.width = jsonFileManagerFile.getInt("width");
+            this.height = jsonFileManagerFile.getInt("height");
+        } else {
+            this.isImage = false;
+        }
+    }
 
     public FileManagerFile (Builder b){
         this.name = b.name;
@@ -100,13 +123,12 @@ public class FileManagerFile extends MailchimpObject {
 
     /**
      * Change the name of the file
-     * @param name
+     * @param newName
      * @
      */
-    private void changeName(String name) throws Exception{
+    public void changeName(String name) throws Exception{
         JSONObject changedFileName = new JSONObject();
         changedFileName.put("name", name);
-        changedFileName.put("file_data", (this.file_data !=null) ? this.file_data: "");
         changedFileName.put("folder_id", this.getFolder_id());
         this.connection.do_Patch(new URL(this.getConnection().getFilesendpoint()+"/"+this.getId()), changedFileName.toString(), this.getConnection().getApikey());
         this.name = name;
@@ -114,26 +136,20 @@ public class FileManagerFile extends MailchimpObject {
 
     /**
      * Change the folder of this file
-     * @param folderID
+     * @param The id of the folder. Setting folderID to "0" will remove a file from its current folder. 
+     * @throws Exception 
+     * @throws  
      */
-    private void changeFolder(String folderID){
-
+    public void changeFolder(int folderID) throws Exception {
+        JSONObject changedFileName = new JSONObject();
+        changedFileName.put("name", name);
+        changedFileName.put("folder_id", folderID);
+        this.connection.do_Patch(new URL(this.getConnection().getFilesendpoint()+"/"+this.getId()), changedFileName.toString(), this.getConnection().getApikey());
+        this.folder_id = folderID;
     }
 
-    /**
-     * Change the file_data of this file
-     * @param file_data
-     */
-    private void changeFileData(String file_data){
-
-    }
-
-    /**
-     * Overwrite this file with a new file
-     * @param newFile
-     */
-    private void overwrite(FileManagerFile newFile){
-
+    public void deleteFile() throws Exception {
+    	getConnection().do_Delete(new URL(getConnection().getFilesendpoint()+"/"+getId()), getConnection().getApikey());
     }
 
     //http://www.codejava.net/java-se/networking/use-httpurlconnection-to-download-file-from-an-http-url
