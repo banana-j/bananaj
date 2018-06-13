@@ -1,7 +1,8 @@
 package com.github.alexanderwe.bananaj.model.template;
 
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import org.json.JSONObject;
+
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
 
 /**
  * Class for representing a template folder
@@ -13,10 +14,16 @@ public class TemplateFolder extends MailchimpObject{
     private int count;
 
 
-    public TemplateFolder(String id, String name, int count, JSONObject jsonResponse) {
-        super(id, jsonResponse);
+    public TemplateFolder(String id, String name, int count, JSONObject jsonTemplateFolder) {
+        super(id, jsonTemplateFolder);
         this.name = name;
         this.count = count;
+    }
+
+    public TemplateFolder(JSONObject jsonTemplateFolder) {
+        super(jsonTemplateFolder.getString("id"), jsonTemplateFolder);
+        this.name = jsonTemplateFolder.getString("name");
+        this.count = jsonTemplateFolder.getInt("count");
     }
 
     public String getName() {

@@ -4,12 +4,14 @@
  */
 package com.github.alexanderwe.bananaj.model.template;
 
-import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
-import org.json.JSONObject;
-
 import java.net.URL;
 import java.time.LocalDateTime;
+
+import org.json.JSONObject;
+
+import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
+import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 public class Template extends MailchimpObject  {
 
@@ -31,6 +33,16 @@ public class Template extends MailchimpObject  {
 		this.connection = connection;
 	}
 
+	public Template(MailChimpConnection connection, JSONObject jsonTemplate) {
+		super(String.valueOf(jsonTemplate.getInt("id")), jsonTemplate);
+		this.templateName = jsonTemplate.getString("name");
+		this.templateType = TemplateType.valueOf(jsonTemplate.getString("type").toUpperCase());
+		this.shareUrl = jsonTemplate.getString("share_url");
+		this.dateCreated = DateConverter.getInstance().createDateFromISO8601(jsonTemplate.getString("date_created"));
+		this.folder_id = jsonTemplate.has("folder_id") ? jsonTemplate.getString("folder_id") : null;
+		this.connection = connection;
+	}
+	
 	public Template(Builder b){
 		this.templateName = b.templateName;
 		this.folder_id = b.folder_id;

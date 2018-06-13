@@ -5,20 +5,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import jxl.CellView;
-import jxl.Workbook;
-import jxl.write.Label;
-import jxl.write.Number;
-import jxl.write.WritableCellFormat;
-import jxl.write.WritableFont;
-import jxl.write.WritableSheet;
-import jxl.write.WritableWorkbook;
 import com.github.alexanderwe.bananaj.model.automation.Automation;
 import com.github.alexanderwe.bananaj.model.automation.AutomationStatus;
 import com.github.alexanderwe.bananaj.model.campaign.Campaign;
@@ -34,6 +25,15 @@ import com.github.alexanderwe.bananaj.model.template.Template;
 import com.github.alexanderwe.bananaj.model.template.TemplateFolder;
 import com.github.alexanderwe.bananaj.model.template.TemplateType;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
+
+import jxl.CellView;
+import jxl.Workbook;
+import jxl.write.Label;
+import jxl.write.Number;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableFont;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
 
 /**
  * Class for the com.github.alexanderwe.bananaj.connection to mailchimp servers. Used to get lists from mailchimp account.
@@ -93,10 +93,10 @@ public class MailChimpConnection extends Connection{
 		JSONArray listsArray = jsonLists.getJSONArray("lists");
 		for( int i = 0; i< listsArray.length();i++)
 		{
-			JSONObject listDetail = listsArray.getJSONObject(i);
-			JSONObject listStats = listDetail.getJSONObject("stats");
+			JSONObject jsonList = listsArray.getJSONObject(i);
+			JSONObject listStats = jsonList.getJSONObject("stats");
 
-			MailChimpList mailChimpList = new MailChimpList(listDetail.getString("id"),listDetail.getString("name"),listStats.getInt("member_count"),DateConverter.getInstance().createDateFromISO8601(listDetail.getString("date_created")),this,listDetail);
+			MailChimpList mailChimpList = new MailChimpList(jsonList.getString("id"),jsonList.getString("name"),listStats.getInt("member_count"),DateConverter.getInstance().createDateFromISO8601(jsonList.getString("date_created")),this,jsonList);
 			mailChimpLists.add(mailChimpList);
 		}
 		return mailChimpLists;
@@ -108,9 +108,8 @@ public class MailChimpConnection extends Connection{
 	 * @throws Exception
 	 */
 	public MailChimpList getList(String listID) throws Exception{
-		JSONObject list = new JSONObject(do_Get(new URL(listendpoint +"/"+listID),getApikey()));
-		JSONObject listStats = list.getJSONObject("stats");
-		return new MailChimpList(list.getString("id"),list.getString("name"),listStats.getInt("member_count"),DateConverter.getInstance().createDateFromISO8601(list.getString("date_created")),this,list);
+		JSONObject jsonList = new JSONObject(do_Get(new URL(listendpoint +"/"+listID),getApikey()));
+		return new MailChimpList(this, jsonList);
 	}
 
 
@@ -118,7 +117,7 @@ public class MailChimpConnection extends Connection{
 	 * Create a new list in your mailchimp account
 	 * @param listName
 	 */
-	public void createList(String listName, String permission_reminder, boolean email_type_option, CampaignDefaults campaignDefaults) throws Exception{
+	public MailChimpList createList(String listName, String permission_reminder, boolean email_type_option, CampaignDefaults campaignDefaults) throws Exception{
 		setAccount();
 		JSONObject jsonList = new JSONObject();
 		
@@ -142,7 +141,8 @@ public class MailChimpConnection extends Connection{
 		jsonList.put("contact", contact);
 		jsonList.put("campaign_defaults", JSONCampaignDefaults);
 
-		do_Post(new URL(listendpoint), jsonList.toString(),getApikey());
+		JSONObject jsonNewList = new JSONObject(do_Post(new URL(listendpoint), jsonList.toString(),getApikey()));
+		return new MailChimpList(this, jsonNewList);
 	}
 
 	/**
@@ -271,10 +271,7 @@ public class MailChimpConnection extends Connection{
 
     	for(int i = 0 ; i < campaignFoldersJSON.length(); i++){
     		JSONObject campaignFolderJSON = campaignFoldersJSON.getJSONObject(i);
-    		CampaignFolder campaignFolder = new CampaignFolder(campaignFolderJSON.getString("id"),
-    				campaignFolderJSON.getString("name"),
-    				campaignFolderJSON.getInt("count"),
-    				campaignFolderJSON);
+    		CampaignFolder campaignFolder = new CampaignFolder(campaignFolderJSON);
     		campaignFolders.add(campaignFolder);
     	}
     	return campaignFolders;
@@ -287,22 +284,20 @@ public class MailChimpConnection extends Connection{
      */
     public CampaignFolder getCampaignFolder(String folder_id) throws Exception{
 
-    	JSONObject campaignFoldersResponse = new JSONObject(do_Get(new URL(campaignfolderendpoint +"/"+folder_id), getApikey()));
-
-    	return new CampaignFolder(campaignFoldersResponse.getString("id"),
-    			campaignFoldersResponse.getString("name"),
-    			campaignFoldersResponse.getInt("count"),
-    			campaignFoldersResponse);
+    	JSONObject jsonCampaignFolder = new JSONObject(do_Get(new URL(campaignfolderendpoint +"/"+folder_id), getApikey()));
+    	return new CampaignFolder(jsonCampaignFolder);
     }
 
     /**
      * Add a template folder with a specific name
-     * @param name
+     * @param name Name to associate with the folder
+     * @return
      */
-    public void addCampaignFolder(String name) throws Exception{
+    public CampaignFolder addCampaignFolder(String name) throws Exception{
     	JSONObject campaignFolder = new JSONObject();
     	campaignFolder.put("name", name);
-    	do_Post(new URL(campaignfolderendpoint), campaignFolder.toString(), getApikey());
+    	JSONObject jsonCampaignFolder = new JSONObject(do_Post(new URL(campaignfolderendpoint), campaignFolder.toString(), getApikey()));
+    	return new CampaignFolder(jsonCampaignFolder);
     }
 
     /**
@@ -472,11 +467,8 @@ public class MailChimpConnection extends Connection{
         JSONArray templateFoldersJSON = templateFoldersResponse.getJSONArray("folders");
 
         for(int i = 0 ; i < templateFoldersJSON.length(); i++){
-            JSONObject templateFolderJSON = templateFoldersJSON.getJSONObject(i);
-            TemplateFolder templateFolder = new TemplateFolder(templateFolderJSON.getString("id"),
-                    templateFolderJSON.getString("name"),
-                    templateFolderJSON.getInt("count"),
-                    templateFolderJSON);
+            JSONObject jsonTemplateFolder = templateFoldersJSON.getJSONObject(i);
+            TemplateFolder templateFolder = new TemplateFolder(jsonTemplateFolder);
             templateFolders.add(templateFolder);
         }
         return templateFolders;
@@ -489,22 +481,19 @@ public class MailChimpConnection extends Connection{
      */
     public TemplateFolder getTemplateFolder(String folder_id) throws Exception{
 
-        JSONObject templateFoldersResponse = new JSONObject(do_Get(new URL(templatefolderendpoint +"/"+folder_id), getApikey()));
-
-        return new TemplateFolder(templateFoldersResponse.getString("id"),
-                templateFoldersResponse.getString("name"),
-                templateFoldersResponse.getInt("count"),
-                templateFoldersResponse);
+        JSONObject jsonTemplateFolder = new JSONObject(do_Get(new URL(templatefolderendpoint +"/"+folder_id), getApikey()));
+        return new TemplateFolder(jsonTemplateFolder);
     }
 
     /**
      * Add a template folder with a specific name
      * @param name
      */
-    public void addTemplateFolder(String name) throws Exception{
+    public TemplateFolder addTemplateFolder(String name) throws Exception{
         JSONObject templateFolder = new JSONObject();
         templateFolder.put("name", name);
-        do_Post(new URL(templatefolderendpoint), templateFolder.toString(), getApikey());
+        JSONObject jsonTemplateFolder = new JSONObject(do_Post(new URL(templatefolderendpoint), templateFolder.toString(), getApikey()));
+        return new TemplateFolder(jsonTemplateFolder);
     }
 
     /**
@@ -561,15 +550,7 @@ public class MailChimpConnection extends Connection{
 	 */
 	public Template getTemplate(String id) throws Exception{
 		JSONObject jsonTemplate = new JSONObject(do_Get(new URL(templateendpoint +"/" +id),getApikey()));
-		Template template = new Template(jsonTemplate.getInt("id"),
-				jsonTemplate.getString("name"),
-				TemplateType.valueOf(jsonTemplate.getString("type").toUpperCase()),
-				jsonTemplate.getString("share_url"),
-				DateConverter.getInstance().createDateFromISO8601(jsonTemplate.getString("date_created")),
-				jsonTemplate.has("folder_id") ? jsonTemplate.getString("folder_id") : null,
-				this,
-				jsonTemplate);
-		return template;
+		return new Template(this, jsonTemplate);
 	}
 
 	/**
@@ -578,11 +559,12 @@ public class MailChimpConnection extends Connection{
 	 * @param html
 	 * @throws Exception
 	 */
-	public void addTemplate(String name, String html) throws Exception{
+	public Template addTemplate(String name, String html) throws Exception{
 		JSONObject templateJSON = new JSONObject();
 		templateJSON.put("name", name);
 		templateJSON.put("html", html);
-		do_Post(new URL(templateendpoint +"/"), templateJSON.toString(),getApikey());
+		JSONObject jsonTemplate = new JSONObject(do_Post(new URL(templateendpoint +"/"), templateJSON.toString(),getApikey()));
+		return new Template(this, jsonTemplate);
 	}
 
 	/**
@@ -592,12 +574,13 @@ public class MailChimpConnection extends Connection{
 	 * @param html
 	 * @throws Exception
 	 */
-	public void addTemplate(String name, String folder_id, String html) throws Exception{
+	public Template addTemplate(String name, String folder_id, String html) throws Exception{
 		JSONObject templateJSON = new JSONObject();
 		templateJSON.put("name", name);
 		templateJSON.put("folder_id", folder_id);
 		templateJSON.put("html", html);
-		do_Post(new URL(templateendpoint +"/"), templateJSON.toString(),getApikey());
+		JSONObject jsonTemplate = new JSONObject(do_Post(new URL(templateendpoint +"/"), templateJSON.toString(),getApikey()));
+		return new Template(this, jsonTemplate);
 	}
 
 	/**

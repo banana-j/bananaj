@@ -79,6 +79,15 @@ public class MailChimpList extends MailchimpObject {
 		this.connection = connection;
 	}
 
+	public MailChimpList(MailChimpConnection connection, JSONObject jsonList) {
+		super(jsonList.getString("id"), jsonList);
+		JSONObject listStats = jsonList.getJSONObject("stats");
+		this.name = jsonList.getString("name");
+		this.membercount = listStats.getInt("member_count");
+		this.dateCreated = DateConverter.getInstance().createDateFromISO8601(jsonList.getString("date_created"));
+		this.connection = connection;
+	}
+
 	/**
 	 * Get members in this list with pagination
 	 * @param count Number of members to return or 0 to return all members
