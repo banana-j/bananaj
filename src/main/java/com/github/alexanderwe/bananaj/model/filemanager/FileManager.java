@@ -135,9 +135,11 @@ public class FileManager {
      * @throws Exception
      */
     public FileManagerFile upload(int folder_id, String filename, File file) throws JSONException, MalformedURLException, Exception{
+    	String fExt = FileInspector.getInstance().getExtension(file);
+    	String fName = filename.endsWith(fExt) ? filename : filename+fExt;
         JSONObject upload_data  = new JSONObject();
         upload_data.put("folder_id", folder_id);
-        upload_data.put("name", filename+FileInspector.getInstance().getExtension(file));
+        upload_data.put("name", fName);
         upload_data.put("file_data",FileInspector.getInstance().encodeFileToBase64Binary(file));
         JSONObject jsonFileManagerFile = new JSONObject(getConnection().do_Post(new URL(connection.getFilesendpoint()), upload_data.toString(),connection.getApikey()));
         return new FileManagerFile(getConnection(), jsonFileManagerFile);
@@ -153,8 +155,10 @@ public class FileManager {
      * @throws Exception
      */
     public FileManagerFile upload(String filename, File file) throws JSONException, MalformedURLException, Exception{
+    	String fExt = FileInspector.getInstance().getExtension(file);
+    	String fName = filename.endsWith(fExt) ? filename : filename+fExt;
         JSONObject upload_data  = new JSONObject();
-        upload_data.put("name", filename+ FileInspector.getInstance().getExtension(file));
+        upload_data.put("name", fName);
         upload_data.put("file_data",FileInspector.getInstance().encodeFileToBase64Binary(file));
         JSONObject jsonFileManagerFile = new JSONObject(getConnection().do_Post(new URL(connection.getFilesendpoint()), upload_data.toString(),connection.getApikey()));
         return new FileManagerFile(getConnection(), jsonFileManagerFile);
