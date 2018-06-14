@@ -34,6 +34,8 @@ public class Connection {
 		InputStream entityStream = null;
 		try {
 			int responseCode = response.getStatusLine().getStatusCode();
+			//System.out.println("\nSending 'GET' request to URL : " + url);
+			//System.out.println("Response Code : " + responseCode + "\n");
 			if (responseCode >= 400) {
 				throw new Exception("Error: " + responseCode + " GET " + url.toExternalForm() + " " + response.getStatusLine().getReasonPhrase());
 			}
@@ -67,6 +69,8 @@ public class Connection {
 		InputStream entityStream = null;
 		try {
 			int responseCode = response.getStatusLine().getStatusCode();
+			//System.out.println("\nSending 'POST' request to URL : " + url + System.lineSeparator() + "Send data: " + (post_string.length() > 500 ? post_string.substring(0, 500)+"..." : post_string));
+			//System.out.println("Response Code : " + responseCode + "\n");
 			if (responseCode >= 400) {
 				throw new Exception("Error: " + responseCode + " POST " + url.toExternalForm() + " " + response.getStatusLine().getReasonPhrase());
 			}
@@ -103,6 +107,8 @@ public class Connection {
 		InputStream entityStream = null;
 		try {
 			int responseCode = response.getStatusLine().getStatusCode();
+			//System.out.println("\nSending 'PATCH' request to URL : " + url + System.lineSeparator() + "Send data: " + (patch_string.length() > 500 ? patch_string.substring(0, 500)+"..." : patch_string));
+			//System.out.println("Response Code : " + responseCode + "\n");
 			if (responseCode >= 400) {
 				throw new Exception("Error: " + responseCode + " PATCH " + url.toExternalForm() + " " + response.getStatusLine().getReasonPhrase());
 			}
@@ -139,6 +145,8 @@ public class Connection {
 		InputStream entityStream = null;
 		try {
 			int responseCode = response.getStatusLine().getStatusCode();
+			//System.out.println("\nSending 'PUT' request to URL : " + url + System.lineSeparator() + "Send data: " + (put_string.length() > 500 ? put_string.substring(0, 500)+"..." : put_string));
+			//System.out.println("Response Code : " + responseCode + "\n");
 			if (responseCode >= 400) {
 				throw new Exception("Error: " + responseCode + " PUT " + url.toExternalForm() + " " + response.getStatusLine().getReasonPhrase());
 			}
@@ -174,6 +182,8 @@ public class Connection {
 		InputStream entityStream = null;
 		try {
 			int responseCode = response.getStatusLine().getStatusCode();
+			//System.out.println("\nSending 'POST' request to URL : " + url);
+			//System.out.println("Response Code : " + responseCode + "\n");
 			if (responseCode >= 400) {
 				throw new Exception("Error: " + responseCode + " POST " + url.toExternalForm() + " " + response.getStatusLine().getReasonPhrase());
 			}
@@ -209,6 +219,8 @@ public class Connection {
 		InputStream entityStream = null;
 		try {
 			int responseCode = response.getStatusLine().getStatusCode();
+			//System.out.println("\nSending 'DELETE' request to URL : " + url);
+			//System.out.println("Response Code : " + responseCode + "\n");
 			if (responseCode >= 400) {
 				throw new Exception("Error: " + responseCode + " DELETE " + url.toExternalForm() + " " + response.getStatusLine().getReasonPhrase());
 			}
