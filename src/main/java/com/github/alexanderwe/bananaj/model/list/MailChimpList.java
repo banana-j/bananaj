@@ -79,14 +79,23 @@ public class MailChimpList extends MailchimpObject {
 		this.connection = connection;
 	}
 
+	public MailChimpList(MailChimpConnection connection, JSONObject jsonList) {
+		super(jsonList.getString("id"), jsonList);
+		JSONObject listStats = jsonList.getJSONObject("stats");
+		this.name = jsonList.getString("name");
+		this.membercount = listStats.getInt("member_count");
+		this.dateCreated = DateConverter.getInstance().createDateFromISO8601(jsonList.getString("date_created"));
+		this.connection = connection;
+	}
+
 	/**
-	 * Get all members in this list
-	 * @param count x first members
-	 * @param offset skip x first members
-	 * @return
+	 * Get members in this list with pagination
+	 * @param count Number of members to return or 0 to return all members
+	 * @param offset Zero based offset
+	 * @return List of members
 	 * @throws Exception
 	 */
-	public ArrayList<Member> getMembers(int count, int offset) throws Exception{
+	public List<Member> getMembers(int count, int offset) throws Exception {
 
 		ArrayList<Member> members = new ArrayList<Member>();
 		final JSONObject list;
@@ -328,7 +337,14 @@ public class MailChimpList extends MailchimpObject {
     	return new GrowthHistory(this, historyDetail.getString("month"), historyDetail.getInt("existing"), historyDetail.getInt("imports"), historyDetail.getInt("optins"));
 	}
 
-	public ArrayList<InterestCategory> getInterestCategories(int count, int offset) throws Exception {
+	/**
+	 * Get interest categories for list. These correspond to ‘group titles’ in the MailChimp application.
+	 * @param count Number of templates to return
+	 * @param offset Zero based offset
+	 * @return List of interest categories
+	 * @throws Exception
+	 */
+	public List<InterestCategory> getInterestCategories(int count, int offset) throws Exception {
 		ArrayList<InterestCategory> categories = new ArrayList<InterestCategory>();
 		JSONObject list = new JSONObject(getConnection().do_Get(new URL(connection.getListendpoint()+"/"+this.getId()+"/interest-categories?count="+count+"&offset="+offset),connection.getApikey()));
 		JSONArray categoryArray = list.getJSONArray("categories");
@@ -348,7 +364,15 @@ public class MailChimpList extends MailchimpObject {
 		return InterestCategory.build(connection, jsonCategory);
 	}
 	
-	public ArrayList<Interest> getInterests(String interestCategoryId, int count, int offset) throws Exception {
+	/**
+	 * Get interests for this list. Interests are referred to as ‘group names’ in the MailChimp application. 
+	 * @param interestCategoryId
+	 * @param count Number of members to return or 0 to return all members
+	 * @param offset Zero based offset
+	 * @return List of interests for this list
+	 * @throws Exception
+	 */
+	public List<Interest> getInterests(String interestCategoryId, int count, int offset) throws Exception {
 		ArrayList<Interest> interests = new ArrayList<Interest>();
 		JSONObject list = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+this.getId()+"/interest-categories/"+interestCategoryId+"/interests?count="+count+"&offset="+offset) ,connection.getApikey()));
 		JSONArray interestArray = list.getJSONArray("interests");
@@ -369,13 +393,15 @@ public class MailChimpList extends MailchimpObject {
 	}
 	
 	/**
-	 * Get all segments of this list
-	 * @return
+	 * Get all segments of this list. A segment is a section of your list that includes only those subscribers who share specific common field information.
+	 * @param count Number of templates to return
+	 * @param offset Zero based offset
+	 * @return List containing segments
 	 * @throws Exception
      */
-	public ArrayList<Segment> getSegments() throws Exception {
+	public List<Segment> getSegments(int count, int offset) throws Exception {
         ArrayList<Segment> segments = new ArrayList<Segment>();
-		JSONObject jsonSegments = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+this.getId()+"/segments") ,connection.getApikey()));
+		JSONObject jsonSegments = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+this.getId()+"/segments?offset=" + offset + "&count=" + count) ,connection.getApikey()));
 
 		final JSONArray segmentsArray = jsonSegments.getJSONArray("segments");
 
@@ -596,9 +622,9 @@ public class MailChimpList extends MailchimpObject {
 	 * @return
 	 * @throws Exception
 	 */
-	public ArrayList<MergeField> getMergeFields() throws Exception {
+	public List<MergeField> getMergeFields() throws Exception {
 		ArrayList<MergeField> mergeFields = new ArrayList<MergeField>();
-		URL url = new URL(connection.getListendpoint()+"/"+this.getId()+"/merge-fields");
+		URL url = new URL(connection.getListendpoint()+"/"+this.getId()+"/merge-fields?offset=0&count=100"); // Note: Mailchimp currently supports a maximim of 80 merge fields
 
 		JSONObject merge_fields = new JSONObject(connection.do_Get(url,connection.getApikey()));
 		final JSONArray mergeFieldsArray = merge_fields.getJSONArray("merge_fields");
@@ -718,7 +744,7 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public void writeToExcel(String filepath,boolean show_merge) throws Exception{
-		ArrayList<Member> members = this.getMembers(0,0);
+		List<Member> members = this.getMembers(0,0);
 		int merge_field_count = 0;
 		WritableWorkbook workbook;
 

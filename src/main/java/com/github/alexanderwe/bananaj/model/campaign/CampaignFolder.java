@@ -1,7 +1,8 @@
 package com.github.alexanderwe.bananaj.model.campaign;
 
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import org.json.JSONObject;
+
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
 
 /**
  * Created by alexanderweiss on 10.08.2016.
@@ -13,12 +14,18 @@ public class CampaignFolder extends MailchimpObject{
     private int count;
 
 
-    public CampaignFolder(String id, String name, int count, JSONObject jsonResponse) {
-        super(id, jsonResponse);
+    public CampaignFolder(String id, String name, int count, JSONObject jsonCampaignFolder) {
+        super(id, jsonCampaignFolder);
         this.name = name;
         this.count = count;
     }
 
+    public CampaignFolder(JSONObject jsonCampaignFolder) {
+        super(jsonCampaignFolder.getString("id"), jsonCampaignFolder);
+        this.name = jsonCampaignFolder.getString("name");
+        this.count = jsonCampaignFolder.getInt("count");
+    }
+    
     /**
      *
      * @return
