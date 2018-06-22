@@ -128,9 +128,9 @@ Every endpoint supports GET, POST, and DELETE requests. So it is possible to ful
  
 Thanks a lot to all contributors:
 
-* (gscriver)[https://github.com/gscriver]
-* (bphilipnyc)[https://github.com/bphilipnyc]
-* (icu222much)[https://github.com/icu222much]
+* [gscriver](https://github.com/gscriver)
+* [bphilipnyc](https://github.com/bphilipnyc)
+* [icu222much](https://github.com/icu222much)
 
 # License
 The MIT License (MIT)
