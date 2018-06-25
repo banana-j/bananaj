@@ -1,0 +1,26 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'com.github.alexanderwe'
+version = '0.5.0'
+
+description = """bananaj"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+
+
+
+repositories {
+        
+     maven { url "http://repo.maven.apache.org/maven2" }
+}
+dependencies {
+    compile group: 'commons-codec', name: 'commons-codec', version:'1.10'
+    compile group: 'net.sourceforge.jexcelapi', name: 'jxl', version:'2.6.12'
+    compile group: 'org.json', name: 'json', version:'20160212'
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version:'4.5.5'
+}

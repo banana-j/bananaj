@@ -29,7 +29,8 @@ public class Connection {
 
             int responseCode = response.getStatusLine().getStatusCode();
             if (responseCode < 200 || responseCode > 299) {
-                throw new TransportException("Error: " + responseCode + " GET " + url.toExternalForm() + " " + createResponseFromEntity(response.getEntity()), createResponseFromEntity(response.getEntity()));
+                String errorJson =  createResponseFromEntity(response.getEntity());
+                throw new TransportException("Error: " + responseCode + " GET " + url.toExternalForm() + " " + errorJson, errorJson);
             }
 
             return createResponseFromEntity(response.getEntity());
@@ -51,7 +52,8 @@ public class Connection {
 
             int responseCode = response.getStatusLine().getStatusCode();
             if (responseCode < 200 || responseCode > 299) {
-                throw new TransportException("Error: " + responseCode + " POST " + url.toExternalForm() + " " + createResponseFromEntity(response.getEntity()), createResponseFromEntity(response.getEntity()));
+                String errorJson =  createResponseFromEntity(response.getEntity());
+                throw new TransportException("Error: " + responseCode + " POST " + url.toExternalForm() + " " + errorJson, errorJson);
             }
 
             return createResponseFromEntity(response.getEntity());
@@ -73,7 +75,8 @@ public class Connection {
 
             int responseCode = response.getStatusLine().getStatusCode();
             if (responseCode < 200 || responseCode > 299) {
-                throw new TransportException("Error: " + responseCode + " PATCH " + url.toExternalForm() + " " + createResponseFromEntity(response.getEntity()), createResponseFromEntity(response.getEntity()));
+                String errorJson =  createResponseFromEntity(response.getEntity());
+                throw new TransportException("Error: " + responseCode + " PATCH " + url.toExternalForm() + " " + errorJson, errorJson);
             }
 
             return createResponseFromEntity(response.getEntity());
@@ -95,7 +98,8 @@ public class Connection {
 
             int responseCode = response.getStatusLine().getStatusCode();
             if (responseCode < 200 || responseCode > 299) {
-                throw new TransportException("Error: " + responseCode + " PUT " + url.toExternalForm() + " " + createResponseFromEntity(response.getEntity()), createResponseFromEntity(response.getEntity()));
+                String errorJson =  createResponseFromEntity(response.getEntity());
+                throw new TransportException("Error: " + responseCode + " PUT " + url.toExternalForm() + " " + errorJson, errorJson);
             }
 
             return createResponseFromEntity(response.getEntity());
@@ -116,7 +120,8 @@ public class Connection {
 
             int responseCode = response.getStatusLine().getStatusCode();
             if (responseCode < 200 || responseCode > 299) {
-                throw new TransportException("Error: " + responseCode + " POST " + url.toExternalForm() + " " + createResponseFromEntity(response.getEntity()), createResponseFromEntity(response.getEntity()));
+                String errorJson =  createResponseFromEntity(response.getEntity());
+                throw new TransportException("Error: " + responseCode + " POST " + url.toExternalForm() + " " + errorJson, errorJson);
             }
 
             return createResponseFromEntity(response.getEntity());
@@ -137,7 +142,8 @@ public class Connection {
 
             int responseCode = response.getStatusLine().getStatusCode();
             if (responseCode < 200 || responseCode > 299) {
-                throw new TransportException("Error: " + responseCode + " DELETE " + url.toExternalForm() + " " + createResponseFromEntity(response.getEntity()), createResponseFromEntity(response.getEntity()));
+                String errorJson =  createResponseFromEntity(response.getEntity());
+                throw new TransportException("Error: " + responseCode + " DELETE " + url.toExternalForm() + " " + errorJson, errorJson);
             }
 
             return createResponseFromEntity(response.getEntity());
