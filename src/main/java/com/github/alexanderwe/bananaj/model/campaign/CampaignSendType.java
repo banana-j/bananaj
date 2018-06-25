@@ -1,27 +1,26 @@
-package com.github.alexanderwe.bananaj.model.list.segment;
+package com.github.alexanderwe.bananaj.model.campaign;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by alexanderweiss on 04.02.16.
+ * 
  */
-public enum SegmentType {
+public enum CampaignSendType {
 
-    SAVED("saved"),
-    STATIC("static"),
-    FUZZY("fuzzy");
+	HTML("html"),
+	PLAINTEXT("plaintext");
 
     private final String value;
-    private final static Map<String, SegmentType> CONSTANTS = new HashMap<String, SegmentType>();
+    private final static Map<String, CampaignSendType> CONSTANTS = new HashMap<String, CampaignSendType>();
 
     static {
-        for (SegmentType c: values()) {
+        for (CampaignSendType c: values()) {
             CONSTANTS.put(c.value, c);
         }
     }
 
-    private SegmentType(String value) {
+    private CampaignSendType(String value) {
         this.value = value;
     }
 
@@ -34,8 +33,8 @@ public enum SegmentType {
         return value;
     }
 
-    public static SegmentType fromValue(String value) {
-    	SegmentType constant = CONSTANTS.get(value);
+    public static CampaignSendType fromValue(String value) {
+    	CampaignSendType constant = CONSTANTS.get(value);
         if (constant == null) {
             throw new IllegalArgumentException(value);
         } else {

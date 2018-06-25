@@ -1,26 +1,23 @@
-package com.github.alexanderwe.bananaj.model.list.segment;
+package com.github.alexanderwe.bananaj.model.list.member;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by alexanderweiss on 27.12.16.
- */
-public enum MatchType {
+public enum EmailType {
 
-    ANY("any"),
-    ALL("all");
+	HTML("html"),
+	TEXT("text");
 
     private final String value;
-    private final static Map<String, MatchType> CONSTANTS = new HashMap<String, MatchType>();
+    private final static Map<String, EmailType> CONSTANTS = new HashMap<String, EmailType>();
 
     static {
-        for (MatchType c: values()) {
+        for (EmailType c: values()) {
             CONSTANTS.put(c.value, c);
         }
     }
 
-    private MatchType(String value) {
+    private EmailType(String value) {
         this.value = value;
     }
 
@@ -33,8 +30,8 @@ public enum MatchType {
         return value;
     }
 
-    public static MatchType fromValue(String value) {
-    	MatchType constant = CONSTANTS.get(value);
+    public static EmailType fromValue(String value) {
+    	EmailType constant = CONSTANTS.get(value);
         if (constant == null) {
             throw new IllegalArgumentException(value);
         } else {

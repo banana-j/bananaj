@@ -1,16 +1,17 @@
 package com.github.alexanderwe.bananaj.model.filemanager;
 
-import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import com.github.alexanderwe.bananaj.utils.DateConverter;
-
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
+
+import org.json.JSONObject;
+
+import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
+import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 /**
  * Class for representing a file manager folder.
@@ -19,7 +20,7 @@ import java.util.TimeZone;
 public class FileManagerFolder extends MailchimpObject{
 
 
-    private int id;
+    private int folderId;
     private String name;
     private int file_count;
     private LocalDateTime createdAt;
@@ -31,17 +32,23 @@ public class FileManagerFolder extends MailchimpObject{
 
 
     public FileManagerFolder(int id, String name, int file_count, LocalDateTime createdAt, String createdBy, JSONObject jsonData, MailChimpConnection connection){
-        super(String.valueOf(id),jsonData);
+        super(String.valueOf(id),jsonData);	// set string representation of folder id
+        this.folderId = id;	// set integer representation of folder id
         this.name = name;
         this.file_count = file_count;
         this.createdAt = createdAt;
         this.createdBy = createdBy;
         this.connection = connection;
-        try{
-            setFiles();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+    }
+
+    public FileManagerFolder(MailChimpConnection connection, JSONObject jsonFileManagerFolder){
+        super(String.valueOf(jsonFileManagerFolder.getInt("id")), jsonFileManagerFolder);	// set string representation of folder id
+        this.folderId = jsonFileManagerFolder.getInt("id");	// set integer representation of folder id
+        this.name = jsonFileManagerFolder.getString("name");
+        this.file_count = jsonFileManagerFolder.getInt("file_count");
+        this.createdAt = DateConverter.getInstance().createDateFromISO8601(jsonFileManagerFolder.getString("created_at"));
+        this.createdBy = jsonFileManagerFolder.getString("created_by");
+        this.connection = connection;
     }
 
     public void changeName(String name) throws Exception{
@@ -51,6 +58,9 @@ public class FileManagerFolder extends MailchimpObject{
 
     }
 
+    public void deleteFolder() throws Exception {
+    	getConnection().do_Delete(new URL(getConnection().getFilemanagerfolderendpoint()+"/"+getId()), getConnection().getApikey());
+    }
 
     public String getName() {
         return name;
@@ -69,34 +79,38 @@ public class FileManagerFolder extends MailchimpObject{
     }
 
     public ArrayList<FileManagerFile> getFiles() {
+    	if (files == null) {	// defer loading files list untill requested.
+            try{
+                setFiles();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+    	}
         return files;
     }
 
-    public void setFiles() throws Exception{
-        ArrayList<FileManagerFile> files = new ArrayList<FileManagerFile>();
+    private void setFiles() throws Exception {
+		ArrayList<FileManagerFile> files = new ArrayList<FileManagerFile>();
+    	if (file_count > 0) {
 
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
-        // parse response
-        JSONObject jsonFileManagerFiles = new JSONObject(getConnection().do_Get(new URL(connection.getFilesendpoint()),connection.getApikey()));
-        JSONArray filesArray = jsonFileManagerFiles.getJSONArray("files");
-        for( int i = 0; i< filesArray.length();i++)
-        {
-            FileManagerFile file;
-            JSONObject fileDetail = filesArray.getJSONObject(i);
-            if(fileDetail.getString("type").equals("image")){
-                file = new FileManagerFile(fileDetail.getInt("id"),fileDetail.getInt("folder_id"),fileDetail.getString("type"),fileDetail.getString("name"),fileDetail.getString("full_size_url"),fileDetail.getInt("size"), DateConverter.getInstance().createDateFromISO8601(fileDetail.getString("created_at")),fileDetail.getString("created_by"), fileDetail.getInt("width"), fileDetail.getInt("height"), this.getConnection(), fileDetail);
-            }else{
-                file = new FileManagerFile(fileDetail.getInt("id"),fileDetail.getInt("folder_id"),fileDetail.getString("type"),fileDetail.getString("name"),fileDetail.getString("full_size_url"),fileDetail.getInt("size"),DateConverter.getInstance().createDateFromISO8601(fileDetail.getString("created_at")),fileDetail.getString("created_by"), this.getConnection(),fileDetail);
+    		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    		formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+    		
+    		int offset = 0;
+    		int count = 100;
+			List<FileManagerFile> filelist;
 
-            }
-
-            if(file.getFolder_id() == Integer.parseInt(this.getId())) {
-                files.add(file);
-            }
-        }
-
-        this.files = files;
+    		do {
+				filelist = connection.getFileManager().getFileManagerFiles(count, offset);
+				offset += count;
+				for(FileManagerFile file : filelist) {
+	    			if(file.getFolder_id() == folderId) {
+	    				files.add(file);
+	    			}
+				}
+    		} while (filelist.size() == 100 && files.size() < file_count);
+    	}
+    	this.files = files;
     }
 
     public FileManagerFile getFile(int id){
@@ -108,6 +122,10 @@ public class FileManagerFolder extends MailchimpObject{
         return null;
     }
 
+    public int getFolderId() {
+    	return folderId;
+    }
+
     public JSONObject getJsonData() {
         return jsonData;
     }
@@ -116,9 +134,7 @@ public class FileManagerFolder extends MailchimpObject{
         return connection;
     }
 
-
-
-    @Override
+	@Override
     public String toString(){
         return "Folder-name: " + this.getName() + "Folder-Id: " + this.getId() + " File-count: " + this.getFile_count() + " Created at: " + this.getCreatedAt() +System.lineSeparator()+ " Files: "+ this.getFiles();
     }

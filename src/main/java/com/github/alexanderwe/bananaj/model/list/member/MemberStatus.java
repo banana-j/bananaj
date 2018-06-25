@@ -11,7 +11,7 @@ package com.github.alexanderwe.bananaj.model.list.member;
  */
 public enum MemberStatus {
 
-	PENDING("pending"),SUBSCRIBED("subscribed"),UNSUBSCRIBED("unsubscribed"),CLEANED("cleaned");
+	PENDING("pending"),SUBSCRIBED("subscribed"),UNSUBSCRIBED("unsubscribed"),CLEANED("cleaned"),TRANSACTIONAL("transactional");
 	
 	private String stringRepresentation;
 	

@@ -1,9 +1,35 @@
-/bin/
-.idea/*
-target/*
-src/test/*
+# IntelliJ
 *.iml
+*.ipr
+*.iws
+.idea/
+
+# Eclipse
+.settings
+.classpath
+.project
+.metadata
+*.launch
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+
+# packages
+*.class
+*.jar
+*.war
+*.ear
+
+# maven
+target/
+
+# Mac
 .DS_Store
 
-
+# Project
 Test.java
+src/test/*
