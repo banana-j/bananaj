@@ -3,11 +3,16 @@
  */
 package com.github.alexanderwe.bananaj.exceptions;
 
+import org.json.JSONObject;
+
 /**
  * @author USCRIGA
  *
  */
 public class TransportException extends Exception {
+
+
+	private JSONObject jsonError;
 
 	/**
 	 * 
@@ -21,6 +26,16 @@ public class TransportException extends Exception {
 	 */
 	public TransportException(String message) {
 		super(message);
+	}
+
+	/**
+	 * @param message the detail message
+	 * @param  jsonError JSON string of the Mailchimp error message
+	 */
+	public TransportException(String message, String jsonError) {
+		super(message);
+		this.jsonError = new JSONObject(jsonError);
+
 	}
 
 	/**

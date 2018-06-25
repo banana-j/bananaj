@@ -31,5 +31,5 @@ target/
 .DS_Store
 
 # Project
-Test.java
+src/test/Test.java
 src/test/*
