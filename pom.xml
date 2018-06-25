@@ -6,7 +6,7 @@
 
     <groupId>com.github.alexanderwe</groupId>
     <artifactId>bananaj</artifactId>
-    <version>1.2.5-alpha</version>
+    <version>0.5.0</version>
     <packaging>jar</packaging>
 
     <name>bananaj</name>

@@ -269,13 +269,15 @@ public class MailChimpList extends MailchimpObject {
 		while (it.hasNext()) {
 			Entry<String, Object> pair = it.next();
 			it.remove(); // avoids a ConcurrentModificationException
-			merge_fields.put(pair.getKey().toString(), pair.getValue());
+			merge_fields.put(pair.getKey(), pair.getValue());
 		}
 		
 		member.put("status", status.getStringRepresentation());
 		member.put("email_address", emailAddress);
 		member.put("merge_fields", merge_fields);
+		System.out.println(member.toString());
         getConnection().do_Post(url,member.toString(),connection.getApikey());
+
 		this.membercount++;
 	}
 
