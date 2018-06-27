@@ -6,6 +6,8 @@ import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -27,10 +29,10 @@ public class Connection {
         httpclient = HttpClients.createDefault();
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
 
+
             int responseCode = response.getStatusLine().getStatusCode();
             if (responseCode < 200 || responseCode > 299) {
-                String errorJson =  createResponseFromEntity(response.getEntity());
-                throw new TransportException("Error: " + responseCode + " GET " + url.toExternalForm() + " " + errorJson, errorJson);
+                throw buildTransportError("GET", url.toExternalForm(), response);
             }
 
             return createResponseFromEntity(response.getEntity());
@@ -42,19 +44,20 @@ public class Connection {
     public String do_Post(URL url, String post_string, String authorization) throws TransportException, URISyntaxException {
         CloseableHttpClient httpclient;
 
+
         HttpPost httppost = new HttpPost(url.toURI());
-        httppost.setEntity(EntityBuilder.create().setText(post_string).build());
         httppost.addHeader("Content-Type", "application/json; charset=UTF-8");
         httppost.addHeader("Authorization", authorization);
+        httppost.setEntity(EntityBuilder.create().setBinary(post_string.getBytes(StandardCharsets.UTF_8)).build());
 
         httpclient = HttpClients.createDefault();
         try (CloseableHttpResponse response = httpclient.execute(httppost)) {
 
             int responseCode = response.getStatusLine().getStatusCode();
             if (responseCode < 200 || responseCode > 299) {
-                String errorJson =  createResponseFromEntity(response.getEntity());
-                throw new TransportException("Error: " + responseCode + " POST " + url.toExternalForm() + " " + errorJson, errorJson);
+                throw buildTransportError("POST", url.toExternalForm(), response);
             }
+
 
             return createResponseFromEntity(response.getEntity());
         } catch (Exception e) {
@@ -65,18 +68,18 @@ public class Connection {
     public String do_Patch(URL url, String patch_string, String authorization) throws TransportException, URISyntaxException {
         CloseableHttpClient httpclient;
 
+
         HttpPatch httppatch = new HttpPatch(url.toURI());
-        httppatch.setEntity(EntityBuilder.create().setText(patch_string).build());
         httppatch.addHeader("Content-Type", "application/json; charset=UTF-8");
         httppatch.addHeader("Authorization", authorization);
+        httppatch.setEntity(EntityBuilder.create().setBinary(patch_string.getBytes(StandardCharsets.UTF_8)).build());
 
         httpclient = HttpClients.createDefault();
         try (CloseableHttpResponse response = httpclient.execute(httppatch)) {
 
             int responseCode = response.getStatusLine().getStatusCode();
             if (responseCode < 200 || responseCode > 299) {
-                String errorJson =  createResponseFromEntity(response.getEntity());
-                throw new TransportException("Error: " + responseCode + " PATCH " + url.toExternalForm() + " " + errorJson, errorJson);
+                throw buildTransportError("PATCH", url.toExternalForm(), response);
             }
 
             return createResponseFromEntity(response.getEntity());
@@ -85,21 +88,22 @@ public class Connection {
         }
     }
 
+
     public String do_Put(URL url, String put_string, String authorization) throws TransportException, URISyntaxException {
         CloseableHttpClient httpclient;
 
         HttpPut httpput = new HttpPut(url.toURI());
-        httpput.setEntity(EntityBuilder.create().setText(put_string).build());
         httpput.addHeader("Content-Type", "application/json; charset=UTF-8");
         httpput.addHeader("Authorization", authorization);
+        httpput.setEntity(EntityBuilder.create().setBinary(put_string.getBytes(StandardCharsets.UTF_8)).build());
 
         httpclient = HttpClients.createDefault();
         try (CloseableHttpResponse response = httpclient.execute(httpput)) {
 
+
             int responseCode = response.getStatusLine().getStatusCode();
             if (responseCode < 200 || responseCode > 299) {
-                String errorJson =  createResponseFromEntity(response.getEntity());
-                throw new TransportException("Error: " + responseCode + " PUT " + url.toExternalForm() + " " + errorJson, errorJson);
+                throw buildTransportError("DELETE", url.toExternalForm(), response);
             }
 
             return createResponseFromEntity(response.getEntity());
@@ -120,8 +124,7 @@ public class Connection {
 
             int responseCode = response.getStatusLine().getStatusCode();
             if (responseCode < 200 || responseCode > 299) {
-                String errorJson =  createResponseFromEntity(response.getEntity());
-                throw new TransportException("Error: " + responseCode + " POST " + url.toExternalForm() + " " + errorJson, errorJson);
+                throw buildTransportError("POST", url.toExternalForm(), response);
             }
 
             return createResponseFromEntity(response.getEntity());
@@ -142,8 +145,7 @@ public class Connection {
 
             int responseCode = response.getStatusLine().getStatusCode();
             if (responseCode < 200 || responseCode > 299) {
-                String errorJson =  createResponseFromEntity(response.getEntity());
-                throw new TransportException("Error: " + responseCode + " DELETE " + url.toExternalForm() + " " + errorJson, errorJson);
+                throw buildTransportError("DELETE", url.toExternalForm(), response);
             }
 
             return createResponseFromEntity(response.getEntity());
@@ -170,4 +172,30 @@ public class Connection {
         }
         return null;
     }
+
+    private TransportException buildTransportError(String verb, String url, CloseableHttpResponse response) {
+        int responseCode = response.getStatusLine().getStatusCode();
+        JSONObject errObj;
+        try {
+            errObj = new JSONObject(createResponseFromEntity(response.getEntity()));
+            String errType = getErrorObjString(errObj, "type");
+            String errTitle = getErrorObjString(errObj, "title");
+            String errDetail = getErrorObjString(errObj, "detail");
+            String errInstance = getErrorObjString(errObj, "instance");
+            return new TransportException("Status: " + Integer.toString(responseCode) + " " + verb + ": " + url + " Reason: " + response.getStatusLine().getReasonPhrase()
+                    + " - " + errTitle + " Details: " + errDetail + " Instance: " + errInstance + " Type: " + errType);
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+        return new TransportException("Status: " + Integer.toString(responseCode) + " " + verb + ": " + url + " Reason: " + response.getStatusLine().getReasonPhrase());
+    }
+
+
+    private String getErrorObjString(JSONObject errObj, String key) {
+        if (errObj.has(key)) {
+            return errObj.getString(key);
+        }
+        return "";
+    }
 }
+	
