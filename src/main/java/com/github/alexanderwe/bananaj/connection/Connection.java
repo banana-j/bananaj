@@ -163,7 +163,7 @@ public class Connection {
             StringBuilder strbuilder = new StringBuilder(length > 16 && length < Integer.MAX_VALUE ? (int) length : 200);
             try (Reader reader = new BufferedReader(new InputStreamReader
                     (entityStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
-                int c = 0;
+                int c;
                 while ((c = reader.read()) != -1) {
                     strbuilder.append((char) c);
                 }

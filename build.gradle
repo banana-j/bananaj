@@ -1,8 +1,11 @@
 apply plugin: 'java'
 apply plugin: 'maven'
+apply plugin: 'signing'
+
 
 group = 'com.github.alexanderwe'
-version = '0.5.0'
+archivesBaseName = "bananaj"
+version = '0.5.1'
 
 description = """bananaj"""
 
@@ -12,7 +15,21 @@ tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
 }
 
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
 
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task fatJar(type: Jar) {
+    baseName = 'bananaj-all-in-one-jar'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
 
 repositories {
         
@@ -23,4 +40,56 @@ dependencies {
     compile group: 'net.sourceforge.jexcelapi', name: 'jxl', version:'2.6.12'
     compile group: 'org.json', name: 'json', version:'20160212'
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version:'4.5.5'
+}
+
+artifacts {
+    archives javadocJar, fatJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'bananaj'
+                packaging 'jar'
+                // optionally artifactId can be defined here
+                description 'A simple MailChimp API wrapper written in Java'
+                url 'https://github.com/alexanderwe/bananaj'
+
+                scm {
+                    connection 'scm:git:git://github.com/alexanderwe/bananaj.git'
+                    developerConnection 'scm:git:git://github.com/alexanderwe/bananaj.git'
+                    url 'https://github.com/alexanderwe/bananaj'
+                }
+
+                licenses {
+                    license {
+                        name 'MIT'
+                        url 'https://raw.githubusercontent.com/alexanderwe/bananaj/master/LICENSE.md'
+                    }
+                }
+
+                developers {
+                    developer {
+                        name 'Alexander Weiß'
+                        url 'https://www.github.com/alexanderwe'
+                    }
+                }
+            }
+        }
+    }
 }
