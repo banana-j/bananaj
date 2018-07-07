@@ -3,11 +3,6 @@ Simple api for accessing Mailchimp - Work in progess
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://raw.githubusercontent.com/gr4h4n/bananaj/master/LICENSE.md)
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.alexanderwe/bananaj/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.alexanderwe/bananaj)
-
-
-
-
 # Introduction
 
 bananaj provides an Java wrapper for the MailChimp API 3.0. It is possible access your MailChimp data through Java. 
@@ -22,8 +17,19 @@ Add this dependency to your pom.xml to use **bananaj** in your project.
 <dependency>
   <groupId>com.github.alexanderwe</groupId>
   <artifactId>bananaj</artifactId>
-  <version>0.5.0</version>
+  <version>0.5.1</version>
 </dependency>
+```
+or with Gradle
+
+``` 
+repositories {
+    maven { url "http://repo.maven.apache.org/maven2" }
+}
+
+dependencies {
+    compile group: 'com.github.alexanderwe', name: 'bananaj', version: '0.5.1'
+}
 ```
 
 ## MailChimpObject class
