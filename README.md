@@ -32,6 +32,8 @@ dependencies {
 }
 ```
 
+If you are not using Maven or Gradle you can download the latest `fat jar` from the [releases section](https://github.com/alexanderwe/bananaj/releases).
+
 ## MailChimpObject class
 Most of the com.github.alexanderwe.bananaj.model classes extend the MailChimpObject class.They are immutable, to prevent asynchronous data between the client and the MailChimp server. 
 When you execute methods like `object.changeName("new Name")` the local and server data is updated simultaneously.
