@@ -120,11 +120,10 @@ public class FileManagerFile extends MailchimpObject {
         this.folder_id = b.folderId;
     }
 
-
     /**
      * Change the name of the file
-     * @param newName
-     * @
+     * @param name
+     * @throws Exception
      */
     public void changeName(String name) throws Exception{
         JSONObject changedFileName = new JSONObject();
@@ -136,9 +135,8 @@ public class FileManagerFile extends MailchimpObject {
 
     /**
      * Change the folder of this file
-     * @param The id of the folder. Setting folderID to "0" will remove a file from its current folder. 
-     * @throws Exception 
-     * @throws  
+     * @param folderID  Setting folderID to "0" will remove a file from its current folder.
+     * @throws Exception
      */
     public void changeFolder(int folderID) throws Exception {
         JSONObject changedFileName = new JSONObject();
