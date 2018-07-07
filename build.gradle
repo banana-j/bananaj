@@ -38,6 +38,7 @@ task sourcesJar(type: Jar) {
 
 task fatJar(type: Jar) {
     baseName = 'bananaj'
+    classifier = "fat"
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
