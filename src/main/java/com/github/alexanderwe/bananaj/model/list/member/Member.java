@@ -52,7 +52,7 @@ public class Member extends MailchimpObject{
         super(member.getString("id"), member);
     	final JSONObject memberMergeTags = member.getJSONObject("merge_fields");
     	final JSONObject memberStats = member.getJSONObject("stats");
-    	final JSONObject interests = member.getJSONObject("interests");
+    	final JSONObject interests = member.has("interests") ? member.getJSONObject("interests") : null;
 
     	HashMap<String, String> merge_fields = new HashMap<String, String>();
     	if (memberMergeTags != null) {
@@ -60,7 +60,7 @@ public class Member extends MailchimpObject{
     		while(mergeTagsI.hasNext()) {
     			String key = mergeTagsI.next();
     			// loop to get the dynamic key
-    			String value = memberMergeTags.getString(key);
+    			String value = memberMergeTags.get(key).toString();
     			merge_fields.put(key, value);
     		}
     	}
