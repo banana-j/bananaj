@@ -224,7 +224,7 @@ public class Connection {
 			return new TransportException("Status: " + Integer.toString(responseCode) + " " + verb + ": " + url + " Reason: " + response.getStatusLine().getReasonPhrase() 
 					+ " - " + errTitle + " Details: " + errDetail + " Instance: " + errInstance + " Type: " + errType);
 		} catch (IOException | JSONException e) { 
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return new TransportException("Status: " + Integer.toString(responseCode) + " " + verb + ": " + url + " Reason: " + response.getStatusLine().getReasonPhrase());
 	}
