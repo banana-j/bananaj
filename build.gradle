@@ -1,0 +1,96 @@
+apply plugin: "java"
+apply plugin: "maven"
+apply plugin: "maven-publish"
+apply plugin: 'signing'
+
+group = 'com.github.alexanderwe'
+version = '0.5.1'
+
+description = 'A simple MailChimp API wrapper written in Java'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    maven { url "http://repo.maven.apache.org/maven2" }
+}
+
+dependencies {
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
+    compile group: 'net.sourceforge.jexcelapi', name: 'jxl', version: '2.6.12'
+    compile group: 'org.json', name: 'json', version: '20180130'
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.5'
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task fatJar(type: Jar) {
+    baseName = 'bananaj'
+    classifier = "fat"
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifact javadocJar
+            artifact sourcesJar
+
+            pom {
+                name = 'bananaj'
+                description = 'A simple MailChimp API wrapper written in Java'
+                url = 'https://github.com/alexanderwe/bananaj'
+                licenses {
+                    license {
+                        name = 'MIT'
+                        url = 'https://raw.githubusercontent.com/alexanderwe/bananaj/master/LICENSE.md'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'Alexander Weiß'
+                        email = 'https://www.github.com/alexanderwe'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/alexanderwe/bananaj.git'
+                    developerConnection = 'scm:git:git://github.com/alexanderwe/bananaj.git'
+                    url = 'https://github.com/alexanderwe/bananaj'
+                }
+                issueManagement {
+                    url = 'https://github.com/alexanderwe/bananaj/issues'
+                    system = 'GitHub'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+

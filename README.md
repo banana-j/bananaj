@@ -3,11 +3,6 @@ Simple api for accessing Mailchimp - Work in progess
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://raw.githubusercontent.com/gr4h4n/bananaj/master/LICENSE.md)
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.alexanderwe/bananaj/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.alexanderwe/bananaj)
-
-
-
-
 # Introduction
 
 bananaj provides an Java wrapper for the MailChimp API 3.0. It is possible access your MailChimp data through Java. 
@@ -22,9 +17,22 @@ Add this dependency to your pom.xml to use **bananaj** in your project.
 <dependency>
   <groupId>com.github.alexanderwe</groupId>
   <artifactId>bananaj</artifactId>
-  <version>1.2.4-alpha</version>
+  <version>0.5.1</version>
 </dependency>
 ```
+or with Gradle
+
+``` 
+repositories {
+    maven { url "http://repo.maven.apache.org/maven2" }
+}
+
+dependencies {
+    compile group: 'com.github.alexanderwe', name: 'bananaj', version: '0.5.1'
+}
+```
+
+If you are not using Maven or Gradle you can download the latest `fat jar` from the [releases section](https://github.com/alexanderwe/bananaj/releases).
 
 ## MailChimpObject class
 Most of the com.github.alexanderwe.bananaj.model classes extend the MailChimpObject class.They are immutable, to prevent asynchronous data between the client and the MailChimp server. 
@@ -103,7 +111,7 @@ fileManager.upload("folder_id","filename", myFile);
 ## Download a file
 To download a file from the MailChimp File Manager you have to specifiy the file you want to download and the directory in which it should be saved after download. The file extension is set automatically.
 ```
-fileManager.getFileManagerFile("fileID").downloadFile("./") //Download a file in the current directory
+fileManager.getFileManagerFile("fileID").download("./") //Download a file in the current directory
 ```
 
 ## Methods
@@ -121,74 +129,16 @@ Every endpoint supports GET, POST, and DELETE requests. So it is possible to ful
 - **"https://"+server+".api.mailchimp.com/3.0/file-manager/folders"**
 - **"https://"+server+".api.mailchimp.com/3.0/file-manager/files"**
 
-
-# Package structure
-```
-|-- com.github.alexanderwe.bananaj.connection
-|   |-- Account.java
-|   |-- Connection.java
-|   `-- MailChimpConnection.java
-|-- com.github.alexanderwe.bananaj.exceptions
-|   |-- EmailException.java
-|   |-- FileFormatException.java
-|   `-- SegmentException.java
-|-- com.github.alexanderwe.bananaj.model
-|   |-- MailchimpObject.java
-|   |-- automation
-|   |   |-- Automation.java
-|   |   `-- AutomationStatus.java
-|   |-- campaign
-|   |   |-- Bounce.java
-|   |   |-- Campaign.java
-|   |   |-- CampaignContent.java
-|   |   |-- CampaignDefaults.java
-|   |   |-- CampaignFolder.java
-|   |   |-- CampaignSettings.java
-|   |   |-- CampaignStatus.java
-|   |   `-- CampaignType.java
-|   |-- conversation
-|   |   `-- Conversation.java
-|   |-- filemanager
-|   |   |-- FileManager.java
-|   |   |-- FileManagerFile.java
-|   |   `-- FileManagerFolder.java
-|   |-- list
-|   |   |-- GrowthHistory.java
-|   |   |-- MailChimpList.java
-|   |   |-- member
-|   |   |   |-- Member.java
-|   |   |   |-- MemberActivity.java
-|   |   |   `-- MemberStatus.java
-|   |   |-- mergefield
-|   |   |   |-- MergeField.java
-|   |   |   `-- MergeFieldOptions.java
-|   |   `-- segment
-|   |       |-- Condition.java
-|   |       |-- MatchType.java
-|   |       |-- Operator.java
-|   |       |-- Options.java
-|   |       |-- Segment.java
-|   |       `-- SegmentType.java
-|   |-- report
-|   |   |-- Click.java
-|   |   |-- FacebookLikes.java
-|   |   |-- Forward.java
-|   |   |-- IndustryStats.java
-|   |   |-- Open.java
-|   |   |-- Report.java
-|   |   `-- ReportListStats.java
-|   `-- template
-|       |-- Template.java
-|       |-- TemplateFolder.java
-|       `-- TemplateType.java
-`-- com.github.alexanderwe.bananaj.utils
-    |-- DateConverter.java
-    |-- EmailValidator.java
-    `-- FileInspector.java
-```
-
 # To do 
 - Add missing edit function to the different endpoints 
+
+# Contributors
+ 
+Thanks a lot to all contributors:
+
+* [gscriver](https://github.com/gscriver)
+* [bphilipnyc](https://github.com/bphilipnyc)
+* [icu222much](https://github.com/icu222much)
 
 # License
 The MIT License (MIT)
