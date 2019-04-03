@@ -15,12 +15,12 @@
 	<!-- 
     <groupId>com.github.alexanderwe</groupId>
     <artifactId>bananaj</artifactId>
-    <version>1.2.5-SNAPSHOT</version>
+    <version>0.5.2-SNAPSHOT</version>
     -->
 	<groupId>com.pearson.analytics</groupId>
 	<artifactId>bananaj</artifactId>
-	<!--  version>1.0.3-SNAPSHOT</version -->
-	<version>1.0.2</version>
+	<version>1.0.3-SNAPSHOT</version>
+	<!--  version>1.0.2</version -->
 	<packaging>jar</packaging>
 
 	<name>bananaj</name>
