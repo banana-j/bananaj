@@ -115,7 +115,11 @@ public class Member extends MailchimpObject{
     	this.memberInterest = new HashMap<String, Boolean>();
         this.connection = connection;
 	}
-	
+
+	public Member() {
+
+	}
+
 	/**
 	 * Update the mailChimpList of this member
 	 * @param listId

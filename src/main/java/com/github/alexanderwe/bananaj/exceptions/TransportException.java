@@ -5,6 +5,7 @@ package com.github.alexanderwe.bananaj.exceptions;
 
 /**
  * @author USCRIGA
+ * TODO: Maybe add some additional fields like type, title, detail etc. to make them accessible to the user
  *
  */
 public class TransportException extends Exception {
@@ -22,6 +23,7 @@ public class TransportException extends Exception {
 	public TransportException(String message) {
 		super(message);
 	}
+
 
 	/**
 	 * @param cause the cause. (A null value is permitted, and indicates that the cause is nonexistent or unknown.)
