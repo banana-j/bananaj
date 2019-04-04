@@ -7,9 +7,11 @@ package com.github.alexanderwe.bananaj.model.list.member;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,13 +48,14 @@ public class Member extends MailchimpObject{
 	private List<MemberActivity> memberActivities;
 	private HashMap<String, Boolean> memberInterest;
 	private MailChimpConnection connection;
-
+	private HashMap<String, TagStatus> tags = new HashMap<String, TagStatus>();
 
 	public Member(MailChimpList mailChimpList, JSONObject member) {
         super(member.getString("id"), member);
     	final JSONObject memberMergeTags = member.getJSONObject("merge_fields");
     	final JSONObject memberStats = member.getJSONObject("stats");
     	final JSONObject interests = member.getJSONObject("interests");
+    	final JSONArray tags = member.getJSONArray("tags");
 
     	HashMap<String, String> merge_fields = new HashMap<String, String>();
     	if (memberMergeTags != null) {
@@ -75,6 +78,11 @@ public class Member extends MailchimpObject{
 			}
 		}
     	
+    	HashMap<String, TagStatus> memberTags = new HashMap<String, TagStatus>();
+    	for(int i = 0; i < tags.length(); i++) {
+    		memberTags.put(tags.getJSONObject(i).getString("name"), TagStatus.ACTIVE);
+    	}
+    	
 		this.mailChimpList = mailChimpList;
         this.merge_fields = merge_fields;
         this.unique_email_id = member.getString("unique_email_id");
@@ -95,10 +103,11 @@ public class Member extends MailchimpObject{
         this.avg_click_rate = memberStats.getDouble("avg_click_rate");
         this.last_changed = member.getString("last_changed");
         this.memberInterest = memberInterest;
+        this.tags = memberTags;
         this.connection = mailChimpList.getConnection();
 	}
 	
-	public Member(String id, MailChimpList mailChimpList, HashMap<String, String> merge_fields, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String ip_signup, String timestamp_opt, String ip_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailChimpConnection connection, JSONObject jsonRepresentation){
+	public Member(String id, MailChimpList mailChimpList, HashMap<String, String> merge_fields, HashMap<String, TagStatus> tags, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String ip_signup, String timestamp_opt, String ip_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailChimpConnection connection, JSONObject jsonRepresentation){
         super(id,jsonRepresentation);
         this.mailChimpList = mailChimpList;
         this.merge_fields = merge_fields;
@@ -113,6 +122,7 @@ public class Member extends MailchimpObject{
         this.avg_click_rate = avg_click_rate;
         this.last_changed = last_changed;
     	this.memberInterest = new HashMap<String, Boolean>();
+        if(tags != null) this.tags = tags;
         this.connection = connection;
 	}
 
@@ -254,7 +264,7 @@ public class Member extends MailchimpObject{
 	}
 
 	/**
-	 * Set the member activities fot this specific member
+	 * Set the member activities for this specific member
 	 * @param unique_email_id
 	 * @param listID
 	 * @throws Exception
@@ -290,7 +300,7 @@ public class Member extends MailchimpObject{
 	}
 
 	/**
-	 * Add/Update an intrests subscription
+	 * Add/Update an interests subscription
 	 * @param key
 	 * @param subscribe
 	 * @return the previous value associated with key, or null if there was none.)
@@ -341,6 +351,78 @@ public class Member extends MailchimpObject{
 	public String putMerge_fields(String key, String value) {
 		return merge_fields.put(key, value);
 	}
+
+	/**
+	 * @return a HashMap of all cached tags
+	 * @see fetchTags()
+	 */
+    public HashMap<String, TagStatus> getTags() {
+        return tags;
+    }
+
+	/**
+	 * @return all cached tags that are active
+	 * @see fetchTags()
+	 */
+    public Set<String> getActiveTags() {
+        Set<String> tags = new HashSet<>();
+        this.tags.keySet().forEach( tag -> {
+        	if(this.tags.get(tag).equals(TagStatus.ACTIVE)) {
+        		tags.add(tag);
+        	}
+        });
+    	return tags;
+    }
+
+	/**
+	 * Fetches all tags from mailchimp
+	 * @return a HashMap of all tags
+	 */
+    public HashMap<String, TagStatus> fetchTags() throws Exception {
+    	final JSONObject tags = new JSONObject(this.getConnection().do_Get(new URL("https://"+this.mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+this.mailChimpList.getId()+"/members/"+this.getId()+"/tags"),connection.getApikey()));
+		final JSONArray tagsArray = tags.getJSONArray("tags");
+
+		for (int i = 0 ; i < tagsArray.length();i++)
+		{
+			String tag = tagsArray.getString(i);
+			this.tags.put(tag, TagStatus.ACTIVE);
+		}
+		
+        return this.tags;
+    }
+
+	/**
+	 * Sends all cached tag changes to mailchimp
+	 */
+    public void updateTags() throws Exception {
+		JSONObject tags = new JSONObject();
+		JSONArray tagsArray = new JSONArray();
+		for(String key: this.tags.keySet()) {
+			JSONObject tag = new JSONObject();
+			tag.put("name", key);
+			tag.put("status", this.tags.get(key).toString());
+			tagsArray.put(tag);
+		}
+		tags.put("tags", tagsArray);
+
+		getConnection().do_Post(new URL("https://"+this.mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+this.mailChimpList.getId()+"/members/"+this.getId()+"/tags"),tags.toString(),connection.getApikey());
+    }
+
+	/**
+	 * Add a tag
+	 * @param tag
+	 */
+    public void addTag(String tag) {
+		tags.put(tag, TagStatus.ACTIVE);
+    }
+
+	/**
+	 * Remove a tag
+	 * @param tag
+	 */
+    public void removeTag(String tag) {
+		tags.put(tag, TagStatus.INACTIVE);
+    }	
 
 	/**
 	 * @return the sign up IP Address
