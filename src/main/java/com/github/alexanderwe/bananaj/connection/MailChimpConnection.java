@@ -43,7 +43,7 @@ import jxl.write.WritableWorkbook;
 public class MailChimpConnection extends Connection{
 
 	private String server;
-	private String apikey;
+	private String authorization;
 	private final String apiendpoint;
 	private final String listendpoint;
 	private final String campaignfolderendpoint;
@@ -55,10 +55,20 @@ public class MailChimpConnection extends Connection{
 	private final String filesendpoint;
 	private Account account;
 	private FileManager fileManager;
-	
+
+	/**
+	 * Create a api key based mailchimp connection. (Here for backward compatibility)
+	 *
+	 * @param apikey The api key to use, with the server identifier included in the end of the key
+	 * @deprecated
+	 */
 	public MailChimpConnection(String apikey){
-		this.server = apikey.split("-")[1];
-		this.apikey = "apikey "+apikey;
+		this(apikey.split("-")[1], "apikey", apikey);
+	}
+
+	public MailChimpConnection(final String server, final String tokenType, final String token){
+		this.server = server;
+		this.authorization = tokenType + " " + token;
 		this.apiendpoint = "https://"+server+".api.mailchimp.com/3.0/";
 		this.listendpoint = "https://"+server+".api.mailchimp.com/3.0/lists";
 		this.campaignfolderendpoint =  "https://"+server+".api.mailchimp.com/3.0/campaign-folders";
@@ -658,7 +668,11 @@ public class MailChimpConnection extends Connection{
 	 * @return the apikey
 	 */
 	public String getApikey() {
-		return this.apikey;
+		return this.authorization;
+	}
+
+	public String getAuthorization() {
+		return this.authorization;
 	}
 
 	/**
@@ -749,6 +763,53 @@ public class MailChimpConnection extends Connection{
 							jsonAPIROOT);
 					this.account = account;
 				}
+			}
+		}
+	}
+
+	public enum TokenType {
+		BEARER,
+		APIKEY
+	}
+
+	public static class Builder {
+		private String apiKey;
+		private String token;
+		private TokenType tokenType;
+		private String dc;
+
+		public Builder usingApiKey(String apiKey) {
+			this.apiKey = apiKey;
+			this.tokenType = TokenType.APIKEY;
+			return this;
+		}
+
+		public Builder usingOAuthToken(String oauthToken) {
+			this.tokenType = TokenType.BEARER;
+			this.token = oauthToken;
+			return this;
+		}
+
+		public Builder withDc(String dc) {
+			this.dc = dc;
+			return this;
+		}
+
+		public MailChimpConnection build() {
+			if (this.tokenType == null) {
+				throw new NullPointerException("No token specified");
+			}
+
+			switch (tokenType) {
+				case APIKEY:
+					return new MailChimpConnection(apiKey.split("-")[1], "apikey", apiKey);
+				case BEARER:
+					if (this.dc == null) {
+						throw new NullPointerException("No datacenter specified");
+					}
+					return new MailChimpConnection(this.dc, "Bearer", this.token);
+				default:
+					throw new IllegalArgumentException();
 			}
 		}
 	}
