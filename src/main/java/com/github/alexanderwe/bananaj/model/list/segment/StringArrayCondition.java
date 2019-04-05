@@ -44,12 +44,6 @@ public class StringArrayCondition implements AbstractCondition {
         } else {
             this.field = b.field;
         }
-
-        if (b.value == null || b.value.size() < 1) {
-            throw new ConditionException("A condition need a value array to compare on.");
-        } else {
-            this.value = b.value;
-        }
     }
 
 	public ConditionType getConditionType() {

@@ -472,11 +472,14 @@ public class MailChimpList extends MailchimpObject {
 					
 			    	
 			    case INTERESTS:
-					JSONArray jsonArray = jsonCondition.getJSONArray("value");
-					List<String> values = new ArrayList<String>();
-					for (int j=0; j<jsonArray.length(); j++) {
-						values.add( jsonArray.getString(j) );
-					}
+					List<String> values = null;
+			    	if (jsonCondition.has("value")) {
+						JSONArray jsonArray = jsonCondition.getJSONArray("value");
+						values = new ArrayList<String>(jsonArray.length());
+						for (int j=0; j<jsonArray.length(); j++) {
+							values.add( jsonArray.getString(j) );
+						}
+			    	}
 					conditions.add( new StringArrayCondition.Builder()
 							.conditionType(conditiontype)
 							.field(jsonCondition.getString("field"))
