@@ -49,9 +49,42 @@ public class Member extends MailchimpObject{
 	private HashMap<String, Boolean> memberInterest;
 	private MailChimpConnection connection;
 	private HashMap<String, TagStatus> tags = new HashMap<String, TagStatus>();
+	
+	// TODO: Add Boolean vip, Object location, and Array marketing_permissions
 
 	public Member(MailChimpList mailChimpList, JSONObject member) {
         super(member.getString("id"), member);
+        parse(mailChimpList, member);
+	}
+	
+	public Member(String id, MailChimpList mailChimpList, HashMap<String, String> merge_fields, HashMap<String, TagStatus> tags, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String ip_signup, String timestamp_opt, String ip_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailChimpConnection connection, JSONObject jsonRepresentation){
+        super(id,jsonRepresentation);
+        this.mailChimpList = mailChimpList;
+        this.merge_fields = merge_fields;
+        this.unique_email_id = unique_email_id;
+        this.email_address = email_address;
+        this.status = status;
+        this.timestamp_signup = timestamp_signup;
+        this.timestamp_opt = timestamp_opt;
+        this.ip_signup = ip_signup;
+        this.ip_opt = ip_opt;
+        this.avg_open_rate = avg_open_rate;
+        this.avg_click_rate = avg_click_rate;
+        this.last_changed = last_changed;
+    	this.memberInterest = new HashMap<String, Boolean>();
+        if(tags != null) this.tags = tags;
+        this.connection = connection;
+	}
+
+	public Member() {
+
+	}
+
+	/**
+	 * Parse a JSON representation of a member into this.
+	 * @param member
+	 */
+	public void parse(MailChimpList mailChimpList, JSONObject member) {
     	final JSONObject memberMergeTags = member.getJSONObject("merge_fields");
     	final JSONObject memberStats = member.getJSONObject("stats");
     	final JSONObject interests = member.getJSONObject("interests");
@@ -83,7 +116,6 @@ public class Member extends MailchimpObject{
     		memberTags.put(tags.getJSONObject(i).getString("name"), TagStatus.ACTIVE);
     	}
     	
-		this.mailChimpList = mailChimpList;
         this.merge_fields = merge_fields;
         this.unique_email_id = member.getString("unique_email_id");
         this.email_address = member.getString("email_address");
@@ -104,32 +136,11 @@ public class Member extends MailchimpObject{
         this.last_changed = member.getString("last_changed");
         this.memberInterest = memberInterest;
         this.tags = memberTags;
+        
+		this.mailChimpList = mailChimpList;
         this.connection = mailChimpList.getConnection();
 	}
 	
-	public Member(String id, MailChimpList mailChimpList, HashMap<String, String> merge_fields, HashMap<String, TagStatus> tags, String unique_email_id, String email_address, MemberStatus status, String timestamp_signup, String ip_signup, String timestamp_opt, String ip_opt, double avg_open_rate, double avg_click_rate, String last_changed, MailChimpConnection connection, JSONObject jsonRepresentation){
-        super(id,jsonRepresentation);
-        this.mailChimpList = mailChimpList;
-        this.merge_fields = merge_fields;
-        this.unique_email_id = unique_email_id;
-        this.email_address = email_address;
-        this.status = status;
-        this.timestamp_signup = timestamp_signup;
-        this.timestamp_opt = timestamp_opt;
-        this.ip_signup = ip_signup;
-        this.ip_opt = ip_opt;
-        this.avg_open_rate = avg_open_rate;
-        this.avg_click_rate = avg_click_rate;
-        this.last_changed = last_changed;
-    	this.memberInterest = new HashMap<String, Boolean>();
-        if(tags != null) this.tags = tags;
-        this.connection = connection;
-	}
-
-	public Member() {
-
-	}
-
 	/**
 	 * Update the mailChimpList of this member
 	 * @param listId
