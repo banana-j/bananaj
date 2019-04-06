@@ -60,37 +60,79 @@ import jxl.write.WritableWorkbook;
 
 
 /**
- * Class for representing a mailchimp list. 
+ * Class for representing a mailchimp list.
+ * 
+ * Note that SUBSCRIBED/UNSUBSCRIBED/CLEANED counts are adjusted for add and
+ * deletes member operations. Due to transitional or unknown member status these
+ * counts are not guaranteed to be accurate after add or delete operations.
+ * 
  * @author alexanderweiss
  *
  */
 public class MailChimpList extends MailchimpObject {
 
-	private String name;
-	private int membercount;
-	private LocalDateTime dateCreated;
+	private int webId;				// The ID used in the Mailchimp web application. View this list in your Mailchimp account at https://{dc}.admin.mailchimp.com/lists/members/?id={web_id}
+	private String name;			// The name of the list
+	private ListContact contact;	// Contact information displayed in campaign footers to comply with international spam laws
+	private String permissionReminder;	// The permission reminder for the list
+	private boolean useArchiveBar;	// Whether campaigns for this list use the Archive Bar in archives by default
+	private ListCampaignDefaults campaignDefaults;	// Default values for campaigns created for this list
+	private String notifyOnSubscribe;	// The email address to send subscribe notifications to
+	private String notifyOnUnsubscribe; // The email address to send unsubscribe notifications to 
+	private LocalDateTime dateCreated;	// The date and time that this list was created
+	private int listRating;			// An auto-generated activity score for the list (0-5)
+	private boolean emailTypeOption;	// Whether the list supports multiple formats for emails. When set to true, subscribers can choose whether they want to receive HTML or plain-text emails. When set to false, subscribers will receive HTML emails, with a plain-text alternative backup.
+	private String subscribeUrlShort;	// EepURL shortened version of this list’s subscribe form
+	private String subscribeUrlLong;	// The full version of this list’s subscribe form (host will vary)
+	private String beamerAddress;	// The list’s Email Beamer address
+	private ListVisibility visibility;	// Whether this list is public or private (pub, prv)
+	private boolean doubleOptin;	// Whether or not to require the subscriber to confirm subscription via email
+	private boolean hasWelcome;		// Whether or not this list has a welcome automation connected. Welcome Automations: welcomeSeries, singleWelcome, emailFollowup
+	private boolean marketingPermissions;	// Whether or not the list has marketing permissions (eg. GDPR) enabled
+	//private List<?> modules;		// Any list-specific modules installed for this list.
+	private ListStats stats;		// Stats for the list. Many of these are cached for at least five minutes.
 	private MailChimpConnection connection;
 	
 
-	public MailChimpList(String id, String name, int membercount, LocalDateTime dateCreated, MailChimpConnection connection, JSONObject jsonRepresentation) {
+	public MailChimpList(String id, String name,LocalDateTime dateCreated, ListStats stats,  MailChimpConnection connection, JSONObject jsonRepresentation) {
 		super(id,jsonRepresentation);
 		this.name = name;
-		this.membercount = membercount;
 		this.dateCreated = dateCreated;
+		if (stats == null) {
+			this.stats = new ListStats();
+		} else {
+			this.stats = stats;
+		}
 		this.connection = connection;
 	}
 
 	public MailChimpList(MailChimpConnection connection, JSONObject jsonList) {
 		super(jsonList.getString("id"), jsonList);
-		JSONObject listStats = jsonList.getJSONObject("stats");
+		this.webId = jsonList.getInt("web_id");
 		this.name = jsonList.getString("name");
-		this.membercount = listStats.getInt("member_count");
+		this.contact = new ListContact(jsonList.getJSONObject("contact"));
+		this.permissionReminder = jsonList.getString("permission_reminder");
+		this.useArchiveBar = jsonList.getBoolean("use_archive_bar");
+		this.campaignDefaults = new ListCampaignDefaults(jsonList.getJSONObject("campaign_defaults"));
+		this.notifyOnSubscribe = jsonList.getString("notify_on_subscribe");
+		this.notifyOnUnsubscribe = jsonList.getString("notify_on_unsubscribe");
 		this.dateCreated = DateConverter.getInstance().createDateFromISO8601(jsonList.getString("date_created"));
+		this.listRating = jsonList.getInt("list_rating");
+		this.emailTypeOption = jsonList.getBoolean("email_type_option");
+		this.subscribeUrlShort = jsonList.getString("subscribe_url_short");
+		this.subscribeUrlLong = jsonList.getString("subscribe_url_long");
+		this.beamerAddress = jsonList.getString("beamer_address");
+		this.visibility = ListVisibility.valueOf(jsonList.getString("visibility").toUpperCase());
+		this.doubleOptin = jsonList.getBoolean("double_optin");
+		this.hasWelcome = jsonList.getBoolean("has_welcome");
+		this.marketingPermissions = jsonList.getBoolean("marketing_permissions");
+		// TODO: this.modules = jsonList.getJSONArray("modules");
+		this.stats = new ListStats(jsonList.getJSONObject("stats"));
 		this.connection = connection;
 	}
 
 	/**
-	 * Get members in this list with pagination
+	 * Get information about members in this list with pagination
 	 * @param count Number of members to return or 0 to return all members
 	 * @param offset Zero based offset
 	 * @return List of members
@@ -103,7 +145,7 @@ public class MailChimpList extends MailchimpObject {
 		if(count != 0){
 			list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getId()+"/members?count="+count+"&offset="+offset),connection.getApikey()));
 		} else {
-			list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getId()+"/members?count="+this.getMembercount()+"&offset="+offset),connection.getApikey()));
+			list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getId()+"/members?count="+(this.getStats().getTotalMemberCount()+1000)+"&offset="+offset),connection.getApikey()));
 		}
 
 		final JSONArray membersArray = list.getJSONArray("members");
@@ -112,57 +154,133 @@ public class MailChimpList extends MailchimpObject {
 		for (int i = 0 ; i < membersArray.length();i++)
 		{
 			final JSONObject memberDetail = membersArray.getJSONObject(i);
-			final JSONObject memberMergeTags = memberDetail.getJSONObject("merge_fields");
-			final JSONObject memberStats = memberDetail.getJSONObject("stats");
-	    	final JSONArray tags = memberDetail.getJSONArray("tags");
-
-			HashMap<String, String> merge_fields = new HashMap<String, String>();
-
-			Iterator<String> a = memberMergeTags.keys();
-			while(a.hasNext()) {
-				String key = a.next();
-				// loop to get the dynamic key
-				String value = memberMergeTags.getString(key);
-				merge_fields.put(key, value);
-			}			
-
-	    	HashMap<String, TagStatus> memberTags = new HashMap<String, TagStatus>();
-	    	for(int j = 0; j < tags.length(); j++) {
-	    		memberTags.put(tags.getString(j), TagStatus.ACTIVE);
-	    	}
-	    	
-			Member member = new Member(memberDetail.getString("id"),this,merge_fields, memberTags,memberDetail.getString("unique_email_id"), memberDetail.getString("email_address"), MemberStatus.valueOf(memberDetail.getString("status").toUpperCase()),memberDetail.getString("timestamp_signup"),memberDetail.getString("ip_signup"),memberDetail.getString("timestamp_opt"),memberDetail.getString("ip_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),memberDetail.getString("last_changed"),this.getConnection(),memberDetail);
+	    	Member member = new Member(this, memberDetail);
 			members.add(member);
 		}
 		return members;
 	}
 
 	/**
-	 * Get a single member from list
-	 * @param memberID
+	 * Get information about a specific list member, including a currently
+	 * subscribed, unsubscribed, or bounced member.
+	 * 
+	 * @param subscriberHash The MD5 hash of the lowercase version of the list member’s email address.
 	 * @return
 	 * @throws Exception
 	 */
-	public Member getMember(String memberID) throws Exception{
-		final JSONObject member = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+getId()+"/members/"+memberID),connection.getApikey()));
+	public Member getMember(String subscriberHash) throws Exception{
+		final JSONObject member = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+getId()+"/members/"+subscriberHash),connection.getApikey()));
     	return new Member(this, member);
 	}
 	
 	/**
-	 * Add a member with the minimum of information
-	 * @param status
-	 * @param emailAddress
+	 *  Add a member with the minimum of information
+	 * @param status Subscriber’s current status
+	 * @param emailAddress Email address for a subscriber
+	 * @return The newly created member
+	 * @throws Exception
 	 */
-	public void addMember(MemberStatus status, String emailAddress) throws Exception {
-		JSONObject member = new JSONObject();
-		member.put("email_address", emailAddress);
-		member.put("status", status.getStringRepresentation());
+	public Member addMember(MemberStatus status, String emailAddress) throws Exception {
+		JSONObject json = new JSONObject();
+		json.put("email_address", emailAddress);
+		json.put("status", status.getStringRepresentation());
 
-        getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getId()+"/members"),member.toString(),connection.getApikey());
-        this.membercount++;
+		String results = getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getId()+"/members"),json.toString(),connection.getApikey());
+		Member member = new Member(this, new JSONObject(results));
+		incramentMemberCounts(member);
+        return member;
+	}
+
+	/**
+	 * Add a new member to the list
+	 * @param member
+	 * @return The newly added member
+	 * @throws Exception
+	 */
+	public Member addMember(Member member) throws Exception {
+		JSONObject json = memberToJson(member);
+		
+		String results = getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getId()+"/members"),json.toString(),connection.getApikey());
+		Member newMember = new Member(this, new JSONObject(results)); 
+		incramentMemberCounts(newMember);
+        return newMember;
 	}
 	
-	public Member updateMember(Member member) throws Exception {
+	/**
+	 * Add a member with first and last name
+	 * @param status Subscriber’s current status
+	 * @param emailAddress Email address for a subscriber
+	 * @param merge_fields_values
+	 * @return The newly added member
+	 * @throws Exception
+	 */
+	public Member addMember(MemberStatus status, String emailAddress, HashMap<String, Object> merge_fields_values) throws Exception{
+		URL url = new URL(connection.getListendpoint()+"/"+this.getId()+"/members");
+		
+		JSONObject json = new JSONObject();
+		JSONObject merge_fields = new JSONObject();
+
+		Iterator<Entry<String, Object>> it = merge_fields_values.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<String, Object> pair = it.next();
+			it.remove(); // avoids a ConcurrentModificationException
+			merge_fields.put(pair.getKey(), pair.getValue());
+		}
+		
+		json.put("status", status.getStringRepresentation());
+		json.put("email_address", emailAddress);
+		json.put("merge_fields", merge_fields);
+		String results = getConnection().do_Post(url,json.toString(),connection.getApikey());
+		Member member = new Member(this, new JSONObject(results)); 
+		incramentMemberCounts(member);
+        return member;
+	}
+
+	/**
+	 * Update list member via a PATCH operation. Member fields will be freshened
+	 * from MailChimp.
+	 * 
+	 * @param member
+	 * @throws Exception
+	 */
+	public void updateMember(Member member) throws Exception {
+		JSONObject json = memberToJson(member);
+
+		String results = getConnection().do_Patch(new URL(connection.getListendpoint()+"/"+this.getId()+"/members/"+member.getId()),json.toString(),connection.getApikey());
+		member.parse(this, new JSONObject(results));  // update member object with current data
+		incramentMemberCounts(member);
+	}
+
+	/**
+	 * Add or update a list member via a PUT operation. When a new member is added
+	 * and no status_if_new has been specified SUBSCRIBED will be used. Member
+	 * fields will be freshened from mailchimp.
+	 * 
+	 * @param member
+	 * @throws Exception
+	 */
+	public void addOrUpdateMember(Member member) throws Exception {
+		JSONObject json = memberToJson(member);
+		
+		if (member.getStatus_if_new() != null) {
+			json.put("status_if_new", member.getStatus_if_new().getStringRepresentation());
+		} else {
+			json.put("status_if_new", MemberStatus.SUBSCRIBED.getStringRepresentation());
+		}
+		
+		String results = getConnection().do_Put(new URL(connection.getListendpoint()+"/"+this.getId()+"/members/"+member.getId()),json.toString(),connection.getApikey());
+		member.parse(this, new JSONObject(results));  // update member object with current data
+		if (member.getId() == null &&  member.getUnique_email_id() == null) {
+			incramentMemberCounts(member);	// assume a new member was created because member did not specify either id
+		}
+	}
+	
+	/**
+	 * Helper method to convert a Member object into JSON for PUT/PATCH/POST operations
+	 * @param member
+	 * @return
+	 */
+	private JSONObject memberToJson(Member member) {
 		JSONObject json = new JSONObject();
 		json.put("email_address", member.getEmail_address());
 		if (member.getEmail_type() != null) {
@@ -187,48 +305,29 @@ public class MailChimpList extends MailchimpObject {
 			}
 			json.put("interests",interests);
 		}
+		// TODO: Add vip, location, and marketing_permissions to JSON
 		json.put("ip_signup", member.getIp_signup());
 		json.put("timestamp_signup", member.getTimestamp_signup());
 		json.put( "ip_opt", member.getIp_opt());
 		json.put("timestamp_opt", member.getTimestamp_opt());
-		
-		try {
-			String results = getConnection().do_Patch(new URL(connection.getListendpoint()+"/"+this.getId()+"/members/"+member.getId()),json.toString(),connection.getApikey());
-			this.membercount++;
-			return new Member(this, new JSONObject(results)); 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null; 
+		return json;
 	}
 
-	/**
-	 * Add a member with first and last name
-	 * @param status
-	 * @param emailAddress
-	 * @param merge_fields_values
-	 * @throws Exception
-	 */
-	public void addMember(MemberStatus status, String emailAddress, HashMap<String, Object> merge_fields_values) throws Exception{
-		URL url = new URL(connection.getListendpoint()+"/"+this.getId()+"/members");
-		
-		JSONObject member = new JSONObject();
-		JSONObject merge_fields = new JSONObject();
-
-		Iterator<Entry<String, Object>> it = merge_fields_values.entrySet().iterator();
-		while (it.hasNext()) {
-			Entry<String, Object> pair = it.next();
-			it.remove(); // avoids a ConcurrentModificationException
-			merge_fields.put(pair.getKey(), pair.getValue());
+	private void incramentMemberCounts(Member member) {
+		switch (member.getStatus()) {
+		case SUBSCRIBED:
+		case PENDING:
+			stats.setMemberCount(stats.getMemberCount() + 1);
+			break;
+		case UNSUBSCRIBED:
+			stats.setUnsubscribeCount(stats.getUnsubscribeCount() + 1);
+			break;
+		case CLEANED:
+			stats.setCleanedCount(stats.getCleanedCount() + 1);
+			break;
+		case TRANSACTIONAL:
+			break;
 		}
-		
-		member.put("status", status.getStringRepresentation());
-		member.put("email_address", emailAddress);
-		member.put("merge_fields", merge_fields);
-		System.out.println(member.toString());
-        getConnection().do_Post(url,member.toString(),connection.getApikey());
-
-		this.membercount++;
 	}
 
 	public void importMembersFromFile(File file) throws FileFormatException, IOException{
@@ -273,7 +372,29 @@ public class MailChimpList extends MailchimpObject {
 	 */
 	public void deleteMemberFromList(String memberID) throws Exception{
 		getConnection().do_Delete(new URL(connection.getListendpoint()+"/"+getId()+"/members/"+memberID),connection.getApikey());
-		this.membercount--;
+		// we don't know the status for this member so assume subscribed when adjusting counts.
+		if (stats.getMemberCount() > 0) {
+			stats.setMemberCount(stats.getMemberCount() - 1);
+		}
+	}
+	
+	public void delteMemberFromList(Member member) throws Exception {
+		getConnection().do_Delete(new URL(connection.getListendpoint()+"/"+getId()+"/members/"+member.getId()),connection.getApikey());
+		
+		switch (member.getStatus()) {
+		case SUBSCRIBED:
+		case PENDING:
+			stats.setMemberCount(stats.getMemberCount() - 1);
+			break;
+		case UNSUBSCRIBED:
+			stats.setUnsubscribeCount(stats.getUnsubscribeCount() - 1);
+			break;
+		case CLEANED:
+			stats.setCleanedCount(stats.getCleanedCount() - 1);
+			break;
+		case TRANSACTIONAL:
+			break;
+		}
 	}
 	
 	/**
@@ -796,24 +917,159 @@ public class MailChimpList extends MailchimpObject {
 	}
 
 	/**
-	 * @return the name
+	 * The ID used in the Mailchimp web application. View this list in your Mailchimp account at https://{dc}.admin.mailchimp.com/lists/members/?id={web_id}
+	 * @return
+	 */
+	public int getWebId() {
+		return webId;
+	}
+
+	/**
+	 * The name of the list
+	 * @return
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * @return the membercount
+	 * Contact information displayed in campaign footers to comply with international spam laws
+	 * @return
 	 */
-	public int getMembercount() {
-		return membercount;
+	public ListContact getContact() {
+		return contact;
 	}
 
 	/**
+	 * The permission reminder for the list
+	 * @return
+	 */
+	public String getPermissionReminder() {
+		return permissionReminder;
+	}
+
+	/**
+	 * Whether campaigns for this list use the Archive Bar in archives by default
+	 * @return
+	 */
+	public boolean isUseArchiveBar() {
+		return useArchiveBar;
+	}
+
+	/**
+	 * Default values for campaigns created for this list
+	 * @return
+	 */
+	public ListCampaignDefaults getCampaignDefaults() {
+		return campaignDefaults;
+	}
+
+	/**
+	 * The email address to send subscribe notifications to
+	 * @return
+	 */
+	public String getNotifyOnSubscribe() {
+		return notifyOnSubscribe;
+	}
+
+	/**
+	 * The email address to send unsubscribe notifications to
+	 * @return
+	 */
+	public String getNotifyOnUnsubscribe() {
+		return notifyOnUnsubscribe;
+	}
+
+	/**
+	 * The date and time that this list was created.
 	 * @return the dateCreated
 	 */
 	public LocalDateTime getDateCreated() {
 		return dateCreated;
+	}
+
+	/**
+	 * An auto-generated activity score for the list (0-5)
+	 * @return
+	 */
+	public int getListRating() {
+		return listRating;
+	}
+
+	/**
+	 * Whether the list supports multiple formats for emails. When set to true,
+	 * subscribers can choose whether they want to receive HTML or plain-text
+	 * emails. When set to false, subscribers will receive HTML emails, with a
+	 * plain-text alternative backup.
+	 * 
+	 * @return
+	 */
+	public boolean isEmailTypeOption() {
+		return emailTypeOption;
+	}
+
+	/**
+	 * EepURL shortened version of this list’s subscribe form
+	 * @return
+	 */
+	public String getSubscribeUrlShort() {
+		return subscribeUrlShort;
+	}
+
+	/**
+	 * The full version of this list’s subscribe form (host will vary)
+	 * @return
+	 */
+	public String getSubscribeUrlLong() {
+		return subscribeUrlLong;
+	}
+
+	/**
+	 * The list’s Email Beamer address
+	 * @return
+	 */
+	public String getBeamerAddress() {
+		return beamerAddress;
+	}
+
+	/**
+	 * Whether this list is public or private
+	 * @return
+	 */
+	public ListVisibility getVisibility() {
+		return visibility;
+	}
+
+	/**
+	 * Whether or not to require the subscriber to confirm subscription via email
+	 * @return
+	 */
+	public boolean isDoubleOptin() {
+		return doubleOptin;
+	}
+
+	/**
+	 * Whether or not this list has a welcome automation connected. Welcome Automations: welcomeSeries, singleWelcome, emailFollowup.
+	 * @return
+	 */
+	public boolean isHasWelcome() {
+		return hasWelcome;
+	}
+
+	/**
+	 * Whether or not the list has marketing permissions (eg. GDPR) enabled
+	 * @return
+	 */
+	public boolean isMarketingPermissions() {
+		return marketingPermissions;
+	}
+
+	/**
+	 * Stats for the list. Many of these are cached for at least five minutes.
+	 * @return the list stats
+	 */
+	public ListStats getStats() {
+		return stats;
 	}
 
 	/**
@@ -826,9 +1082,8 @@ public class MailChimpList extends MailchimpObject {
 
 	@Override
 	public String toString(){
-		return this.getId() + " " + this.name + " " + this.membercount + System.lineSeparator() +
+		return this.getId() + " " + this.name + " " + this.stats.getTotalMemberCount() + System.lineSeparator() +
 				"Date created: " + this.getDateCreated() + System.lineSeparator();
 	}
-
 
 }
