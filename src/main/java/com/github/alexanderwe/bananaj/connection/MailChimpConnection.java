@@ -57,10 +57,9 @@ public class MailChimpConnection extends Connection{
 	private FileManager fileManager;
 
 	/**
-	 * Create a api key based mailchimp connection. (Here for backward compatibility)
+	 * Create a api key based mailchimp connection.
 	 *
 	 * @param apikey The api key to use, with the server identifier included in the end of the key
-	 * @deprecated
 	 */
 	public MailChimpConnection(String apikey){
 		this(apikey.split("-")[1], "apikey", apikey);
@@ -106,7 +105,7 @@ public class MailChimpConnection extends Connection{
 			JSONObject jsonList = listsArray.getJSONObject(i);
 			JSONObject listStats = jsonList.getJSONObject("stats");
 
-			MailChimpList mailChimpList = new MailChimpList(jsonList.getString("id"),jsonList.getString("name"),listStats.getInt("member_count"),DateConverter.getInstance().createDateFromISO8601(jsonList.getString("date_created")),this,jsonList);
+			MailChimpList mailChimpList = new MailChimpList(this,jsonList);
 			mailChimpLists.add(mailChimpList);
 		}
 		return mailChimpLists;
