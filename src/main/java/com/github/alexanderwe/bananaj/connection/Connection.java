@@ -6,6 +6,7 @@ import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,6 +37,8 @@ public class Connection {
             }
 
             return createResponseFromEntity(response.getEntity());
+        } catch (TransportException e) {
+        	throw e;
         } catch (Exception e) {
             throw new TransportException("GET " + url.toExternalForm() + " failed", e);
         }
@@ -60,6 +63,8 @@ public class Connection {
 
 
             return createResponseFromEntity(response.getEntity());
+        } catch (TransportException e) {
+        	throw e;
         } catch (Exception e) {
             throw new TransportException("POST " + post_string.length() + " bytes to " + url.toExternalForm() + " failed", e);
         }
@@ -83,6 +88,8 @@ public class Connection {
             }
 
             return createResponseFromEntity(response.getEntity());
+        } catch (TransportException e) {
+        	throw e;
         } catch (Exception e) {
             throw new TransportException("PATCH " + patch_string.length() + " bytes to " + url.toExternalForm() + " failed", e);
         }
@@ -103,10 +110,12 @@ public class Connection {
 
             int responseCode = response.getStatusLine().getStatusCode();
             if (responseCode < 200 || responseCode > 299) {
-                throw buildTransportError("DELETE", url.toExternalForm(), response);
+                throw buildTransportError("PUT", url.toExternalForm(), response);
             }
 
             return createResponseFromEntity(response.getEntity());
+        } catch (TransportException e) {
+        	throw e;
         } catch (Exception e) {
             throw new TransportException("PUT " + put_string.length() + " bytes to " + url.toExternalForm() + " failed", e);
         }
@@ -128,6 +137,8 @@ public class Connection {
             }
 
             return createResponseFromEntity(response.getEntity());
+        } catch (TransportException e) {
+        	throw e;
         } catch (Exception e) {
             throw new TransportException("POST " + url.toExternalForm() + " failed", e);
         }
@@ -149,6 +160,8 @@ public class Connection {
             }
 
             return createResponseFromEntity(response.getEntity());
+        } catch (TransportException e) {
+        	throw e;
         } catch (Exception e) {
             throw new TransportException("DELETE " + url.toExternalForm() + " failed", e);
         }
@@ -182,8 +195,20 @@ public class Connection {
             String errTitle = getErrorObjString(errObj, "title");
             String errDetail = getErrorObjString(errObj, "detail");
             String errInstance = getErrorObjString(errObj, "instance");
+            String errors = "";
+            if (errObj.has("errors")) {
+            	JSONArray errArray = errObj.getJSONArray("errors");
+            	for(int i=0; i< errArray.length(); i++) {
+            		JSONObject errorDetail = errArray.getJSONObject(i);
+            		String field =  getErrorObjString(errorDetail, "field");
+            		String message =  getErrorObjString(errorDetail, "message");
+            		if (field != null && message != null) {
+            			errors +=  System.lineSeparator() + "field: " + field + " message: " + message;
+            		}
+            	}
+            }
             return new TransportException("Status: " + Integer.toString(responseCode) + " " + verb + ": " + url + " Reason: " + response.getStatusLine().getReasonPhrase()
-                    + " - " + errTitle + " Details: " + errDetail + " Instance: " + errInstance + " Type: " + errType);
+                    + " - " + errTitle + " Details: " + errDetail + " Instance: " + errInstance + " Type: " + errType + errors);
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
