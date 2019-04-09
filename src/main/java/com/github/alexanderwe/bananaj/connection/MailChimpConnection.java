@@ -204,7 +204,7 @@ public class MailChimpConnection extends Connection{
 			if (show_merge){
 				int last_column = 9;
 
-				Iterator<Entry<String, String>> iter = members.get(0).getMerge_fields().entrySet().iterator();
+				Iterator<Entry<String, String>> iter = members.get(0).getMergeFields().entrySet().iterator();
 				while (iter.hasNext()) {
 					Entry<String, String> pair = iter.next();
 					sheet.addCell(new Label(last_column,0,pair.getKey(),times16format));
@@ -219,19 +219,19 @@ public class MailChimpConnection extends Connection{
 			{
 				Member member = members.get(i);
 				sheet.addCell(new Label(0,i+1,member.getId()));
-				sheet.addCell(new Label(1,i+1,member.getEmail_address()));
-				sheet.addCell(new Label(2,i+1,member.getTimestamp_signup()));
-				sheet.addCell(new Label(3,i+1,member.getIp_signup()));
-				sheet.addCell(new Label(4,i+1,member.getTimestamp_opt()));
-				sheet.addCell(new Label(5,i+1,member.getIp_opt()));
+				sheet.addCell(new Label(1,i+1,member.getEmailAddress()));
+				sheet.addCell(new Label(2,i+1,member.getTimestampSignup() != null ? member.getTimestampSignup().toString() : ""));
+				sheet.addCell(new Label(3,i+1,member.getIpSignup() != null ? member.getIpSignup() : ""));
+				sheet.addCell(new Label(4,i+1,member.getTimestampOpt() != null ? member.getTimestampOpt().toString() : ""));
+				sheet.addCell(new Label(5,i+1,member.getIpOpt() != null ? member.getIpOpt() : ""));
 				sheet.addCell(new Label(6,i+1,member.getStatus().getStringRepresentation()));
-				sheet.addCell(new Number(7,i+1,member.getAvg_open_rate()));
-				sheet.addCell(new Number(8,i+1,member.getAvg_click_rate()));
+				sheet.addCell(new Number(7,i+1,member.getStats().getAvgOpenRate()));
+				sheet.addCell(new Number(8,i+1,member.getStats().getAvgClickRate()));
 
 				if (show_merge){
 					//add merge fields values
 					int last_index = 9;
-					Iterator<Entry<String, String>> iter_member = member.getMerge_fields().entrySet().iterator();
+					Iterator<Entry<String, String>> iter_member = member.getMergeFields().entrySet().iterator();
 					while (iter_member.hasNext()) {
 						Entry<String, String> pair = iter_member.next();
 						sheet.addCell(new Label(last_index,i+1,pair.getValue()));

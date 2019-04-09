@@ -25,7 +25,6 @@ import com.github.alexanderwe.bananaj.model.list.interests.Interest;
 import com.github.alexanderwe.bananaj.model.list.interests.InterestCategory;
 import com.github.alexanderwe.bananaj.model.list.member.Member;
 import com.github.alexanderwe.bananaj.model.list.member.MemberStatus;
-import com.github.alexanderwe.bananaj.model.list.member.TagStatus;
 import com.github.alexanderwe.bananaj.model.list.mergefield.MergeField;
 import com.github.alexanderwe.bananaj.model.list.mergefield.MergeFieldOptions;
 import com.github.alexanderwe.bananaj.model.list.segment.AbstractCondition;
@@ -61,10 +60,6 @@ import jxl.write.WritableWorkbook;
 
 /**
  * Class for representing a mailchimp list.
- * 
- * Note that SUBSCRIBED/UNSUBSCRIBED/CLEANED counts are adjusted for add and
- * deletes member operations. Due to transitional or unknown member status these
- * counts are not guaranteed to be accurate after add or delete operations.
  * 
  * @author alexanderweiss
  *
@@ -187,7 +182,6 @@ public class MailChimpList extends MailchimpObject {
 
 		String results = getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getId()+"/members"),json.toString(),connection.getApikey());
 		Member member = new Member(this, new JSONObject(results));
-		incramentMemberCounts(member);
         return member;
 	}
 
@@ -198,11 +192,10 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public Member addMember(Member member) throws Exception {
-		JSONObject json = memberToJson(member);
+		JSONObject json = member.toJson();
 		
 		String results = getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getId()+"/members"),json.toString(),connection.getApikey());
 		Member newMember = new Member(this, new JSONObject(results)); 
-		incramentMemberCounts(newMember);
         return newMember;
 	}
 	
@@ -232,7 +225,6 @@ public class MailChimpList extends MailchimpObject {
 		json.put("merge_fields", merge_fields);
 		String results = getConnection().do_Post(url,json.toString(),connection.getApikey());
 		Member member = new Member(this, new JSONObject(results)); 
-		incramentMemberCounts(member);
         return member;
 	}
 
@@ -244,11 +236,10 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public void updateMember(Member member) throws Exception {
-		JSONObject json = memberToJson(member);
+		JSONObject json = member.toJson();
 
 		String results = getConnection().do_Patch(new URL(connection.getListendpoint()+"/"+this.getId()+"/members/"+member.getId()),json.toString(),connection.getApikey());
 		member.parse(this, new JSONObject(results));  // update member object with current data
-		incramentMemberCounts(member);
 	}
 
 	/**
@@ -260,76 +251,18 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public void addOrUpdateMember(Member member) throws Exception {
-		JSONObject json = memberToJson(member);
+		JSONObject json = member.toJson();
 		
-		if (member.getStatus_if_new() != null) {
-			json.put("status_if_new", member.getStatus_if_new().getStringRepresentation());
+		if (member.getStatusIfNew() != null) {
+			json.put("status_if_new", member.getStatusIfNew().getStringRepresentation());
 		} else {
 			json.put("status_if_new", MemberStatus.SUBSCRIBED.getStringRepresentation());
 		}
 		
 		String results = getConnection().do_Put(new URL(connection.getListendpoint()+"/"+this.getId()+"/members/"+member.getId()),json.toString(),connection.getApikey());
 		member.parse(this, new JSONObject(results));  // update member object with current data
-		if (member.getId() == null &&  member.getUnique_email_id() == null) {
-			incramentMemberCounts(member);	// assume a new member was created because member did not specify either id
-		}
 	}
 	
-	/**
-	 * Helper method to convert a Member object into JSON for PUT/PATCH/POST operations
-	 * @param member
-	 * @return
-	 */
-	private JSONObject memberToJson(Member member) {
-		JSONObject json = new JSONObject();
-		json.put("email_address", member.getEmail_address());
-		if (member.getEmail_type() != null) {
-			json.put("email_type", member.getEmail_type().value());
-		}
-		json.put( "status", member.getStatus().getStringRepresentation());
-
-		{
-			JSONObject mergeFields = new JSONObject();
-			HashMap<String, String> mergeFieldsMap = member.getMerge_fields();
-			for (String key : mergeFieldsMap.keySet()) {
-				mergeFields.put(key, mergeFieldsMap.get(key));
-			}
-			json.put("merge_fields", mergeFields);
-		}
-		
-		{
-			JSONObject interests = new JSONObject();
-			HashMap<String, Boolean> interestsMap = member.getInterest();
-			for (String key : interestsMap.keySet()) {
-				interests.put(key, interestsMap.get(key));
-			}
-			json.put("interests",interests);
-		}
-		// TODO: Add vip, location, and marketing_permissions to JSON
-		json.put("ip_signup", member.getIp_signup());
-		json.put("timestamp_signup", member.getTimestamp_signup());
-		json.put( "ip_opt", member.getIp_opt());
-		json.put("timestamp_opt", member.getTimestamp_opt());
-		return json;
-	}
-
-	private void incramentMemberCounts(Member member) {
-		switch (member.getStatus()) {
-		case SUBSCRIBED:
-		case PENDING:
-			stats.setMemberCount(stats.getMemberCount() + 1);
-			break;
-		case UNSUBSCRIBED:
-			stats.setUnsubscribeCount(stats.getUnsubscribeCount() + 1);
-			break;
-		case CLEANED:
-			stats.setCleanedCount(stats.getCleanedCount() + 1);
-			break;
-		case TRANSACTIONAL:
-			break;
-		}
-	}
-
 	public void importMembersFromFile(File file) throws FileFormatException, IOException{
 		//TODO fully implement read from xls
 		String extension = FileInspector.getInstance().getExtension(file);
@@ -861,7 +794,7 @@ public class MailChimpList extends MailchimpObject {
 		if (show_merge){
 			int last_column = 9;
 
-			Iterator<Entry<String, String>> iter = members.get(0).getMerge_fields().entrySet().iterator();
+			Iterator<Entry<String, String>> iter = members.get(0).getMergeFields().entrySet().iterator();
 			while (iter.hasNext()) {
 				Entry<String, String> pair = iter.next();
 				sheet.addCell(new Label(last_column,0,pair.getKey(),times16format));
@@ -876,19 +809,19 @@ public class MailChimpList extends MailchimpObject {
 		{
 			Member member = members.get(i);
 			sheet.addCell(new Label(0,i+1,member.getId()));
-			sheet.addCell(new Label(1,i+1,member.getEmail_address()));
-			sheet.addCell(new Label(2,i+1,member.getTimestamp_signup()));
-			sheet.addCell(new Label(3,i+1,member.getIp_signup()));
-			sheet.addCell(new Label(4,i+1,member.getTimestamp_opt()));
-			sheet.addCell(new Label(5,i+1,member.getIp_opt()));
+			sheet.addCell(new Label(1,i+1,member.getEmailAddress()));
+			sheet.addCell(new Label(2,i+1,member.getTimestampSignup().toString()));
+			sheet.addCell(new Label(3,i+1,member.getIpSignup()));
+			sheet.addCell(new Label(4,i+1,member.getTimestampOpt().toString()));
+			sheet.addCell(new Label(5,i+1,member.getIpOpt()));
 			sheet.addCell(new Label(6,i+1,member.getStatus().getStringRepresentation()));
-			sheet.addCell(new Number(7,i+1,member.getAvg_open_rate()));
-			sheet.addCell(new Number(8,i+1,member.getAvg_click_rate()));
+			sheet.addCell(new Number(7,i+1,member.getStats().getAvgOpenRate()));
+			sheet.addCell(new Number(8,i+1,member.getStats().getAvgClickRate()));
 
 			if (show_merge){
 				//add merge fields values
 				int last_index = 9;
-				Iterator<Entry<String, String>> iter_member = member.getMerge_fields().entrySet().iterator();
+				Iterator<Entry<String, String>> iter_member = member.getMergeFields().entrySet().iterator();
 				while (iter_member.hasNext()) {
 					Entry<String, String> pair = iter_member.next();
 					sheet.addCell(new Label(last_index,i+1,pair.getValue()));
