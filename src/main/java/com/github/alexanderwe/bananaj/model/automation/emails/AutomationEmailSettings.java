@@ -133,4 +133,19 @@ public class AutomationEmailSettings {
 		return dragAndDrop;
 	}
 
+	/**
+	 * Helper method to convert JSON for mailchimp PATCH/POST operations
+	 * @return
+	 */
+	public JSONObject getJsonRepresentation() throws Exception {
+		JSONObject json = new JSONObject();
+
+		json.put("subject_line", subjectLine);
+		json.put("preview_text", previewText);
+		json.put("title", title);
+		json.put("from_name", fromName);
+		json.put("reply_to", replyTo);
+
+		return json;
+	}
 }

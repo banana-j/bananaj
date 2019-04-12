@@ -122,12 +122,15 @@ public class Automation extends MailchimpObject {
 	}
 	
 	/**
-	 * 
+	 * Update Automation
 	 * @throws Exception
 	 */
-	public void update() throws Exception {
+	public void update(AutomationDelay delay) throws Exception {
 		JSONObject json = getJsonRepresentation();
-		String results = getConnection().do_Patch(new URL(connection.getAutomationendpoint()+"/"+this.getId()),json.toString(),connection.getApikey());
+		if (delay != null) {
+			json.put("delay", delay.getJsonRepresentation());
+		}
+		String results = getConnection().do_Patch(new URL(connection.getAutomationendpoint()+"/"+this.getId()), json.toString(), connection.getApikey());
 		parse(this.connection, new JSONObject(results));  // update member automation with current data
 	}
 	
@@ -195,32 +198,19 @@ public class Automation extends MailchimpObject {
 	}
 	
 	/**
-	 * Helper method to convert JSON for mailchimp PUT/PATCH/POST operations
+	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 * @return
 	 */
 	public JSONObject getJsonRepresentation() throws Exception {
 		JSONObject json = new JSONObject();
 		
 		if (recipients != null) {
-			JSONObject recipientsObj = new JSONObject();
-			recipientsObj.put("list_id", recipients.getListId());
-			if (recipients.getStoreId() != null) {
-				recipientsObj.put("store_id", recipients.getStoreId());
-			}
+			JSONObject recipientsObj = recipients.getJsonRepresentation();
 			json.put("recipients", recipientsObj);
 		}
 		
 		if (settings != null) {
-			JSONObject settingsObj = new JSONObject();
-			if (settings.getTitle() != null) {
-				settingsObj.put("title", settings.getTitle());
-			}
-			if (settings.getFromName() != null) {
-				settingsObj.put("from_name", settings.getFromName());
-			}
-			if (settings.getReplyTo() != null) {
-				settingsObj.put("reply_to", settings.getReplyTo());
-			}
+			JSONObject settingsObj = settings.getJsonRepresentation();
 			json.put("settings", settingsObj);
 		}
 		

@@ -11,8 +11,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.model.automation.Automation;
+import com.github.alexanderwe.bananaj.model.automation.AutomationDelay;
+import com.github.alexanderwe.bananaj.model.automation.AutomationRecipient;
+import com.github.alexanderwe.bananaj.model.automation.AutomationSettings;
 import com.github.alexanderwe.bananaj.model.automation.AutomationStatus;
 import com.github.alexanderwe.bananaj.model.automation.emails.AutomationEmail;
+import com.github.alexanderwe.bananaj.model.automation.emails.AutomationSubscriber;
 import com.github.alexanderwe.bananaj.model.campaign.Campaign;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignDefaults;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignFolder;
@@ -587,7 +591,7 @@ public class MailChimpConnection extends Connection{
 	
 	/**
 	 * Get information about a specific Automation workflow
-	 * @param workflowId
+	 * @param workflowId The unique id for the Automation workflow
 	 * @return an Automation object
 	 * @throws Exception
 	 */
@@ -602,11 +606,41 @@ public class MailChimpConnection extends Connection{
 	 * @return The newly added automation
 	 * @throws Exception
 	 */
-	public Automation createAutomation(Automation automation) throws Exception {
-		JSONObject json = automation.getJsonRepresentation();
+	public Automation createAutomation(AutomationRecipient recipients, AutomationSettings settings) throws Exception {
+		JSONObject json = new JSONObject();
+		
+		json.put("recipients", recipients.getJsonRepresentation());
+		
+		if (settings != null) {
+			json.put("settings", settings.getJsonRepresentation());
+		}
+		
+		// currently only supports trigger_settings:{workflow_type:'abandonedCart'}
+		JSONObject jsonTrigger = new JSONObject();
+		jsonTrigger.put("workflow_type", "abandonedCart");
+		json.put("trigger_settings", jsonTrigger);
+		
 		String results = do_Post(new URL(automationendpoint),json.toString(), getApikey());
 		Automation newAutomation = new Automation(this, new JSONObject(results)); // update automation object with current data
         return newAutomation;
+	}
+	
+	/**
+	 * 	Pause all emails in an Automation workflow
+	 * @param workflowId The unique id for the Automation workflow
+	 * @throws Exception
+	 */
+	public void pauseAutomationEmails(String workflowId) throws Exception {
+		do_Post(new URL(getAutomationendpoint() +"/"+workflowId+"/actions/pause-all-emails"), getApikey());
+	}
+	
+	/**
+	 * Start all emails in an Automation workflow
+	 * @param workflowId The unique id for the Automation workflow
+	 * @throws Exception
+	 */
+	public void startAutomationEmails(String workflowId) throws Exception {
+		do_Post(new URL(getAutomationendpoint() +"/"+workflowId+"/actions/start-all-emails"), getApikey());
 	}
 	
 	/**
@@ -615,8 +649,8 @@ public class MailChimpConnection extends Connection{
 	 * @return List containing the first 100 emails
 	 * @throws Exception 
 	 */
-	public List<AutomationEmail> getEmails(String workflowId) throws Exception {
-		return getEmails(workflowId, 100, 0);
+	public List<AutomationEmail> getAutomationEmails(String workflowId) throws Exception {
+		return getAutomationEmails(workflowId, 100, 0);
 	}
 	
 	/**
@@ -627,7 +661,7 @@ public class MailChimpConnection extends Connection{
 	 * @return List containing automation emails
 	 * @throws Exception
 	 */
-	public List<AutomationEmail> getEmails(String workflowId, int count, int offset) throws Exception {
+	public List<AutomationEmail> getAutomationEmails(String workflowId, int count, int offset) throws Exception {
 		List<AutomationEmail> emails = new ArrayList<AutomationEmail>();
 		JSONObject jsonObj = new JSONObject(do_Get(new URL(automationendpoint + "/" + workflowId + "/emails" + "?offset=" + offset + "&count=" + count), getApikey()));
 		//int total_items = jsonAutomations.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
@@ -648,9 +682,36 @@ public class MailChimpConnection extends Connection{
 	 * @return
 	 * @throws Exception
 	 */
-	public AutomationEmail getEmail(String workflowId, String workflowEmailId) throws Exception {
+	public AutomationEmail getAutomationEmail(String workflowId, String workflowEmailId) throws Exception {
 		JSONObject jsonObj = new JSONObject(do_Get(new URL(automationendpoint + "/" + workflowId + "/emails/" + workflowEmailId), getApikey()));
 		return new AutomationEmail(this, jsonObj);
+	}
+	
+	/**
+	 * Manually add a subscriber to a workflow, bypassing the default trigger
+	 * settings. You can also use this endpoint to trigger a series of automated
+	 * emails in an API 3.0 workflow type or add subscribers to an automated email
+	 * queue that uses the API request delay type.
+	 * 
+	 * @param workflowId The unique id for the Automation workflow
+	 * @param workflowEmailId The unique id for the Automation workflow email
+	 * @param emailAddress The list member’s email address
+	 * @throws Exception
+	 */
+	public void addAutomationSubscriber(String workflowId, String workflowEmailId, String emailAddress) throws Exception {
+		JSONObject jsonObj = new JSONObject();
+		jsonObj.put("email_address", emailAddress);
+		do_Post(new URL(getAutomationendpoint() + "/" + workflowId + "/emails/" + workflowEmailId + "/queue"), jsonObj.toString(), getApikey());
+		// Note: MailChimp documents this as returning an AutomationSubscriber but in practice it returns nothing
+	}
+	/**
+	 * Delete a workflow email
+	 * @param workflowId The unique id for the Automation workflow
+	 * @param workflowEmailId The unique id for the Automation workflow email
+	 * @throws Exception
+	 */
+	public void deleteAutomationEmail(String workflowId, String workflowEmailId) throws Exception {
+		do_Delete(new URL(automationendpoint + "/" + workflowId + "/emails/" + workflowEmailId), getApikey());
 	}
 	
 	/**

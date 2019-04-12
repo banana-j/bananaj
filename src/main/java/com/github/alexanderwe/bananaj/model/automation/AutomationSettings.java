@@ -12,9 +12,16 @@ public class AutomationSettings {
 	private boolean authenticate;
 	private boolean autoFooter;
 	private boolean inlineCss;
-		
-	public AutomationSettings() {
 
+	/**
+	 * Construct AutomationSettings for automation creation operation. 
+	 * @param fromName
+	 * @param toName
+	 */
+	public AutomationSettings(String fromName, String toName) {
+		super();
+		this.fromName = fromName;
+		this.toName = toName;
 	}
 
 	public AutomationSettings(JSONObject settings) {
@@ -26,6 +33,10 @@ public class AutomationSettings {
 		this.authenticate = settings.getBoolean("authenticate");
 		this.autoFooter = settings.getBoolean("auto_footer");
 		this.inlineCss = settings.getBoolean("inline_css");
+	}
+
+	public AutomationSettings() {
+
 	}
 
 	/**
@@ -116,4 +127,23 @@ public class AutomationSettings {
 		return inlineCss;
 	}
 
+	/**
+	 * Helper method to convert JSON for mailchimp PATCH/POST operations
+	 * @return
+	 */
+	public JSONObject getJsonRepresentation() throws Exception {
+		JSONObject jsonObj = new JSONObject();
+
+		if (title != null) {
+			jsonObj.put("title", title);
+		}
+		if (fromName != null) {
+			jsonObj.put("from_name", fromName);
+		}
+		if (replyTo != null) {
+			jsonObj.put("reply_to", replyTo);
+		}
+
+		return jsonObj;
+	}
 }

@@ -10,8 +10,15 @@ public class AutomationRecipient {
 	//private SegmentOpts segment_opts;
 	private String storeId;
 
-	public AutomationRecipient() {
-
+	/**
+	 * Construct AutomationRecipient for automation creation operation. 
+	 * @param listId
+	 * @param storeId
+	 */
+	public AutomationRecipient(String listId, String storeId) {
+		super();
+		this.listId = listId;
+		this.storeId = storeId;
 	}
 
 	public AutomationRecipient(JSONObject recipients) {
@@ -21,6 +28,10 @@ public class AutomationRecipient {
 		if (recipients.has("store_id")) {
 			this.storeId = recipients.getString("store_id");
 		}
+	}
+
+	public AutomationRecipient() {
+
 	}
 
 	/**
@@ -71,4 +82,20 @@ public class AutomationRecipient {
 		return listName;
 	}
 
+	/**
+	 * Helper method to convert JSON for mailchimp PATCH/POST operations
+	 * @return
+	 */
+	public JSONObject getJsonRepresentation() throws Exception {
+		JSONObject json = new JSONObject();
+
+		if (listId != null) {
+			json.put("list_id", listId);
+		}
+		if (storeId != null) {
+			json.put("store_id", storeId);
+		}
+
+		return json;
+	}
 }
