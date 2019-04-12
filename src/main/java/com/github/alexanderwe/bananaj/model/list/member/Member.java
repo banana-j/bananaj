@@ -18,7 +18,6 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONString;
 
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
 import com.github.alexanderwe.bananaj.exceptions.EmailException;
@@ -580,11 +579,10 @@ public class Member extends MailchimpObject {
 	}
 
 	/**
-	 * Helper method to convert a Member object into JSON for mailchimp PUT/PATCH/POST operations
-	 * @param member
+	 * Helper method to convert JSON for mailchimp PUT/PATCH/POST operations
 	 * @return
 	 */
-	public JSONObject toJson() throws Exception {
+	public JSONObject getJsonRepresentation() throws Exception {
 		JSONObject json = new JSONObject();
 		json.put("email_address", getEmailAddress());
 		if (getEmailType() != null) {

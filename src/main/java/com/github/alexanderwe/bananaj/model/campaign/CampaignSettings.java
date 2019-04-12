@@ -323,6 +323,48 @@ public class CampaignSettings {
 	}
 
 	/**
+	 * Helper method to convert JSON for mailchimp PUT/PATCH/POST operations
+	 * @param settings
+	 * @return
+	 */
+	public JSONObject getJsonRepresentation() {
+		JSONObject jsonSettings = new JSONObject();
+		put(jsonSettings, "subject_line", getSubject_line());
+		put(jsonSettings, "title", getTitle());
+		put(jsonSettings, "to_name", getTo_name());
+		put(jsonSettings, "from_name", getFrom_name());
+		put(jsonSettings, "reply_to", getReply_to());
+		if(getTemplate_id() != 0 ) {
+			jsonSettings.put("template_id", getTemplate_id());
+		}
+		put(jsonSettings, "auto_footer", getAuto_footer());
+		put(jsonSettings, "use_conversation", getUse_conversation());
+		put(jsonSettings, "authenticate", getAuthenticate());
+		put(jsonSettings, "timewarp", getTimewarp());
+		put(jsonSettings, "auto_tweet", getAuto_tweet());
+		put(jsonSettings, "fb_comments", getFb_comments());
+		put(jsonSettings, "drag_and_drop", getDrag_and_drop());
+		put(jsonSettings, "inline_css", getInline_css());
+		put(jsonSettings, "folder_id", getFolder_id());
+
+		return jsonSettings;
+	}
+	
+	private JSONObject put(JSONObject settings, String key, String value) {
+		if (value != null) {
+			return settings.put(key, value);
+		}
+		return settings;
+	}
+	
+	private JSONObject put(JSONObject settings, String key, Boolean value) {
+		if (value != null) {
+			return settings.put(key, value);
+		}
+		return settings;
+	}
+	
+	/**
 	 * CampaignSettings builder pattern. 
 	 *
 	 */

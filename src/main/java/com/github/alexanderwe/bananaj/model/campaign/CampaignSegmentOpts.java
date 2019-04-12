@@ -1,5 +1,6 @@
 package com.github.alexanderwe.bananaj.model.campaign;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,6 +32,25 @@ public class CampaignSegmentOpts {
     	this.conditions = b.conditions;
     }
 
+    public CampaignSegmentOpts(JSONObject jsonObj) {
+    	this.saved_segment_id = jsonObj.getInt("saved_segment_id");
+    	this.match = MatchType.valueOf(jsonObj.getString("match").toUpperCase());
+    	this.conditions = new ArrayList<AbstractCondition>();
+// TODO:
+//    	if (jsonObj.has("conditions"))
+//    	{
+//    		JSONArray conditions = jsonObj.getJSONArray("conditions");
+//    		for(int i=0; i<conditions.length(); i++) {
+//    			AbstractCondition condition = new AbstractCondition(conditions.get(i));
+//        		this.conditions.add(condition);
+//    		}
+//    	}
+    }
+    
+    public CampaignSegmentOpts() {
+    	
+    }
+    
     public Integer getSavedSegmentId() {
         return saved_segment_id;
     }
@@ -43,6 +63,10 @@ public class CampaignSegmentOpts {
         return conditions;
     }
 
+	/**
+	 * Helper method to convert JSON for mailchimp PUT/PATCH/POST operations
+	 * @return
+	 */
     public JSONObject getJsonRepresentation(){
         JSONObject segmentOpts = new JSONObject();
 

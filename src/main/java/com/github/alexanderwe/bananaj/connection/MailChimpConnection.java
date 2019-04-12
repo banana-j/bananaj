@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.model.automation.Automation;
 import com.github.alexanderwe.bananaj.model.automation.AutomationStatus;
+import com.github.alexanderwe.bananaj.model.automation.emails.AutomationEmail;
 import com.github.alexanderwe.bananaj.model.campaign.Campaign;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignDefaults;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignFolder;
@@ -373,24 +374,7 @@ public class MailChimpConnection extends Connection{
 		JSONObject recipients = new JSONObject();
 		recipients.put("list_id", mailChimpList.getId());
 		
-		JSONObject jsonSettings = new JSONObject();
-		put(jsonSettings, "subject_line", settings.getSubject_line());
-		put(jsonSettings, "title", settings.getTitle());
-		put(jsonSettings, "to_name", settings.getTo_name());
-		put(jsonSettings, "from_name", settings.getFrom_name());
-		put(jsonSettings, "reply_to", settings.getReply_to());
-		if(settings.getTemplate_id() != 0 ) {
-			jsonSettings.put("template_id", settings.getTemplate_id());
-		}
-		put(jsonSettings, "auto_footer", settings.getAuto_footer());
-		put(jsonSettings, "use_conversation", settings.getUse_conversation());
-		put(jsonSettings, "authenticate", settings.getAuthenticate());
-		put(jsonSettings, "timewarp", settings.getTimewarp());
-		put(jsonSettings, "auto_tweet", settings.getAuto_tweet());
-		put(jsonSettings, "fb_comments", settings.getFb_comments());
-		put(jsonSettings, "drag_and_drop", settings.getDrag_and_drop());
-		put(jsonSettings, "inline_css", settings.getInline_css());
-		put(jsonSettings, "folder_id", settings.getFolder_id());
+		JSONObject jsonSettings = settings.getJsonRepresentation();
 		
 		campaign.put("type", type.getStringRepresentation());
 		campaign.put("recipients", recipients);
@@ -405,24 +389,7 @@ public class MailChimpConnection extends Connection{
 		JSONObject campaign = new JSONObject();
 		JSONObject recipients = mailRecipients.getJsonRepresentation();
 		
-		JSONObject jsonSettings = new JSONObject();
-		put(jsonSettings, "subject_line", settings.getSubject_line());
-		put(jsonSettings, "title", settings.getTitle());
-		put(jsonSettings, "to_name", settings.getTo_name());
-		put(jsonSettings, "from_name", settings.getFrom_name());
-		put(jsonSettings, "reply_to", settings.getReply_to());
-		if(settings.getTemplate_id() != 0 ) {
-			jsonSettings.put("template_id", settings.getTemplate_id());
-		}
-		put(jsonSettings, "auto_footer", settings.getAuto_footer());
-		put(jsonSettings, "use_conversation", settings.getUse_conversation());
-		put(jsonSettings, "authenticate", settings.getAuthenticate());
-		put(jsonSettings, "timewarp", settings.getTimewarp());
-		put(jsonSettings, "auto_tweet", settings.getAuto_tweet());
-		put(jsonSettings, "fb_comments", settings.getFb_comments());
-		put(jsonSettings, "drag_and_drop", settings.getDrag_and_drop());
-		put(jsonSettings, "inline_css", settings.getInline_css());
-		put(jsonSettings, "folder_id", settings.getFolder_id());
+		JSONObject jsonSettings = settings.getJsonRepresentation();
 		
 		campaign.put("type", type.getStringRepresentation());
 		campaign.put("recipients", recipients);
@@ -430,20 +397,6 @@ public class MailChimpConnection extends Connection{
 		
 		campaign = new JSONObject(do_Post(new URL(campaignendpoint), campaign.toString(), getApikey()));
 		return new Campaign(this, campaign);
-	}
-	
-	private JSONObject put(JSONObject settings, String key, String value) {
-		if (value != null) {
-			return settings.put(key, value);
-		}
-		return settings;
-	}
-
-	private JSONObject put(JSONObject settings, String key, Boolean value) {
-		if (value != null) {
-			return settings.put(key, value);
-		}
-		return settings;
 	}
 	
 	/**
@@ -602,7 +555,7 @@ public class MailChimpConnection extends Connection{
 	}
 
 	/**
-	 * Get automations from mailchimp account
+	 * Get a list of Automations
 	 * @return List containing the first 100 automations
 	 * @throws Exception
 	 */
@@ -611,40 +564,95 @@ public class MailChimpConnection extends Connection{
 	}
 	
 	/**
-	 * Get all automations from mailchimp account with pagination
+	 * Get a list of Automations with pagination
 	 * @param count Number of templates to return
 	 * @param offset Zero based offset
 	 * @return List containing automations
 	 * @throws Exception
 	 */
-	public List<Automation> getAutomations(int count, int offset) throws Exception{
+	public List<Automation> getAutomations(int count, int offset) throws Exception {
 		List<Automation> automations = new ArrayList<Automation>();
 
 		JSONObject jsonAutomations = new JSONObject(do_Get(new URL(automationendpoint + "?offset=" + offset + "&count=" + count),getApikey()));
+		//int total_items = jsonAutomations.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
 		JSONArray automationsArray = jsonAutomations.getJSONArray("automations");
 		for( int i = 0; i< automationsArray.length();i++)
 		{
 			JSONObject automationDetail = automationsArray.getJSONObject(i);
-			JSONObject recipients = automationDetail.getJSONObject("recipients");
-
-			Automation automation = new Automation(automationDetail.getString("id"), DateConverter.getInstance().createDateFromISO8601(automationDetail.getString("create_time")),DateConverter.getInstance().createDateFromISO8601(automationDetail.getString("start_time")),AutomationStatus.valueOf(automationDetail.getString("status").toUpperCase()),automationDetail.getInt("emails_sent"),getList(recipients.getString("list_id")),automationDetail);
+			Automation automation = new Automation(this, automationDetail);
 			automations.add(automation);
 		}
 		return automations;
 	}
 	
 	/**
-	 * Get an specific automation
-	 * @param id
+	 * Get information about a specific Automation workflow
+	 * @param workflowId
 	 * @return an Automation object
 	 * @throws Exception
 	 */
-	public Automation getAutomation(String id) throws Exception{
-		JSONObject jsonAutomation = new JSONObject(do_Get(new URL(automationendpoint +"/"+id),getApikey()));
-		JSONObject recipients = jsonAutomation.getJSONObject("recipients");
-		return new Automation(jsonAutomation.getString("id"),DateConverter.getInstance().createDateFromISO8601(jsonAutomation.getString("create_time")),DateConverter.getInstance().createDateFromISO8601(jsonAutomation.getString("start_time")),AutomationStatus.valueOf(jsonAutomation.getString("status").toUpperCase()),jsonAutomation.getInt("emails_sent"),getList(recipients.getString("list_id")),jsonAutomation);
+	public Automation getAutomation(String workflowId) throws Exception {
+		JSONObject jsonAutomation = new JSONObject(do_Get(new URL(automationendpoint +"/"+workflowId), getApikey()));
+		return new Automation(this, jsonAutomation);
 	}
 
+	/**
+	 * Create a new Automation
+	 * @param automation
+	 * @return The newly added automation
+	 * @throws Exception
+	 */
+	public Automation createAutomation(Automation automation) throws Exception {
+		JSONObject json = automation.getJsonRepresentation();
+		String results = do_Post(new URL(automationendpoint),json.toString(), getApikey());
+		Automation newAutomation = new Automation(this, new JSONObject(results)); // update automation object with current data
+        return newAutomation;
+	}
+	
+	/**
+	 * Get a list of automated emails in a workflow
+	 * @param workflowId The unique id for the Automation workflow
+	 * @return List containing the first 100 emails
+	 * @throws Exception 
+	 */
+	public List<AutomationEmail> getEmails(String workflowId) throws Exception {
+		return getEmails(workflowId, 100, 0);
+	}
+	
+	/**
+	 * Get a list of automated emails in a workflow with pagination
+	 * @param workflowId The unique id for the Automation workflow
+	 * @param count Number of emails to return
+	 * @param offset Zero based offset
+	 * @return List containing automation emails
+	 * @throws Exception
+	 */
+	public List<AutomationEmail> getEmails(String workflowId, int count, int offset) throws Exception {
+		List<AutomationEmail> emails = new ArrayList<AutomationEmail>();
+		JSONObject jsonObj = new JSONObject(do_Get(new URL(automationendpoint + "/" + workflowId + "/emails" + "?offset=" + offset + "&count=" + count), getApikey()));
+		//int total_items = jsonAutomations.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
+		JSONArray emailsArray = jsonObj.getJSONArray("emails");
+		for( int i = 0; i< emailsArray.length();i++)
+		{
+			JSONObject emailDetail = emailsArray.getJSONObject(i);
+			AutomationEmail autoEmail = new AutomationEmail(this, emailDetail);
+			emails.add(autoEmail);
+		}
+		return emails;
+	}
+	
+	/**
+	 * Get information about a specific workflow email
+	 * @param workflowId The unique id for the Automation workflow
+	 * @param workflowEmailId The unique id for the Automation workflow email
+	 * @return
+	 * @throws Exception
+	 */
+	public AutomationEmail getEmail(String workflowId, String workflowEmailId) throws Exception {
+		JSONObject jsonObj = new JSONObject(do_Get(new URL(automationendpoint + "/" + workflowId + "/emails/" + workflowEmailId), getApikey()));
+		return new AutomationEmail(this, jsonObj);
+	}
+	
 	/**
 	 * Get the File/Folder Manager for accessing files and folders in your account.
 	 * @return
@@ -760,6 +768,7 @@ public class MailChimpConnection extends Connection{
 							DateConverter.getInstance().createDateFromISO8601(jsonAPIROOT.getString("last_login")),
 							jsonAPIROOT.getInt("total_subscribers"),
 							jsonAPIROOT);
+					// TODO: new Account(this, jsonAPIROOT)
 					this.account = account;
 				}
 			}

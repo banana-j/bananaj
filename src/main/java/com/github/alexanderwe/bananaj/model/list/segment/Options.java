@@ -45,6 +45,10 @@ public class Options {
         this.conditions = conditions;
     }
 
+    /**
+     * Helper method to convert JSON for mailchimp PUT/PATCH/POST operations
+     * @return
+     */
     public JSONObject getJsonRepresentation(){
         JSONObject options = new JSONObject();
         options.put("match", this.getMatchType().value());

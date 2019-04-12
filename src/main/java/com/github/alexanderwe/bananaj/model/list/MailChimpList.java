@@ -192,7 +192,7 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public Member addMember(Member member) throws Exception {
-		JSONObject json = member.toJson();
+		JSONObject json = member.getJsonRepresentation();
 		
 		String results = getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getId()+"/members"),json.toString(),connection.getApikey());
 		Member newMember = new Member(this, new JSONObject(results)); 
@@ -236,7 +236,7 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public void updateMember(Member member) throws Exception {
-		JSONObject json = member.toJson();
+		JSONObject json = member.getJsonRepresentation();
 
 		String results = getConnection().do_Patch(new URL(connection.getListendpoint()+"/"+this.getId()+"/members/"+member.getId()),json.toString(),connection.getApikey());
 		member.parse(this, new JSONObject(results));  // update member object with current data
@@ -251,7 +251,7 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws Exception
 	 */
 	public void addOrUpdateMember(Member member) throws Exception {
-		JSONObject json = member.toJson();
+		JSONObject json = member.getJsonRepresentation();
 		
 		if (member.getStatusIfNew() != null) {
 			json.put("status_if_new", member.getStatusIfNew().getStringRepresentation());

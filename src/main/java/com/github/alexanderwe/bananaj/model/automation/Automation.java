@@ -4,68 +4,230 @@
  */
 package com.github.alexanderwe.bananaj.model.automation;
 
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
-import com.github.alexanderwe.bananaj.model.list.MailChimpList;
+import java.net.URL;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.time.LocalDateTime;
+import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
+import com.github.alexanderwe.bananaj.model.automation.emails.AutomationEmail;
+import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 /**
- * Class for representing an automation
+ * Mailchimp’s Automation feature lets you build a series of emails that
+ * send to subscribers when triggered by a specific date, activity, or event.
+ * Use the API to manage Automation workflows, emails, and queues.
+ * 
  * @author alexanderweiss
  *
  */
 public class Automation extends MailchimpObject {
 
-	private LocalDateTime create_time;
-	private LocalDateTime start_time;
+	private LocalDateTime createTime;
+	private LocalDateTime startTime;
 	private AutomationStatus status;
-	private int emails_sent;
-	private MailChimpList mailChimpList;
+	private int emailsSent;
+	private AutomationRecipient recipients;
+	private AutomationSettings settings;
+	private AutomationTracking tracking;
+	//private AutomationTriggerSettings trigger_settings;
+	//private AutomationReportSummary report_summary;
+	private MailChimpConnection connection;
 		
-	public Automation(String id, LocalDateTime create_time, LocalDateTime start_time, AutomationStatus status, int emails_sent, MailChimpList mailChimpList, JSONObject jsonRepresentation) {
-		super(id,jsonRepresentation);
-		this.create_time = create_time;
-		this.start_time = start_time;
-		this.status = status;
-		this.emails_sent = emails_sent;
-		this.mailChimpList = mailChimpList;
+	public Automation(MailChimpConnection connection, JSONObject automation) {
+		super(automation.getString("id"), automation);
+		parse(connection, automation);
+	}
+	
+	public Automation() {
 		
 	}
 
+	public void parse(MailChimpConnection connection, JSONObject automation) {
+		this.connection = connection;
+		this.createTime = DateConverter.getInstance().createDateFromISO8601(automation.getString("create_time"));
+		this.startTime = DateConverter.getInstance().createDateFromISO8601(automation.getString("start_time"));
+		this.status = AutomationStatus.valueOf(automation.getString("status").toUpperCase());
+		this.emailsSent = automation.getInt("emails_sent");
+		if (automation.has("recipients")) {
+			this.recipients = new AutomationRecipient(automation.getJSONObject("recipients"));
+		}
+		if (automation.has("settings")) {
+			this.settings = new AutomationSettings(automation.getJSONObject("settings"));
+		}
+		if (automation.has("tracking")) {
+			this.tracking = new AutomationTracking(automation.getJSONObject("tracking"));
+		}
+	}
+	
 	/**
-	 * @return the create_time
+	 * 	Pause all emails in an Automation workflow
+	 * @throws Exception
 	 */
-	public LocalDateTime getCreate_time() {
-		return create_time;
+	public void pauseAllEmails() throws Exception {
+		getConnection().do_Post(new URL(connection.getAutomationendpoint() +"/"+getId()+"/actions/pause-all-emails"), connection.getApikey());
+	}
+	
+	/**
+	 * Start all emails in an Automation workflow
+	 * @throws Exception
+	 */
+	public void startAllEmails() throws Exception {
+		getConnection().do_Post(new URL(connection.getAutomationendpoint() +"/"+getId()+"/actions/start-all-emails"), connection.getApikey());
 	}
 
 	/**
-	 * @return the start_time
+	 * Get a list of automated emails in a workflow
+	 * @return List containing the first 100 emails
+	 * @throws Exception 
 	 */
-	public LocalDateTime getStart_time() {
-		return start_time;
+	public List<AutomationEmail> getEmails() throws Exception {
+		return getEmails(100, 0);
+	}
+	
+	/**
+	 * Get a list of automated emails in a workflow with pagination
+	 * @param count Number of emails to return
+	 * @param offset Zero based offset
+	 * @return List containing automation emails
+	 * @throws Exception
+	 */
+	public List<AutomationEmail> getEmails(int count, int offset) throws Exception {
+		List<AutomationEmail> emails = new ArrayList<AutomationEmail>();
+		JSONObject jsonObj = new JSONObject(connection.do_Get(new URL(connection.getAutomationendpoint() + "/" + getId() + "/emails" + "?offset=" + offset + "&count=" + count), connection.getApikey()));
+		//int total_items = jsonAutomations.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
+		JSONArray emailsArray = jsonObj.getJSONArray("emails");
+		for( int i = 0; i< emailsArray.length();i++)
+		{
+			JSONObject emailDetail = emailsArray.getJSONObject(i);
+			AutomationEmail autoEmail = new AutomationEmail(connection, emailDetail);
+			emails.add(autoEmail);
+		}
+		return emails;
+	}
+	
+	/**
+	 * Get information about a specific workflow email
+	 * @param workflowEmailId
+	 * @return
+	 * @throws Exception
+	 */
+	public AutomationEmail getEmail(String workflowEmailId) throws Exception {
+		JSONObject jsonObj = new JSONObject(connection.do_Get(new URL(connection.getAutomationendpoint() + "/" + getId() + "/emails/" + workflowEmailId), connection.getApikey()));
+		return new AutomationEmail(connection, jsonObj);
+	}
+	
+	/**
+	 * 
+	 * @throws Exception
+	 */
+	public void update() throws Exception {
+		JSONObject json = getJsonRepresentation();
+		String results = getConnection().do_Patch(new URL(connection.getAutomationendpoint()+"/"+this.getId()),json.toString(),connection.getApikey());
+		parse(this.connection, new JSONObject(results));  // update member automation with current data
+	}
+	
+	/**
+	 * The date and time the Automation was created
+	 * @return
+	 */
+	public LocalDateTime getCreateTime() {
+		return createTime;
 	}
 
 	/**
-	 * @return the status
+	 * The date and time the Automation was started
+	 * @return
+	 */
+	public LocalDateTime getStartTime() {
+		return startTime;
+	}
+
+	/**
+	 * The current status of the Automation
+	 * @return
 	 */
 	public AutomationStatus getStatus() {
 		return status;
 	}
 
 	/**
-	 * @return the emails_sent
+	 * The total number of emails sent for the Automation
+	 * @return
 	 */
-	public int getEmails_sent() {
-		return emails_sent;
+	public int getEmailsSent() {
+		return emailsSent;
 	}
 
 	/**
-	 * @return the mailChimpList
+	 * List settings for the Automation
+	 * @return
 	 */
-	public MailChimpList getMailChimpList() {
-		return mailChimpList;
+	public AutomationRecipient getRecipients() {
+		return recipients;
 	}
 
+	/**
+	 * The settings for the Automation workflow
+	 * @return
+	 */
+	public AutomationSettings getSettings() {
+		return settings;
+	}
+
+	/**
+	 * The tracking options for the Automation
+	 * @return
+	 */
+	public AutomationTracking getTracking() {
+		return tracking;
+	}
+	
+	/**
+	 * @return the MailChimp {@link #connection}
+	 */
+	public MailChimpConnection getConnection() {
+		return connection;
+	}
+	
+	/**
+	 * Helper method to convert JSON for mailchimp PUT/PATCH/POST operations
+	 * @return
+	 */
+	public JSONObject getJsonRepresentation() throws Exception {
+		JSONObject json = new JSONObject();
+		
+		if (recipients != null) {
+			JSONObject recipientsObj = new JSONObject();
+			recipientsObj.put("list_id", recipients.getListId());
+			if (recipients.getStoreId() != null) {
+				recipientsObj.put("store_id", recipients.getStoreId());
+			}
+			json.put("recipients", recipientsObj);
+		}
+		
+		if (settings != null) {
+			JSONObject settingsObj = new JSONObject();
+			if (settings.getTitle() != null) {
+				settingsObj.put("title", settings.getTitle());
+			}
+			if (settings.getFromName() != null) {
+				settingsObj.put("from_name", settings.getFromName());
+			}
+			if (settings.getReplyTo() != null) {
+				settingsObj.put("reply_to", settings.getReplyTo());
+			}
+			json.put("settings", settingsObj);
+		}
+		
+		// TODO: add delay object
+		// TODO: add trigger_settings object
+		return json;
+	}
+	
+	// TODO: add builder pattern
 }
