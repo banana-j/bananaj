@@ -323,7 +323,7 @@ public class CampaignSettings {
 	}
 
 	/**
-	 * Helper method to convert JSON for mailchimp PUT/PATCH/POST operations
+	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 * @param settings
 	 * @return
 	 */

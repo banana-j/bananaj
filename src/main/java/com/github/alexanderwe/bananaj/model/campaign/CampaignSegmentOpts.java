@@ -64,7 +64,7 @@ public class CampaignSegmentOpts {
     }
 
 	/**
-	 * Helper method to convert JSON for mailchimp PUT/PATCH/POST operations
+	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 * @return
 	 */
     public JSONObject getJsonRepresentation(){

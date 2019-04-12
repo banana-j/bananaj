@@ -29,14 +29,26 @@ public class Options {
         this.conditions.add(condition);
     }
 
+    /**
+     * Match type
+     * @return
+     */
     public MatchType getMatchType() {
         return matchType;
     }
 
+    /**
+     * Match type
+     * @param matchType
+     */
     public void setMatchType(MatchType matchType) {
         this.matchType = matchType;
     }
 
+    /**
+     * A list of segment conditions
+     * @return
+     */
     public List<AbstractCondition> getConditions() {
         return conditions;
     }
@@ -46,7 +58,7 @@ public class Options {
     }
 
     /**
-     * Helper method to convert JSON for mailchimp PUT/PATCH/POST operations
+     * Helper method to convert JSON for mailchimp PATCH/POST operations
      * @return
      */
     public JSONObject getJsonRepresentation(){
@@ -60,7 +72,6 @@ public class Options {
         }
 
         options.put("conditions",conditions);
-        System.out.println(options);
         return options;
     }
 
