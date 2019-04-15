@@ -136,12 +136,12 @@ public class MailChimpConnection extends Connection{
 		JSONObject jsonList = new JSONObject();
 		
 		JSONObject contact = new JSONObject();
-		contact.put("company", account.getCompany());
-		contact.put("address1", account.getAddress1());
-		contact.put("city", account.getCity());
-		contact.put("state", account.getState());
-		contact.put("zip", account.getZip());
-		contact.put("country", account.getCountry());
+		contact.put("company", account.getContact().getCompany());
+		contact.put("address1", account.getContact().getAddress1());
+		contact.put("city", account.getContact().getCity());
+		contact.put("state", account.getContact().getState());
+		contact.put("zip", account.getContact().getZip());
+		contact.put("country", account.getContact().getCountry());
 		
 		JSONObject JSONCampaignDefaults = new JSONObject();
 		JSONCampaignDefaults.put("from_name", campaignDefaults.getFrom_name());
@@ -814,23 +814,8 @@ public class MailChimpConnection extends Connection{
 		if (account == null) {
 			synchronized(this) {
 				if (account == null) {
-					Account account;
 					JSONObject jsonAPIROOT = new JSONObject(do_Get(new URL(apiendpoint),getApikey()));
-					JSONObject contact = jsonAPIROOT.getJSONObject("contact");
-					account = new Account(this, jsonAPIROOT.getString("account_id"),
-							jsonAPIROOT.getString("account_name"),
-							contact.getString("company"),
-							contact.getString("addr1"),
-							contact.getString("addr2"),
-							contact.getString("city"),
-							contact.getString("state"),
-							contact.getString("zip"),
-							contact.getString("country"),
-							DateConverter.getInstance().createDateFromISO8601(jsonAPIROOT.getString("last_login")),
-							jsonAPIROOT.getInt("total_subscribers"),
-							jsonAPIROOT);
-					// TODO: new Account(this, jsonAPIROOT)
-					this.account = account;
+					this.account = new Account(this, jsonAPIROOT);
 				}
 			}
 		}
