@@ -215,10 +215,7 @@ public class Account extends MailchimpObject{
 		return this.getId() + System.lineSeparator() +
 				this.getEmail() + System.lineSeparator() +
 				this.getAccountName() + System.lineSeparator() +
-				this.getContact().getCompany() + System.lineSeparator() +
-				this.getContact().getAddress1() + System.lineSeparator() +
-				(this.getContact().getAddress2().length() > 0 ? this.getContact().getAddress2() + System.lineSeparator() : "")+
-				this.getContact().getCity() + " " + this.getContact().getState() + " " + this.getContact().getZip() + " " + this.getContact().getCountry() + System.lineSeparator() +
+				this.getContact().toString() + System.lineSeparator() +
 				"Last Login: " + this.lastLogin + System.lineSeparator() +
 				"Total subscribers: " + this.totalSubscribers;
 	}
@@ -229,7 +226,7 @@ public class Account extends MailchimpObject{
 
 		private String stringRepresentation;
 
-		PricingPlanType(String stringRepresentation ){
+		PricingPlanType(String stringRepresentation ) {
 			setStringRepresentation(stringRepresentation);
 		}
 
@@ -325,6 +322,15 @@ public class Account extends MailchimpObject{
 		 */
 		public String getCountry() {
 			return country;
+		}
+
+		@Override
+		public String toString() {
+			return 
+					getCompany() + System.lineSeparator() +
+					getAddress1() + System.lineSeparator() +
+					(getAddress2().length() > 0 ? getAddress2() + System.lineSeparator() : "")+
+					getCity() + " " + getState() + " " + getZip() + " " + getCountry();
 		}
 	}
 

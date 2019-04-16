@@ -110,7 +110,9 @@ public class CampaignRecipients {
 
     @Override
     public String toString() {
-        return  "List ID: " + getListId() + System.lineSeparator() +
+        return 
+        		"List ID: " + getListId() + System.lineSeparator() +
+        		"Name: " + getListName() + System.lineSeparator() +
                 "Segment opts: " + getSegmentOpts().toString();
     }
 

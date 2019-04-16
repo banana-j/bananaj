@@ -85,6 +85,6 @@ public class MemberStats {
 		public String getCurrencyCode() {
 			return currencyCode;
 		}
-		
+	
 	}
 }

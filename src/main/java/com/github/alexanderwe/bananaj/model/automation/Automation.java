@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.model.Tracking;
 import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import com.github.alexanderwe.bananaj.model.automation.emails.AutomationEmail;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
@@ -33,7 +34,7 @@ public class Automation extends MailchimpObject {
 	private int emailsSent;
 	private AutomationRecipient recipients;
 	private AutomationSettings settings;
-	private AutomationTracking tracking;
+	private Tracking tracking;
 	//private AutomationTriggerSettings trigger_settings;
 	//private AutomationReportSummary report_summary;
 	private MailChimpConnection connection;
@@ -60,7 +61,7 @@ public class Automation extends MailchimpObject {
 			this.settings = new AutomationSettings(automation.getJSONObject("settings"));
 		}
 		if (automation.has("tracking")) {
-			this.tracking = new AutomationTracking(automation.getJSONObject("tracking"));
+			this.tracking = new Tracking(automation.getJSONObject("tracking"));
 		}
 	}
 	
@@ -186,7 +187,7 @@ public class Automation extends MailchimpObject {
 	 * The tracking options for the Automation
 	 * @return
 	 */
-	public AutomationTracking getTracking() {
+	public Tracking getTracking() {
 		return tracking;
 	}
 	

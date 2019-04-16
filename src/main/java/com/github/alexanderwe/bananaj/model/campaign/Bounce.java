@@ -4,6 +4,8 @@
  */
 package com.github.alexanderwe.bananaj.model.campaign;
 
+import org.json.JSONObject;
+
 /**
  * Class representing a bounce for a campaign
  * @author alexanderweiss
@@ -11,35 +13,46 @@ package com.github.alexanderwe.bananaj.model.campaign;
  */
 public class Bounce {
 
-	private int hard_bounces;
-	private int soft_bounces;
-	private int syntax_error_bounces;
-	
-	public Bounce(int hard_bounces, int soft_bounces, int syntax_error_bounces) {
-		this.hard_bounces = hard_bounces;
-		this.soft_bounces = soft_bounces;
-		this.syntax_error_bounces = syntax_error_bounces;
+	private int hardBounces;
+	private int softBounces;
+	private int syntaxErrors;
+
+	public Bounce(JSONObject jsonObj) {
+		hardBounces = jsonObj.getInt("hard_bounces");
+		softBounces = jsonObj.getInt("soft_bounces");
+		syntaxErrors = jsonObj.getInt("syntax_errors");
 	}
 
 	/**
 	 * @return the hard_bounces
 	 */
-	public int getHard_bounces() {
-		return hard_bounces;
+	public int getHardBounces() {
+		return hardBounces;
 	}
 
 	/**
 	 * @return the soft_bounces
 	 */
-	public int getSoft_bounces() {
-		return soft_bounces;
+	public int getSoftBounces() {
+		return softBounces;
 	}
 
 	/**
 	 * @return the syntax_error_bounces
 	 */
-	public int getSyntax_error_bounces() {
-		return syntax_error_bounces;
+	public int getSyntaxErrors() {
+		return syntaxErrors;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return
+				"Hard Bounces: " + hardBounces + System.lineSeparator() +
+				"Soft Bounces: " + softBounces + System.lineSeparator() +
+				"Syntax Errors: " + syntaxErrors;
 	}
 
 }

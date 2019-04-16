@@ -33,7 +33,9 @@ public class CampaignSegmentOpts {
     }
 
     public CampaignSegmentOpts(JSONObject jsonObj) {
-    	this.saved_segment_id = jsonObj.getInt("saved_segment_id");
+    	if (jsonObj.has("saved_segment_id")) {
+    		this.saved_segment_id = jsonObj.getInt("saved_segment_id");
+    	}
     	this.match = MatchType.valueOf(jsonObj.getString("match").toUpperCase());
     	this.conditions = new ArrayList<AbstractCondition>();
 // TODO:

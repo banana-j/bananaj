@@ -140,9 +140,9 @@ public class Report extends MailchimpObject{
 				"Total unsubscribed: " + this.getUnsubscribe_total() + System.lineSeparator() +
 				"Time sent: " + this.getTime_sent() + System.lineSeparator() +
 				"Bounces: " + System.lineSeparator() +
-				"    Soft bounces: " + this.getBounces().getSoft_bounces() + System.lineSeparator() +
-				"    Hard bounces: " +  this.getBounces().getHard_bounces() + System.lineSeparator() +
-				"    Syntax error bounces: " + this.getBounces().getSyntax_error_bounces() + System.lineSeparator() +
+				"    Soft bounces: " + this.getBounces().getSoftBounces() + System.lineSeparator() +
+				"    Hard bounces: " +  this.getBounces().getHardBounces() + System.lineSeparator() +
+				"    Syntax error bounces: " + this.getBounces().getSyntaxErrors() + System.lineSeparator() +
 				"Forwards: " + System.lineSeparator() +
 				"    Forward count: " + this.getForwards().getCount() + System.lineSeparator() +
 				"    Forward open: " + this.getForwards().getForwards_open() + System.lineSeparator() +

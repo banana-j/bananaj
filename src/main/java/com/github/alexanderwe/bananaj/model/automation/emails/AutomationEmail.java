@@ -6,10 +6,11 @@ import java.time.LocalDateTime;
 import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.model.Tracking;
+import com.github.alexanderwe.bananaj.model.ReportSummary;
 import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import com.github.alexanderwe.bananaj.model.automation.AutomationDelay;
 import com.github.alexanderwe.bananaj.model.automation.AutomationStatus;
-import com.github.alexanderwe.bananaj.model.automation.AutomationTracking;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignRecipients;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
 
@@ -30,10 +31,10 @@ public class AutomationEmail extends MailchimpObject {
 	private boolean hasLogoMergeTag;
 	private CampaignRecipients recipients;
 	private AutomationEmailSettings settings;
-	private AutomationTracking tracking;
+	private Tracking tracking;
 	//private Object social_card;
 	//private Object trigger_settings;
-	private AutomationEmailReportSummary reportSummary;
+	private ReportSummary reportSummary;
 	private MailChimpConnection connection;
 	
 	
@@ -62,9 +63,9 @@ public class AutomationEmail extends MailchimpObject {
         hasLogoMergeTag = jsonObj.getBoolean("has_logo_merge_tag");
         recipients = new CampaignRecipients(jsonObj.getJSONObject("recipients"));
         settings = new AutomationEmailSettings(jsonObj.getJSONObject("settings"));
-        tracking = new AutomationTracking(jsonObj.getJSONObject("tracking"));
+        tracking = new Tracking(jsonObj.getJSONObject("tracking"));
         if (jsonObj.has("report_summary")) {
-        	reportSummary = new AutomationEmailReportSummary(jsonObj.getJSONObject("report_summary"));
+        	reportSummary = new ReportSummary(jsonObj.getJSONObject("report_summary"));
         }
         this.connection = connection;
 	}
@@ -236,7 +237,7 @@ public class AutomationEmail extends MailchimpObject {
 	 * The tracking options for a campaign
 	 * @return
 	 */
-	public AutomationTracking getTracking() {
+	public Tracking getTracking() {
 		return tracking;
 	}
 
@@ -244,7 +245,7 @@ public class AutomationEmail extends MailchimpObject {
 	 * For sent campaigns, a summary of opens, clicks, and unsubscribes
 	 * @return
 	 */
-	public AutomationEmailReportSummary getReportSummary() {
+	public ReportSummary getReportSummary() {
 		return reportSummary;
 	}
 

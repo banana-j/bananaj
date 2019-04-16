@@ -11,12 +11,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.model.automation.Automation;
-import com.github.alexanderwe.bananaj.model.automation.AutomationDelay;
 import com.github.alexanderwe.bananaj.model.automation.AutomationRecipient;
 import com.github.alexanderwe.bananaj.model.automation.AutomationSettings;
-import com.github.alexanderwe.bananaj.model.automation.AutomationStatus;
 import com.github.alexanderwe.bananaj.model.automation.emails.AutomationEmail;
-import com.github.alexanderwe.bananaj.model.automation.emails.AutomationSubscriber;
 import com.github.alexanderwe.bananaj.model.campaign.Campaign;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignDefaults;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignFolder;
@@ -58,6 +55,7 @@ public class MailChimpConnection extends Connection{
 	private final String automationendpoint;
 	private final String filemanagerfolderendpoint;
 	private final String filesendpoint;
+	private final String reportsendpoint;
 	private Account account;
 	private FileManager fileManager;
 
@@ -82,6 +80,7 @@ public class MailChimpConnection extends Connection{
 		this.automationendpoint = "https://"+server+".api.mailchimp.com/3.0/automations";
 		this.filemanagerfolderendpoint = "https://"+server+".api.mailchimp.com/3.0/file-manager/folders";
 		this.filesendpoint = "https://"+server+".api.mailchimp.com/3.0/file-manager/files";
+		this.reportsendpoint = "https://"+server+".api.mailchimp.com/3.0/reports";
 	}
 
 	/**
@@ -108,8 +107,6 @@ public class MailChimpConnection extends Connection{
 		for( int i = 0; i< listsArray.length();i++)
 		{
 			JSONObject jsonList = listsArray.getJSONObject(i);
-			JSONObject listStats = jsonList.getJSONObject("stats");
-
 			MailChimpList mailChimpList = new MailChimpList(this,jsonList);
 			mailChimpLists.add(mailChimpList);
 		}
@@ -285,7 +282,7 @@ public class MailChimpConnection extends Connection{
 
     	for(int i = 0 ; i < campaignFoldersJSON.length(); i++){
     		JSONObject campaignFolderJSON = campaignFoldersJSON.getJSONObject(i);
-    		CampaignFolder campaignFolder = new CampaignFolder(campaignFolderJSON);
+    		CampaignFolder campaignFolder = new CampaignFolder(this, campaignFolderJSON);
     		campaignFolders.add(campaignFolder);
     	}
     	return campaignFolders;
@@ -296,10 +293,10 @@ public class MailChimpConnection extends Connection{
      * @param folder_id
      * @return
      */
-    public CampaignFolder getCampaignFolder(String folder_id) throws Exception{
+    public CampaignFolder getCampaignFolder(String folder_id) throws Exception {
 
     	JSONObject jsonCampaignFolder = new JSONObject(do_Get(new URL(campaignfolderendpoint +"/"+folder_id), getApikey()));
-    	return new CampaignFolder(jsonCampaignFolder);
+    	return new CampaignFolder(this, jsonCampaignFolder);
     }
 
     /**
@@ -307,18 +304,18 @@ public class MailChimpConnection extends Connection{
      * @param name Name to associate with the folder
      * @return
      */
-    public CampaignFolder addCampaignFolder(String name) throws Exception{
+    public CampaignFolder addCampaignFolder(String name) throws Exception {
     	JSONObject campaignFolder = new JSONObject();
     	campaignFolder.put("name", name);
     	JSONObject jsonCampaignFolder = new JSONObject(do_Post(new URL(campaignfolderendpoint), campaignFolder.toString(), getApikey()));
-    	return new CampaignFolder(jsonCampaignFolder);
+    	return new CampaignFolder(this, jsonCampaignFolder);
     }
 
     /**
      * Delete a specific template folder
      * @param folder_id
      */
-    public void deleteCampaignFolder(String folder_id) throws Exception{
+    public void deleteCampaignFolder(String folder_id) throws Exception {
     	do_Delete(new URL(campaignfolderendpoint +"/"+folder_id), getApikey());
     }
 
@@ -337,7 +334,6 @@ public class MailChimpConnection extends Connection{
      * @param offset Zero based offset
      * @return List containing campaigns
      * @throws Exception
-     *  * TODO add campaignsettings
      */
     public List<Campaign> getCampaigns(int count, int offset) throws Exception {
     	List<Campaign> campaigns = new ArrayList<Campaign>();
@@ -358,7 +354,6 @@ public class MailChimpConnection extends Connection{
 	 * @param campaignID
 	 * @return a campaign object
 	 * @throws Exception
-	 * TODO add campaignsettings
 	 */
 	public Campaign getCampaign(String campaignID) throws Exception {
 		JSONObject campaign = new JSONObject(do_Get(new URL(campaignendpoint +"/"+campaignID),getApikey()));
@@ -796,6 +791,10 @@ public class MailChimpConnection extends Connection{
 
 	public String getTemplatefolderendpoint() {
 		return this.templatefolderendpoint;
+	}
+
+	public String getReportsendpoint() {
+		return reportsendpoint;
 	}
 
 	/**
