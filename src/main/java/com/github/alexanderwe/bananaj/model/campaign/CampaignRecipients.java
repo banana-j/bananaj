@@ -97,7 +97,7 @@ public class CampaignRecipients {
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 * @return
 	 */
-	public JSONObject getJsonRepresentation(){
+	public JSONObject getJsonRepresentation() {
         JSONObject recipents = new JSONObject();
         
         recipents.put("list_id", getListId());

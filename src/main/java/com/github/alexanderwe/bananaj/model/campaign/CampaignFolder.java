@@ -18,7 +18,7 @@ public class CampaignFolder extends MailchimpObject{
     private MailChimpConnection connection;
 
     public CampaignFolder(MailChimpConnection connection, JSONObject jsonCampaignFolder) {
-        super(jsonCampaignFolder.getString("id"), jsonCampaignFolder);
+        super(jsonCampaignFolder.getString("id"), null);
         parse(connection, jsonCampaignFolder);
     }
     

@@ -4,6 +4,8 @@
  */
 package com.github.alexanderwe.bananaj.model.campaign;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDateTime;
 
@@ -12,6 +14,7 @@ import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
 import com.github.alexanderwe.bananaj.exceptions.CampaignSettingsException;
+import com.github.alexanderwe.bananaj.exceptions.TransportException;
 import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import com.github.alexanderwe.bananaj.model.ReportSummary;
 import com.github.alexanderwe.bananaj.model.Tracking;
@@ -190,6 +193,11 @@ public class Campaign extends MailchimpObject {
 	public Campaign replicate() throws Exception {
 		String results = getConnection().do_Post(new URL(getConnection().getCampaignendpoint()+"/"+getId()+"/actions/replicate"), getConnection().getApikey());
 		return new Campaign(getConnection(), new JSONObject(results));
+	}
+	
+	public CampaignSendChecklist getSendChecklist() throws Exception {
+		String results = getConnection().do_Get(new URL(getConnection().getCampaignendpoint()+"/"+getId()+"/send-checklist"), getConnection().getApikey());
+		return new CampaignSendChecklist(new JSONObject(results));
 	}
 	
 	// TODO: additional actions (schedule, unschedule)
