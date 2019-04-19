@@ -52,4 +52,17 @@ public class ListCampaignDefaults {
 		return language;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return 
+				"Defaults:" + System.lineSeparator() +
+				"    From Name: " + getFromName() + System.lineSeparator() +
+				"    From Email: " + getFromEmail() + System.lineSeparator() +
+				"    Subject: " + getSubject() + System.lineSeparator() +
+				"    Language: " + getLanguage(); 
+	}
+
 }

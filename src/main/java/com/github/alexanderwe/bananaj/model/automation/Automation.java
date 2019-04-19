@@ -14,7 +14,6 @@ import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
 import com.github.alexanderwe.bananaj.model.Tracking;
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import com.github.alexanderwe.bananaj.model.automation.emails.AutomationEmail;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
 
@@ -26,8 +25,9 @@ import com.github.alexanderwe.bananaj.utils.DateConverter;
  * @author alexanderweiss
  *
  */
-public class Automation extends MailchimpObject {
+public class Automation {
 
+	private String id;
 	private LocalDateTime createTime;
 	private LocalDateTime startTime;
 	private AutomationStatus status;
@@ -38,33 +38,33 @@ public class Automation extends MailchimpObject {
 	//private AutomationTriggerSettings trigger_settings;
 	//private AutomationReportSummary report_summary;
 	private MailChimpConnection connection;
-		
+
 	public Automation(MailChimpConnection connection, JSONObject automation) {
-		super(automation.getString("id"), automation);
 		parse(connection, automation);
 	}
-	
+
 	public Automation() {
-		
+
 	}
 
-	public void parse(MailChimpConnection connection, JSONObject automation) {
+	private void parse(MailChimpConnection connection, JSONObject jsonObj) {
+		id = jsonObj.getString("id");
 		this.connection = connection;
-		this.createTime = DateConverter.getInstance().createDateFromISO8601(automation.getString("create_time"));
-		this.startTime = DateConverter.getInstance().createDateFromISO8601(automation.getString("start_time"));
-		this.status = AutomationStatus.valueOf(automation.getString("status").toUpperCase());
-		this.emailsSent = automation.getInt("emails_sent");
-		if (automation.has("recipients")) {
-			this.recipients = new AutomationRecipient(automation.getJSONObject("recipients"));
+		createTime = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("create_time"));
+		startTime = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("start_time"));
+		status = AutomationStatus.valueOf(jsonObj.getString("status").toUpperCase());
+		emailsSent = jsonObj.getInt("emails_sent");
+		if (jsonObj.has("recipients")) {
+			recipients = new AutomationRecipient(jsonObj.getJSONObject("recipients"));
 		}
-		if (automation.has("settings")) {
-			this.settings = new AutomationSettings(automation.getJSONObject("settings"));
+		if (jsonObj.has("settings")) {
+			settings = new AutomationSettings(jsonObj.getJSONObject("settings"));
 		}
-		if (automation.has("tracking")) {
-			this.tracking = new Tracking(automation.getJSONObject("tracking"));
+		if (jsonObj.has("tracking")) {
+			tracking = new Tracking(jsonObj.getJSONObject("tracking"));
 		}
 	}
-	
+
 	/**
 	 * 	Pause all emails in an Automation workflow
 	 * @throws Exception
@@ -72,7 +72,7 @@ public class Automation extends MailchimpObject {
 	public void pauseAllEmails() throws Exception {
 		getConnection().do_Post(new URL(connection.getAutomationendpoint() +"/"+getId()+"/actions/pause-all-emails"), connection.getApikey());
 	}
-	
+
 	/**
 	 * Start all emails in an Automation workflow
 	 * @throws Exception
@@ -89,7 +89,7 @@ public class Automation extends MailchimpObject {
 	public List<AutomationEmail> getEmails() throws Exception {
 		return getEmails(100, 0);
 	}
-	
+
 	/**
 	 * Get a list of automated emails in a workflow with pagination
 	 * @param count Number of emails to return
@@ -110,7 +110,7 @@ public class Automation extends MailchimpObject {
 		}
 		return emails;
 	}
-	
+
 	/**
 	 * Get information about a specific workflow email
 	 * @param workflowEmailId
@@ -121,7 +121,7 @@ public class Automation extends MailchimpObject {
 		JSONObject jsonObj = new JSONObject(connection.do_Get(new URL(connection.getAutomationendpoint() + "/" + getId() + "/emails/" + workflowEmailId), connection.getApikey()));
 		return new AutomationEmail(connection, jsonObj);
 	}
-	
+
 	/**
 	 * Update Automation
 	 * @throws Exception
@@ -131,10 +131,17 @@ public class Automation extends MailchimpObject {
 		if (delay != null) {
 			json.put("delay", delay.getJsonRepresentation());
 		}
-		String results = getConnection().do_Patch(new URL(connection.getAutomationendpoint()+"/"+this.getId()), json.toString(), connection.getApikey());
-		parse(this.connection, new JSONObject(results));  // update member automation with current data
+		String results = getConnection().do_Patch(new URL(connection.getAutomationendpoint()+"/"+getId()), json.toString(), connection.getApikey());
+		parse(connection, new JSONObject(results));  // update member automation with current data
 	}
-	
+
+	/**
+	 * @return A string that identifies the Automation.
+	 */
+	public String getId() {
+		return id;
+	}
+
 	/**
 	 * The date and time the Automation was created
 	 * @return
@@ -190,35 +197,52 @@ public class Automation extends MailchimpObject {
 	public Tracking getTracking() {
 		return tracking;
 	}
-	
+
 	/**
 	 * @return the MailChimp {@link #connection}
 	 */
 	public MailChimpConnection getConnection() {
 		return connection;
 	}
-	
+
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 * @return
 	 */
-	public JSONObject getJsonRepresentation() throws Exception {
+	private JSONObject getJsonRepresentation() throws Exception {
 		JSONObject json = new JSONObject();
-		
+
 		if (recipients != null) {
 			JSONObject recipientsObj = recipients.getJsonRepresentation();
 			json.put("recipients", recipientsObj);
 		}
-		
+
 		if (settings != null) {
 			JSONObject settingsObj = settings.getJsonRepresentation();
 			json.put("settings", settingsObj);
 		}
-		
+
 		// TODO: add delay object
 		// TODO: add trigger_settings object
 		return json;
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return
+				"Automation Email:" + System.lineSeparator() +
+				"    Id: " + getId() + System.lineSeparator() +
+				"    Created: " + getCreateTime() + System.lineSeparator() +
+				"    Started: " + getStartTime() + System.lineSeparator() +
+				"    Status: " + getStatus().getStringRepresentation() + System.lineSeparator() +
+				"    Emails Sent: " + getEmailsSent() + System.lineSeparator() +
+				getRecipients().toString() + System.lineSeparator() +
+				getSettings().toString() + System.lineSeparator() +
+				getTracking().toString(); 
+	}
+
 	// TODO: add builder pattern
 }

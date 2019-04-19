@@ -129,7 +129,7 @@ public class MailChimpConnection extends Connection{
 	 * @param listName
 	 */
 	public MailChimpList createList(String listName, String permission_reminder, boolean email_type_option, CampaignDefaults campaignDefaults) throws Exception{
-		setAccount();
+		cacheAccountInfo();
 		JSONObject jsonList = new JSONObject();
 		
 		JSONObject contact = new JSONObject();
@@ -424,12 +424,11 @@ public class MailChimpConnection extends Connection{
 	public List<TemplateFolder> getTemplateFolders(int count, int offset) throws Exception{
         List<TemplateFolder> templateFolders = new ArrayList<>();
         JSONObject templateFoldersResponse = new JSONObject(do_Get(new URL(templatefolderendpoint + "?offset=" + offset + "&count=" + count), getApikey()));
-
+		//int total_items = templateFoldersResponse.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
         JSONArray templateFoldersJSON = templateFoldersResponse.getJSONArray("folders");
 
         for(int i = 0 ; i < templateFoldersJSON.length(); i++){
-            JSONObject jsonTemplateFolder = templateFoldersJSON.getJSONObject(i);
-            TemplateFolder templateFolder = new TemplateFolder(jsonTemplateFolder);
+            TemplateFolder templateFolder = new TemplateFolder(this, templateFoldersJSON.getJSONObject(i));
             templateFolders.add(templateFolder);
         }
         return templateFolders;
@@ -443,18 +442,18 @@ public class MailChimpConnection extends Connection{
     public TemplateFolder getTemplateFolder(String folder_id) throws Exception{
 
         JSONObject jsonTemplateFolder = new JSONObject(do_Get(new URL(templatefolderendpoint +"/"+folder_id), getApikey()));
-        return new TemplateFolder(jsonTemplateFolder);
+        return new TemplateFolder(this, jsonTemplateFolder);
     }
 
     /**
      * Add a template folder with a specific name
      * @param name
      */
-    public TemplateFolder addTemplateFolder(String name) throws Exception{
+    public TemplateFolder createTemplateFolder(String name) throws Exception{
         JSONObject templateFolder = new JSONObject();
         templateFolder.put("name", name);
         JSONObject jsonTemplateFolder = new JSONObject(do_Post(new URL(templatefolderendpoint), templateFolder.toString(), getApikey()));
-        return new TemplateFolder(jsonTemplateFolder);
+        return new TemplateFolder(this, jsonTemplateFolder);
     }
 
     /**
@@ -488,16 +487,7 @@ public class MailChimpConnection extends Connection{
 		JSONArray templatesArray = jsonTemplates.getJSONArray("templates");
 		for( int i = 0; i< templatesArray.length();i++)
 		{
-			JSONObject templatesDetail = templatesArray.getJSONObject(i);
-
-			Template template = new Template(templatesDetail.getInt("id"),
-					templatesDetail.getString("name"),
-					TemplateType.valueOf(templatesDetail.getString("type").toUpperCase()),
-					templatesDetail.getString("share_url"),
-					DateConverter.getInstance().createDateFromISO8601(templatesDetail.getString("date_created")),
-					templatesDetail.has("folder_id") ? templatesDetail.getString("folder_id") : null, 
-					this,
-					templatesDetail);
+			Template template = new Template(this, templatesArray.getJSONObject(i));
 			templates.add(template);
 		}
 		return templates;
@@ -515,35 +505,48 @@ public class MailChimpConnection extends Connection{
 	}
 
 	/**
-	 * Add a template to your MailChimp account
-	 * @param name
-	 * @param html
+	 * Add a template to your MailChimp account. Only Classic templates are
+	 * supported. The Mailchimp Template Language is supported in any HTML code.
+	 * 
+	 * @param name The name of the template
+	 * @param html The raw HTML for the template
 	 * @throws Exception
 	 */
-	public Template addTemplate(String name, String html) throws Exception{
-		JSONObject templateJSON = new JSONObject();
-		templateJSON.put("name", name);
-		templateJSON.put("html", html);
-		JSONObject jsonTemplate = new JSONObject(do_Post(new URL(templateendpoint +"/"), templateJSON.toString(),getApikey()));
-		return new Template(this, jsonTemplate);
+	public Template createTemplate(String name, String html) throws Exception {
+		return createTemplate(name, null, html);
 	}
 
 	/**
-	 * Add a template to a specific folder to your MailChimp Account
-	 * @param name
-	 * @param folder_id
-	 * @param html
+	 * Add a template to a specific folder to your MailChimp Account. Only Classic
+	 * templates are supported. The Mailchimp Template Language is supported in any
+	 * HTML code.
+	 * 
+	 * @param name      The name of the template
+	 * @param folder_id The id of the folder the template is currently in
+	 * @param html      The raw HTML for the template
 	 * @throws Exception
 	 */
-	public Template addTemplate(String name, String folder_id, String html) throws Exception{
-		JSONObject templateJSON = new JSONObject();
-		templateJSON.put("name", name);
-		templateJSON.put("folder_id", folder_id);
-		templateJSON.put("html", html);
-		JSONObject jsonTemplate = new JSONObject(do_Post(new URL(templateendpoint +"/"), templateJSON.toString(),getApikey()));
-		return new Template(this, jsonTemplate);
+	public Template createTemplate(String name, String folder_id, String html) throws Exception {
+		return createTemplate(new Template.Builder()
+				.withName(name)
+				.inFolder(folder_id)
+				.withHTML(html)
+				.build());
 	}
 
+	/**
+	 * Create a new template. Only Classic templates are supported.
+	 * @param template
+	 * @return
+	 * @throws Exception
+	 */
+	public Template createTemplate(Template template) throws Exception {
+		JSONObject jsonObj = template.getJsonRepresentation();
+		String results = do_Post(new URL(templateendpoint +"/"), jsonObj.toString(),getApikey());
+		template.parse(this, new JSONObject(results));
+		return template;
+	}
+	
 	/**
 	 * Delete a specific template
 	 * @param id
@@ -802,14 +805,14 @@ public class MailChimpConnection extends Connection{
 	 * @throws Exception 
 	 */
 	public Account getAccount() throws Exception {
-		setAccount();
+		cacheAccountInfo();
 		return account;
 	}
 
 	/**
-	 * Set the account of this com.github.alexanderwe.bananaj.connection.
+	 * Read the account information for this Connection
 	 */
-	private void setAccount() throws Exception {
+	private void cacheAccountInfo() throws Exception {
 		if (account == null) {
 			synchronized(this) {
 				if (account == null) {

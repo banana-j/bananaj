@@ -2,6 +2,8 @@ package com.github.alexanderwe.bananaj.model;
 
 import org.json.JSONObject;
 
+import com.github.alexanderwe.bananaj.model.report.Ecommerce;
+
 public class ReportSummary {
 
 	private int opens;
@@ -88,61 +90,14 @@ public class ReportSummary {
 	@Override
 	public String toString() {
 		return 
-				"Opens: " + opens + System.lineSeparator() +
-				"Unique Opens: " + uniqueOpens + System.lineSeparator() +
-				"Open Rate: " + openRate + System.lineSeparator() +
-				"Clicks: " + clicks + System.lineSeparator() +
-				"Subscriber Clicks: " + subscriberClicks + System.lineSeparator() +
-				"click Rate: " + clickRate + 
+				"ReportSummary:" + System.lineSeparator() +
+				"    Opens: " + opens + System.lineSeparator() +
+				"    Unique Opens: " + uniqueOpens + System.lineSeparator() +
+				"    Open Rate: " + openRate + System.lineSeparator() +
+				"    Clicks: " + clicks + System.lineSeparator() +
+				"    Subscriber Clicks: " + subscriberClicks + System.lineSeparator() +
+				"    click Rate: " + clickRate + 
 				(ecommerce != null ? System.lineSeparator() + ecommerce.toString() : "");
 	}
 
-	public class Ecommerce {
-		private int totalOrders;
-		private double totalSpent;
-		private double totalRevenue;
-
-		public Ecommerce() {
-			
-		}
-		
-		public Ecommerce(JSONObject jsonObj) {
-			this.totalOrders = jsonObj.getInt("total_orders");
-			this.totalSpent = jsonObj.getDouble("total_spent");
-			this.totalRevenue = jsonObj.getDouble("total_revenue");
-		}
-
-		/**
-		 * The total orders for a campaign
-		 * @return
-		 */
-		public int getTotalOrders() {
-			return totalOrders;
-		}
-
-		/**
-		 * The total spent for a campaign. Calculated as the sum of all order totals with no deductions.
-		 * @return
-		 */
-		public double getTotalSpent() {
-			return totalSpent;
-		}
-
-		/**
-		 * The total revenue for a campaign. Calculated as the sum of all order totals minus shipping and tax totals.
-		 * @return
-		 */
-		public double getTotalRevenue() {
-			return totalRevenue;
-		}
-
-		@Override
-		public String toString() {
-			return 
-					"Total Orders: " + totalOrders + System.lineSeparator() +
-					"Total Spent: " + totalSpent + System.lineSeparator() +
-					"Total Revenue: " + totalRevenue;
-		}
-
-	}
 }

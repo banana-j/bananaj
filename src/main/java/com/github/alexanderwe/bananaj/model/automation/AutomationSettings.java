@@ -146,4 +146,22 @@ public class AutomationSettings {
 
 		return jsonObj;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return 
+				"Settings:" + System.lineSeparator() +
+				"    Title: " + getTitle() + System.lineSeparator() +
+				"    From Name: " + getFromName() + System.lineSeparator() +
+				"    Reply To: " + getReplyTo() + System.lineSeparator() +
+				"    Use Conversation: " + isUseConversation() + System.lineSeparator() +
+				"    To Name: " + getToName() + System.lineSeparator() +
+				"    Authenticate: " + isAuthenticate() + System.lineSeparator() +
+				"    Auto Footer: " + isAutoFooter() + System.lineSeparator() +
+				"    Inline CSS: " + isInlineCss();
+	}
+	
 }

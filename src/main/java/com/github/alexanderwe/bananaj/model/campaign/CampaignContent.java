@@ -4,9 +4,9 @@
  */
 package com.github.alexanderwe.bananaj.model.campaign;
 
-import org.json.JSONObject;
-
 import java.net.URL;
+
+import org.json.JSONObject;
 
 public class CampaignContent {
 

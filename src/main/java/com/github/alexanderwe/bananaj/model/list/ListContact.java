@@ -92,4 +92,18 @@ public class ListContact {
 		return phone;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return 
+				"Contact:" + System.lineSeparator() +
+				"    Company: " + getCompany() + System.lineSeparator() +
+				"    Phone: " + getPhone() + System.lineSeparator() +
+				"    Address: " + getAddress1() + System.lineSeparator() +
+				(getAddress2() != null && getAddress2().length()>0 ? "             "+getAddress2() + System.lineSeparator() : "") +
+				"             " + getCity() + " " + getState() + " " + getZip() + " " + getCountry();
+	}
+
 }

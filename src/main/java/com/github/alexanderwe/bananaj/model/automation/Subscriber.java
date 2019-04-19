@@ -44,4 +44,15 @@ public class Subscriber extends MailchimpObject {
 		return emailAddress;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return 
+				"    Subscriber Id: " + getId() + System.lineSeparator() +
+				"    Workflow Id: " + getWorkflowId() + System.lineSeparator() +
+				"    List Id: " + getListId() + System.lineSeparator() +
+				"    Email Address: " + getEmailAddress();
+	}
 }

@@ -50,4 +50,17 @@ public class AutomationSubscriber extends Subscriber {
 		return nextSend;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return 
+				"Subscriber:" + System.lineSeparator() +
+				"    Email Id: " + getEmailId() + System.lineSeparator() +
+				"    Is List Active: " + isListIsActive() + System.lineSeparator() +
+				"    Next Send: " + getNextSend() + System.lineSeparator() +
+				super.toString();
+	}
+
 }

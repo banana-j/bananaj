@@ -148,4 +148,26 @@ public class AutomationEmailSettings {
 
 		return json;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return 
+				"Settings:" + System.lineSeparator() +
+				"    Title: " + getTitle() + System.lineSeparator() +
+				"    Subject: " + getSubjectLine() + System.lineSeparator() +
+				"    From: " + getFromName() + System.lineSeparator() +
+				"    Reply To: " + getReplyTo() + System.lineSeparator() +
+				"    Preview: " + getPreviewText() + System.lineSeparator() +
+				"    Authenticate: " + isAuthenticate() + System.lineSeparator() +
+				"    Auto Footer: " + isAutoFooter() + System.lineSeparator() +
+				"    Inline CSS: " + isInlineCss() + System.lineSeparator() +
+				"    Auto Tweet: " + isAutoTweet() + System.lineSeparator() +
+				"    Facebook Comments: " + isFbComments() + System.lineSeparator() +
+				"    Template Id: " + templateId + System.lineSeparator() +
+				"    Drag-And-Drop: " + isDragAndDrop();
+	}
+
 }

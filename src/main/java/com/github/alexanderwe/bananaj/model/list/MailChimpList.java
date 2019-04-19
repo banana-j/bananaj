@@ -27,19 +27,8 @@ import com.github.alexanderwe.bananaj.model.list.member.Member;
 import com.github.alexanderwe.bananaj.model.list.member.MemberStatus;
 import com.github.alexanderwe.bananaj.model.list.mergefield.MergeField;
 import com.github.alexanderwe.bananaj.model.list.mergefield.MergeFieldOptions;
-import com.github.alexanderwe.bananaj.model.list.segment.AbstractCondition;
-import com.github.alexanderwe.bananaj.model.list.segment.ConditionType;
-import com.github.alexanderwe.bananaj.model.list.segment.DoubleCondition;
-import com.github.alexanderwe.bananaj.model.list.segment.IPGeoInCondition;
-import com.github.alexanderwe.bananaj.model.list.segment.IntegerCondition;
-import com.github.alexanderwe.bananaj.model.list.segment.MatchType;
-import com.github.alexanderwe.bananaj.model.list.segment.OpCondition;
-import com.github.alexanderwe.bananaj.model.list.segment.Operator;
 import com.github.alexanderwe.bananaj.model.list.segment.Options;
 import com.github.alexanderwe.bananaj.model.list.segment.Segment;
-import com.github.alexanderwe.bananaj.model.list.segment.SegmentType;
-import com.github.alexanderwe.bananaj.model.list.segment.StringArrayCondition;
-import com.github.alexanderwe.bananaj.model.list.segment.StringCondition;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
 import com.github.alexanderwe.bananaj.utils.EmailValidator;
 import com.github.alexanderwe.bananaj.utils.FileInspector;
@@ -411,9 +400,9 @@ public class MailChimpList extends MailchimpObject {
 
 		final JSONArray segmentsArray = jsonSegments.getJSONArray("segments");
 
-		for (int i = 0; i<segmentsArray.length(); i++){
+		for (int i = 0; i<segmentsArray.length(); i++) {
 			final JSONObject segmentDetail = segmentsArray.getJSONObject(i);
-			Segment segment = getSegment(segmentDetail);
+			Segment segment = new Segment(getConnection(), segmentDetail);
 			segments.add(segment);
 		}
 
@@ -428,157 +417,7 @@ public class MailChimpList extends MailchimpObject {
 	 */
 	public Segment getSegment(String segmentID) throws Exception {
 		JSONObject jsonSegment = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+this.getId()+"/segments/"+segmentID) ,connection.getApikey()));
-		return getSegment(jsonSegment);
-	}
-
-	private Segment getSegment(JSONObject jsonSegment) {
-		Options options = null;
-		SegmentType segmenttype = SegmentType.fromValue(jsonSegment.getString("type"));
-
-		if (segmenttype == SegmentType.SAVED) {  // STATIC and FUZZY segments don't have conditions
-			//Extract options and conditions
-			ArrayList<AbstractCondition> conditions = null;
-			conditions = new ArrayList<>();
-			MatchType matchType = MatchType.fromValue(jsonSegment.getJSONObject("options").getString("match"));
-
-			JSONArray jsonConditions = jsonSegment.getJSONObject("options").getJSONArray("conditions");
-			for (int i = 0; i<jsonConditions.length();i++){
-				JSONObject jsonCondition = jsonConditions.getJSONObject(i);
-
-				ConditionType conditiontype = ConditionType.fromValue(jsonCondition.getString("condition_type"));
-				switch(conditiontype) {
-			    case AIM:
-			    case AUTOMATION:
-			    case CONVERSATION:
-			    case EMAIL_CLIENT:
-			    case LANGUAGE:
-			    case SIGNUP_SOURCE:
-			    case SURVEY_MONKEY:
-			    case ECOMM_CATEGORY:
-			    case ECOMM_STORE:
-			    case GOAL_ACTIVITY:
-			    case IP_GEO_COUNTRY_STATE:
-			    case SOCIAL_AGE:
-			    case SOCIAL_GENDER:
-			    case SOCIAL_NETWORK_MEMBER:
-			    case SOCIAL_NETWORK_FOLLOW:
-			    case ADDRESS_MERGE:
-			    case BIRTHDAY_MERGE:
-			    case DATE_MERGE:
-			    case TEXT_MERGE:
-			    case SELECT_MERGE:
-			    case EMAIL_ADDRESS:
-					conditions.add( new StringCondition.Builder()
-							.conditionType(conditiontype)
-							.field(jsonCondition.getString("field"))
-							.operator(Operator.fromValue(jsonCondition.getString("op")))
-							.value(jsonCondition.getString("value"))
-							.build());
-					break;
-					
-			    case ECOMM_SPENT:
-			    case IP_GEO_ZIP:
-					conditions.add( new IntegerCondition.Builder()
-							.conditionType(conditiontype)
-							.field(jsonCondition.getString("field"))
-							.operator(Operator.fromValue(jsonCondition.getString("op")))
-							.value(jsonCondition.getInt("value"))
-							.build());
-					break;
-					
-			    case CAMPAIGN_POLL:
-			    case MEMBER_RATING:
-			    case ECOMM_NUMBER:
-			    case FUZZY_SEGMENT:
-			    case STATIC_SEGMENT:
-			    case SOCIAL_INFLUENCE:
-					conditions.add( new DoubleCondition.Builder()
-							.conditionType(conditiontype)
-							.field(jsonCondition.getString("field"))
-							.operator(Operator.fromValue(jsonCondition.getString("op")))
-							.value(jsonCondition.getDouble("value"))
-							.build());
-					break;
-					
-			    case DATE:
-			    case GOAL_TIMESTAMP:
-			    case ZIP_MERGE:
-					conditions.add( new StringCondition.Builder()
-							.conditionType(conditiontype)
-							.field(jsonCondition.getString("field"))
-							.operator(Operator.fromValue(jsonCondition.getString("op")))
-							.extra(jsonCondition.getString("extra"))
-							.value(jsonCondition.getString("value"))
-							.build());
-					break;
-					
-			    	
-			    case MANDRILL:
-			    case VIP:
-			    case ECOMM_PURCHASED:
-			    case IP_GEO_UNKNOWN:
-					conditions.add( new OpCondition.Builder()
-							.conditionType(conditiontype)
-							.field(jsonCondition.getString("field"))
-							.operator(Operator.fromValue(jsonCondition.getString("op")))
-							.build());
-					break;
-					
-			    	
-			    case INTERESTS:
-					List<String> values = null;
-			    	if (jsonCondition.has("value")) {
-						JSONArray jsonArray = jsonCondition.getJSONArray("value");
-						values = new ArrayList<String>(jsonArray.length());
-						for (int j=0; j<jsonArray.length(); j++) {
-							values.add( jsonArray.getString(j) );
-						}
-			    	}
-					conditions.add( new StringArrayCondition.Builder()
-							.conditionType(conditiontype)
-							.field(jsonCondition.getString("field"))
-							.operator(Operator.fromValue(jsonCondition.getString("op")))
-							.value(values)
-							.build());
-					break;
-					
-			    case IP_GEO_IN_ZIP:
-					conditions.add( new IntegerCondition.Builder()
-							.conditionType(conditiontype)
-							.field(jsonCondition.getString("field"))
-							.operator(Operator.fromValue(jsonCondition.getString("op")))
-							.extra(jsonCondition.getInt("extra"))
-							.value(jsonCondition.getInt("value"))
-							.build());
-					break;
-					
-			    case IP_GEO_IN:
-					conditions.add( new IPGeoInCondition.Builder()
-							.conditionType(conditiontype)
-							.field(jsonCondition.getString("field"))
-							.operator(Operator.fromValue(jsonCondition.getString("op")))
-							.lng(jsonCondition.getString("lng"))
-							.lat(jsonCondition.getString("lat"))
-							.value(jsonCondition.getInt("value"))
-							.addr(jsonCondition.getString("addr"))
-							.build());
-					break;
-				}
-			}
-			options = new Options(matchType,conditions);
-		}
-
-		return new Segment(
-				jsonSegment.getInt("id"),
-				jsonSegment.getString("name"),
-				jsonSegment.getString("list_id"),
-				SegmentType.valueOf(jsonSegment.getString("type").toUpperCase()),
-				DateConverter.getInstance().createDateFromISO8601(jsonSegment.getString("created_at")),
-				DateConverter.getInstance().createDateFromISO8601(jsonSegment.getString("updated_at")),
-				jsonSegment.getInt("member_count"),
-				options,
-				this.getConnection(),
-				jsonSegment);
+		return new Segment(getConnection(), jsonSegment);
 	}
 
 	/**
@@ -1015,8 +854,28 @@ public class MailChimpList extends MailchimpObject {
 
 	@Override
 	public String toString(){
-		return this.getId() + " " + this.name + " " + this.stats.getTotalMemberCount() + System.lineSeparator() +
-				"Date created: " + this.getDateCreated() + System.lineSeparator();
+		return 
+				"Audience:" + System.lineSeparator() +
+				"    Id: " + getId() + System.lineSeparator() +
+				"    Web Id: " + getWebId() + System.lineSeparator() +
+				"    Name: " + getName() + System.lineSeparator() +
+				"    Permission Reminder: " + isMarketingPermissions() + System.lineSeparator() +
+				"    Use Archive Bar: " + isUseArchiveBar() + System.lineSeparator() +
+				"    Notify On Subscribe: " + getNotifyOnSubscribe() + System.lineSeparator() +
+				"    Notify On Unsubscribe: " + getNotifyOnUnsubscribe() + System.lineSeparator() +
+				"    Created: " + getDateCreated() + System.lineSeparator() +
+				"    List Rating: " + getListRating() + System.lineSeparator() +
+				"    Email Type Option: " + isEmailTypeOption() + System.lineSeparator() +
+				"    Subscribe URL Short: " + getSubscribeUrlShort() + System.lineSeparator() +
+				"    Subscribe URL Long: " + getSubscribeUrlLong() + System.lineSeparator() +
+				"    Beamer Address: " + getBeamerAddress() + System.lineSeparator() +
+				"    Visibility: " + getVisibility().getStringRepresentation() + System.lineSeparator() +
+				"    Double Option: " + isDoubleOptin() + System.lineSeparator() +
+				"    Has Welcome: " + isHasWelcome() + System.lineSeparator() +
+				"    Marketing Permissions: " + isMarketingPermissions() + System.lineSeparator() +
+				getContact().toString() + System.lineSeparator() +
+				getCampaignDefaults().toString() + System.lineSeparator() +
+				getStats().toString();
 	}
 
 }

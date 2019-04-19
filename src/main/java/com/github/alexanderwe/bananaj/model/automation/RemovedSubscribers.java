@@ -52,5 +52,17 @@ public class RemovedSubscribers extends Subscriber {
 	public int getTotalItems() {
 		return totalItems;
 	}
+
+	/* (non-Javadoc)
+	 * @see com.github.alexanderwe.bananaj.model.automation.Subscriber#toString()
+	 */
+	@Override
+	public String toString() {
+		return 
+				"Removed Subscribers:" + System.lineSeparator() +
+				"    Workflow Id: " + getWorkflowId() + System.lineSeparator() +
+				"    Total Items: " + getTotalItems() + System.lineSeparator() +
+				super.toString();
+	}
 	
 }

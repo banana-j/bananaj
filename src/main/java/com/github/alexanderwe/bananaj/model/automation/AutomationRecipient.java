@@ -98,4 +98,18 @@ public class AutomationRecipient {
 
 		return json;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return 
+				"Recipients:" + System.lineSeparator() +
+				"    List Id: " + getListId() + System.lineSeparator() +
+				"    List Name: " + getListName() + System.lineSeparator() +
+				"    List is Active: " + isListIsActive() + System.lineSeparator() +
+				"    Store Id: " + getStoreId();
+	}
+	
 }

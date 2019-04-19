@@ -111,9 +111,13 @@ public class CampaignRecipients {
     @Override
     public String toString() {
         return 
-        		"List ID: " + getListId() + System.lineSeparator() +
-        		"Name: " + getListName() + System.lineSeparator() +
-                "Segment opts: " + getSegmentOpts().toString();
+				"Recipients:" + System.lineSeparator() +
+        		"    List ID: " + getListId() + System.lineSeparator() +
+        		"    List Name: " + getListName() + System.lineSeparator() +
+        		"    Active: " + isListIsActive() + System.lineSeparator() +
+        		"    Segment Text: " + getSegmentText() + System.lineSeparator() +
+        		"    Recipient Count: " + getRecipientCount() + 
+                (getSegmentOpts() != null ? System.lineSeparator() + getSegmentOpts().toString() : "");
     }
 
     public static class Builder {

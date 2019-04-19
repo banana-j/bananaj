@@ -6,23 +6,23 @@ import java.time.LocalDateTime;
 import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
-import com.github.alexanderwe.bananaj.model.Tracking;
 import com.github.alexanderwe.bananaj.model.ReportSummary;
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
+import com.github.alexanderwe.bananaj.model.Tracking;
 import com.github.alexanderwe.bananaj.model.automation.AutomationDelay;
 import com.github.alexanderwe.bananaj.model.automation.AutomationStatus;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignRecipients;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
 
-public class AutomationEmail extends MailchimpObject {
+public class AutomationEmail {
 
+	private String id;
 	private int webId;
 	private String workflowId;
 	private int position;
 	private AutomationDelay delay;
 	private LocalDateTime createTime;
 	private LocalDateTime startTime;
-	private String archive_url;
+	private String archiveUrl;
 	private AutomationStatus status;
 	private int emailsSent;
 	private LocalDateTime sendTime;
@@ -39,7 +39,6 @@ public class AutomationEmail extends MailchimpObject {
 	
 	
 	public AutomationEmail(MailChimpConnection connection, JSONObject jsonObj) {
-		super(jsonObj.getString("id"), jsonObj);
 		parse(connection, jsonObj);
 	}
 
@@ -48,13 +47,14 @@ public class AutomationEmail extends MailchimpObject {
 	}
 
 	private void parse(MailChimpConnection connection, JSONObject jsonObj) {
+        id = jsonObj.getString("id");
 		webId = jsonObj.getInt("web_id");
 		workflowId = jsonObj.getString("workflow_id");
 		position = jsonObj.getInt("position");
 		delay = new AutomationDelay(jsonObj.getJSONObject("delay"));
         createTime = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("create_time"));
         startTime = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("start_time"));
-        archive_url = jsonObj.getString("archive_url");
+        archiveUrl = jsonObj.getString("archive_url");
 		status = AutomationStatus.valueOf(jsonObj.getString("status").toUpperCase());
 		emailsSent = jsonObj.getInt("emails_sent");
         sendTime = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("send_time"));
@@ -64,9 +64,7 @@ public class AutomationEmail extends MailchimpObject {
         recipients = new CampaignRecipients(jsonObj.getJSONObject("recipients"));
         settings = new AutomationEmailSettings(jsonObj.getJSONObject("settings"));
         tracking = new Tracking(jsonObj.getJSONObject("tracking"));
-        if (jsonObj.has("report_summary")) {
-        	reportSummary = new ReportSummary(jsonObj.getJSONObject("report_summary"));
-        }
+        reportSummary = jsonObj.has("report_summary") ? new ReportSummary(jsonObj.getJSONObject("report_summary")) : null;
         this.connection = connection;
 	}
 
@@ -110,6 +108,13 @@ public class AutomationEmail extends MailchimpObject {
 		connection.do_Delete(new URL(connection.getAutomationendpoint() + "/" + workflowId + "/emails/" + getId()), connection.getApikey());
 	}
 	
+    /**
+	 * @return A string that uniquely identifies the Automation email.
+	 */
+	public String getId() {
+		return id;
+	}
+
 	/**
 	 * The ID used in the Mailchimp web application. View this automation in your
 	 * Mailchimp account at
@@ -165,8 +170,8 @@ public class AutomationEmail extends MailchimpObject {
 	 * The link to the campaign’s archive version in ISO 8601 format
 	 * @return
 	 */
-	public String getArchive_url() {
-		return archive_url;
+	public String getArchiveUrl() {
+		return archiveUrl;
 	}
 
 	/**
@@ -268,4 +273,31 @@ public class AutomationEmail extends MailchimpObject {
 		
 		return json;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return
+				"Automation Email:" + System.lineSeparator() +
+				"    Id: " + getId() + System.lineSeparator() +
+				"    Web Id: " + getWebId() + System.lineSeparator() +
+				"    Position: " + getPosition() + System.lineSeparator() +
+				"    Created: " + getCreateTime() + System.lineSeparator() +
+				"    Started: " + getStartTime() + System.lineSeparator() +
+				"    Archive URL: " + getArchiveUrl() + System.lineSeparator() +
+				"    Status: " + getStatus().getStringRepresentation() + System.lineSeparator() +
+				"    Emails Sent: " + getEmailsSent() + System.lineSeparator() +
+				"    Send Time: " + getSendTime() + System.lineSeparator() +
+				"    Content Type: " + getContentType() + System.lineSeparator() +
+				"    Needs Block Refresh: " + isNeedsBlockRefresh() + System.lineSeparator() +
+				"    Has Logo Merge Tag: " + isHasLogoMergeTag() + System.lineSeparator() +
+				getDelay().toString() + System.lineSeparator() +
+				getRecipients().toString() + System.lineSeparator() +
+				getSettings().toString() + System.lineSeparator() +
+				getTracking().toString() + 
+				(reportSummary != null ? System.lineSeparator() + reportSummary.toString() : "");
+	}
+	
 }

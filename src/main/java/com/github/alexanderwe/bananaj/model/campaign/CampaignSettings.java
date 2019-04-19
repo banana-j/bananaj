@@ -365,24 +365,25 @@ public class CampaignSettings {
 	@Override
 	public String toString() {
 		return
-				"Title: " + title + System.lineSeparator() +
-				"SubjectLine: " + subjectLine + System.lineSeparator() +
-				//"preview_text: " + preview_text + System.lineSeparator() +
-				"To Name: " + toName + System.lineSeparator() +
-				"From Name: " + fromName + System.lineSeparator() +
-				"Reply To: " + replyTo + System.lineSeparator() +
-				"Template Id: " + templateId + System.lineSeparator() +
-				"Auto Footer: " + autoFooter + System.lineSeparator() +
-				"Use Conversation: " + useConversation + System.lineSeparator() +
-				"Authenticate: " + authenticate + System.lineSeparator() +
-				"Timewarp: " + timewarp + System.lineSeparator() +
-				"Auto Tweet: " + autoTweet + System.lineSeparator() +
-				"FacebooknComments: " + fbComments + System.lineSeparator() +
-				"Drag and Drop: " + dragAndDrop + System.lineSeparator() +
-				"Inline Css: " + inlineCss + System.lineSeparator() +
-				//"auto_tweet: " + auto_tweet + System.lineSeparator() +
-				//"auto_fb_post: " + auto_fb_post + System.lineSeparator() +
-				"Folder Id: " + folderId;
+				"Settings:" + System.lineSeparator() +
+				"    Title: " + title + System.lineSeparator() +
+				"    SubjectLine: " + subjectLine + System.lineSeparator() +
+				//"    preview_text: " + preview_text + System.lineSeparator() +
+				"    To Name: " + toName + System.lineSeparator() +
+				"    From Name: " + fromName + System.lineSeparator() +
+				"    Reply To: " + replyTo + System.lineSeparator() +
+				"    Template Id: " + templateId + System.lineSeparator() +
+				"    Auto Footer: " + autoFooter + System.lineSeparator() +
+				"    Use Conversation: " + useConversation + System.lineSeparator() +
+				"    Authenticate: " + authenticate + System.lineSeparator() +
+				"    Timewarp: " + timewarp + System.lineSeparator() +
+				"    Auto Tweet: " + autoTweet + System.lineSeparator() +
+				"    FacebooknComments: " + fbComments + System.lineSeparator() +
+				"    Drag and Drop: " + dragAndDrop + System.lineSeparator() +
+				"    Inline Css: " + inlineCss + System.lineSeparator() +
+				//"    auto_tweet: " + auto_tweet + System.lineSeparator() +
+				//"    auto_fb_post: " + auto_fb_post + System.lineSeparator() +
+				"    Folder Id: " + folderId;
 	}
 
 	private JSONObject put(JSONObject settings, String key, String value) {

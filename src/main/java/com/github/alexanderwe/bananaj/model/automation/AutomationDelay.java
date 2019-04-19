@@ -26,20 +26,12 @@ public class AutomationDelay {
 	}
 
 	public AutomationDelay(JSONObject jsonObj) {
-		if (jsonObj.has("amount")) {
-			amount = jsonObj.getInt("amount");
-		}
-		this.type = DelayType.valueOf(jsonObj.getString("type").toUpperCase());
-		if (jsonObj.has("direction")) {
-			direction = DelayDirection.valueOf(jsonObj.getString("direction").toUpperCase());
-		}
-		this.action = DelayAction.valueOf(jsonObj.getString("action").toUpperCase());
-		if (jsonObj.has("action_description")) {
-			actionDescription = jsonObj.getString("action_description");
-		}
-		if (jsonObj.has("full_description")) {
-			fullDescription = jsonObj.getString("full_description");
-		}
+		amount = jsonObj.has("amount") ? jsonObj.getInt("amount") : null;
+		type = DelayType.valueOf(jsonObj.getString("type").toUpperCase());
+		direction = jsonObj.has("direction") ? DelayDirection.valueOf(jsonObj.getString("direction").toUpperCase()) : null;
+		action = DelayAction.valueOf(jsonObj.getString("action").toUpperCase());
+		actionDescription = jsonObj.has("action_description") ? jsonObj.getString("action_description") : null;
+		fullDescription = jsonObj.has("full_description") ? fullDescription = jsonObj.getString("full_description") : null;
 	}
 	
 	/**
@@ -136,4 +128,21 @@ public class AutomationDelay {
 
 		return json;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return
+		"Delay:" + System.lineSeparator() +
+		"    amount: " + getAmount() + System.lineSeparator() +
+		"    Type: " + getType().getStringRepresentation() + System.lineSeparator() +
+		"    Direction: " + getDirection().getStringRepresentation() + System.lineSeparator() +
+		"    Action: " + getAction().getStringRepresentation() + System.lineSeparator() +
+		"    Action Description: " + getActionDescription() + System.lineSeparator() +
+		"    Full Description: " + getFullDescription(); 
+	}
+	
+	
 }

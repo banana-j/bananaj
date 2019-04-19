@@ -5,26 +5,25 @@ import java.net.URL;
 import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
 
 /**
  * Created by alexanderweiss on 10.08.2016.
  */
-public class CampaignFolder extends MailchimpObject{
+public class CampaignFolder {
 
-
+	private String id;
     private String name;
     private int count;
     private MailChimpConnection connection;
 
     public CampaignFolder(MailChimpConnection connection, JSONObject jsonCampaignFolder) {
-        super(jsonCampaignFolder.getString("id"), null);
         parse(connection, jsonCampaignFolder);
     }
     
-    public void parse(MailChimpConnection connection, JSONObject jsonCampaignFolder) {
-        this.name = jsonCampaignFolder.getString("name");
-        this.count = jsonCampaignFolder.getInt("count");
+    private void parse(MailChimpConnection connection, JSONObject jsonObj) {
+        id = jsonObj.getString("id");
+        this.name = jsonObj.getString("name");
+        this.count = jsonObj.getInt("count");
         this.connection = connection;
     }
     
@@ -47,6 +46,13 @@ public class CampaignFolder extends MailchimpObject{
     	connection.do_Delete(new URL(connection.getCampaignfolderendpoint() +"/"+getId()), connection.getApikey());
     }
     
+    /**
+	 * @return A string that uniquely identifies this campaign folder.
+	 */
+	public String getId() {
+		return id;
+	}
+
     /**
      * The name of the folder
      * @return
@@ -82,7 +88,7 @@ public class CampaignFolder extends MailchimpObject{
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 * @return
 	 */
-	public JSONObject getJsonRepresentation() throws Exception {
+	private JSONObject getJsonRepresentation() throws Exception {
 		JSONObject json = new JSONObject();
 		json.put("name", getName());
 		return json;

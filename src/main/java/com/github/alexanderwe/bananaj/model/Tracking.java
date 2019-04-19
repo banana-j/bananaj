@@ -156,13 +156,14 @@ public class Tracking {
 	@Override
 	public String toString() {
 		return
-				"Opens: " + opens + System.lineSeparator() +
-				"Html Clicks: " + htmlClicks + System.lineSeparator() +
-				"Text Clicks: " + textClicks + System.lineSeparator() +
-				"Goal Tracking: " + goalTracking + System.lineSeparator() +
-				"eCommerce360: " + ecomm360 + System.lineSeparator() +
-				"GoogleAnalytics: " + googleAnalytics + System.lineSeparator() +
-				"ClickTale: " + clicktale;
+				"Tracking:" + System.lineSeparator() +
+				"    Opens: " + opens + System.lineSeparator() +
+				"    Html Clicks: " + htmlClicks + System.lineSeparator() +
+				"    Text Clicks: " + textClicks + System.lineSeparator() +
+				"    Goal Tracking: " + goalTracking + System.lineSeparator() +
+				"    eCommerce360: " + ecomm360 + System.lineSeparator() +
+				"    GoogleAnalytics: " + googleAnalytics + System.lineSeparator() +
+				"    ClickTale: " + clicktale;
 	}
 
 	private JSONObject put(JSONObject settings, String key, String value) {

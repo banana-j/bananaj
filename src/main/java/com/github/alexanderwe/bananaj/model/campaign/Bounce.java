@@ -7,7 +7,18 @@ package com.github.alexanderwe.bananaj.model.campaign;
 import org.json.JSONObject;
 
 /**
- * Class representing a bounce for a campaign
+ * Class representing bounce counts for a campaign
+ * 
+ * Bounces occur when an email can't be delivered to an email address. When an
+ * email bounces, it is classified as either a soft or a hard bounce.
+ * 
+ * Mailchimp recognizes two types of bounces, and we handle them differently.
+ * Hard bounces happen when an email can't be delivered. This can be caused by
+ * an invalid email address or an unexpected error during sending.
+ * 
+ * Soft bounces are recognized by the email server, but are returned to the
+ * sender because the mailbox is either full or temporarily unavailable.
+ * 
  * @author alexanderweiss
  *
  */
@@ -24,21 +35,21 @@ public class Bounce {
 	}
 
 	/**
-	 * @return the hard_bounces
+	 * @return The total number of hard bounced email addresses.
 	 */
 	public int getHardBounces() {
 		return hardBounces;
 	}
 
 	/**
-	 * @return the soft_bounces
+	 * @return The total number of soft bounced email addresses.
 	 */
 	public int getSoftBounces() {
 		return softBounces;
 	}
 
 	/**
-	 * @return the syntax_error_bounces
+	 * @return The total number of addresses that were syntax-related bounces.
 	 */
 	public int getSyntaxErrors() {
 		return syntaxErrors;
@@ -50,9 +61,10 @@ public class Bounce {
 	@Override
 	public String toString() {
 		return
-				"Hard Bounces: " + hardBounces + System.lineSeparator() +
-				"Soft Bounces: " + softBounces + System.lineSeparator() +
-				"Syntax Errors: " + syntaxErrors;
+				"Bounces: " + System.lineSeparator() +
+				"    Soft bounces: " + getSoftBounces() + System.lineSeparator() +
+				"    Hard bounces: " +  getHardBounces() + System.lineSeparator() +
+				"    Syntax error bounces: " + getSyntaxErrors();
 	}
 
 }

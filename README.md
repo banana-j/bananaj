@@ -70,11 +70,37 @@ MailChimpList yourList = con.getList("ListID");
 Member memberOfList = yourList.getMember("MemberID");
 ```
 
+## Add/Update list subscriber
+```
+Map<String, String> mergeFields = new HashMap<String, String>();
+mergeFields.put("FNAME", "First");
+mergeFields.put("LNAME", "Last");
+String ipAddress = "127.0.0.1";
+LocalDateTime timeStamp = LocalDateTime.now();
+Map<String, Boolean> interests  = new HashMap<String, Boolean>();
+interests.put("12345", true);
+
+Member member = new Member.Builder()
+		.emailAddress("myEmail@my.domain.com")
+		.list(yourList)
+		.emailType(EmailType.HTML)
+		.status(MemberStatus.SUBSCRIBED)
+		.mergeFields(mergeFields)
+		.statusIfNew(MemberStatus.SUBSCRIBED)
+		.ipSignup(ipAddress)
+		.timestampSignup(timeStamp)
+		.ipOpt(ipAddress)
+		.timestampOpt(timeStamp)
+		.memberInterest(interests)
+		.build();
+yourList.addOrUpdateMember(member);
+```
+
 
 ## Create template
 To create an email template simply specify a template name and the upload the pure html code to MailChimp
 ```
-con.addTemplate("templateName", "htmlCode");
+con.createTemplate("templateName", "htmlCode");
 ```
 
 
@@ -84,11 +110,12 @@ To create an email template simply specify a template name and the upload the pu
 MailChimpList myList = con.getList("myListId");
 CampaignSettings settings = new CampaignSettings.Builder()
 		.title("myTitle")
-		.subject_line("mySubject")
-		.to_name("*|FNAME|*")
-		.from_name("myRobot")
-		.reply_to("myEmail@my.domain.com")
-		.template_id(12345)
+		.subjectLine("mySubject")
+		.toName("*|FNAME|*")
+		.fromName("myRobot")
+		.replyTo("myEmail@my.domain.com")
+		.templateId(12345)
+		.folderId("12345")
 		.build();
 Campaign campaign = con.createCampaign(CampaignType.REGULAR, myList, settings);
 ```
@@ -128,6 +155,7 @@ Every endpoint supports GET, POST, and DELETE requests. So it is possible to ful
 - **"https://"+server+".api.mailchimp.com/3.0/automations"**
 - **"https://"+server+".api.mailchimp.com/3.0/file-manager/folders"**
 - **"https://"+server+".api.mailchimp.com/3.0/file-manager/files"**
+- **"https://"+server+".api.mailchimp.com/3.0/file-manager/reports"**
 
 # To do 
 - Add missing edit function to the different endpoints 

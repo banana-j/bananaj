@@ -6,6 +6,10 @@ package com.github.alexanderwe.bananaj.model.report;
 
 import java.time.LocalDateTime;
 
+import org.json.JSONObject;
+
+import com.github.alexanderwe.bananaj.utils.DateConverter;
+
 /**
  * Class for representing clicks for a campaign
  * @author alexanderweiss
@@ -13,54 +17,67 @@ import java.time.LocalDateTime;
  */
 public class Click {
 	
-	private int clicks_total;
-	private int unique_clicks;
-	private int unique_subscriber_clicks;
-	private double click_rate;
-	private LocalDateTime last_click;
+	private int clicksTotal;
+	private int uniqueClicks;
+	private int uniqueSubscriberClicks;
+	private double clickRate;
+	private LocalDateTime lastClick;
 
-	public Click(int clicks_total, int unique_clicks, int unique_subscriber_clicks, double click_rate, LocalDateTime last_click) {
-		this.clicks_total = clicks_total;
-		this.unique_clicks = unique_clicks;
-		this.unique_subscriber_clicks = unique_subscriber_clicks;
-		this.click_rate = click_rate;
-		this.last_click = last_click;
+	public Click(JSONObject jsonObj) {
+		clicksTotal = jsonObj.getInt("clicks_total");
+		uniqueClicks = jsonObj.getInt("unique_clicks");
+		uniqueSubscriberClicks = jsonObj.getInt("unique_subscriber_clicks");
+		clickRate = jsonObj.getDouble("click_rate");
+		lastClick = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("last_click"));
 	}
 
 	/**
-	 * @return the clicks_total
+	 * @return The total number of clicks for the campaign.
 	 */
-	public int getClicks_total() {
-		return clicks_total;
+	public int getClicksTotal() {
+		return clicksTotal;
 	}
 
 	/**
-	 * @return the unique_clicks
+	 * @return The total number of unique clicks for links across a campaign.
 	 */
-	public int getUnique_clicks() {
-		return unique_clicks;
+	public int getUniqueClicks() {
+		return uniqueClicks;
 	}
 
 	/**
-	 * @return the unique_subscriber_clicks
+	 * @return The total number of subscribers who clicked on a campaign.
 	 */
-	public int getUnique_subscriber_clicks() {
-		return unique_subscriber_clicks;
+	public int getUniqueSubscriberClicks() {
+		return uniqueSubscriberClicks;
 	}
 
 	/**
-	 * @return the click_rate
+	 * @return The number of unique clicks divided by the total number of successful deliveries.
 	 */
-	public double getClick_rate() {
-		return click_rate;
+	public double getClickRate() {
+		return clickRate;
 	}
 
 	/**
-	 * @return the last_click
+	 * @return The date and time of the last recorded click for the campaign.
 	 */
-	public LocalDateTime getLast_click() {
-		return last_click;
+	public LocalDateTime getLastClick() {
+		return lastClick;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return
+				"Clicks: " + System.lineSeparator() +
+				"    Clicks total: " + getClicksTotal() + System.lineSeparator() +
+				"    Unique clicks: " + getUniqueClicks() + System.lineSeparator() +
+				"    Unique subscriber links: " + getUniqueSubscriberClicks() + System.lineSeparator() +
+				"    Click rate: " + getClickRate() + System.lineSeparator() +
+				"    Last click: " + getLastClick();
+	}
 
 }

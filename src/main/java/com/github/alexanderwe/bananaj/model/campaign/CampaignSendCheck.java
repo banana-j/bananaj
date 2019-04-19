@@ -2,8 +2,6 @@ package com.github.alexanderwe.bananaj.model.campaign;
 
 import org.json.JSONObject;
 
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
-
 /**
  * A feedback item to review before sending a campaign
  *
@@ -64,9 +62,9 @@ public class CampaignSendCheck {
 	public String toString() {
 		return 
 				"id: " + getId() + System.lineSeparator() +
+				"type: " + getType().getStringRepresentation() + System.lineSeparator() +
 				"heading: " + getHeading() + System.lineSeparator() +
 				"details: ";
 	}
-	
-	
+
 }

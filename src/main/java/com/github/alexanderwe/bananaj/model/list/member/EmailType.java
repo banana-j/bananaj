@@ -5,37 +5,25 @@ import java.util.Map;
 
 public enum EmailType {
 
-	HTML("html"),
-	TEXT("text");
+	HTML("html"), TEXT("text");
 
-    private final String value;
-    private final static Map<String, EmailType> CONSTANTS = new HashMap<String, EmailType>();
+	private String stringRepresentation;
+	
+	EmailType(String stringRepresentation ){
+		setStringRepresentation(stringRepresentation);
+	}
 
-    static {
-        for (EmailType c: values()) {
-            CONSTANTS.put(c.value, c);
-        }
-    }
+	/**
+	 * @return the stringRepresentation
+	 */
+	public String getStringRepresentation() {
+		return stringRepresentation;
+	}
 
-    private EmailType(String value) {
-        this.value = value;
-    }
-
-    @Override
-    public String toString() {
-        return this.value;
-    }
-    
-    public String value() {
-        return value;
-    }
-
-    public static EmailType fromValue(String value) {
-    	EmailType constant = CONSTANTS.get(value);
-        if (constant == null) {
-            throw new IllegalArgumentException(value);
-        } else {
-            return constant;
-        }
-    }
+	/**
+	 * @param stringRepresentation the stringRepresentation to set
+	 */
+	private void setStringRepresentation(String stringRepresentation) {
+		this.stringRepresentation = stringRepresentation;
+	}
 }

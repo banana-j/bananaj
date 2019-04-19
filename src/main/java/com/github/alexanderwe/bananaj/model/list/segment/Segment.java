@@ -3,55 +3,63 @@ package com.github.alexanderwe.bananaj.model.list.segment;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
 import com.github.alexanderwe.bananaj.exceptions.SegmentException;
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import com.github.alexanderwe.bananaj.model.list.member.Member;
-import com.github.alexanderwe.bananaj.model.list.member.MemberStats;
-import com.github.alexanderwe.bananaj.model.list.member.MemberStatus;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 /**
+ * Manage segments and tags for a Mailchimp list. A segment is a section of your
+ * audience that includes only those subscribers who share specific common field
+ * information.
+ * 
  * Created by alexanderweiss on 04.02.16.
  */
-public class Segment extends MailchimpObject {
+public class Segment {
 
+	private int id;
     private String name;
+    private int memberCount;
     private SegmentType type;
-    private String list_id;
-    private LocalDateTime created_at;
-    private LocalDateTime updated_at;
-    private int member_count;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private Options options;
+    private String listId;
     private MailChimpConnection connection;
+	private JSONObject jsonRepresentation;
 
-    public Segment(int id, String name, String list_id, SegmentType type, LocalDateTime created_at, LocalDateTime updated_at, int member_count, Options options, MailChimpConnection connection, JSONObject jsonRepresentation){
-        super(String.valueOf(id), jsonRepresentation);
-        this.name = name;
-        this.list_id = list_id;
-        this.type = type;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
-        this.member_count = member_count;
-        this.options = options;
+	public Segment(MailChimpConnection connection, JSONObject jsonObj) {
         this.connection = connection;
-    }
+		jsonRepresentation = jsonObj;
+		
+        id = jsonObj.getInt("id");
+        name = jsonObj.getString("name");
+		listId = jsonObj.getString("list_id");
+		type = SegmentType.valueOf(jsonObj.getString("type").toUpperCase());
+		createdAt = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("created_at"));
+		updatedAt = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("updated_at"));
+		memberCount = jsonObj.getInt("member_count");
+		options = null;
 
+		// Static segments (tags) and fuzzy segments don’t have conditions
+		if ((type != SegmentType.STATIC && type != SegmentType.FUZZY) && jsonObj.has("options")) {
+			options = new Options(jsonObj.getJSONObject("options"));
+		}
+	}
+	
     /**
      * Used when created a Segment locally with the Builder class
      * @see Builder
      * @param b
      */
-    public Segment(Builder b){
+    public Segment(Builder b) {
         this.name = b.name;
         this.type = b.type;
-        setJSONRepresentation(b.jsonRepresentation);
+        this.jsonRepresentation = b.jsonRepresentation;
     }
 
     /**
@@ -63,7 +71,9 @@ public class Segment extends MailchimpObject {
         if (!this.getType().equals(SegmentType.STATIC)){
             throw new SegmentException();
         }
-        getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getList_id()+"/segments/"+this.getId()+"/members"),member.getJSONRepresentation().toString(),connection.getApikey());
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.put("email_address", member.getEmailAddress());
+        getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getListId()+"/segments/"+this.getId()+"/members"), jsonObj.toString(), connection.getApikey());
     }
 
     /**
@@ -78,9 +88,9 @@ public class Segment extends MailchimpObject {
         ArrayList<Member> members = new ArrayList<Member>();
         final JSONObject list;
         if(count != 0){
-            list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getList_id()+"/segments/"+this.getId()+"/members?count="+count+"&offset="+offset),connection.getApikey()));
+            list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getListId()+"/segments/"+this.getId()+"/members?count="+count+"&offset="+offset),connection.getApikey()));
         } else {
-            list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getList_id()+"/segments/"+this.getId()+"/members?count="+this.getMember_count()+"&offset="+offset),connection.getApikey()));
+            list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getListId()+"/segments/"+this.getId()+"/members?count="+this.getMemberCount()+"&offset="+offset),connection.getApikey()));
         }
 
         final JSONArray membersArray = list.getJSONArray("members");
@@ -89,7 +99,7 @@ public class Segment extends MailchimpObject {
         for (int i = 0 ; i < membersArray.length();i++)
         {
             final JSONObject memberDetail = membersArray.getJSONObject(i);
-            Member member = new Member(connection.getList(this.getList_id()), memberDetail);
+            Member member = new Member(connection.getList(this.getListId()), memberDetail);
             members.add(member);
 
         }
@@ -105,7 +115,7 @@ public class Segment extends MailchimpObject {
         if (!this.getType().equals(SegmentType.STATIC)){
             throw new SegmentException();
         }
-        getConnection().do_Delete(new URL(connection.getListendpoint()+"/"+this.getList_id()+"/segments/"+this.getId()+"/members/"+member.getId()),connection.getApikey());
+        getConnection().do_Delete(new URL(connection.getListendpoint()+"/"+this.getListId()+"/segments/"+this.getId()+"/members/"+member.getId()),connection.getApikey());
     }
 
     /**
@@ -114,52 +124,89 @@ public class Segment extends MailchimpObject {
      * @throws Exception
      */
     public void update(Segment updatedSegment) throws Exception{
-        getConnection().do_Patch(new URL(connection.getListendpoint()+"/"+this.getList_id()+"/segments/"+this.getId()),updatedSegment.getJSONRepresentation().toString(),connection.getApikey());
+        getConnection().do_Patch(new URL(connection.getListendpoint()+"/"+this.getListId()+"/segments/"+this.getId()),updatedSegment.getJSONRepresentation().toString(),connection.getApikey());
     }
 
 
-    public String getName() {
+    /**
+	 * @return The unique id for the segment.
+	 */
+	public int getId() {
+		return id;
+	}
+
+    /**
+	 * @return The name of the segment.
+	 */
+	public String getName() {
         return name;
     }
 
+    /**
+	 * @return The number of active subscribers currently included in the segment.
+	 */
+    public int getMemberCount() {
+        return memberCount;
+    }
+
+    /**
+	 * @return The type of segment. Static segments are now known as tags.
+	 */
     public SegmentType getType() {
         return type;
     }
 
-    public String getList_id() {
-        return list_id;
+    /**
+	 * @return The date and time the segment was created.
+	 */
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public LocalDateTime getCreated_at() {
-        return created_at;
+    /**
+	 * @return The date and time the segment was last updated.
+	 */
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
-    public LocalDateTime getUpdated_at() {
-        return updated_at;
-    }
-
-    public int getMember_count() {
-        return member_count;
-    }
-
+    /**
+	 * @return The conditions of the segment. Static segments (tags) and fuzzy segments don’t have conditions.
+	 */
     public Options getOptions() {
         return options;
+    }
+
+    /**
+	 * @return The list id.
+	 */
+    public String getListId() {
+        return listId;
     }
 
     public MailChimpConnection getConnection() {
         return connection;
     }
 
+	/**
+	 * @return the jsonRepresentation
+	 */
+	public JSONObject getJSONRepresentation() {
+		return jsonRepresentation;
+	}
+	
     @Override
-    public String toString(){
-        return  "ID: " + this.getId() +  System.lineSeparator() +
-                "Name: " + this.getName() +  System.lineSeparator() +
-                "Type: " + this.getType() + System.lineSeparator() +
-                "List ID: " + this.getList_id() + System.lineSeparator() +
-                "Created at: " + this.getCreated_at() + System.lineSeparator() +
-                "Updated at: " + this.getUpdated_at() +  System.lineSeparator() +
-                "Member count: " +  this.getMember_count() + System.lineSeparator() +
-                "Options :" +this.getOptions() +  System.lineSeparator();
+    public String toString() {
+        return  
+				"Segment:" + System.lineSeparator() +
+        		"    Id: " + getId() +  System.lineSeparator() +
+                "    Name: " + getName() +  System.lineSeparator() +
+                "    Type: " + getType() + System.lineSeparator() +
+                "    List ID: " + getListId() + System.lineSeparator() +
+                "    Created at: " + getCreatedAt() + System.lineSeparator() +
+                "    Updated at: " + getUpdatedAt() +  System.lineSeparator() +
+                "    Member count: " +  getMemberCount() + System.lineSeparator() +
+                (getOptions() != null ? getOptions().toString() : "");
     }
 
     public static class Builder {
@@ -175,7 +222,7 @@ public class Segment extends MailchimpObject {
 
         public Builder type(SegmentType type) {
             this.type = type;
-            jsonRepresentation.put("type", type.value());
+            jsonRepresentation.put("type", type.getStringRepresentation());
             return this;
         }
         

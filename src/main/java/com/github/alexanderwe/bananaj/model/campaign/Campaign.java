@@ -4,8 +4,6 @@
  */
 package com.github.alexanderwe.bananaj.model.campaign;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDateTime;
 
@@ -14,17 +12,9 @@ import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
 import com.github.alexanderwe.bananaj.exceptions.CampaignSettingsException;
-import com.github.alexanderwe.bananaj.exceptions.TransportException;
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import com.github.alexanderwe.bananaj.model.ReportSummary;
 import com.github.alexanderwe.bananaj.model.Tracking;
-import com.github.alexanderwe.bananaj.model.report.Click;
-import com.github.alexanderwe.bananaj.model.report.FacebookLikes;
-import com.github.alexanderwe.bananaj.model.report.Forward;
-import com.github.alexanderwe.bananaj.model.report.IndustryStats;
-import com.github.alexanderwe.bananaj.model.report.Open;
 import com.github.alexanderwe.bananaj.model.report.Report;
-import com.github.alexanderwe.bananaj.model.report.ReportListStats;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 /**
@@ -32,10 +22,11 @@ import com.github.alexanderwe.bananaj.utils.DateConverter;
  * @author alexanderweiss
  *
  */
-public class Campaign extends MailchimpObject {
+public class Campaign {
 
 	private MailChimpConnection connection;
 	
+	private String id;
 	private int webId;
 	private String parentCampaignId;
 	private CampaignType type;
@@ -62,11 +53,11 @@ public class Campaign extends MailchimpObject {
 	private CampaignContent content;
 
 	public Campaign(MailChimpConnection connection, JSONObject jsonObj) throws Exception {
-		super(jsonObj.getString("id"), jsonObj);
 		parse(connection, jsonObj);
 	}
 
 	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
+		id = jsonObj.getString("id");
 		this.connection = connection;
 		this.webId = jsonObj.getInt("web_id");
 		if (jsonObj.has("parent_campaign_id")) {
@@ -228,22 +219,7 @@ public class Campaign extends MailchimpObject {
 	 */
 	public Report getReport() throws Exception {
 		final JSONObject report = new JSONObject(getConnection().do_Get(new URL(connection.getReportsendpoint()+"/"+getId()), getConnection().getApikey()));
-		final JSONObject forwards = report.getJSONObject("forwards");
-		final JSONObject opens = report.getJSONObject("opens");
-		final JSONObject clicks = report.getJSONObject("clicks");
-		final JSONObject facebook_likes = report.getJSONObject("facebook_likes");
-		final JSONObject industry_stats = report.getJSONObject("industry_stats");
-		final JSONObject report_list_stats = report.getJSONObject("list_stats");
-
-		Bounce bouncesObject = new Bounce(report.getJSONObject("bounces"));
-		Forward forwardsObject = new Forward(forwards.getInt("forwards_count"), forwards.getInt("forwards_opens"));
-		Click clicksObject = new Click(clicks.getInt("clicks_total"),clicks.getInt("unique_clicks"),clicks.getInt("unique_subscriber_clicks"),clicks.getDouble("click_rate"), DateConverter.getInstance().createDateFromISO8601(clicks.getString("last_click")));
-		Open opensObject = new Open(opens.getInt("opens_total"),opens.getInt("unique_opens"), opens.getDouble("open_rate"), opens.getString("last_open"));
-		FacebookLikes facebookObject = new FacebookLikes(facebook_likes.getInt("recipient_likes"),facebook_likes.getInt("unique_likes"),facebook_likes.getInt("facebook_likes"));
-		IndustryStats industryStatsObject = new IndustryStats(industry_stats.getString("type"), industry_stats.getDouble("open_rate"),industry_stats.getDouble("click_rate"),industry_stats.getDouble("bounce_rate"),industry_stats.getDouble("unopen_rate"),industry_stats.getDouble("unsub_rate"), industry_stats.getDouble("abuse_rate"));
-		ReportListStats reportListStatsObject = new ReportListStats(report_list_stats.getDouble("sub_rate"), report_list_stats.getDouble("unsub_rate"), report_list_stats.getDouble("open_rate"), report_list_stats.getDouble("click_rate"));
-
-		return new Report(report.getString("id"), report.getString("campaign_title"),report.getInt("emails_sent"),report.getInt("abuse_reports"), report.getInt("unsubscribed"),DateConverter.getInstance().createDateFromISO8601(report.getString("send_time")),bouncesObject,forwardsObject,clicksObject,opensObject,facebookObject,industryStatsObject,reportListStatsObject,report);
+		return new Report(report);
 	}
 
 	/**
@@ -251,6 +227,13 @@ public class Campaign extends MailchimpObject {
 	 */
 	public MailChimpConnection getConnection() {
 		return connection;
+	}
+
+    /**
+	 * @return A string that uniquely identifies this campaign.
+	 */
+	public String getId() {
+		return id;
 	}
 
 	/**
@@ -412,7 +395,7 @@ public class Campaign extends MailchimpObject {
 	}
 
 	@Override
-	public String toString(){
+	public String toString() {
 		return "ID: " + getId() + System.lineSeparator() +
 				getSettings().toString() + System.lineSeparator() +
 				"Type: " + getType().getStringRepresentation() + System.lineSeparator() +
