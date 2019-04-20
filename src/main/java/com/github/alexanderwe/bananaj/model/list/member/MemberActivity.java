@@ -1,85 +1,89 @@
 package com.github.alexanderwe.bananaj.model.list.member;
 
+import org.json.JSONObject;
+
 /**
+ * Details about subscribers’ recent activity.
+ * 
  * Created by alexanderweiss on 20.01.16.
  */
 public class MemberActivity {
-
-    String unique_email_id;
-    String list_id;
     String action;
     String timestamp;
     String url;
     String type;
-    String campaign_id;
+    String campaignId;
     String title;
-    String parent_campaign;
+    String parentCampaign;
 
-    public MemberActivity(String unique_email_id, String list_id, String action, String timestamp, String campaign_id, String title){
-        this.unique_email_id = unique_email_id;
-        this.list_id = list_id;
-        this.action = action;
-        this.timestamp = timestamp;
-        this.campaign_id = campaign_id;
-        this.title = title;
+    public MemberActivity(JSONObject jsonObj) {
+    	action = jsonObj.getString("action");
+    	timestamp = jsonObj.getString("timestamp");
+    	url = jsonObj.has("url") ? jsonObj.getString("url") : null;
+    	type = jsonObj.has("type") ? jsonObj.getString("type") : null;
+    	campaignId = jsonObj.has("campaign_id") ? jsonObj.getString("campaign_id") : null;
+    	title = jsonObj.has("title") ? jsonObj.getString("title") : null;
+    	parentCampaign = jsonObj.has("parent_campaign") ? jsonObj.getString("parent_campaign") : null;
     }
 
-    /**
-     * Actions like unsub do not have a title
-     * @param unique_email_id
-     * @param list_id
-     * @param action
-     * @param timestamp
-     * @param campaign_id
-     */
-    public MemberActivity(String unique_email_id, String list_id, String action, String timestamp, String campaign_id){
-        this.unique_email_id = unique_email_id;
-        this.list_id = list_id;
-        this.action = action;
-        this.timestamp = timestamp;
-        this.campaign_id = campaign_id;
-    }
+	/**
+	 * @return The type of action recorded for the subscriber.
+	 */
+	public String getAction() {
+		return action;
+	}
 
-    public String getUnique_email_id() {
-        return unique_email_id;
-    }
+	/**
+	 * @return The date and time recorded for the action.
+	 */
+	public String getTimestamp() {
+		return timestamp;
+	}
 
-    public String getList_id() {
-        return list_id;
-    }
+	/**
+	 * @return For clicks, the URL the subscriber clicked on.
+	 */
+	public String getUrl() {
+		return url;
+	}
 
-    public String getAction() {
-        return action;
-    }
+	/**
+	 * @return The type of campaign that was sent.
+	 */
+	public String getType() {
+		return type;
+	}
 
-    public String getTimestamp() {
-        return timestamp;
-    }
+	/**
+	 * @return The web-based ID for the campaign.
+	 */
+	public String getCampaignId() {
+		return campaignId;
+	}
 
-    public String getUrl() {
-        return url;
-    }
+	/**
+	 * @return If set, the campaign’s title.
+	 */
+	public String getTitle() {
+		return title;
+	}
 
-    public String getType() {
-        return type;
-    }
+	/**
+	 * @return The ID of the parent campaign.
+	 */
+	public String getParentCampaign() {
+		return parentCampaign;
+	}
 
-    public String getCampaign_id() {
-        return campaign_id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getParent_campaign() {
-        return parent_campaign;
-    }
-
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
     @Override
     public String toString(){
-        return "Title: " +this.title +
-                " Action: " + this.action +
-                " Timestamp: " + this.timestamp +System.lineSeparator();
+    	return 
+    			"Activity: " + timestamp + " " + (campaignId != null ? campaignId: "") + (title != null ? " " + title : "") + (parentCampaign != null ? " " + parentCampaign : "") + System.lineSeparator() +
+    			"    Action: " + action + 
+    			(type != null ? System.lineSeparator() + "    Campaign Type: " + type : "") +
+    			(url != null ? System.lineSeparator() + "    URL: " + url : "");
     }
 }

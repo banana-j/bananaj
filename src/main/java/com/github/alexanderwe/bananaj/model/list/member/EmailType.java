@@ -1,8 +1,5 @@
 package com.github.alexanderwe.bananaj.model.list.member;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public enum EmailType {
 
 	HTML("html"), TEXT("text");

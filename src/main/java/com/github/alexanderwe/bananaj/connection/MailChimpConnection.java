@@ -1,6 +1,8 @@
 package com.github.alexanderwe.bananaj.connection;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -8,8 +10,10 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.github.alexanderwe.bananaj.exceptions.TransportException;
 import com.github.alexanderwe.bananaj.model.automation.Automation;
 import com.github.alexanderwe.bananaj.model.automation.AutomationRecipient;
 import com.github.alexanderwe.bananaj.model.automation.AutomationSettings;
@@ -25,8 +29,6 @@ import com.github.alexanderwe.bananaj.model.list.MailChimpList;
 import com.github.alexanderwe.bananaj.model.list.member.Member;
 import com.github.alexanderwe.bananaj.model.template.Template;
 import com.github.alexanderwe.bananaj.model.template.TemplateFolder;
-import com.github.alexanderwe.bananaj.model.template.TemplateType;
-import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 import jxl.CellView;
 import jxl.Workbook;
@@ -116,9 +118,13 @@ public class MailChimpConnection extends Connection{
 	/**
 	 * Get a specific mailchimp list
 	 * @return a Mailchimp list object
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 * @throws JSONException 
 	 * @throws Exception
 	 */
-	public MailChimpList getList(String listID) throws Exception{
+	public MailChimpList getList(String listID) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
 		JSONObject jsonList = new JSONObject(do_Get(new URL(listendpoint +"/"+listID),getApikey()));
 		return new MailChimpList(this, jsonList);
 	}

@@ -4,26 +4,25 @@
  */
 package com.github.alexanderwe.bananaj.model.list.member;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.Optional;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
-import com.github.alexanderwe.bananaj.exceptions.EmailException;
+import com.github.alexanderwe.bananaj.exceptions.TransportException;
 import com.github.alexanderwe.bananaj.model.list.MailChimpList;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
-import com.github.alexanderwe.bananaj.utils.EmailValidator;
 import com.github.alexanderwe.bananaj.utils.MD5;
 
 
@@ -40,7 +39,7 @@ public class Member {
 	private String uniqueEmailId;
 	private EmailType emailType;
 	private MemberStatus status;
-	//private String unsubscribe_reason;
+	private String unsubscribeReason;
 	private Map<String, String> mergeFields;
 	private Map<String, Boolean> interest;
 	private MemberStats stats;
@@ -55,47 +54,37 @@ public class Member {
 	private String emailClient;
 	//private MemberLocation location;
 	//private List<MemberMarketingPermissions> marketingPermissions;
-	//private MemberLastNote lastNote;
+	private LastNote lastNote;
 	private int tagsCount;
-	private Map<String, TagStatus> tags = new HashMap<String, TagStatus>();
+	private List<MemberTag> tags;
 	private String listId;
+	
 	private MemberStatus statusIfNew;
-	private List<MemberActivity> activities;
-	private MailChimpConnection connection;
 
 	public Member(MailChimpList mailChimpList, JSONObject member) {
 		parse(mailChimpList, member);
 	}
 
 	public Member(Builder b) {
-		id = b.id;
 		mailChimpList = b.mailChimpList;
 		emailAddress = b.emailAddress;
-		uniqueEmailId = b.uniqueEmailId;
+		id = Member.subscriberHash(emailAddress);
 		emailType = b.emailType;
 		status = b.status;
-		//unsubscribe_reason = b.unsubscribeReason;
 		mergeFields = b.mergeFields;
-		interest = b.memberInterest;
-		stats = b.stats;
+		interest = b.interest;
 		ipSignup = b.ipSignup;
 		timestampSignup = b.timestampSignup;
 		ipOpt = b.ipOpt;
 		timestampOpt = b.timestampOpt;
-		rating = b.memberRating;
-		lastChanged = b.lastChanged;
 		language = b.language;
 		vip = b.vip;
-		emailClient = b.emailClient;
 		//location = b.location;
 		//marketing_permissions = b.marketingPermissions;
 		//last_note = b.lastNote;
-		tagsCount = b.tagsCount;
 		tags = b.tags;
-		listId = b.listId;
+		listId = mailChimpList.getId();
 		statusIfNew = b.statusIfNew;
-		activities = b.memberActivities;
-		connection = b.connection;
 	}
 
 	public Member() {
@@ -107,37 +96,30 @@ public class Member {
 	 * @param member
 	 */
 	public void parse(MailChimpList mailChimpList, JSONObject member) {
-		final JSONArray tagsArray = member.getJSONArray("tags");
-
+		this.mailChimpList = mailChimpList;
         id = member.getString("id");
-		Map<String, String> merge_fields = new HashMap<String, String>();
-		if (member.has("merge_fields")) {
-			final JSONObject memberMergeTags = member.getJSONObject("merge_fields");
-			Iterator<String> mergeTagsI = memberMergeTags.keys();
-			while(mergeTagsI.hasNext()) {
-				String key = mergeTagsI.next();
-				Object value = memberMergeTags.get(key);
-				merge_fields.put(key, value.toString());
-			}
-		}
-
-		Map<String, Boolean> memberInterest = new HashMap<String, Boolean>();
-		if (member.has("interests")) {
-			final JSONObject interests = member.getJSONObject("interests");
-			Iterator<String> interestsI = interests.keys();
-			while(interestsI.hasNext()) {
-				String key = interestsI.next();
-				boolean value = interests.getBoolean(key);
-				memberInterest.put(key,value);
-			}
-		}
-
 		emailAddress = member.getString("email_address");
 		uniqueEmailId = member.getString("unique_email_id");
 		emailType =  EmailType.valueOf(member.getString("email_type").toUpperCase());
 		status = MemberStatus.valueOf(member.getString("status").toUpperCase());
-		mergeFields = merge_fields;
-		interest = memberInterest;
+		unsubscribeReason = member.has("unsubscribe_reason") ? member.getString("unsubscribe_reason") : null;
+		
+		mergeFields = new HashMap<String, String>();
+		if (member.has("merge_fields")) {
+			final JSONObject mergeFieldsObj = member.getJSONObject("merge_fields");
+			for(String key : mergeFieldsObj.keySet()) {
+				mergeFields.put(key, mergeFieldsObj.getString(key));
+			}
+		}
+		
+		interest = new HashMap<String, Boolean>();
+		if (member.has("interests")) {
+			final JSONObject interests = member.getJSONObject("interests");
+			for(String key : interests.keySet()) {
+				interest.put(key, interests.getBoolean(key));
+			}
+		}
+		
 		stats = new MemberStats(member.getJSONObject("stats"));
 		ipSignup = member.getString("ip_signup");
 		timestampSignup = DateConverter.getInstance().createDateFromISO8601(member.getString("timestamp_signup"));
@@ -146,69 +128,260 @@ public class Member {
 		timestampOpt = DateConverter.getInstance().createDateFromISO8601(member.getString("timestamp_opt"));
 		lastChanged = DateConverter.getInstance().createDateFromISO8601(member.getString("last_changed"));
 		language = member.getString("language");
+		vip = member.getBoolean("vip");
+		emailClient = member.has("email_client") ? member.getString("email_client") : null;
+		//location
+		//marketing_permissions
+		lastNote = member.has("last_note") ? new LastNote(member.getJSONObject("last_note")) : null;
 
 		tagsCount = member.getInt("tags_count");
-		Map<String, TagStatus> memberTags = new HashMap<String, TagStatus>(tagsCount);
+		tags = new ArrayList<MemberTag>(tagsCount);
+		final JSONArray tagsArray = member.getJSONArray("tags");
 		for(int i = 0; i < tagsArray.length(); i++) {
-			memberTags.put(tagsArray.getJSONObject(i).getString("name"), TagStatus.ACTIVE);
+			tags.add(new MemberTag(tagsArray.getJSONObject(i)));
 		}
-		tags = memberTags;
+
 		listId = member.getString("list_id");
-
-		if(member.has("status_if_new")) {
-			String value = member.getString("status_if_new");
-			if (value.length() > 0) {
-				status = MemberStatus.valueOf(member.getString("status_if_new").toUpperCase());
-			}
-		}
-
-		this.mailChimpList = mailChimpList;
-		this.connection = mailChimpList.getConnection();
 	}
 
 	/**
-	 * Update the mailChimpList of this member
-	 * @param listId
-	 * @throws Exception 
+	 * Remove this list member
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
 	 */
-	public void changeList(String listId) throws Exception {
-		JSONObject updateMember = new JSONObject();
-		updateMember.put("list_id", listId);
-		getConnection().do_Patch(new URL("https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString(),connection.getApikey());
-		mailChimpList = getConnection().getList(listId);
-		this.listId = listId;
+	public void delete() throws MalformedURLException, TransportException, URISyntaxException {
+		getConnection().do_Delete(new URL(getConnection().getListendpoint()+"/"+getMailChimpList().getId()+"/members/"+getId()), getConnection().getApikey());
 	}
-
+	
 	/**
-	 * Update the email Address of this member
+	 * Permanently delete this list member
+	 * @throws MalformedURLException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public void deletePermanent() throws MalformedURLException, TransportException, URISyntaxException {
+		getConnection().do_Post(new URL(getConnection().getListendpoint()+"/"+getMailChimpList().getId()+"/members/"+getId()+"/actions/delete-permanent"), getConnection().getApikey());
+	}
+	
+	/**
+	 * Change this subscribers email address.
 	 * @param emailAddress
-	 * @throws Exception
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
 	 */
-	public void changeEmailAddress(String emailAddress) throws Exception {
-
-		EmailValidator validator = EmailValidator.getInstance();
-		if (validator.validate(emailAddress)) {
-			JSONObject updateMember = new JSONObject();
-			updateMember.put("email_Address", emailAddress);
-			getConnection().do_Patch(new URL("https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString(),connection.getApikey());
-			this.emailAddress = emailAddress;
-		} else {
-			throw new EmailException(emailAddress);
-		}
+	public void changeEmailAddress(String emailAddress) throws MalformedURLException, TransportException, URISyntaxException {
+		JSONObject updateMember = new JSONObject();
+		updateMember.put("email_address", emailAddress);
+		String results = getConnection().do_Patch(new URL(getConnection().getListendpoint()+"/"+getMailChimpList().getId()+"/members/"+getId()), updateMember.toString(), getConnection().getApikey());
+		parse(mailChimpList, new JSONObject(results));  // update member object with current data
 	}
 
 	/**
-	 * Update the email address of this member
+	 * Change the status of the subscriber.
 	 * @param status
-	 * @throws Exception
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
 	 */
-	public void changeMemberStatus(MemberStatus status) throws Exception {
+	public void changeStatus(MemberStatus status) throws MalformedURLException, TransportException, URISyntaxException {
 		JSONObject updateMember = new JSONObject();
 		updateMember.put("status", status.getStringRepresentation());
-		getConnection().do_Patch(new URL("https://"+ mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString(),connection.getApikey());
-		this.status = status;
+		String results = getConnection().do_Patch(new URL(getConnection().getListendpoint()+"/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString(), getConnection().getApikey());
+		parse(mailChimpList, new JSONObject(results));  // update member object with current data
 	}
 
+	/**
+	 * Update subscriber via a PATCH operation. Member fields will be freshened
+	 * from MailChimp.
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 */
+	public void update() throws MalformedURLException, TransportException, URISyntaxException {
+		mailChimpList.updateMember(this);
+	}
+	
+	/**
+	 * Add or update a list member via a PUT operation. When a new member is added
+	 * and no status_if_new has been specified SUBSCRIBED will be used. Member
+	 * fields will be freshened from mailchimp.
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 * 
+	 */
+	public void addOrUpdate() throws MalformedURLException, TransportException, URISyntaxException {
+		mailChimpList.addOrUpdateMember(this);
+	}
+	
+	/**
+	 * Add or remove tags from this list member. If a tag that does not exist is passed in and set as ‘active’, a new tag will be created.
+	 * 
+	 * @param tagName The name of the tag.
+	 * @param status The status for the tag on the member, pass in active to add a tag or inactive to remove it.
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 */
+	public void applyTag(String tagName, TagStatus status) throws MalformedURLException, TransportException, URISyntaxException {
+		Map<String, TagStatus> tagsMap = new HashMap<String, TagStatus>(1);
+		tagsMap.put(tagName, status);
+		applyTags(tagsMap);
+	}
+	
+	/**
+	 * Add or remove tags in bulk from this list member. If a tag that does not exist is passed in and set as ‘active’, a new tag will be created.
+	 * @param tagsMap
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 */
+	public void applyTags(Map<String, TagStatus> tagsMap) throws MalformedURLException, TransportException, URISyntaxException {
+		JSONObject tagObj = new JSONObject();
+		JSONArray tagsArray = new JSONArray();
+		for(Entry<String, TagStatus> e : tagsMap.entrySet()) {
+			tagsArray.put(new JSONObject()
+					.put("name", e.getKey())
+					.put("status", e.getValue().getStringRepresentation()));
+			
+			Optional<MemberTag> optional = tags.stream()
+					.filter(t -> e.getKey().equals(t.getName()))
+					.findFirst();
+			
+			if (optional.isPresent() && e.getValue() == TagStatus.INACTIVE) {
+				tags.remove(optional.get());
+			} else if (!optional.isPresent() && e.getValue() == TagStatus.ACTIVE) {
+				tags.add(new MemberTag(e.getKey()));
+			}
+		}
+		tagObj.put("tags",tagsArray);
+		getConnection().do_Post(new URL(getConnection().getListendpoint()+"/"+mailChimpList.getId()+"/members/"+getId()+"/tags"), tagObj.toString(), getConnection().getApikey());
+	}
+	
+	/**
+	 * @param tagName A tag name to check for
+	 * @return true if the member has the specified tag name.
+	 */
+	public boolean hasTag(String tagName) {
+		Optional<MemberTag> optional = tags.stream()
+				.filter(t -> tagName.equals(t.getName()))
+				.findFirst();
+		return optional.isPresent();
+	}
+	
+	/**
+	 * Get the last 50 events of a member’s activity, including opens, clicks, and unsubscribes.
+	 * 
+	 * @return the member activities
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 * @throws JSONException 
+	 */
+	public List<MemberActivity> getActivities() throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		List<MemberActivity> activities = new ArrayList<MemberActivity>();
+
+		final JSONObject activity = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+mailChimpList.getId()+"/members/"+getId()+"/activity?count=50&offset=0"), getConnection().getApikey()));
+		//String email_id = activity.getString("email_id");
+		//String list_id = activity.getString("list_id");
+		//int total_items = activity.getInt("total_items");
+		final JSONArray activityArray = activity.getJSONArray("activity");
+
+		for (int i = 0 ; i < activityArray.length();i++)
+		{
+			activities.add(new MemberActivity(activityArray.getJSONObject(i)));
+		}
+
+		return activities;
+	}
+
+	/**
+	 * Get recent notes for this list member.
+	 * @param count Number of items to return
+	 * @param offset Zero based offset
+	 * @return
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 * @throws JSONException 
+	 */
+	public List<MemberNote> getNotes(int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		List<MemberNote> notes = new ArrayList<MemberNote>();
+
+		final JSONObject noteObj = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+mailChimpList.getId()+"/members/"+getId()+"/notes?count="+count+"&offset="+offset), getConnection().getApikey()));
+		//String email_id = noteObj.getString("email_id");
+		//String list_id = noteObj.getString("list_id");
+		//int total_items = noteObj.getInt("total_items");
+		final JSONArray noteArray = noteObj.getJSONArray("notes");
+
+		for (int i = 0 ; i < noteArray.length();i++)
+		{
+			notes.add(new MemberNote(noteArray.getJSONObject(i)));
+		}
+
+		return notes;
+	}
+	
+	/**
+	 * Get a specific note for the member
+	 * @param noteId The id for the note.
+	 * @return
+	 * @throws JSONException
+	 * @throws MalformedURLException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public MemberNote getNote(int noteId) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		final JSONObject noteObj = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+mailChimpList.getId()+"/members/"+getId()+"/notes/"+noteId), getConnection().getApikey()));
+		return new MemberNote(noteObj);
+	}
+	
+	/**
+	 * Delete a note
+	 * @param noteId The id for the note to delete.
+	 * @throws MalformedURLException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public void deleteNote(int noteId) throws MalformedURLException, TransportException, URISyntaxException {
+		getConnection().do_Delete(new URL(getConnection().getListendpoint()+"/"+mailChimpList.getId()+"/members/"+getId()+"/notes/"+noteId), getConnection().getApikey());
+	}
+	
+	/**
+	 * Add a new note to this subscriber.
+	 * @param note The content of the note. Note length is limited to 1,000 characters.
+	 * @return
+	 * @throws JSONException
+	 * @throws MalformedURLException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public MemberNote createNote(String note) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		JSONObject jsonObj = new JSONObject();
+		jsonObj.put("note", note);
+		final JSONObject noteObj = new JSONObject(getConnection().do_Post(new URL(getConnection().getListendpoint()+"/"+mailChimpList.getId()+"/members/"+getId()+"/notes"), jsonObj.toString(), getConnection().getApikey()));
+		return new MemberNote(noteObj);
+	}
+	
+	/**
+	 * Update a specific note for this list member.
+	 * @param noteId The id for the note to update.
+	 * @param note The new content for the note. Note length is limited to 1,000 characters.
+	 * @return
+	 * @throws JSONException
+	 * @throws MalformedURLException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public MemberNote updateNote(int noteId, String note) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		JSONObject jsonObj = new JSONObject();
+		jsonObj.put("note", note);
+		final JSONObject noteObj = new JSONObject(getConnection().do_Patch(new URL(getConnection().getListendpoint()+"/"+mailChimpList.getId()+"/members/"+getId()+"/notes/"+noteId), jsonObj.toString(), getConnection().getApikey()));
+		return new MemberNote(noteObj);
+	}
+	
     /**
 	 * @return The MD5 hash of the lowercase version of the list member’s email address.
 	 */
@@ -217,11 +390,23 @@ public class Member {
 	}
 
 	/**
-	 * Email address for a subscriber
+	 * Email address for this subscriber
 	 * @return 
 	 */
 	public String getEmailAddress() {
 		return emailAddress;
+	}
+
+	/**
+	 * Change this subscribers email address. You must call {@link #update()},
+	 * {@link #addOrUpdater()},
+	 * {@link MailChimpList#addOrUpdateMember(Member)}, or
+	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
+	 * 
+	 * @param emailAddress The new Email address for this subscriber.
+	 */
+	public void setEmailAddress(String emailAddress) {
+		this.emailAddress = emailAddress;
 	}
 
 	/**
@@ -242,9 +427,9 @@ public class Member {
 
 	/**
 	 * Type of email this member asked to get (‘html’ or ‘text’). You must call
-	 * {@link MailChimpList#updateMember(Member)} or
-	 * {@link MailChimpList#addOrUpdateMember(Member)} for any changes to take
-	 * effect.
+	 * {@link #update()}, {@link #addOrUpdater()},
+	 * {@link MailChimpList#addOrUpdateMember(Member)}, or
+	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
 	 * 
 	 * @param emailType
 	 */
@@ -261,17 +446,26 @@ public class Member {
 	}
 
 	/**
-	 * Subscriber’s current status. You must call
-	 * {@link MailChimpList#updateMember(Member)} or
-	 * {@link MailChimpList#addOrUpdateMember(Member)} for any changes to take
-	 * effect.
+	 * Subscriber’s current status. You must call {@link #update()},
+	 * {@link #addOrUpdater()},
+	 * {@link MailChimpList#addOrUpdateMember(Member)}, or
+	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
 	 */
 	public void setStatus(MemberStatus status) {
 		this.status = status;
 	}
 
 	/**
-	 * Subscriber’s status. This value is required only when calling {@link MailChimpList#addOrUpdateMember(Member)}.
+	 * @return A subscriber’s reason for unsubscribing.
+	 */
+	public String getUnsubscribeReason() {
+		return unsubscribeReason;
+	}
+
+	/**
+	 * Subscriber’s status. This value is required only when calling
+	 * {@link MailChimpList#addOrUpdateMember(Member)} or {@link #update()}.
+	 * 
 	 * @return the status_if_new
 	 */
 	public MemberStatus getStatusIfNew() {
@@ -279,7 +473,9 @@ public class Member {
 	}
 
 	/**
-	 * Set the status for a new member created through a call to {@link MailChimpList#addOrUpdateMember(Member)} for any changes to take effect.
+	 * Set the status for a new member when created through a call to
+	 * {@link MailChimpList#addOrUpdateMember(Member)} or {@link #addOrUpdater()}.
+	 * 
 	 * @param statusIfNew
 	 */
 	public void setStatusIfNew(MemberStatus statusIfNew) {
@@ -295,14 +491,15 @@ public class Member {
 	}
 
 	/**
-	 * Add or change an audience merge tags that corresponds to the data in an
-	 * audience field. You must call {@link MailChimpList#updateMember(Member)} or
-	 * {@link MailChimpList#addOrUpdateMember(Member)} for any changes to take
-	 * effect.
+	 * Add or update an audience merge tags that corresponds to the data in an
+	 * audience field. You must call {@link #update()},
+	 * {@link #addOrUpdater()},
+	 * {@link MailChimpList#addOrUpdateMember(Member)}, or
+	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
 	 * 
 	 * @param key
 	 * @param value
-	 * @return the previous value associated with key, or null if there was none.)
+	 * @return the previous value associated with key, or null if there was none.
 	 */
 	public String putMergeFields(String key, String value) {
 		return mergeFields.put(key, value);
@@ -317,7 +514,20 @@ public class Member {
 	}
 
 	/**
-	 * Open and click rates for this subscriber
+	 * Add or update an interest. You must call {@link #update()},
+	 * {@link #addOrUpdate()}, {@link MailChimpList#addOrUpdateMember(Member)}, or
+	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
+	 * 
+	 * @param id     The interest id
+	 * @param active
+	 * @return The previous value associated with id, or null if there was none.
+	 */
+	public Boolean putInterest(String id, boolean active) {
+		return interest.put(id, active);
+	}
+	
+	/**
+	 * Open and click rates for this subscriber.
 	 * @return
 	 */
 	public MemberStats getStats() {
@@ -325,7 +535,7 @@ public class Member {
 	}
 
 	/**
-	 * IP address the subscriber signed up from
+	 * IP address the subscriber signed up from.
 	 * @return 
 	 */
 	public String getIpSignup() {
@@ -333,7 +543,18 @@ public class Member {
 	}
 
 	/**
-	 * The date and time the subscriber signed up for the list
+	 * IP address the subscriber signed up from. You must call {@link #update()},
+	 * {@link #addOrUpdate()}, {@link MailChimpList#addOrUpdateMember(Member)}, or
+	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
+	 * 
+	 * @param ipSignup the ipSignup to set
+	 */
+	public void setIpSignup(String ipSignup) {
+		this.ipSignup = ipSignup;
+	}
+
+	/**
+	 * The date and time the subscriber signed up for the list.
 	 * @return 
 	 */
 	public LocalDateTime getTimestampSignup() {
@@ -341,7 +562,19 @@ public class Member {
 	}
 
 	/**
-	 * The IP address the subscriber used to confirm their opt-in status
+	 * The date and time the subscriber signed up for the list. You must call
+	 * {@link #update()}, {@link #addOrUpdate()},
+	 * {@link MailChimpList#addOrUpdateMember(Member)}, or
+	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
+	 * 
+	 * @param timestampSignup the timestampSignup to set
+	 */
+	public void setTimestampSignup(LocalDateTime timestampSignup) {
+		this.timestampSignup = timestampSignup;
+	}
+
+	/**
+	 * The IP address the subscriber used to confirm their opt-in status.
 	 * @return 
 	 */
 	public String getIpOpt() {
@@ -349,11 +582,35 @@ public class Member {
 	}
 
 	/**
-	 * The date and time the subscribe confirmed their opt-in status
+	 * The IP address the subscriber used to confirm their opt-in status. You must
+	 * call {@link #update()}, {@link #addOrUpdate()},
+	 * {@link MailChimpList#addOrUpdateMember(Member)}, or
+	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
+	 * 
+	 * @param ipOpt the ipOpt to set
+	 */
+	public void setIpOpt(String ipOpt) {
+		this.ipOpt = ipOpt;
+	}
+
+	/**
+	 * The date and time the subscribe confirmed their opt-in status.
 	 * @return 
 	 */
 	public LocalDateTime getTimestampOpt() {
 		return timestampOpt;
+	}
+
+	/**
+	 * The date and time the subscribe confirmed their opt-in status. You must call
+	 * {@link #update()}, {@link #addOrUpdate()},
+	 * {@link MailChimpList#addOrUpdateMember(Member)}, or
+	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
+	 * 
+	 * @param timestampOpt the timestampOpt to set
+	 */
+	public void setTimestampOpt(LocalDateTime timestampOpt) {
+		this.timestampOpt = timestampOpt;
 	}
 
 	/**
@@ -380,11 +637,33 @@ public class Member {
 	}
 
 	/**
+	 * set/change the subscriber’s language. You must call {@link #update()},
+	 * {@link #addOrUpdate()}, {@link MailChimpList#addOrUpdateMember(Member)}, or
+	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
+	 * 
+	 * @param language the language to set
+	 */
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+
+	/**
 	 * VIP status for subscriber
 	 * @return
 	 */
 	public boolean isVip() {
 		return vip;
+	}
+
+	/**
+	 * Set VIP status for subscriber. You must call {@link #update()},
+	 * {@link #addOrUpdate()}, {@link MailChimpList#addOrUpdateMember(Member)}, or
+	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
+	 * 
+	 * @param vip the vip to set
+	 */
+	public void setVip(boolean vip) {
+		this.vip = vip;
 	}
 
 	/**
@@ -396,6 +675,13 @@ public class Member {
 	}
 
 	/**
+	 * @return The most recent Note added about this member.
+	 */
+	public LastNote getLastNote() {
+		return lastNote;
+	}
+
+	/**
 	 * The number of tags applied to this member
 	 * @return
 	 */
@@ -404,87 +690,12 @@ public class Member {
 	}
 
 	/**
-	 * @return a Map of all tags
-	 * @throws Exception 
-	 * @see fetchTags()
+	 * @return The tags applied to this member.
 	 */
-	public Map<String, TagStatus> getTags() throws Exception {
-		if (tagsCount > 0 && tags.size() == 0) {
-			fetchTags();
-		}
+	public List<MemberTag> getTags() {
 		return tags;
 	}
 
-	/**
-	 * @return all tags that are active
-	 * @throws Exception 
-	 * @see fetchTags()
-	 */
-	public Set<String> getActiveTags() throws Exception {
-		if (tagsCount > 0 && tags.size() == 0) {
-			fetchTags();
-		}
-		Set<String> tags = new HashSet<>();
-		this.tags.keySet().forEach( tag -> {
-			if(this.tags.get(tag).equals(TagStatus.ACTIVE)) {
-				tags.add(tag);
-			}
-		});
-		return tags;
-	}
-
-	/**
-	 * Fetches all tags from mailchimp
-	 * @return a Map of all tags
-	 */
-	private Map<String, TagStatus> fetchTags() throws Exception {
-		final JSONObject tags = new JSONObject(getConnection().do_Get(new URL("https://"+mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+mailChimpList.getId()+"/members/"+getId()+"/tags"),connection.getApikey()));
-		final JSONArray tagsArray = tags.getJSONArray("tags");
-
-		for (int i = 0 ; i < tagsArray.length();i++)
-		{
-			String tag = tagsArray.getString(i);
-			this.tags.put(tag, TagStatus.ACTIVE);
-		}
-		tagsCount = this.tags.size();
-
-		return this.tags;
-	}
-
-	/**
-	 * Sends all cached tag changes to mailchimp
-	 */
-	public void updateTags() throws Exception {
-		JSONObject tags = new JSONObject();
-		JSONArray tagsArray = new JSONArray();
-		for(String key: this.tags.keySet()) {
-			JSONObject tag = new JSONObject();
-			tag.put("name", key);
-			tag.put("status", this.tags.get(key).toString());
-			tagsArray.put(tag);
-		}
-		tags.put("tags", tagsArray);
-
-		getConnection().do_Post(new URL("https://"+this.mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+this.mailChimpList.getId()+"/members/"+this.getId()+"/tags"),tags.toString(),connection.getApikey());
-	}
-
-	/**
-	 * Add a tag. You must call {@link #updateTags()} for changes to take effect.
-	 * @param tag
-	 */
-	public void addTag(String tag) {
-		tags.put(tag, TagStatus.ACTIVE);
-		tagsCount = tags.size();
-	}
-
-	/**
-	 * Remove a tag. You must call {@link #updateTags()} for changes to take effect.
-	 * @param tag
-	 */
-	public void removeTag(String tag) {
-		tags.put(tag, TagStatus.INACTIVE);
-		tagsCount = tags.size();
-	}	
 
 	/**
 	 * The list id
@@ -502,35 +713,6 @@ public class Member {
 	}
 
 	/**
-	 * Set the member activities for this specific member
-	 * @param unique_email_id
-	 * @param listID
-	 * @throws Exception
-	 */
-	private void setActivities(String listID) throws Exception{
-		List<MemberActivity> activities = new ArrayList<MemberActivity>();
-
-		final JSONObject activity = new JSONObject(getConnection().do_Get(new URL("https://"+mailChimpList.getConnection().getServer()+".api.mailchimp.com/3.0/lists/"+mailChimpList.getId()+"/members/"+getId()+"/activity"),connection.getApikey()));
-		final JSONArray activityArray = activity.getJSONArray("activity");
-
-		for (int i = 0 ; i < activityArray.length();i++)
-		{
-			try{
-				final JSONObject activityDetail = activityArray.getJSONObject(i);
-				MemberActivity memberActivity = new MemberActivity(uniqueEmailId, mailChimpList.getId(), activityDetail.getString("action"),activityDetail.getString("timestamp"), activityDetail.getString("campaign_id"), activityDetail.getString("title"));
-				activities.add(memberActivity);
-			} catch (JSONException jsone){
-				final JSONObject activityDetail = activityArray.getJSONObject(i);
-				MemberActivity memberActivity = new MemberActivity(uniqueEmailId, mailChimpList.getId(), activityDetail.getString("action"),activityDetail.getString("timestamp"), activityDetail.getString("campaign_id"));
-				activities.add(memberActivity);
-			}
-
-		}
-
-		this.activities = activities;
-	}
-
-	/**
 	 * Add/Update an interests subscription
 	 * @param key
 	 * @param subscribe
@@ -541,38 +723,25 @@ public class Member {
 	}
 
 	/**
-	 * @return the member activities
-	 */
-	public List<MemberActivity> getActivities() {
-		if (activities == null) {
-			try {
-				// cache member activity
-				synchronized(this) {
-					if (activities == null) {
-						setActivities(mailChimpList.getId());
-					}
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return activities;
-	}
-
-	/**
 	 * @return the MailChimp com.github.alexanderwe.bananaj.connection
 	 */
 	public MailChimpConnection getConnection() {
-		return connection;
+		return mailChimpList.getConnection();
 	}
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 * @return
 	 */
-	public JSONObject getJsonRepresentation() throws Exception {
+	public JSONObject getJsonRepresentation() {
 		JSONObject json = new JSONObject();
 		json.put("email_address", getEmailAddress());
+		
+		if (getStatusIfNew() != null) {
+			// used by PUT 'Add or update a list member'
+			json.put("status_if_new", getStatusIfNew().getStringRepresentation());
+		}
+		
 		if (getEmailType() != null) {
 			json.put("email_type", getEmailType().getStringRepresentation());
 		}
@@ -598,60 +767,62 @@ public class Member {
 
 		json.put("language", getLanguage());
 		json.put("vip", isVip());
+		
+		// location
+		// marketing_permissions
 
-		if (getTagsCount() > 0) {
-			JSONObject tags = new JSONObject();
-			JSONArray tagsArray = new JSONArray();
-			for(String key: getTags().keySet()) {
-				JSONObject tag = new JSONObject();
-				tag.put("name", key);
-				tag.put("status", getTags().get(key).toString());
-				tagsArray.put(tag);
-			}
-			tags.put("tags", tagsArray);
-		}
-
-		if (getIpSignup() != null) {
+		if (ipSignup != null && ipSignup.length() > 0) {
 			json.put("ip_signup", getIpSignup());
 		}
 
 		if (getTimestampSignup() != null) {
 			json.put("timestamp_signup", DateConverter.toNormal(getTimestampSignup()));
 		}
-		if (getIpOpt() != null) {
+		
+		if (ipOpt != null && ipOpt.length() > 0) {
 			json.put( "ip_opt", getIpOpt());
 		}
+		
 		if (getTimestampOpt() != null) {
 			json.put("timestamp_opt", DateConverter.toNormal(getTimestampOpt()));
 		}
+		
+		// tags used by POST 'Add a new list member'
+		if (tags != null && tags.size() > 0 ) {
+			JSONArray tagsArray = new JSONArray();
+			for(MemberTag t: tags) {
+				tagsArray.put(t.getJsonRepresentation());
+			}
+			json.put("tags", tagsArray);
+		}
+
 		return json;
 	}
 
 	@Override
-	public String toString(){
+	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("    Merge Fields:").append(System.lineSeparator());
 		for (Entry<String, String> pair : getMergeFields().entrySet()) {
 			stringBuilder.append("        ").append(pair.getKey()).append(": ").append(pair.getValue()).append(System.lineSeparator());
 		}
 		if (tags != null && tags.size() > 0) {
-			stringBuilder.append("    Tags:").append(System.lineSeparator());
-			for (Entry<String, TagStatus> pair : tags.entrySet()) {
-				stringBuilder.append("        ").append(pair.getKey()).append(": ").append(pair.getValue().getStringRepresentation()).append(System.lineSeparator());
+			for (MemberTag tagObj : tags) {
+				stringBuilder.append("    ").append(tagObj.toString()).append(System.lineSeparator());
 			}
 		}
 		if (interest != null && interest.size() > 0) {
 			stringBuilder.append("    Interests:").append(System.lineSeparator());
 			for (Entry<String, Boolean> pair : interest.entrySet()) {
-				stringBuilder.append("        ").append(pair.getKey()).append(": ").append(pair.getValue().toString()).append(System.lineSeparator());
+				stringBuilder.append("        ").append(pair.getKey()).append(":").append(pair.getValue().toString()).append(System.lineSeparator());
 			}
 		}
 
 		return 
 				"Member:" + System.lineSeparator() +
 				"    Id: " + getId() + System.lineSeparator() +
-				"    Email Address: " + getEmailAddress() + System.lineSeparator() +
-				"    Unique Email Id: " + getUniqueEmailId() + System.lineSeparator() +
+				"    Email: " + getEmailAddress() + System.lineSeparator() +
+				"    Email Id: " + getUniqueEmailId() + System.lineSeparator() +
 				"    Email Type: " + getEmailType().getStringRepresentation() + System.lineSeparator() +
 				"    Status: " + getStatus().getStringRepresentation() + System.lineSeparator() +
 				"    List Id: " + getListId() + System.lineSeparator() +
@@ -663,10 +834,10 @@ public class Member {
 				"    Last Changed: " + getLastChanged() + System.lineSeparator() +
 				"    Language: " + getLanguage() + System.lineSeparator() +
 				"    VIP: " + isVip() + System.lineSeparator() +
-				"    Email Client: " + getEmailClient() + System.lineSeparator() +
+				(getEmailClient() != null ? "    Email Client: " + getEmailClient() + System.lineSeparator() : "") +
+				(getLastNote() != null ? getLastNote().toString() + System.lineSeparator() : "") +
 				//getStats().toString() + System.lineSeparator() +
-				stringBuilder.toString() +
-				"_________________________________________________";
+				stringBuilder.toString();
 	}
 
 	/**
@@ -679,34 +850,22 @@ public class Member {
 	}
 
 	public static class Builder {
-		private String id;
 		private MailChimpList mailChimpList;
 		private String emailAddress;
-		private String uniqueEmailId;
 		private EmailType emailType;
 		private MemberStatus status;
-		//private String unsubscribe_reason;
-		private Map<String, String> mergeFields;
-		private Map<String, Boolean> memberInterest;
-		private MemberStats stats;
+		private Map<String, String> mergeFields = new HashMap<String, String>();;
+		private Map<String, Boolean> interest = new HashMap<String, Boolean>();
+		private String language;
+		private boolean vip;
+		//private MemberLocation location;
+		//private List<MemberMarketingPermissions> marketing_permissions;
 		private String ipSignup;
 		private LocalDateTime timestampSignup;
 		private String ipOpt;
 		private LocalDateTime timestampOpt;
-		private int memberRating;
-		private LocalDateTime lastChanged;
-		private String language;
-		private boolean vip;
-		private String emailClient;
-		//private MemberLocation location;
-		//private List<MemberMarketingPermissions> marketing_permissions;
-		//private MemberLastNote last_note;
-		private int tagsCount;
-		private Map<String, TagStatus> tags = new HashMap<String, TagStatus>();
-		private String listId;
+		private List<MemberTag> tags = new ArrayList<MemberTag>();
 		private MemberStatus statusIfNew;
-		private List<MemberActivity> memberActivities;
-		private MailChimpConnection connection;
 
 		public Member build() {
 			return new Member(this);
@@ -714,24 +873,11 @@ public class Member {
 
 		public Builder list(MailChimpList mailChimpList) {
 			this.mailChimpList = mailChimpList;
-			this.listId = mailChimpList.getId();
-			this.connection = mailChimpList.getConnection();
-			return this;
-		}
-
-		public Builder id(String id) {
-			this.id = id;
 			return this;
 		}
 
 		public Builder emailAddress(String emailAddress) {
 			this.emailAddress = emailAddress;
-			this.id = Member.subscriberHash(emailAddress);
-			return this;
-		}
-
-		public Builder uniqueEmailId(String uniqueEmailId) {
-			this.uniqueEmailId = uniqueEmailId;
 			return this;
 		}
 
@@ -750,13 +896,25 @@ public class Member {
 			return this;
 		}
 
-		public Builder memberInterest(Map<String, Boolean> memberInterest) {
-			this.memberInterest = memberInterest;
+		/**
+		 * Adds a merge field var and value.
+		 * 
+		 * @param var
+		 * @param value
+		 * @return
+		 */
+		public Builder withMergeField(String var, String value) {
+			mergeFields.put(var, value);
 			return this;
 		}
 
-		public Builder stats(MemberStats stats) {
-			this.stats = stats;
+		public Builder memberInterest(Map<String, Boolean> memberInterest) {
+			this.interest = memberInterest;
+			return this;
+		}
+
+		public Builder withInterest(String interestName, boolean active) {
+			interest.put(interestName, active);
 			return this;
 		}
 
@@ -780,16 +938,6 @@ public class Member {
 			return this;
 		}
 
-		public Builder memberRating(int memberRating) {
-			this.memberRating = memberRating;
-			return this;
-		}
-
-		public Builder lastChanged(LocalDateTime lastChanged) {
-			this.lastChanged = lastChanged;
-			return this;
-		}
-
 		public Builder language(String language) {
 			this.language = language;
 			return this;
@@ -800,34 +948,37 @@ public class Member {
 			return this;
 		}
 
-		public Builder emailClient(String emailClient) {
-			this.emailClient = emailClient;
-			return this;
-		}
-
-		public Builder tags(Map<String, TagStatus> tags) {
+		/**
+		 * Add a tags to this member in preparation for creating a mailchimp list
+	     * member. See: {@link MailChimpList#addMember(Member)}
+	     * 
+		 * @param tags
+		 * @return
+		 */
+		public Builder tags(List<MemberTag> tags) {
 			this.tags = tags;
-			this.tagsCount = tags.size();
 			return this;
 		}
-
-		public Builder listId(String listId) {
-			this.listId = listId;
+		
+		/**
+		 * Add tag(s) to this member in preparation for creating a mailchimp list
+	     * member. See: {@link MailChimpList#addMember(Member)}
+		 * 
+		 * @param tagName
+		 * @return
+		 */
+		public Builder withTag(String tagName) {
+			Optional<MemberTag> optional = tags.stream()
+					.filter(t -> tagName.equals(t.getName()))
+					.findFirst();
+			if (!optional.isPresent()) {
+				tags.add(new MemberTag(tagName));
+			}
 			return this;
 		}
 
 		public Builder statusIfNew(MemberStatus statusIfNew) {
 			this.statusIfNew = statusIfNew;
-			return this;
-		}
-
-		public Builder memberActivities(List<MemberActivity> memberActivities) {
-			this.memberActivities = memberActivities;
-			return this;
-		}
-
-		public Builder connection(MailChimpConnection connection) {
-			this.connection = connection;
 			return this;
 		}
 	}
