@@ -53,7 +53,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<nexus.repo>https://devops-tools.pearson.com</nexus.repo>
 	</properties>
 
 	<dependencies>
@@ -152,58 +151,43 @@
 		</extensions -->
 	</build>
 
-	<!-- use Pearson SETS Nexus repository -->
-	<distributionManagement>
-		<repository>
-			<id>sets.nexus</id>
-			<name>nexus-release</name>
-			<url>${nexus.repo}/nexus-master/content/repositories/releases</url>
-		</repository>
-		<snapshotRepository>
-			<id>sets.nexus</id>
-			<name>nexus-snapshots</name>
-			<url>${nexus.repo}/nexus-deps/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
-	<!-- use S3 repository -->
-	<!-- distributionManagement>
-		<repository>
-			<id>repo.learning-gadgets-lab.release</id>
-			<url>s3://repo.learning-gadgets-lab.io/release</url>
-		</repository>
-		<snapshotRepository>
-			<id>repo.learning-gadgets-lab.snapshot</id>
-			<url>s3://repo.learning-gadgets-lab.io/snapshot</url>
-		</snapshotRepository>
-	</distributionManagement -->
-	<repositories>
-		<!-- use S3 repository -->
-		<!-- repository>
-			<id>repo.learning-gadgets-lab.release</id>
-			<url>s3://repo.learning-gadgets-lab.io/release</url>
-			<releases><enabled>true</enabled></releases>
-			<snapshots><enabled>false</enabled></snapshots>
-		</repository>
-		<repository>
-			<id>repo.learning-gadgets-lab.snapshot</id>
-			<url>s3://repo.learning-gadgets-lab.io/snapshot</url>
-			<releases><enabled>false</enabled></releases>
-			<snapshots><enabled>true</enabled></snapshots>
-		</repository -->
-		<!-- use Pearson SETS Nexus repository -->
-		<repository>
-			<id>sets.nexus.release</id>
-			<name>nexus-release</name>
-			<url>${nexus.repo}/nexus-master/content/repositories/releases</url>
-			<releases><enabled>true</enabled></releases>
-			<snapshots><enabled>false</enabled></snapshots>
-		</repository>
-		<repository>
-			<id>sets.nexus.snapshot</id>
-			<name>nexus-snapshots</name>
-			<url>${nexus.repo}/nexus-deps/content/repositories/snapshots</url>
-			<releases><enabled>false</enabled></releases>
-			<snapshots><enabled>true</enabled></snapshots>
-		</repository>
-	</repositories>
+	<!-- use Pearson LST Nexus repository -->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>aws-realize-nexus-snapshots</id>
+            <name>Realize AWS Snapshots Repository</name>
+            <url>https://nexus.realizedev-test.com/nexus/content/repositories/snapshots</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+        <repository>
+            <id>aws-realize-nexus-releases</id>
+            <name>Realize AWS Releases Repository</name>
+            <url>https://nexus.realizedev-test.com/nexus/content/repositories/releases</url>
+        </repository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>aws-realize-nexus-releases</id>
+            <name>Realize AWS Releases Repository</name>
+            <url>https://nexus.realizedev-test.com/nexus/content/repositories/releases</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>aws-realize-nexus-snapshots</id>
+            <name>Realize AWS Snapshots Repository</name>
+            <url>https://nexus.realizedev-test.com/nexus/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 </project>
