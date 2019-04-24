@@ -151,43 +151,69 @@
 		</extensions -->
 	</build>
 
+	<!-- use S3 repository -->
+	<!-- distributionManagement>
+		<repository>
+			<id>repo.learning-gadgets-lab.release</id>
+			<url>s3://repo.learning-gadgets-lab.io/release</url>
+		</repository>
+		<snapshotRepository>
+			<id>repo.learning-gadgets-lab.snapshot</id>
+			<url>s3://repo.learning-gadgets-lab.io/snapshot</url>
+		</snapshotRepository>
+	</distributionManagement -->
+	
 	<!-- use Pearson LST Nexus repository -->
-    <distributionManagement>
-        <snapshotRepository>
-            <id>aws-realize-nexus-snapshots</id>
-            <name>Realize AWS Snapshots Repository</name>
-            <url>https://nexus.realizedev-test.com/nexus/content/repositories/snapshots</url>
-            <uniqueVersion>false</uniqueVersion>
-        </snapshotRepository>
-        <repository>
-            <id>aws-realize-nexus-releases</id>
-            <name>Realize AWS Releases Repository</name>
-            <url>https://nexus.realizedev-test.com/nexus/content/repositories/releases</url>
-        </repository>
-    </distributionManagement>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>aws-realize-nexus-snapshots</id>
+			<name>Realize AWS Snapshots Repository</name>
+			<url>https://nexus.realizedev-test.com/nexus/content/repositories/snapshots</url>
+			<uniqueVersion>false</uniqueVersion>
+		</snapshotRepository>
+		<repository>
+			<id>aws-realize-nexus-releases</id>
+			<name>Realize AWS Releases Repository</name>
+			<url>https://nexus.realizedev-test.com/nexus/content/repositories/releases</url>
+		</repository>
+	</distributionManagement>
 
-    <repositories>
-        <repository>
-            <id>aws-realize-nexus-releases</id>
-            <name>Realize AWS Releases Repository</name>
-            <url>https://nexus.realizedev-test.com/nexus/content/repositories/releases</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>aws-realize-nexus-snapshots</id>
-            <name>Realize AWS Snapshots Repository</name>
-            <url>https://nexus.realizedev-test.com/nexus/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
+	<repositories>
+		<!-- use S3 repository -->
+		<!-- repository>
+			<id>repo.learning-gadgets-lab.release</id>
+			<url>s3://repo.learning-gadgets-lab.io/release</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</repository>
+		<repository>
+			<id>repo.learning-gadgets-lab.snapshot</id>
+			<url>s3://repo.learning-gadgets-lab.io/snapshot</url>
+			<releases><enabled>false</enabled></releases>
+			<snapshots><enabled>true</enabled></snapshots>
+		</repository -->
+		
+		<repository>
+			<id>aws-realize-nexus-releases</id>
+			<name>Realize AWS Releases Repository</name>
+			<url>https://nexus.realizedev-test.com/nexus/content/repositories/releases</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>aws-realize-nexus-snapshots</id>
+			<name>Realize AWS Snapshots Repository</name>
+			<url>https://nexus.realizedev-test.com/nexus/content/repositories/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 </project>
