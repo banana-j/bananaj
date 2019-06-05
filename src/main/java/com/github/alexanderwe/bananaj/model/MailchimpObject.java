@@ -12,7 +12,7 @@ import org.json.JSONObject;
  * @author alexanderweiss
  *
  */
-public class MailchimpObject{
+public class MailchimpObject {
 
 	private String id;
 	private JSONObject jsonRepresentation;

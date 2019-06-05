@@ -32,5 +32,4 @@ public enum MemberStatus {
 	private void setStringRepresentation(String stringRepresentation) {
 		this.stringRepresentation = stringRepresentation;
 	}
-	
 }

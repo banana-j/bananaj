@@ -4,6 +4,7 @@
  */
 package com.github.alexanderwe.bananaj.model.report;
 
+import org.json.JSONObject;
 
 /**
  * Class for representing list stats in a report object
@@ -12,44 +13,57 @@ package com.github.alexanderwe.bananaj.model.report;
  */
 public class ReportListStats {
 
-	private double sub_rate;
-	private double unsub_rate;
-	private double open_rate;
-	private double click_rate;
-	
-	public ReportListStats(double sub_rate, double unsub_rate, double open_rate, double click_rate) {
-		this.sub_rate = sub_rate;
-		this.unsub_rate = unsub_rate;
-		this.open_rate = open_rate;
-		this.click_rate = click_rate;
+	private double subRate;
+	private double unsubRate;
+	private double openRate;
+	private double clickRate;
+
+	public ReportListStats(JSONObject jsonObj) {
+		this.subRate = jsonObj.getDouble("sub_rate");
+		this.unsubRate = jsonObj.getDouble("unsub_rate");
+		this.openRate = jsonObj.getDouble("open_rate");
+		this.clickRate = jsonObj.getDouble("click_rate");
 	}
 
 	/**
-	 * @return the sub_rate
+	 * @return The average number of subscriptions per month for the list.
 	 */
-	public double getSub_rate() {
-		return sub_rate;
+	public double getSubRate() {
+		return subRate;
 	}
 
 	/**
-	 * @return the unsub_rate
+	 * @return The average number of unsubscriptions per month for the list.
 	 */
-	public double getUnsub_rate() {
-		return unsub_rate;
+	public double getUnsubRate() {
+		return unsubRate;
 	}
 
 	/**
-	 * @return the open_rate
+	 * @return The average open rate (a percentage represented as a number between 0 and 100) per campaign for the list.
 	 */
-	public double getOpen_rate() {
-		return open_rate;
+	public double getOpenRate() {
+		return openRate;
 	}
 
 	/**
-	 * @return the click_rate
+	 * @return The average click rate (a percentage represented as a number between 0 and 100) per campaign for the list.
 	 */
-	public double getClick_rate() {
-		return click_rate;
+	public double getClickRate() {
+		return clickRate;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return
+				"List Statistics:" + System.lineSeparator() +
+				"    Subscrib Rate: " + getSubRate() + System.lineSeparator() +
+				"    Unsubscrib Rate: " + getUnsubRate() + System.lineSeparator() +
+				"    Open Rate: " + getOpenRate() + System.lineSeparator() +
+				"    Click Rate: " + getClickRate();
 	}
 
 }

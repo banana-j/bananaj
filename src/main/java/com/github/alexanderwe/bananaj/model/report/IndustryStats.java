@@ -4,6 +4,7 @@
  */
 package com.github.alexanderwe.bananaj.model.report;
 
+import org.json.JSONObject;
 
 /**
  * Class for representing the average campaign statistics for your industry
@@ -13,71 +14,86 @@ package com.github.alexanderwe.bananaj.model.report;
 public class IndustryStats {
 
 	private String type;
-	private double open_rate;
-	private double click_rate;
-	private double bounce_rate;
-	private double unopen_rate;
-	private double unsub_rate;
-	private double abuse_rate;
-	
-	
-	public IndustryStats(String type, double open_rate, double click_rate, double bounce_rate, double unopen_rate, double unsub_rate, double absue_rate) {
-		this.type = type;
-		this.open_rate = open_rate;
-		this.click_rate = click_rate;
-		this.bounce_rate = bounce_rate;
-		this.unopen_rate = unopen_rate;
-		this.unsub_rate = unsub_rate;
-		this.abuse_rate = absue_rate;
+	private double openRate;
+	private double clickRate;
+	private double bounceRate;
+	private double unopenRate;
+	private double unsubscribeRate;
+	private double abuseRate;
+
+	public IndustryStats(JSONObject jsonObj) {
+		type = jsonObj.getString("type");
+		openRate = jsonObj.getDouble("open_rate");
+		clickRate = jsonObj.getDouble("click_rate");
+		bounceRate = jsonObj.getDouble("bounce_rate");
+		unopenRate = jsonObj.getDouble("unopen_rate");
+		unsubscribeRate = jsonObj.getDouble("unsub_rate");
+		abuseRate = jsonObj.getDouble("abuse_rate");
 	}
 
-
 	/**
-	 * @return the type
+	 * @return The type of business industry associated with your account. For example: retail, education, etc.
 	 */
 	public String getType() {
 		return type;
 	}
 
 	/**
-	 * @return the open_rate
+	 * @return The industry open rate.
 	 */
-	public double getOpen_rate() {
-		return open_rate;
+	public double getOpenRate() {
+		return openRate;
 	}
 
 	/**
-	 * @return the click_rate
+	 * @return The industry click rate.
 	 */
-	public double getClick_rate() {
-		return click_rate;
+	public double getClickRate() {
+		return clickRate;
 	}
 
 	/**
-	 * @return the bounce_rate
+	 * @return The industry bounce rate.
 	 */
-	public double getBounce_rate() {
-		return bounce_rate;
+	public double getBounceRate() {
+		return bounceRate;
 	}
 
 	/**
-	 * @return the unopen_rate
+	 * @return The industry unopened rate.
 	 */
-	public double getUnopen_rate() {
-		return unopen_rate;
+	public double getUnopenRate() {
+		return unopenRate;
 	}
 
 	/**
-	 * @return the unsub_rate
+	 * @return The industry unsubscribe rate.
 	 */
-	public double getUnsub_rate() {
-		return unsub_rate;
+	public double getUnsubscribeRate() {
+		return unsubscribeRate;
 	}
 
 	/**
-	 * @return the abuse_rate
+	 * @return The industry abuse rate.
 	 */
-	public double getAbuse_rate() {
-		return abuse_rate;
+	public double getAbuseRate() {
+		return abuseRate;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return
+		"Industry Statistics:" + System.lineSeparator() +
+		"    Type: " + getType() + System.lineSeparator() +
+		"    Open Rate: " + getOpenRate() + System.lineSeparator() +
+		"    Click Rate: " + getClickRate() + System.lineSeparator() +
+		"    Bounce Rate: " + getBounceRate() + System.lineSeparator() +
+		"    Unopen Rate: " + getUnopenRate() + System.lineSeparator() +
+		"    Unsubscribe Rate: " + getUnsubscribeRate() + System.lineSeparator() +
+		"    Abuse Rate: " + getAbuseRate();
+	}
+	
 }

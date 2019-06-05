@@ -10,137 +10,199 @@ import java.time.LocalDateTime;
 import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
 
-public class Template extends MailchimpObject  {
+/**
+ * Mailchimp template.
+ */
+public class Template {
 
-	private String templateName;
-	private TemplateType templateType;
-	private String shareUrl;
+	private int id;
+	private TemplateType type;
+	private String name;
+	private boolean dragAndDrop;
+	private boolean responsive;
+	private String category;
 	private LocalDateTime dateCreated;
-	private String folder_id;
+	private LocalDateTime dateEdited;
+	private String createdBy;
+	private String editedBy;
+	private boolean active;
+	private String folderId;
+	private String thumbnail;
+	private String shareUrl;
 	private MailChimpConnection connection;
 	private String html;
-	
-	public Template(int id, String templateName, TemplateType templateType, String shareUrl, LocalDateTime dateCreated, String folder_id, MailChimpConnection connection, JSONObject jsonRepresentation) {
-		super(String.valueOf(id),jsonRepresentation);
-		this.templateName = templateName;
-		this.templateType = templateType;
-		this.shareUrl = shareUrl;
-		this.dateCreated = dateCreated;
-		this.folder_id = folder_id;
-		this.connection = connection;
-	}
 
 	public Template(MailChimpConnection connection, JSONObject jsonTemplate) {
-		super(String.valueOf(jsonTemplate.getInt("id")), jsonTemplate);
-		this.templateName = jsonTemplate.getString("name");
-		this.templateType = TemplateType.valueOf(jsonTemplate.getString("type").toUpperCase());
-		this.shareUrl = jsonTemplate.getString("share_url");
-		this.dateCreated = DateConverter.getInstance().createDateFromISO8601(jsonTemplate.getString("date_created"));
-		this.folder_id = jsonTemplate.has("folder_id") ? jsonTemplate.getString("folder_id") : null;
-		this.connection = connection;
+		parse(connection, jsonTemplate);
 	}
-	
-	public Template(Builder b){
-		this.templateName = b.templateName;
-		this.folder_id = b.folder_id;
+
+	public Template(Builder b) {
+		this.name = b.templateName;
+		this.folderId = b.folder_id;
 		this.html = b.html;
 	}
 
-
-	/**
-	 * Change the name of this template
-	 * @param name
-	 * @throws Exception
-	 */
-	public void changeName(String name) throws Exception{
-		JSONObject changedTemplate = new JSONObject();
-		changedTemplate.put("name",name);
-		this.getConnection().do_Patch(new URL(this.getConnection().getTemplateendpoint()+"/"+this.getId()), changedTemplate.toString(),this.getConnection().getApikey() );
-		this.templateName = name;
+	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
+		id = jsonObj.getInt("id");
+		type = TemplateType.valueOf(jsonObj.getString("type").toUpperCase());
+		name = jsonObj.getString("name");
+		dragAndDrop = jsonObj.getBoolean("drag_and_drop");
+		responsive = jsonObj.getBoolean("responsive");
+		category = jsonObj.has("category") ? jsonObj.getString("category") : null;
+		dateCreated = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("date_created"));
+		dateEdited = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("date_edited"));
+		createdBy = jsonObj.getString("created_by");
+		editedBy = jsonObj.getString("edited_by");
+		active = jsonObj.getBoolean("active");
+		folderId = jsonObj.has("folder_id") ? jsonObj.getString("folder_id") : null;
+		thumbnail = jsonObj.has("thumbnail") ? jsonObj.getString("thumbnail") : null;
+		shareUrl = jsonObj.getString("share_url");
+		this.connection = connection;
+		html = null;
 	}
 
 	/**
-	 * Change the html content of this template
-	 * @param html
-	 * @throws Exception
+	 * Commit changes to template fields
 	 */
-	public void changeHTML(String html) throws Exception{
-		JSONObject changedTemplate = new JSONObject();
-		changedTemplate.put("html",html);
-		this.getConnection().do_Patch(new URL(this.getConnection().getTemplateendpoint()+"/"+this.getId()), changedTemplate.toString(),this.getConnection().getApikey() );
+	public void update() throws Exception {
+		JSONObject jsonObj = getJsonRepresentation();
+		String results = getConnection().do_Patch(new URL(getConnection().getTemplateendpoint()+"/"+getId()), jsonObj.toString(), getConnection().getApikey() );
+		parse(connection, new JSONObject(results));
 	}
 
 	/**
-	 * Change the folder of this template
-	 * @param folder_id
+	 * Get the default content for a template
+	 * @return
 	 * @throws Exception
 	 */
-	public void changeFolder(String folder_id) throws Exception{
-		JSONObject changedTemplate = new JSONObject();
-		changedTemplate.put("folder_id",folder_id);
-		this.getConnection().do_Patch(new URL(this.getConnection().getTemplateendpoint()+"/"+this.getId()), changedTemplate.toString(),this.getConnection().getApikey() );
-		this.folder_id = folder_id;
+	public JSONObject getDefaultContent() throws Exception {
+		String results = getConnection().do_Get(new URL(getConnection().getTemplateendpoint()+"/"+getId()+"/default-content"), getConnection().getApikey() );
+		return new JSONObject(results);
 	}
-
+	
 	/**
-	 * Overwrite this template with a new one
-	 * Sets new name, content, and folder
-	 * @param template
+	 * @return The individual id for the template
 	 */
-	public void overwrite(Template template) throws Exception{
-		JSONObject changedTemplate = new JSONObject();
-		changedTemplate.put("name",template.getTemplateName() != null ? template.getTemplateName(): "");
-		changedTemplate.put("folder_id",template.getFolder_id() != null ? template.getFolder_id() : "");
-		changedTemplate.put("html",template.getHtml() != null ? template.getHtml(): "");
-		this.getConnection().do_Patch(new URL(this.getConnection().getTemplateendpoint()+"/"+this.getId()), changedTemplate.toString(),this.getConnection().getApikey() );
-		this.templateName = template.getTemplateName();
-		this.folder_id = template.getFolder_id();
-		this.html = template.getHtml();
+	public int getId() {
+		return id;
 	}
 
 	/**
 	 * @return the templateType
 	 */
-	public TemplateType getTemplateType() {
-		return templateType;
+	public TemplateType getType() {
+		return type;
 	}
 
 	/**
-	 * @return the templateName
+	 * @return the template name
 	 */
-	public String getTemplateName() {
-		return templateName;
+	public String getName() {
+		return name;
 	}
 
 	/**
-	 * @return the shareUrl
+	 * Change the name of the template. You must call {@link #update()} for changes to take effect.
+	 * @param name the template name to set.
 	 */
-	public String getShareUrl() {
-		return shareUrl;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	/**
-	 * @return the dateCreated
+	 * @return Whether the template uses the drag and drop editor.
+	 */
+	public boolean isDragAndDrop() {
+		return dragAndDrop;
+	}
+
+	/**
+	 * @return Whether the template contains media queries to make it responsive.
+	 */
+	public boolean isResponsive() {
+		return responsive;
+	}
+
+	/**
+	 * @return If available, the category the template is listed in.
+	 */
+	public String getCategory() {
+		return category;
+	}
+
+	/**
+	 * @return The date and time the template was created
 	 */
 	public LocalDateTime getDateCreated() {
 		return dateCreated;
 	}
 
 	/**
-	 * @return the folder ID the template is currently in
+	 * @return The date and time the template was edited
 	 */
-	public String getFolder_id() {
-		return folder_id;
+	public LocalDateTime getDateEdited() {
+		return dateEdited;
 	}
 
 	/**
-	 * @return the html content of this template. Is not set, when template is received from MailChimp servers
+	 * @return The login name for template’s creator.
 	 */
-	public String getHtml() {
-		return html;
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	/**
+	 * @return The login name who last edited the template.
+	 */
+	public String getEditedBy() {
+		return editedBy;
+	}
+
+	/**
+	 * User templates are not ‘deleted,’ but rather marked as ‘inactive.’
+	 * @return Wether the template is still active.
+	 */
+	public boolean isActive() {
+		return active;
+	}
+
+	/**
+	 * @return the folder ID the template is currently in
+	 */
+	public String getFolderId() {
+		return folderId;
+	}
+
+	/**
+	 * @return If available, the URL for a thumbnail of the template
+	 */
+	public String getThumbnail() {
+		return thumbnail;
+	}
+
+	/**
+	 * @return The URL used for template sharing.
+	 */
+	public String getShareUrl() {
+		return shareUrl;
+	}
+
+	/**
+	 * Change the folder of the template. You must call {@link #update()} for changes to take effect.
+	 * @param folderId the folderId to set
+	 */
+	public void setFolderId(String folderId) {
+		this.folderId = folderId;
+	}
+
+	/**
+	 * Set new html content. You must call {@link #update()} for changes to take effect.
+	 * @param html the html to set
+	 */
+	public void setHtml(String html) {
+		this.html = html;
 	}
 
 	/**
@@ -150,12 +212,36 @@ public class Template extends MailchimpObject  {
 		return connection;
 	}
 
+	/**
+	 * Helper method to convert JSON for mailchimp PATCH/POST operations
+	 * @return
+	 */
+	public JSONObject getJsonRepresentation() throws Exception {
+		JSONObject jsonObj = new JSONObject();
+		jsonObj.put("name",getName() != null ? getName(): "");
+		if (getFolderId() != null ) {
+			jsonObj.put("folder_id", getFolderId());
+		}
+		jsonObj.put("html", html != null ? html : "");
+		return jsonObj;
+	}
+
 	@Override
 	public String toString(){
-		return "Name: " + this.getId() + "-" + this.getTemplateName() + System.lineSeparator() +
-				"Type: " + this.getTemplateType().getStringRepresentation() + System.lineSeparator() +
-				"Share url: "+  this.getShareUrl() +  System.lineSeparator()+
-				"Date created: " + this.getDateCreated() + System.lineSeparator();
+		return 
+				"Template Id: " + getId() + System.lineSeparator() +
+				"Name: " + getName() + System.lineSeparator() +
+				"Type: " + getType().getStringRepresentation() + System.lineSeparator() +
+				"DragAndDrop: " + isDragAndDrop() + System.lineSeparator() +
+				"Responsive: " + isResponsive() + System.lineSeparator() +
+				"Category: " + getCategory() + System.lineSeparator() +
+				"Date created: " + getDateCreated() + System.lineSeparator() +
+				"Created By: " + getCreatedBy() + System.lineSeparator() +
+				"Date edited: " + getDateEdited() + System.lineSeparator() +
+				"Edited By: " + getEditedBy() + System.lineSeparator() +
+				"Active: " + isActive() + System.lineSeparator() +
+				"Folder Id: " + getFolderId() +  System.lineSeparator()+
+				"Share url: "+  getShareUrl();
 	}
 
 	public static class Builder {
