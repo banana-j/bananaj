@@ -25,6 +25,7 @@ import com.github.alexanderwe.bananaj.model.list.interests.Interest;
 import com.github.alexanderwe.bananaj.model.list.interests.InterestCategory;
 import com.github.alexanderwe.bananaj.model.list.member.Member;
 import com.github.alexanderwe.bananaj.model.list.member.MemberStatus;
+import com.github.alexanderwe.bananaj.model.list.member.TagStatus;
 import com.github.alexanderwe.bananaj.model.list.mergefield.MergeField;
 import com.github.alexanderwe.bananaj.model.list.mergefield.MergeFieldOptions;
 import com.github.alexanderwe.bananaj.model.list.segment.AbstractCondition;
@@ -113,6 +114,7 @@ public class MailChimpList extends MailchimpObject {
 			final JSONObject memberDetail = membersArray.getJSONObject(i);
 			final JSONObject memberMergeTags = memberDetail.getJSONObject("merge_fields");
 			final JSONObject memberStats = memberDetail.getJSONObject("stats");
+	    	final JSONArray tags = memberDetail.getJSONArray("tags");
 
 			HashMap<String, String> merge_fields = new HashMap<String, String>();
 
@@ -122,10 +124,15 @@ public class MailChimpList extends MailchimpObject {
 				// loop to get the dynamic key
 				String value = memberMergeTags.getString(key);
 				merge_fields.put(key, value);
-			}
-			Member member = new Member(memberDetail.getString("id"),this,merge_fields,memberDetail.getString("unique_email_id"), memberDetail.getString("email_address"), MemberStatus.valueOf(memberDetail.getString("status").toUpperCase()),memberDetail.getString("timestamp_signup"),memberDetail.getString("ip_signup"),memberDetail.getString("timestamp_opt"),memberDetail.getString("ip_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),memberDetail.getString("last_changed"),this.getConnection(),memberDetail);
-			members.add(member);
+			}			
 
+	    	HashMap<String, TagStatus> memberTags = new HashMap<String, TagStatus>();
+	    	for(int j = 0; j < tags.length(); j++) {
+	    		memberTags.put(tags.getString(j), TagStatus.ACTIVE);
+	    	}
+	    	
+			Member member = new Member(memberDetail.getString("id"),this,merge_fields, memberTags,memberDetail.getString("unique_email_id"), memberDetail.getString("email_address"), MemberStatus.valueOf(memberDetail.getString("status").toUpperCase()),memberDetail.getString("timestamp_signup"),memberDetail.getString("ip_signup"),memberDetail.getString("timestamp_opt"),memberDetail.getString("ip_opt"),memberStats.getDouble("avg_open_rate"),memberStats.getDouble("avg_click_rate"),memberDetail.getString("last_changed"),this.getConnection(),memberDetail);
+			members.add(member);
 		}
 		return members;
 	}
