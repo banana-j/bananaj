@@ -19,7 +19,9 @@ public class AutomationEmailSettings {
 
 	public AutomationEmailSettings(JSONObject jsonObj) {
 		this.subjectLine = jsonObj.getString("subject_line");
-		this.previewText = jsonObj.getString("preview_text");
+		if (jsonObj.has("preview_text")) {
+			this.previewText = jsonObj.getString("preview_text");
+		}
 		this.title = jsonObj.getString("title");
 		this.fromName = jsonObj.getString("from_name");
 		this.replyTo = jsonObj.getString("reply_to");

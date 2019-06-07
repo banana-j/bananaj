@@ -400,10 +400,9 @@ public class Campaign {
 				getSettings().toString() + System.lineSeparator() +
 				"Type: " + getType().getStringRepresentation() + System.lineSeparator() +
 				"Status: " + getStatus().getStringRepresentation() + System.lineSeparator() +
-				//"Tracking: " + System.lineSeparator() +
-				getTracking().toString() + System.lineSeparator() +
-				//"Report Summary: " + System.lineSeparator() +
-				getReportSummary().toString();
+				(getRecipients() != null ? getRecipients().toString() + System.lineSeparator() : "") +
+				getTracking().toString() + 
+				(getReportSummary() != null ? System.lineSeparator() + getReportSummary().toString() : "");
 	}
 
 }

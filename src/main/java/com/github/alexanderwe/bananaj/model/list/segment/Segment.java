@@ -205,8 +205,8 @@ public class Segment {
                 "    List ID: " + getListId() + System.lineSeparator() +
                 "    Created at: " + getCreatedAt() + System.lineSeparator() +
                 "    Updated at: " + getUpdatedAt() +  System.lineSeparator() +
-                "    Member count: " +  getMemberCount() + System.lineSeparator() +
-                (getOptions() != null ? getOptions().toString() : "");
+                "    Member count: " +  getMemberCount() +
+                (getOptions() != null ? System.lineSeparator() + getOptions().toString() : "");
     }
 
     public static class Builder {

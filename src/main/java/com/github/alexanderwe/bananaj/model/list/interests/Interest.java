@@ -70,12 +70,14 @@ public class Interest {
 	
 	@Override
     public String toString(){
-        return  "ID: " + this.getId() +  System.lineSeparator() +
-                "List ID: " + this.getList_id() + System.lineSeparator() +
-                "Category Id: " + this.getCategory_id() + System.lineSeparator() +
-                "Name: " + this.getName() +  System.lineSeparator() +
-                "Subscriber Count: " + this.getSubscriber_count() + System.lineSeparator() +
-                "Display Order: " +  this.getDisplay_order() + System.lineSeparator();
+        return  
+				"Interest:" + System.lineSeparator() +
+        		"    ID: " + this.getId() +  System.lineSeparator() +
+                "    List ID: " + this.getList_id() + System.lineSeparator() +
+                "    Category Id: " + this.getCategory_id() + System.lineSeparator() +
+                "    Name: " + this.getName() +  System.lineSeparator() +
+                "    Subscriber Count: " + this.getSubscriber_count() + System.lineSeparator() +
+                "    Display Order: " +  this.getDisplay_order();
     }
 	
 	public static class Builder {
