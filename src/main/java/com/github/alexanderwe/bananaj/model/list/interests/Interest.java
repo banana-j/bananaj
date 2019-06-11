@@ -2,99 +2,120 @@ package com.github.alexanderwe.bananaj.model.list.interests;
 
 import org.json.JSONObject;
 
+/**
+ * Manage interests for a specific Mailchimp audience list. Assign subscribers
+ * to interests to group them together. Interests are referred to as ‘group
+ * names’ in the Mailchimp application.
+ *
+ */
 public class Interest {
-	private String category_id;
-    private String list_id;
+	private String categoryId;
+    private String listId;
     private String id;
     private String name;
-    private String subscriber_count;
-    private Integer display_order;
-
-	public Interest(String id, String list_id, String category_id, String name, String subscriber_count, Integer display_order) {
-		this.category_id = category_id;
-		this.list_id = list_id;
-		this.id = id;
-		this.name = name;
-		this.subscriber_count = subscriber_count;
-		this.display_order = display_order;
-	}
+    private String subscriberCount;
+    private Integer displayOrder;
 
     /**
-     * Used when created a Segment locally with the Builder class
-     * @see Builder
+	 * Construct class given a Mailchimp JSON object
+     * 
+     * @param jsonObj
+     */
+	public Interest(JSONObject jsonObj) {
+		categoryId = jsonObj.getString("category_id");
+		listId = jsonObj.getString("list_id");
+        id = jsonObj.getString("id");
+        name = jsonObj.getString("name");
+        subscriberCount = jsonObj.getString("subscriber_count");
+        displayOrder = jsonObj.getInt("display_order");
+	}
+	
+    /**
+     *  {@link Interest.Builder} model for local construction
+     * @see Interest.Builder
      * @param b
      */
     public Interest(Builder b) {
-		this.category_id = b.category_id;
-		this.list_id = b.list_id;
+		this.categoryId = b.categoryId;
+		this.listId = b.listId;
 		this.id = b.id;
 		this.name = b.name;
-		this.subscriber_count = b.subscriber_count;
-		this.display_order = b.display_order;
+		this.subscriberCount = b.subscriberCount;
+		this.displayOrder = b.displayOrder;
     }
     
-
-	public String getCategory_id() {
-		return category_id;
+    /**
+     * @return The id for the interest category.
+     */
+	public String getCategoryId() {
+		return categoryId;
 	}
 
-	public String getList_id() {
-		return list_id;
+	/**
+	 * @return The ID for the list that this interest belongs to.
+	 */
+	public String getListId() {
+		return listId;
 	}
 
+	/**
+	 * @return The ID for the interest.
+	 */
 	public String getId() {
 		return id;
 	}
 
+	/**
+	 * @return The name of the interest. This can be shown publicly on a subscription form.
+	 */
 	public String getName() {
 		return name;
 	}
 
-	public String getSubscriber_count() {
-		return subscriber_count;
+	/**
+	 * @return The number of subscribers associated with this interest.
+	 */
+	public String getSubscriberCount() {
+		return subscriberCount;
 	}
 
-	public Integer getDisplay_order() {
-		return display_order;
+	/**
+	 * @return The display order for interests.
+	 */
+	public Integer getDisplayOrder() {
+		return displayOrder;
 	}
 
-	public static Interest build(JSONObject jsonRepresentation) {
-		String id = jsonRepresentation.getString("id");
-		String list_id = jsonRepresentation.getString("list_id");
-		String category_id = jsonRepresentation.getString("category_id");
-		String name = jsonRepresentation.getString("name");
-		String subscriber_count = jsonRepresentation.getString("subscriber_count");
-		Integer display_order = jsonRepresentation.getInt("display_order");
-		return new Interest(id, list_id, category_id, name, subscriber_count, display_order);
-	}
-	
 	@Override
     public String toString(){
         return  
 				"Interest:" + System.lineSeparator() +
         		"    ID: " + this.getId() +  System.lineSeparator() +
-                "    List ID: " + this.getList_id() + System.lineSeparator() +
-                "    Category Id: " + this.getCategory_id() + System.lineSeparator() +
+                "    List ID: " + this.getListId() + System.lineSeparator() +
+                "    Category Id: " + this.getCategoryId() + System.lineSeparator() +
                 "    Name: " + this.getName() +  System.lineSeparator() +
-                "    Subscriber Count: " + this.getSubscriber_count() + System.lineSeparator() +
-                "    Display Order: " +  this.getDisplay_order();
+                "    Subscriber Count: " + this.getSubscriberCount() + System.lineSeparator() +
+                "    Display Order: " +  this.getDisplayOrder();
     }
 	
+	/**
+	 * Builder for {@link Interest}
+	 */
 	public static class Builder {
-		private String category_id;
-	    private String list_id;
+		private String categoryId;
+	    private String listId;
 	    private String id;
 	    private String name;
-	    private String subscriber_count;
-	    private Integer display_order;
+	    private String subscriberCount;
+	    private Integer displayOrder;
 		
-        public Builder category_id(String s) {
-            this.category_id = s;
+        public Builder categoryId(String s) {
+            this.categoryId = s;
             return this;
         }
         
-        public Builder list_id(String s) {
-            this.list_id = s;
+        public Builder listId(String s) {
+            this.listId = s;
             return this;
         }
         
@@ -108,13 +129,13 @@ public class Interest {
             return this;
         }
         
-        public Builder subscriber_count(String s) {
-            this.subscriber_count = s;
+        public Builder subscriberCount(String s) {
+            this.subscriberCount = s;
             return this;
         }
         
-        public Builder display_order(int i) {
-            this.display_order = new Integer(i);
+        public Builder displayOrder(int i) {
+            this.displayOrder = new Integer(i);
             return this;
         }
 

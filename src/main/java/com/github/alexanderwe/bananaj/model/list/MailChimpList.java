@@ -462,7 +462,7 @@ public class MailChimpList extends MailchimpObject {
 		for (int i = 0 ; i < interestArray.length();i++)
 		{
 			final JSONObject jsonInterest = interestArray.getJSONObject(i);
-			Interest interest = Interest.build(jsonInterest);
+			Interest interest = new Interest(jsonInterest);
 			interests.add(interest);
 
 		}
@@ -471,7 +471,7 @@ public class MailChimpList extends MailchimpObject {
 	
 	public Interest getInterest(String interestCategoryId, String interestId) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
 		JSONObject jsonInterests = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/interest-categories/"+interestCategoryId+"/interests/"+interestId) ,connection.getApikey()));
-		return Interest.build(jsonInterests);
+		return new Interest(jsonInterests);
 	}
 	
 	/**
