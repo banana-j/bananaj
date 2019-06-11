@@ -1,11 +1,21 @@
 package com.github.alexanderwe.bananaj.model.campaign;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.exceptions.ConditionException;
+import com.github.alexanderwe.bananaj.model.list.interests.Interest;
+import com.github.alexanderwe.bananaj.model.list.segment.AbstractCondition;
+import com.github.alexanderwe.bananaj.model.list.segment.ConditionType;
+import com.github.alexanderwe.bananaj.model.list.segment.MatchType;
+import com.github.alexanderwe.bananaj.model.list.segment.Operator;
+import com.github.alexanderwe.bananaj.model.list.segment.Segment;
+import com.github.alexanderwe.bananaj.model.list.segment.StringArrayCondition;
 
 /**
- * 
+ * Defines the audience or recipients for a campaign
  */
 public class CampaignRecipients {
 
@@ -17,16 +27,20 @@ public class CampaignRecipients {
     private CampaignSegmentOpts segmentOpts;
 
     /**
-     * Used when created a Condition locally with the Builder class
-     * @see Builder
+     * {@link CampaignRecipients.Builder} model for local construction
+     * @see CampaignRecipients.Builder
      * @param b
      */
-
     public CampaignRecipients(Builder b) throws ConditionException{
     	this.segmentOpts = b.segmentOpts;
     	this.listId = b.listId;
     }
 
+    /**
+	 * Construct class given a Mailchimp JSON object
+     * 
+     * @param jsonObj
+     */
     public CampaignRecipients(JSONObject jsonObj) {
     	this.listId = jsonObj.getString("list_id");
     	this.listIsActive = jsonObj.getBoolean("list_is_active");
@@ -43,6 +57,46 @@ public class CampaignRecipients {
     }
     
     /**
+     * Construct campaign recipients for a given Segment representing an audience group or tag. 
+     * @param segment
+     */
+    public CampaignRecipients(Segment segment) {
+    	listId = segment.getListId();
+    	segmentOpts = new CampaignSegmentOpts.Builder()
+    			.savedSegmentId(segment.getId())
+    			.build();
+    }
+	
+    /**
+     * Construct campaign recipients for a given audience interest group. 
+     * @param interest
+     * @throws ConditionException
+     */
+    public CampaignRecipients(Interest interest) throws ConditionException {
+    	ArrayList<AbstractCondition> conditions = new ArrayList<AbstractCondition>();
+    	conditions.add(new StringArrayCondition.Builder()
+    			.operator(Operator.INTERESTCONTAINS)
+    			.field("interests-"+interest.getCategoryId())
+    			.conditionType(ConditionType.INTERESTS)
+    			.value(new ArrayList<String>(Arrays.asList(new String[]{interest.getId()})))
+    			.build());
+
+    	listId = interest.getListId();
+    	segmentOpts = new CampaignSegmentOpts.Builder()
+    			.match(MatchType.ANY)
+    			.conditions(conditions)
+    			.build();
+    }
+	
+    /**
+     * Construct campaign recipients for a given audience. 
+     * @param listId The listId for the 
+     */
+	public CampaignRecipients(String listId) {
+		this.listId = listId;
+	}
+	
+   /**
      * The unique list id
      * @return
      */
@@ -120,6 +174,10 @@ public class CampaignRecipients {
                 (getSegmentOpts() != null ? System.lineSeparator() + getSegmentOpts().toString() : "");
     }
 
+    /**
+     * Builder for {@link CampaignRecipients}
+     *
+     */
     public static class Builder {
         private String listId;
         private CampaignSegmentOpts segmentOpts;
