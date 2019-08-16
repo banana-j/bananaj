@@ -161,7 +161,6 @@ public class MailChimpList extends MailchimpObject {
 	 * subscribed, unsubscribed, or bounced member.
 	 * 
 	 * @param subscriberHash The MD5 hash of the lowercase version of the list member’s email address.
-	 * @return
 	 * @throws URISyntaxException 
 	 * @throws TransportException 
 	 * @throws MalformedURLException 
@@ -177,7 +176,6 @@ public class MailChimpList extends MailchimpObject {
 	 * @param subscriberHash The MD5 hash of the lowercase version of the list member’s email address.
 	 * @param count Number of items to return
 	 * @param offset Zero based offset
-	 * @return
 	 * @throws URISyntaxException 
 	 * @throws TransportException 
 	 * @throws MalformedURLException 
@@ -199,7 +197,6 @@ public class MailChimpList extends MailchimpObject {
 	 * @param subscriberHash The MD5 hash of the lowercase version of the list member’s email address.
 	 * @param count Number of items to return
 	 * @param offset Zero based offset
-	 * @return
 	 * @throws JSONException
 	 * @throws MalformedURLException
 	 * @throws TransportException
@@ -226,7 +223,6 @@ public class MailChimpList extends MailchimpObject {
 	 * Get a specific note for the member
 	 * @param subscriberHash The MD5 hash of the lowercase version of the list member’s email address.
 	 * @param noteId The id for the note.
-	 * @return
 	 * @throws JSONException
 	 * @throws MalformedURLException
 	 * @throws TransportException
@@ -530,7 +526,6 @@ public class MailChimpList extends MailchimpObject {
 	/**
 	 * Get a specific segment of this list
 	 * @param segmentID
-	 * @return
 	 * @throws URISyntaxException 
 	 * @throws TransportException 
 	 * @throws MalformedURLException 
@@ -595,7 +590,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * Get a list of all merge fields of this list
-	 * @return
 	 * @throws MalformedURLException 
 	 * @throws URISyntaxException 
 	 * @throws TransportException 
@@ -659,7 +653,6 @@ public class MailChimpList extends MailchimpObject {
 	/**
 	 * Get a specific merge field of this list
 	 * @param mergeFieldID
-	 * @return
 	 * @throws URISyntaxException 
 	 * @throws TransportException 
 	 * @throws JSONException 
@@ -828,7 +821,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * The ID used in the Mailchimp web application. View this list in your Mailchimp account at https://{dc}.admin.mailchimp.com/lists/members/?id={web_id}
-	 * @return
 	 */
 	public int getWebId() {
 		return webId;
@@ -836,7 +828,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * The name of the list
-	 * @return
 	 */
 	public String getName() {
 		return name;
@@ -844,7 +835,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * Contact information displayed in campaign footers to comply with international spam laws
-	 * @return
 	 */
 	public ListContact getContact() {
 		return contact;
@@ -852,7 +842,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * The permission reminder for the list
-	 * @return
 	 */
 	public String getPermissionReminder() {
 		return permissionReminder;
@@ -860,7 +849,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * Whether campaigns for this list use the Archive Bar in archives by default
-	 * @return
 	 */
 	public boolean isUseArchiveBar() {
 		return useArchiveBar;
@@ -868,7 +856,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * Default values for campaigns created for this list
-	 * @return
 	 */
 	public ListCampaignDefaults getCampaignDefaults() {
 		return campaignDefaults;
@@ -876,7 +863,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * The email address to send subscribe notifications to
-	 * @return
 	 */
 	public String getNotifyOnSubscribe() {
 		return notifyOnSubscribe;
@@ -884,7 +870,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * The email address to send unsubscribe notifications to
-	 * @return
 	 */
 	public String getNotifyOnUnsubscribe() {
 		return notifyOnUnsubscribe;
@@ -900,7 +885,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * An auto-generated activity score for the list (0-5)
-	 * @return
 	 */
 	public int getListRating() {
 		return listRating;
@@ -911,8 +895,6 @@ public class MailChimpList extends MailchimpObject {
 	 * subscribers can choose whether they want to receive HTML or plain-text
 	 * emails. When set to false, subscribers will receive HTML emails, with a
 	 * plain-text alternative backup.
-	 * 
-	 * @return
 	 */
 	public boolean isEmailTypeOption() {
 		return emailTypeOption;
@@ -920,7 +902,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * EepURL shortened version of this list’s subscribe form
-	 * @return
 	 */
 	public String getSubscribeUrlShort() {
 		return subscribeUrlShort;
@@ -928,7 +909,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * The full version of this list’s subscribe form (host will vary)
-	 * @return
 	 */
 	public String getSubscribeUrlLong() {
 		return subscribeUrlLong;
@@ -936,7 +916,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * The list’s Email Beamer address
-	 * @return
 	 */
 	public String getBeamerAddress() {
 		return beamerAddress;
@@ -944,7 +923,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * Whether this list is public or private
-	 * @return
 	 */
 	public ListVisibility getVisibility() {
 		return visibility;
@@ -952,7 +930,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * Whether or not to require the subscriber to confirm subscription via email
-	 * @return
 	 */
 	public boolean isDoubleOptin() {
 		return doubleOptin;
@@ -960,7 +937,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * Whether or not this list has a welcome automation connected. Welcome Automations: welcomeSeries, singleWelcome, emailFollowup.
-	 * @return
 	 */
 	public boolean isHasWelcome() {
 		return hasWelcome;
@@ -968,7 +944,6 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * Whether or not the list has marketing permissions (eg. GDPR) enabled
-	 * @return
 	 */
 	public boolean isMarketingPermissions() {
 		return marketingPermissions;

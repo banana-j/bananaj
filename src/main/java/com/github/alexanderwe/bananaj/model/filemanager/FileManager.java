@@ -42,7 +42,6 @@ public class FileManager {
 	 * Get file manager folders in mailchimp account account with pagination
 	 * @param count Number of folders to return
 	 * @param offset Zero based offset
-	 * @return
 	 * @throws Exception
 	 */
 	public List<FileManagerFolder> getFileManagerFolders(int count, int offset) throws Exception {
@@ -63,7 +62,6 @@ public class FileManager {
 
 	/**
 	 * Get a specific file manager folder in mailchimp account account
-	 * @return
 	 * @throws Exception
 	 */
 	public FileManagerFolder getFileManagerFolder(int id) throws Exception {
@@ -74,7 +72,6 @@ public class FileManager {
 	/**
 	 * Create a new folder
 	 * @param name The name of the folder
-	 * @return
 	 * @throws Exception
 	 */
 	public FileManagerFolder createFileManagerFolder(String name) throws Exception {
@@ -97,7 +94,6 @@ public class FileManager {
 	 * Get files in your account with pagination
 	 * @param count Number of lists to return
 	 * @param offset Zero based offset
-	 * @return
 	 * @throws Exception
 	 */
 	public List<FileManagerFile> getFileManagerFiles(int count, int offset) throws Exception{
@@ -120,7 +116,6 @@ public class FileManager {
 
 	/**
 	 * Get all files in your account
-	 * @return
 	 * @throws Exception
 	 */
 	public FileManagerFile getFileManagerFile(int id) throws Exception {
@@ -134,7 +129,6 @@ public class FileManager {
 	 * @param folder_id The mailchimp folder id where the file will be placed
 	 * @param filename The name of the mailchimp file
 	 * @param file File to be uploaded
-	 * @return
 	 * @throws JSONException
 	 * @throws MalformedURLException
 	 * @throws Exception
@@ -154,7 +148,6 @@ public class FileManager {
 	 * Upload a new file to mailchimp with no folder
 	 * @param filename The name of the mailchimp file
 	 * @param file File to be uploaded
-	 * @return
 	 * @throws JSONException
 	 * @throws MalformedURLException
 	 * @throws Exception

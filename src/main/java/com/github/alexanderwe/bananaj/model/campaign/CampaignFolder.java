@@ -39,7 +39,6 @@ public class CampaignFolder {
 
     /**
      * Delete a template folder
-     * @param folder_id
      * @throws Exception
      */
     public void delete() throws Exception {
@@ -55,7 +54,6 @@ public class CampaignFolder {
 
     /**
      * The name of the folder
-     * @return
      */
     public String getName() {
         return name;
@@ -71,7 +69,6 @@ public class CampaignFolder {
 
 	/**
      * The number of campaigns in the folder
-     * @return
      */
     public int getCount() {
         return count;
@@ -86,7 +83,6 @@ public class CampaignFolder {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @return
 	 */
 	private JSONObject getJsonRepresentation() throws Exception {
 		JSONObject json = new JSONObject();

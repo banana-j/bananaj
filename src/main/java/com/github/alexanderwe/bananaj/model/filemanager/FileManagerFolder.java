@@ -155,7 +155,6 @@ public class FileManagerFolder {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @return
 	 */
 	public JSONObject getJsonRepresentation() throws Exception {
 		JSONObject jsonObj = new JSONObject();

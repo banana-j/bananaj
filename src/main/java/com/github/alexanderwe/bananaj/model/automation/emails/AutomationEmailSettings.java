@@ -41,7 +41,6 @@ public class AutomationEmailSettings {
 
 	/**
 	 * The subject line for the campaign
-	 * @return
 	 */
 	public String getSubjectLine() {
 		return subjectLine;
@@ -49,7 +48,6 @@ public class AutomationEmailSettings {
 
 	/**
 	 * The preview text for the campaign
-	 * @return
 	 */
 	public String getPreviewText() {
 		return previewText;
@@ -57,7 +55,6 @@ public class AutomationEmailSettings {
 
 	/**
 	 * The title of the campaign
-	 * @return
 	 */
 	public String getTitle() {
 		return title;
@@ -65,7 +62,6 @@ public class AutomationEmailSettings {
 
 	/**
 	 * The ‘from’ name on the campaign (not an email address)
-	 * @return
 	 */
 	public String getFromName() {
 		return fromName;
@@ -73,7 +69,6 @@ public class AutomationEmailSettings {
 
 	/**
 	 * The reply-to email address for the campaign
-	 * @return
 	 */
 	public String getReplyTo() {
 		return replyTo;
@@ -81,7 +76,6 @@ public class AutomationEmailSettings {
 
 	/**
 	 * Whether Mailchimp authenticated the campaign. Defaults to true.
-	 * @return
 	 */
 	public boolean isAuthenticate() {
 		return authenticate;
@@ -89,7 +83,6 @@ public class AutomationEmailSettings {
 
 	/**
 	 * Automatically append Mailchimp’s default footer to the campaign
-	 * @return
 	 */
 	public boolean isAutoFooter() {
 		return autoFooter;
@@ -97,7 +90,6 @@ public class AutomationEmailSettings {
 
 	/**
 	 * Automatically inline the CSS included with the campaign content
-	 * @return
 	 */
 	public boolean isInlineCss() {
 		return inlineCss;
@@ -105,7 +97,6 @@ public class AutomationEmailSettings {
 
 	/**
 	 * Automatically tweet a link to the campaign archive page when the campaign is sent
-	 * @return
 	 */
 	public boolean isAutoTweet() {
 		return autoTweet;
@@ -113,7 +104,6 @@ public class AutomationEmailSettings {
 
 	/**
 	 * Allows Facebook comments on the campaign (also force-enables the Campaign Archive toolbar). Defaults to true.
-	 * @return
 	 */
 	public boolean isFbComments() {
 		return fbComments;
@@ -121,7 +111,6 @@ public class AutomationEmailSettings {
 
 	/**
 	 * The id for the template used in this campaign
-	 * @return
 	 */
 	public int getTemplateId() {
 		return templateId;
@@ -129,7 +118,6 @@ public class AutomationEmailSettings {
 
 	/**
 	 * Whether the campaign uses the drag-and-drop editor
-	 * @return
 	 */
 	public boolean isDragAndDrop() {
 		return dragAndDrop;
@@ -137,7 +125,6 @@ public class AutomationEmailSettings {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @return
 	 */
 	public JSONObject getJsonRepresentation() throws Exception {
 		JSONObject json = new JSONObject();

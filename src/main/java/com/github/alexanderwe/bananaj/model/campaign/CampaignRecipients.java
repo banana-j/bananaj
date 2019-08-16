@@ -98,7 +98,6 @@ public class CampaignRecipients {
 	
    /**
      * The unique list id
-     * @return
      */
     public String getListId() {
         return listId;
@@ -108,8 +107,6 @@ public class CampaignRecipients {
 	 * An object representing all segmentation options. This object should contain a
 	 * saved_segment_id to use an existing segment, or you can create a new segment
 	 * by including both match and conditions options.
-	 * 
-	 * @return
 	 */
     public CampaignSegmentOpts getSegmentOpts() {
         return segmentOpts;
@@ -117,7 +114,6 @@ public class CampaignRecipients {
 
     /**
      * The status of the list used, namely if it’s deleted or disabled
-     * @return
      */
     public boolean isListIsActive() {
 		return listIsActive;
@@ -125,7 +121,6 @@ public class CampaignRecipients {
 
     /**
      * The name of the list
-     * @return
      */
 	public String getListName() {
 		return listName;
@@ -133,7 +128,6 @@ public class CampaignRecipients {
 
 	/**
 	 * A description of the segment used for the campaign. Formatted as a string marked up with HTML.
-	 * @return
 	 */
 	public String getSegmentText() {
 		return segmentText;
@@ -141,7 +135,6 @@ public class CampaignRecipients {
 
 	/**
 	 * Count of the recipients on the associated list
-	 * @return
 	 */
 	public int getRecipientCount() {
 		return recipientCount;
@@ -149,7 +142,6 @@ public class CampaignRecipients {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @return
 	 */
 	public JSONObject getJsonRepresentation() {
         JSONObject recipents = new JSONObject();

@@ -38,7 +38,6 @@ public class FileInspector {
     /**
      * Encode a file to base 64 binary
      * @param file
-     * @return
      */
     public String encodeFileToBase64Binary(File file){
         byte[] encodedBytes = null;

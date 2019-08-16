@@ -22,7 +22,6 @@ public class Subscriber extends MailchimpObject {
 
 	/**
 	 * A string that uniquely identifies an Automation workflow
-	 * @return
 	 */
 	public String getWorkflowId() {
 		return workflowId;
@@ -30,7 +29,6 @@ public class Subscriber extends MailchimpObject {
 
 	/**
 	 * A string that uniquely identifies a list
-	 * @return
 	 */
 	public String getListId() {
 		return listId;
@@ -38,7 +36,6 @@ public class Subscriber extends MailchimpObject {
 
 	/**
 	 * The list member’s email address
-	 * @return
 	 */
 	public String getEmailAddress() {
 		return emailAddress;

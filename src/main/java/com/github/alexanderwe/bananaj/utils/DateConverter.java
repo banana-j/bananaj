@@ -45,7 +45,8 @@ public class DateConverter {
     	return ZonedDateTime.parse(dateString).toLocalDateTime();
     }
 
-    /* Convert a date formatted in IS8601 to a normal java date
+    /**
+     *  Convert a date formatted in IS8601 to a normal java date
      * @param dateString
      * @return Date
      */
@@ -60,7 +61,6 @@ public class DateConverter {
 	 * timezone (the +HH:MM on the end).
 	 * 
 	 * @param ldt
-	 * @return
 	 */
     public static String toNormal(LocalDateTime ldt) {
     	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd' 'HH:mm:ss");

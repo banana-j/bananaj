@@ -30,7 +30,6 @@ public class Tracking {
 
 	/**
 	 * Whether to track opens. Defaults to true
-	 * @return
 	 */
 	public boolean isOpens() {
 		return opens;
@@ -38,7 +37,6 @@ public class Tracking {
 
 	/**
 	 * Whether to track clicks in the HTML version of the Automation. Defaults to true
-	 * @return
 	 */
 	public boolean isHtmlClicks() {
 		return htmlClicks;
@@ -46,7 +44,6 @@ public class Tracking {
 
 	/**
 	 * Whether to track clicks in the plain-text version of the Automation. Defaults to true
-	 * @return
 	 */
 	public boolean isTextClicks() {
 		return textClicks;
@@ -54,7 +51,6 @@ public class Tracking {
 
 	/**
 	 * Whether to enable Goal tracking
-	 * @return
 	 */
 	public boolean isGoalTracking() {
 		return goalTracking;
@@ -62,7 +58,6 @@ public class Tracking {
 
 	/**
 	 * Whether to enable eCommerce360 tracking
-	 * @return
 	 */
 	public boolean isEcomm360() {
 		return ecomm360;
@@ -70,7 +65,6 @@ public class Tracking {
 
 	/**
 	 * The custom slug for Google Analytics tracking (max of 50 bytes)
-	 * @return
 	 */
 	public String getGoogleAnalytics() {
 		return googleAnalytics;
@@ -78,7 +72,6 @@ public class Tracking {
 
 	/**
 	 * The custom slug for ClickTale tracking (max of 50 bytes)
-	 * @return
 	 */
 	public String getClicktale() {
 		return clicktale;
@@ -135,8 +128,6 @@ public class Tracking {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @param settings
-	 * @return
 	 */
 	public JSONObject getJsonRepresentation() {
 		JSONObject jsonObj = new JSONObject();

@@ -301,7 +301,6 @@ public class Member {
 	 * Get recent notes for this list member.
 	 * @param count Number of items to return
 	 * @param offset Zero based offset
-	 * @return
 	 * @throws URISyntaxException 
 	 * @throws TransportException 
 	 * @throws MalformedURLException 
@@ -327,7 +326,6 @@ public class Member {
 	/**
 	 * Get a specific note for the member
 	 * @param noteId The id for the note.
-	 * @return
 	 * @throws JSONException
 	 * @throws MalformedURLException
 	 * @throws TransportException
@@ -352,7 +350,6 @@ public class Member {
 	/**
 	 * Add a new note to this subscriber.
 	 * @param note The content of the note. Note length is limited to 1,000 characters.
-	 * @return
 	 * @throws JSONException
 	 * @throws MalformedURLException
 	 * @throws TransportException
@@ -369,7 +366,6 @@ public class Member {
 	 * Update a specific note for this list member.
 	 * @param noteId The id for the note to update.
 	 * @param note The new content for the note. Note length is limited to 1,000 characters.
-	 * @return
 	 * @throws JSONException
 	 * @throws MalformedURLException
 	 * @throws TransportException
@@ -391,7 +387,6 @@ public class Member {
 
 	/**
 	 * Email address for this subscriber
-	 * @return 
 	 */
 	public String getEmailAddress() {
 		return emailAddress;
@@ -399,7 +394,7 @@ public class Member {
 
 	/**
 	 * Change this subscribers email address. You must call {@link #update()},
-	 * {@link #addOrUpdater()},
+	 * {@link #addOrUpdate()},
 	 * {@link MailChimpList#addOrUpdateMember(Member)}, or
 	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
 	 * 
@@ -411,7 +406,6 @@ public class Member {
 
 	/**
 	 * An identifier for the address across all of Mailchimp
-	 * @return 
 	 */
 	public String getUniqueEmailId() {
 		return uniqueEmailId;
@@ -419,7 +413,6 @@ public class Member {
 
 	/**
 	 * Type of email this member asked to get (‘html’ or ‘text’)
-	 * @return
 	 */
 	public EmailType getEmailType() {
 		return emailType;
@@ -427,7 +420,7 @@ public class Member {
 
 	/**
 	 * Type of email this member asked to get (‘html’ or ‘text’). You must call
-	 * {@link #update()}, {@link #addOrUpdater()},
+	 * {@link #update()}, {@link #addOrUpdate()},
 	 * {@link MailChimpList#addOrUpdateMember(Member)}, or
 	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
 	 * 
@@ -439,7 +432,6 @@ public class Member {
 
 	/**
 	 * Subscriber’s current status 
-	 * @return 
 	 */
 	public MemberStatus getStatus() {
 		return status;
@@ -447,7 +439,7 @@ public class Member {
 
 	/**
 	 * Subscriber’s current status. You must call {@link #update()},
-	 * {@link #addOrUpdater()},
+	 * {@link #addOrUpdate()},
 	 * {@link MailChimpList#addOrUpdateMember(Member)}, or
 	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
 	 */
@@ -474,7 +466,7 @@ public class Member {
 
 	/**
 	 * Set the status for a new member when created through a call to
-	 * {@link MailChimpList#addOrUpdateMember(Member)} or {@link #addOrUpdater()}.
+	 * {@link MailChimpList#addOrUpdateMember(Member)} or {@link #addOrUpdate()}.
 	 * 
 	 * @param statusIfNew
 	 */
@@ -493,7 +485,7 @@ public class Member {
 	/**
 	 * Add or update an audience merge tags that corresponds to the data in an
 	 * audience field. You must call {@link #update()},
-	 * {@link #addOrUpdater()},
+	 * {@link #addOrUpdate()},
 	 * {@link MailChimpList#addOrUpdateMember(Member)}, or
 	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
 	 * 
@@ -528,7 +520,6 @@ public class Member {
 	
 	/**
 	 * Open and click rates for this subscriber.
-	 * @return
 	 */
 	public MemberStats getStats() {
 		return stats;
@@ -536,7 +527,6 @@ public class Member {
 
 	/**
 	 * IP address the subscriber signed up from.
-	 * @return 
 	 */
 	public String getIpSignup() {
 		return ipSignup;
@@ -555,7 +545,6 @@ public class Member {
 
 	/**
 	 * The date and time the subscriber signed up for the list.
-	 * @return 
 	 */
 	public LocalDateTime getTimestampSignup() {
 		return timestampSignup;
@@ -575,7 +564,6 @@ public class Member {
 
 	/**
 	 * The IP address the subscriber used to confirm their opt-in status.
-	 * @return 
 	 */
 	public String getIpOpt() {
 		return ipOpt;
@@ -595,7 +583,6 @@ public class Member {
 
 	/**
 	 * The date and time the subscribe confirmed their opt-in status.
-	 * @return 
 	 */
 	public LocalDateTime getTimestampOpt() {
 		return timestampOpt;
@@ -615,7 +602,6 @@ public class Member {
 
 	/**
 	 * Star rating for this member, between 1 and 5
-	 * @return
 	 */
 	public int getRating() {
 		return rating;
@@ -630,7 +616,6 @@ public class Member {
 
 	/**
 	 * If set/detected, the subscriber’s language
-	 * @return
 	 */
 	public String getLanguage() {
 		return language;
@@ -649,7 +634,6 @@ public class Member {
 
 	/**
 	 * VIP status for subscriber
-	 * @return
 	 */
 	public boolean isVip() {
 		return vip;
@@ -668,7 +652,6 @@ public class Member {
 
 	/**
 	 * The list member’s email client
-	 * @return
 	 */
 	public String getEmailClient() {
 		return emailClient;
@@ -683,7 +666,6 @@ public class Member {
 
 	/**
 	 * The number of tags applied to this member
-	 * @return
 	 */
 	public int getTagsCount() {
 		return tagsCount;
@@ -699,7 +681,6 @@ public class Member {
 
 	/**
 	 * The list id
-	 * @return
 	 */
 	public String getListId() {
 		return listId;
@@ -731,7 +712,6 @@ public class Member {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @return
 	 */
 	public JSONObject getJsonRepresentation() {
 		JSONObject json = new JSONObject();
@@ -901,7 +881,6 @@ public class Member {
 		 * 
 		 * @param var
 		 * @param value
-		 * @return
 		 */
 		public Builder withMergeField(String var, String value) {
 			mergeFields.put(var, value);
@@ -953,7 +932,6 @@ public class Member {
 	     * member. See: {@link MailChimpList#addMember(Member)}
 	     * 
 		 * @param tags
-		 * @return
 		 */
 		public Builder tags(List<MemberTag> tags) {
 			this.tags = tags;
@@ -965,7 +943,6 @@ public class Member {
 	     * member. See: {@link MailChimpList#addMember(Member)}
 		 * 
 		 * @param tagName
-		 * @return
 		 */
 		public Builder withTag(String tagName) {
 			Optional<MemberTag> optional = tags.stream()

@@ -114,7 +114,6 @@ public class Automation {
 	/**
 	 * Get information about a specific workflow email
 	 * @param workflowEmailId
-	 * @return
 	 * @throws Exception
 	 */
 	public AutomationEmail getEmail(String workflowEmailId) throws Exception {
@@ -136,7 +135,7 @@ public class Automation {
 	}
 
 	/**
-	 * @return A string that identifies the Automation.
+	 * A string that identifies the Automation.
 	 */
 	public String getId() {
 		return id;
@@ -144,7 +143,6 @@ public class Automation {
 
 	/**
 	 * The date and time the Automation was created
-	 * @return
 	 */
 	public LocalDateTime getCreateTime() {
 		return createTime;
@@ -152,7 +150,6 @@ public class Automation {
 
 	/**
 	 * The date and time the Automation was started
-	 * @return
 	 */
 	public LocalDateTime getStartTime() {
 		return startTime;
@@ -160,7 +157,6 @@ public class Automation {
 
 	/**
 	 * The current status of the Automation
-	 * @return
 	 */
 	public AutomationStatus getStatus() {
 		return status;
@@ -168,7 +164,6 @@ public class Automation {
 
 	/**
 	 * The total number of emails sent for the Automation
-	 * @return
 	 */
 	public int getEmailsSent() {
 		return emailsSent;
@@ -176,7 +171,6 @@ public class Automation {
 
 	/**
 	 * List settings for the Automation
-	 * @return
 	 */
 	public AutomationRecipient getRecipients() {
 		return recipients;
@@ -184,7 +178,6 @@ public class Automation {
 
 	/**
 	 * The settings for the Automation workflow
-	 * @return
 	 */
 	public AutomationSettings getSettings() {
 		return settings;
@@ -192,14 +185,13 @@ public class Automation {
 
 	/**
 	 * The tracking options for the Automation
-	 * @return
 	 */
 	public Tracking getTracking() {
 		return tracking;
 	}
 
 	/**
-	 * @return the MailChimp {@link #connection}
+	 * The MailChimp connection {@link #connection}
 	 */
 	public MailChimpConnection getConnection() {
 		return connection;
@@ -207,7 +199,6 @@ public class Automation {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @return
 	 */
 	private JSONObject getJsonRepresentation() throws Exception {
 		JSONObject json = new JSONObject();

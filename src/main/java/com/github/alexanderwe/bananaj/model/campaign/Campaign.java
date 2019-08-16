@@ -152,7 +152,6 @@ public class Campaign {
 	 * Creates a Resend to Non-Openers version of this campaign. We will also check
 	 * if this campaign meets the criteria for Resend to Non-Openers campaigns.
 	 * 
-	 * @return
 	 * @throws Exception
 	 */
 	public Campaign resend() throws Exception {
@@ -178,7 +177,6 @@ public class Campaign {
 
 	/**
 	 * Replicate a campaign in saved or send status
-	 * @return
 	 * @throws Exception
 	 */
 	public Campaign replicate() throws Exception {
@@ -214,7 +212,6 @@ public class Campaign {
 
 	/**
 	 * Get the report of this campaign
-	 * @return
 	 * @throws Exception
 	 */
 	public Report getReport() throws Exception {
@@ -260,7 +257,6 @@ public class Campaign {
 
 	/**
 	 * The ID used in the Mailchimp web application. View this campaign in your Mailchimp account at https://{dc}.admin.mailchimp.com/campaigns/show/?id={web_id}.
-	 * @return
 	 */
 	public int getWebId() {
 		return webId;
@@ -268,7 +264,6 @@ public class Campaign {
 
 	/**
 	 * If this campaign is the child of another campaign, this identifies the parent campaign. For Example, for RSS or Automation children.
-	 * @return
 	 */
 	public String getParentCampaignId() {
 		return parentCampaignId;
@@ -276,7 +271,6 @@ public class Campaign {
 
 	/**
 	 * There are four types of campaigns you can create in Mailchimp. A/B Split campaigns have been deprecated and variate campaigns should be used instead.
-	 * @return
 	 */
 	public CampaignType getType() {
 		return type;
@@ -284,7 +278,6 @@ public class Campaign {
 
 	/**
 	 * The date and time the campaign was created
-	 * @return
 	 */
 	public LocalDateTime getCreateTime() {
 		return createTime;
@@ -292,7 +285,6 @@ public class Campaign {
 
 	/**
 	 * The link to the campaign’s archive version in ISO 8601 format
-	 * @return
 	 */
 	public String getArchiveUrl() {
 		return archiveUrl;
@@ -300,7 +292,6 @@ public class Campaign {
 
 	/**
 	 * The original link to the campaign’s archive version
-	 * @return
 	 */
 	public String getLongArchiveUrl() {
 		return longArchiveUrl;
@@ -308,7 +299,6 @@ public class Campaign {
 
 	/**
 	 * The current status of the campaign
-	 * @return
 	 */
 	public CampaignStatus getStatus() {
 		return status;
@@ -316,7 +306,6 @@ public class Campaign {
 
 	/**
 	 * The total number of emails sent for this campaign
-	 * @return
 	 */
 	public int getEmailsSent() {
 		return emailsSent;
@@ -324,7 +313,6 @@ public class Campaign {
 
 	/**
 	 * The date and time a campaign was sent
-	 * @return
 	 */
 	public LocalDateTime getSendTime() {
 		return sendTime;
@@ -332,7 +320,6 @@ public class Campaign {
 
 	/**
 	 * How the campaign’s content is put together 
-	 * @return
 	 */
 	public CampaignContentType getContentType() {
 		return contentType;
@@ -340,7 +327,6 @@ public class Campaign {
 
 	/**
 	 * Determines if the campaign needs its blocks refreshed by opening the web-based campaign editor.
-	 * @return
 	 */
 	public boolean isNeedsBlockRefresh() {
 		return needsBlockRefresh;
@@ -348,7 +334,6 @@ public class Campaign {
 
 	/**
 	 * Determines if the campaign contains the |BRAND:LOGO| merge tag
-	 * @return
 	 */
 	public boolean isHasLogoMergeTag() {
 		return hasLogoMergeTag;
@@ -356,7 +341,6 @@ public class Campaign {
 
 	/**
 	 * Determines if the campaign qualifies to be resent to non-openers
-	 * @return
 	 */
 	public boolean isResendable() {
 		return resendable;
@@ -364,7 +348,6 @@ public class Campaign {
 
 	/**
 	 * List settings for the campaign
-	 * @return
 	 */
 	public CampaignRecipients getRecipients() {
 		return recipients;
@@ -372,7 +355,6 @@ public class Campaign {
 
 	/**
 	 * The settings for your campaign, including subject, from name, reply-to address, and more
-	 * @return
 	 */
 	public CampaignSettings getSettings() {
 		return settings;
@@ -380,7 +362,6 @@ public class Campaign {
 
 	/**
 	 * The tracking options for a campaign
-	 * @return
 	 */
 	public Tracking getTracking() {
 		return tracking;
@@ -388,7 +369,6 @@ public class Campaign {
 
 	/**
 	 * For sent campaigns, a summary of opens, clicks, and e-commerce data
-	 * @return
 	 */
 	public ReportSummary getReportSummary() {
 		return reportSummary;

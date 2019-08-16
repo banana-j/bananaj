@@ -175,7 +175,6 @@ public class Options {
 
 	/**
 	 * Match type
-	 * @return
 	 */
 	public MatchType getMatch() {
 		return match;
@@ -191,7 +190,6 @@ public class Options {
 
 	/**
 	 * A list of segment conditions
-	 * @return
 	 */
 	public List<AbstractCondition> getConditions() {
 		return conditions;
@@ -203,7 +201,6 @@ public class Options {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @return
 	 */
 	public JSONObject getJsonRepresentation() {
 		JSONObject options = new JSONObject();

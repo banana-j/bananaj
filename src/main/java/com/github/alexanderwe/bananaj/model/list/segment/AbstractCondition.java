@@ -14,7 +14,6 @@ public interface AbstractCondition {
 
     /**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @return
 	 */
     public JSONObject getJsonRepresentation();
     

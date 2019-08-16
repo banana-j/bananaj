@@ -333,8 +333,6 @@ public class CampaignSettings {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @param settings
-	 * @return
 	 */
 	public JSONObject getJsonRepresentation() {
 		JSONObject jsonSettings = new JSONObject();

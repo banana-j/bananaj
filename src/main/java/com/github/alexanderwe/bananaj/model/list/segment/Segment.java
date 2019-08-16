@@ -85,7 +85,6 @@ public class Segment {
      * Get all members in this list
      * @param count x first members
      * @param offset skip x first members
-     * @return
      * @throws Exception
      */
     public ArrayList<Member> getMembers(int count, int offset) throws Exception {

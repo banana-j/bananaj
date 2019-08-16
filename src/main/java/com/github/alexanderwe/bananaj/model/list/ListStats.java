@@ -62,7 +62,6 @@ public class ListStats {
 
 	/**
 	 * The total number of members (sum of subscribed, unsubscribed, and cleaned)
-	 * @return
 	 */
 	public int getTotalMemberCount() {
 		return memberCount + unsubscribeCount + cleanedCount;
@@ -70,7 +69,6 @@ public class ListStats {
 	
 	/**
 	 * The number of active members in the list.
-	 * @return
 	 */
 	public int getMemberCount() {
 		return memberCount;
@@ -82,7 +80,6 @@ public class ListStats {
 
 	/**
 	 * The number of members who have unsubscribed from the list.
-	 * @return
 	 */
 	public int getUnsubscribeCount() {
 		return unsubscribeCount;
@@ -94,7 +91,6 @@ public class ListStats {
 
 	/**
 	 * The number of members cleaned from the list.
-	 * @return
 	 */
 	public int getCleanedCount() {
 		return cleanedCount;
@@ -106,7 +102,6 @@ public class ListStats {
 
 	/**
 	 * The number of active members in the list since the last campaign was sent.
-	 * @return
 	 */
 	public int getMemberCountSinceSend() {
 		return memberCountSinceSend;
@@ -114,7 +109,6 @@ public class ListStats {
 
 	/**
 	 * The number of members who have unsubscribed since the last campaign was sent.
-	 * @return
 	 */
 	public int getUnsubscribeCountSinceSend() {
 		return unsubscribeCountSinceSend;
@@ -122,7 +116,6 @@ public class ListStats {
 
 	/**
 	 * The number of members cleaned from the list since the last campaign was sent.
-	 * @return
 	 */
 	public int getCleanedCountSinceSend() {
 		return cleanedCountSinceSend;
@@ -130,7 +123,6 @@ public class ListStats {
 
 	/**
 	 * The number of campaigns in any status that use this list.
-	 * @return
 	 */
 	public int getCampaignCount() {
 		return campaignCount;
@@ -138,7 +130,6 @@ public class ListStats {
 
 	/**
 	 * The date and time the last campaign was sent to this list. This is updated when a campaign is sent to 10 or more recipients.
-	 * @return
 	 */
 	public LocalDateTime getCampaignLastSent() {
 		return campaignLastSent;
@@ -146,7 +137,6 @@ public class ListStats {
 
 	/**
 	 * The number of merge vars for this list (not EMAIL, which is required).
-	 * @return
 	 */
 	public int getMergeFieldCount() {
 		return mergeFieldCount;
@@ -154,7 +144,6 @@ public class ListStats {
 
 	/**
 	 * The average number of subscriptions per month for the list (not returned if we haven’t calculated it yet).
-	 * @return
 	 */
 	public Double getAvgSubscritionRate() {
 		return avgSubscritionRate;
@@ -162,7 +151,6 @@ public class ListStats {
 
 	/**
 	 * The average number of unsubscriptions per month for the list (not returned if we haven’t calculated it yet).
-	 * @return
 	 */
 	public Double getAvgUnsubscribeRate() {
 		return avgUnsubscribeRate;
@@ -170,7 +158,6 @@ public class ListStats {
 
 	/**
 	 * The target number of subscriptions per month for the list to keep it growing (not returned if we haven’t calculated it yet).
-	 * @return
 	 */
 	public Double getTargetSubscriptionRate() {
 		return targetSubscriptionRate;
@@ -178,7 +165,6 @@ public class ListStats {
 
 	/**
 	 * The average open rate (a percentage represented as a number between 0 and 100) per campaign for the list (not returned if we haven’t calculated it yet).
-	 * @return
 	 */
 	public Double getOpenRate() {
 		return openRate;
@@ -186,7 +172,6 @@ public class ListStats {
 
 	/**
 	 * The average click rate (a percentage represented as a number between 0 and 100) per campaign for the list (not returned if we haven’t calculated it yet).
-	 * @return
 	 */
 	public Double getClickRate() {
 		return clickRate;
@@ -194,7 +179,6 @@ public class ListStats {
 
 	/**
 	 * The date and time of the last time someone subscribed to this list
-	 * @return
 	 */
 	public LocalDateTime getLastSubcribedDate() {
 		return lastSubcribedDate;
@@ -202,7 +186,6 @@ public class ListStats {
 
 	/**
 	 * The date and time of the last time someone unsubscribed from this list
-	 * @return
 	 */
 	public LocalDateTime getLastUnsubscrivedDate() {
 		return lastUnsubscrivedDate;
