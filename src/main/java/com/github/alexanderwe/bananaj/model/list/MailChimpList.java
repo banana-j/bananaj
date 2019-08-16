@@ -35,6 +35,7 @@ import com.github.alexanderwe.bananaj.model.list.mergefield.MergeField;
 import com.github.alexanderwe.bananaj.model.list.mergefield.MergeFieldOptions;
 import com.github.alexanderwe.bananaj.model.list.segment.Options;
 import com.github.alexanderwe.bananaj.model.list.segment.Segment;
+import com.github.alexanderwe.bananaj.model.list.segment.SegmentType;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
 import com.github.alexanderwe.bananaj.utils.EmailValidator;
 import com.github.alexanderwe.bananaj.utils.FileInspector;
@@ -487,6 +488,33 @@ public class MailChimpList extends MailchimpObject {
 	public List<Segment> getSegments(int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
         ArrayList<Segment> segments = new ArrayList<Segment>();
 		JSONObject jsonSegments = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/segments?offset=" + offset + "&count=" + count) ,connection.getApikey()));
+
+		final JSONArray segmentsArray = jsonSegments.getJSONArray("segments");
+
+		for (int i = 0; i<segmentsArray.length(); i++) {
+			final JSONObject segmentDetail = segmentsArray.getJSONObject(i);
+			Segment segment = new Segment(getConnection(), segmentDetail);
+			segments.add(segment);
+		}
+
+        return segments;
+    }
+
+	/**
+	 * Get all segments of this list. A segment is a section of your list that includes only those subscribers who share specific common field information.
+	 * 
+	 * @param type Limit results based on segment type
+	 * @param count Number of templates to return
+	 * @param offset Zero based offset
+	 * @return List containing segments of the specified type
+	 * @throws JSONException
+	 * @throws MalformedURLException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public List<Segment> getSegments(SegmentType type, int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+        ArrayList<Segment> segments = new ArrayList<Segment>();
+		JSONObject jsonSegments = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/segments?offset=" + offset + "&count=" + count + "&type" + type.getStringRepresentation()) ,connection.getApikey()));
 
 		final JSONArray segmentsArray = jsonSegments.getJSONArray("segments");
 

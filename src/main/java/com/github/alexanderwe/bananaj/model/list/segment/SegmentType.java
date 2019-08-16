@@ -5,7 +5,13 @@ package com.github.alexanderwe.bananaj.model.list.segment;
  */
 public enum SegmentType {
 
+	/**
+	 * Saved or group segments
+	 */
     SAVED("saved"),
+    /**
+     * Static segments are now known as tags
+     */
     STATIC("static"),
     FUZZY("fuzzy");
 
