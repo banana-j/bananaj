@@ -40,7 +40,7 @@ public class Member {
 	private EmailType emailType;
 	private MemberStatus status;
 	private String unsubscribeReason;
-	private Map<String, String> mergeFields;
+	private Map<String, Object> mergeFields;
 	private Map<String, Boolean> interest;
 	private MemberStats stats;
 	private String ipSignup;
@@ -104,11 +104,11 @@ public class Member {
 		status = MemberStatus.valueOf(member.getString("status").toUpperCase());
 		unsubscribeReason = member.has("unsubscribe_reason") ? member.getString("unsubscribe_reason") : null;
 		
-		mergeFields = new HashMap<String, String>();
+		mergeFields = new HashMap<String, Object>();
 		if (member.has("merge_fields")) {
 			final JSONObject mergeFieldsObj = member.getJSONObject("merge_fields");
 			for(String key : mergeFieldsObj.keySet()) {
-				mergeFields.put(key, mergeFieldsObj.getString(key));
+				mergeFields.put(key, mergeFieldsObj.get(key));
 			}
 		}
 		
@@ -478,7 +478,7 @@ public class Member {
 	 * Audience merge tags that corresponds to the data in an audience field.
 	 * @return a Map of all merge field name value pairs
 	 */
-	public Map<String, String> getMergeFields() {
+	public Map<String, Object> getMergeFields() {
 		return mergeFields;
 	}
 
@@ -493,8 +493,8 @@ public class Member {
 	 * @param value
 	 * @return the previous value associated with key, or null if there was none.
 	 */
-	public String putMergeFields(String key, String value) {
-		return mergeFields.put(key, value);
+	public Object putMergeFields(String key, String Object) {
+		return mergeFields.put(key, Object);
 	}
 
 	/**
@@ -729,7 +729,7 @@ public class Member {
 
 		{
 			JSONObject mergeFields = new JSONObject();
-			Map<String, String> mergeFieldsMap = getMergeFields();
+			Map<String, Object> mergeFieldsMap = getMergeFields();
 			for (String key : mergeFieldsMap.keySet()) {
 				mergeFields.put(key, mergeFieldsMap.get(key));
 			}
@@ -783,7 +783,7 @@ public class Member {
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("    Merge Fields:").append(System.lineSeparator());
-		for (Entry<String, String> pair : getMergeFields().entrySet()) {
+		for (Entry<String, Object> pair : getMergeFields().entrySet()) {
 			stringBuilder.append("        ").append(pair.getKey()).append(": ").append(pair.getValue()).append(System.lineSeparator());
 		}
 		if (tags != null && tags.size() > 0) {
@@ -834,7 +834,7 @@ public class Member {
 		private String emailAddress;
 		private EmailType emailType;
 		private MemberStatus status;
-		private Map<String, String> mergeFields = new HashMap<String, String>();;
+		private Map<String, Object> mergeFields = new HashMap<String, Object>();;
 		private Map<String, Boolean> interest = new HashMap<String, Boolean>();
 		private String language;
 		private boolean vip;
@@ -871,8 +871,16 @@ public class Member {
 			return this;
 		}
 
-		public Builder mergeFields(Map<String, String> mergeFields) {
+		public Builder mergeFields(Map<String, Object> mergeFields) {
 			this.mergeFields = mergeFields;
+			return this;
+		}
+		
+		public Builder mergeField(String key, Object value) {
+			if (mergeFields == null) {
+				mergeFields = new HashMap<String, Object>();
+			}
+			mergeFields.put(key, value);
 			return this;
 		}
 
