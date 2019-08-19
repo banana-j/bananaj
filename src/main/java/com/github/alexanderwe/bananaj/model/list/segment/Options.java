@@ -3,8 +3,11 @@ package com.github.alexanderwe.bananaj.model.list.segment;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import com.github.alexanderwe.bananaj.connection.Connection;
 
 /**
  * The conditions of a segment. Static segments (tags) and fuzzy segments don’t have conditions.
@@ -12,6 +15,7 @@ import org.json.JSONObject;
  * Created by alexanderweiss on 04.02.16.
  */
 public class Options {
+	private final static Logger logger = Logger.getLogger(Connection.class);
 
 	private MatchType match;
 	private List<AbstractCondition> conditions;
@@ -156,7 +160,8 @@ public class Options {
 					}
 				}
 				catch (Exception e) {
-	            	// TODO: log warning for unknown or invalid condition
+	            	// log warning for unknown or invalid condition
+					logger.warn("Unknown or invalid condition : " + e.getMessage(), e);
 					// Use raw condition for unknowns.
 					conditions.add( new RawCondition.Builder()
 							.json(jsonCondition)

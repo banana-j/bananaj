@@ -1,8 +1,12 @@
 package com.github.alexanderwe.bananaj.model.list.segment;
 
+import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import com.github.alexanderwe.bananaj.connection.Connection;
+
 public class RawCondition implements AbstractCondition {
+	private final static Logger logger = Logger.getLogger(Connection.class);
 
 	private ConditionType condition_type;
 	private JSONObject jsonObj;
@@ -46,7 +50,8 @@ public class RawCondition implements AbstractCondition {
             		condition_type = ConditionType.fromValue(jsonObj.getString("condition_type"));
             	}
             } catch (Exception e) {
-            	// TODO: log warning for unknown condition_type
+            	// log warning for unknown condition_type
+            	logger.error("Unknown condition type : " + (jsonObj.has("condition_type") ? jsonObj.getString("condition_type") : "<undefined>"));
             }
             return this;
         }
