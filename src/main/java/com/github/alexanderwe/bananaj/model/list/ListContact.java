@@ -30,7 +30,6 @@ public class ListContact {
 
 	/**
 	 * The company name for the list
-	 * @return
 	 */
 	public String getCompany() {
 		return company;
@@ -38,7 +37,6 @@ public class ListContact {
 
 	/**
 	 * The street address for the list contact
-	 * @return
 	 */
 	public String getAddress1() {
 		return address1;
@@ -46,7 +44,6 @@ public class ListContact {
 
 	/**
 	 * The street address for the list contact
-	 * @return
 	 */
 	public String getAddress2() {
 		return address2;
@@ -54,7 +51,6 @@ public class ListContact {
 
 	/**
 	 * The city for the list contact
-	 * @return
 	 */
 	public String getCity() {
 		return city;
@@ -62,7 +58,6 @@ public class ListContact {
 
 	/**
 	 * The state for the list contact
-	 * @return
 	 */
 	public String getState() {
 		return state;
@@ -70,7 +65,6 @@ public class ListContact {
 
 	/**
 	 * The postal or zip code for the list contact
-	 * @return
 	 */
 	public String getZip() {
 		return zip;
@@ -78,7 +72,6 @@ public class ListContact {
 
 	/**
 	 * A two-character ISO3166 country code. Defaults to US if invalid.
-	 * @return
 	 */
 	public String getCountry() {
 		return country;
@@ -86,7 +79,6 @@ public class ListContact {
 
 	/**
 	 * The phone number for the list contact
-	 * @return
 	 */
 	public String getPhone() {
 		return phone;

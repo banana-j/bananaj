@@ -41,7 +41,6 @@ public class AutomationSettings {
 
 	/**
 	 * The title of the Automation
-	 * @return
 	 */
 	public String getTitle() {
 		return title;
@@ -57,7 +56,6 @@ public class AutomationSettings {
 
 	/**
 	 * The ‘from’ name for the Automation (not an email address)
-	 * @return
 	 */
 	public String getFromName() {
 		return fromName;
@@ -73,7 +71,6 @@ public class AutomationSettings {
 
 	/**
 	 * The reply-to email address for the Automation
-	 * @return
 	 */
 	public String getReplyTo() {
 		return replyTo;
@@ -89,7 +86,6 @@ public class AutomationSettings {
 
 	/**
 	 * Whether to use Mailchimp’s Conversations feature to manage out-of-office replies
-	 * @return
 	 */
 	public boolean isUseConversation() {
 		return useConversation;
@@ -97,7 +93,6 @@ public class AutomationSettings {
 
 	/**
 	 * The Automation’s custom ‘To’ name, typically the first name merge field
-	 * @return
 	 */
 	public String getToName() {
 		return toName;
@@ -105,7 +100,6 @@ public class AutomationSettings {
 
 	/**
 	 * Whether Mailchimp authenticated the Automation. Defaults to true
-	 * @return
 	 */
 	public boolean isAuthenticate() {
 		return authenticate;
@@ -113,7 +107,6 @@ public class AutomationSettings {
 
 	/**
 	 * Whether to automatically append Mailchimp’s default footer to the Automation
-	 * @return
 	 */
 	public boolean isAutoFooter() {
 		return autoFooter;
@@ -121,7 +114,6 @@ public class AutomationSettings {
 
 	/**
 	 * Whether to automatically inline the CSS included with the Automation content
-	 * @return
 	 */
 	public boolean isInlineCss() {
 		return inlineCss;
@@ -129,7 +121,6 @@ public class AutomationSettings {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @return
 	 */
 	public JSONObject getJsonRepresentation() throws Exception {
 		JSONObject jsonObj = new JSONObject();

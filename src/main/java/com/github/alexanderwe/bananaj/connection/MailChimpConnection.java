@@ -212,9 +212,9 @@ public class MailChimpConnection extends Connection{
 			if (show_merge){
 				int last_column = 9;
 
-				Iterator<Entry<String, String>> iter = members.get(0).getMergeFields().entrySet().iterator();
+				Iterator<Entry<String, Object>> iter = members.get(0).getMergeFields().entrySet().iterator();
 				while (iter.hasNext()) {
-					Entry<String, String> pair = iter.next();
+					Entry<String, Object> pair = iter.next();
 					sheet.addCell(new Label(last_column,0,pair.getKey(),times16format));
 					iter.remove(); // avoids a ConcurrentModificationException
 					last_column++;
@@ -239,10 +239,10 @@ public class MailChimpConnection extends Connection{
 				if (show_merge){
 					//add merge fields values
 					int last_index = 9;
-					Iterator<Entry<String, String>> iter_member = member.getMergeFields().entrySet().iterator();
+					Iterator<Entry<String, Object>> iter_member = member.getMergeFields().entrySet().iterator();
 					while (iter_member.hasNext()) {
-						Entry<String, String> pair = iter_member.next();
-						sheet.addCell(new Label(last_index,i+1,pair.getValue()));
+						Entry<String, Object> pair = iter_member.next();
+						sheet.addCell(new Label(last_index,i+1,pair.getValue().toString()));
 						iter_member.remove(); // avoids a ConcurrentModificationException
 						last_index++;
 
@@ -297,7 +297,6 @@ public class MailChimpConnection extends Connection{
     /**
      * Get a specific template folder
      * @param folder_id
-     * @return
      */
     public CampaignFolder getCampaignFolder(String folder_id) throws Exception {
 
@@ -308,7 +307,6 @@ public class MailChimpConnection extends Connection{
     /**
      * Add a template folder with a specific name
      * @param name Name to associate with the folder
-     * @return
      */
     public CampaignFolder addCampaignFolder(String name) throws Exception {
     	JSONObject campaignFolder = new JSONObject();
@@ -443,7 +441,6 @@ public class MailChimpConnection extends Connection{
     /**
      * Get a specific template folder
      * @param folder_id
-     * @return
      */
     public TemplateFolder getTemplateFolder(String folder_id) throws Exception{
 
@@ -543,7 +540,6 @@ public class MailChimpConnection extends Connection{
 	/**
 	 * Create a new template. Only Classic templates are supported.
 	 * @param template
-	 * @return
 	 * @throws Exception
 	 */
 	public Template createTemplate(Template template) throws Exception {
@@ -606,7 +602,8 @@ public class MailChimpConnection extends Connection{
 
 	/**
 	 * Create a new Automation
-	 * @param automation
+	 * @param recipients
+	 * @param settings
 	 * @return The newly added automation
 	 * @throws Exception
 	 */
@@ -683,7 +680,6 @@ public class MailChimpConnection extends Connection{
 	 * Get information about a specific workflow email
 	 * @param workflowId The unique id for the Automation workflow
 	 * @param workflowEmailId The unique id for the Automation workflow email
-	 * @return
 	 * @throws Exception
 	 */
 	public AutomationEmail getAutomationEmail(String workflowId, String workflowEmailId) throws Exception {
@@ -720,7 +716,6 @@ public class MailChimpConnection extends Connection{
 	
 	/**
 	 * Get the File/Folder Manager for accessing files and folders in your account.
-	 * @return
 	 */
 	public FileManager getFileManager() {
 		if (fileManager == null) {

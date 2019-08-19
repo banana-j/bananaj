@@ -4,8 +4,10 @@
  */
 package com.github.alexanderwe.bananaj.model.campaign;
 
+import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import com.github.alexanderwe.bananaj.connection.Connection;
 import com.github.alexanderwe.bananaj.exceptions.CampaignSettingsException;
 
 /**
@@ -14,6 +16,7 @@ import com.github.alexanderwe.bananaj.exceptions.CampaignSettingsException;
  *
  */
 public class CampaignSettings {
+	final static Logger logger = Logger.getLogger(Connection.class);
 	
 	// Campaign Settings 
 	private String subjectLine;
@@ -53,15 +56,15 @@ public class CampaignSettings {
 		folderId = getString(settings, "folder_id");
 	}
 	
-	private CampaignSettings(Builder b) throws CampaignSettingsException{
+	private CampaignSettings(Builder b) throws CampaignSettingsException {
 
-		if(b.subjectLine == null){
+		if(b.subjectLine == null) {
 			throw new CampaignSettingsException("You need to provide a 'subject line' for a campaign setting");
 		} else {
 			this.subjectLine = b.subjectLine;
 		}
 
-		if(b.title == null){
+		if(b.title == null) {
 			throw new CampaignSettingsException("You need to provide a 'title' for a campaign setting");
 		} else {
 			this.title = b.title;
@@ -69,13 +72,13 @@ public class CampaignSettings {
 
 		this.toName = b.toName;
 		
-		if(b.fromName == null){
+		if(b.fromName == null) {
 			throw new CampaignSettingsException("You need to provide a 'From name' for a campaign setting");
 		} else {
 			this.fromName = b.fromName;
 		}
 
-		if(b.replyTo == null){
+		if(b.replyTo == null) {
 			throw new CampaignSettingsException("You need to provide a 'Reply to email address' for a campaign setting");
 		} else {
 			this.replyTo = b.replyTo;
@@ -333,8 +336,6 @@ public class CampaignSettings {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @param settings
-	 * @return
 	 */
 	public JSONObject getJsonRepresentation() {
 		JSONObject jsonSettings = new JSONObject();
@@ -525,7 +526,7 @@ public class CampaignSettings {
 			try {
 				return new CampaignSettings(this);
 			} catch (CampaignSettingsException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 			return null;
 		}

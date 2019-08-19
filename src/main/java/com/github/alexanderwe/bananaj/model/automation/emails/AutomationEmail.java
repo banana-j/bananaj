@@ -119,8 +119,6 @@ public class AutomationEmail {
 	 * The ID used in the Mailchimp web application. View this automation in your
 	 * Mailchimp account at
 	 * https://{dc}.admin.mailchimp.com/campaigns/show/?id={web_id}.
-	 * 
-	 * @return
 	 */
 	public int getWebId() {
 		return webId;
@@ -128,7 +126,6 @@ public class AutomationEmail {
 
 	/**
 	 * A string that uniquely identifies an Automation workflow
-	 * @return
 	 */
 	public String getWorkflowId() {
 		return workflowId;
@@ -136,7 +133,6 @@ public class AutomationEmail {
 
 	/**
 	 * the position of an Automation email in a workflow
-	 * @return
 	 */
 	public int getPosition() {
 		return position;
@@ -144,7 +140,6 @@ public class AutomationEmail {
 
 	/**
 	 * The delay settings for an automation email
-	 * @return
 	 */
 	public AutomationDelay getDelay() {
 		return delay;
@@ -152,7 +147,6 @@ public class AutomationEmail {
 
 	/**
 	 * The date and time the campaign was created
-	 * @return
 	 */
 	public LocalDateTime getCreateTime() {
 		return createTime;
@@ -160,7 +154,6 @@ public class AutomationEmail {
 
 	/**
 	 * The date and time the campaign was started
-	 * @return
 	 */
 	public LocalDateTime getStartTime() {
 		return startTime;
@@ -168,7 +161,6 @@ public class AutomationEmail {
 
 	/**
 	 * The link to the campaign’s archive version in ISO 8601 format
-	 * @return
 	 */
 	public String getArchiveUrl() {
 		return archiveUrl;
@@ -176,7 +168,6 @@ public class AutomationEmail {
 
 	/**
 	 * The current status of the campaign
-	 * @return
 	 */
 	public AutomationStatus getStatus() {
 		return status;
@@ -184,7 +175,6 @@ public class AutomationEmail {
 
 	/**
 	 * The total number of emails sent for this campaign
-	 * @return
 	 */
 	public int getEmailsSent() {
 		return emailsSent;
@@ -192,7 +182,6 @@ public class AutomationEmail {
 
 	/**
 	 * The date and time a campaign was sent
-	 * @return
 	 */
 	public LocalDateTime getSendTime() {
 		return sendTime;
@@ -200,7 +189,6 @@ public class AutomationEmail {
 
 	/**
 	 * How the campaign’s content is put together (‘template’, ‘drag_and_drop’, ‘html’, ‘url’)
-	 * @return
 	 */
 	public String getContentType() {
 		return contentType;
@@ -208,7 +196,6 @@ public class AutomationEmail {
 
 	/**
 	 * Determines if the automation email needs its blocks refreshed by opening the web-based campaign editor
-	 * @return
 	 */
 	public boolean isNeedsBlockRefresh() {
 		return needsBlockRefresh;
@@ -216,7 +203,6 @@ public class AutomationEmail {
 
 	/**
 	 * Determines if the campaign contains the |BRAND:LOGO| merge tag
-	 * @return
 	 */
 	public boolean isHasLogoMergeTag() {
 		return hasLogoMergeTag;
@@ -224,7 +210,6 @@ public class AutomationEmail {
 
 	/**
 	 * List settings for the campaign
-	 * @return
 	 */
 	public CampaignRecipients getRecipients() {
 		return recipients;
@@ -232,7 +217,6 @@ public class AutomationEmail {
 
 	/**
 	 * Settings for the campaign including the email subject, from name, and from email address
-	 * @return
 	 */
 	public AutomationEmailSettings getSettings() {
 		return settings;
@@ -240,7 +224,6 @@ public class AutomationEmail {
 
 	/**
 	 * The tracking options for a campaign
-	 * @return
 	 */
 	public Tracking getTracking() {
 		return tracking;
@@ -248,7 +231,6 @@ public class AutomationEmail {
 
 	/**
 	 * For sent campaigns, a summary of opens, clicks, and unsubscribes
-	 * @return
 	 */
 	public ReportSummary getReportSummary() {
 		return reportSummary;
@@ -256,7 +238,6 @@ public class AutomationEmail {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @return
 	 */
 	public JSONObject getJsonRepresentation() throws Exception {
 		JSONObject json = new JSONObject();

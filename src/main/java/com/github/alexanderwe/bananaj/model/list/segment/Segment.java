@@ -32,6 +32,11 @@ public class Segment {
     private MailChimpConnection connection;
 	private JSONObject jsonRepresentation;
 
+	/**
+	 * Construct class given a Mailchimp JSON object
+	 * @param connection
+	 * @param jsonObj
+	 */
 	public Segment(MailChimpConnection connection, JSONObject jsonObj) {
         this.connection = connection;
 		jsonRepresentation = jsonObj;
@@ -52,8 +57,8 @@ public class Segment {
 	}
 	
     /**
-     * Used when created a Segment locally with the Builder class
-     * @see Builder
+     * {@link Segment.Builder} model for local construction
+     * @see Segment.Builder
      * @param b
      */
     public Segment(Builder b) {
@@ -67,7 +72,7 @@ public class Segment {
      * @param member
      * @throws Exception
      */
-    public void addMember(Member member) throws Exception{
+    public void addMember(Member member) throws Exception {
         if (!this.getType().equals(SegmentType.STATIC)){
             throw new SegmentException();
         }
@@ -80,10 +85,9 @@ public class Segment {
      * Get all members in this list
      * @param count x first members
      * @param offset skip x first members
-     * @return
      * @throws Exception
      */
-    public ArrayList<Member> getMembers(int count, int offset) throws Exception{
+    public ArrayList<Member> getMembers(int count, int offset) throws Exception {
 
         ArrayList<Member> members = new ArrayList<Member>();
         final JSONObject list;
@@ -111,8 +115,8 @@ public class Segment {
      * @param member
      * @throws Exception
      */
-    public void removeMember(Member member) throws Exception{
-        if (!this.getType().equals(SegmentType.STATIC)){
+    public void removeMember(Member member) throws Exception {
+        if (!this.getType().equals(SegmentType.STATIC)) {
             throw new SegmentException();
         }
         getConnection().do_Delete(new URL(connection.getListendpoint()+"/"+this.getListId()+"/segments/"+this.getId()+"/members/"+member.getId()),connection.getApikey());
@@ -123,7 +127,7 @@ public class Segment {
      * @param updatedSegment
      * @throws Exception
      */
-    public void update(Segment updatedSegment) throws Exception{
+    public void update(Segment updatedSegment) throws Exception {
         getConnection().do_Patch(new URL(connection.getListendpoint()+"/"+this.getListId()+"/segments/"+this.getId()),updatedSegment.getJSONRepresentation().toString(),connection.getApikey());
     }
 
@@ -205,10 +209,14 @@ public class Segment {
                 "    List ID: " + getListId() + System.lineSeparator() +
                 "    Created at: " + getCreatedAt() + System.lineSeparator() +
                 "    Updated at: " + getUpdatedAt() +  System.lineSeparator() +
-                "    Member count: " +  getMemberCount() + System.lineSeparator() +
-                (getOptions() != null ? getOptions().toString() : "");
+                "    Member count: " +  getMemberCount() +
+                (getOptions() != null ? System.lineSeparator() + getOptions().toString() : "");
     }
 
+    /**
+     * Builder for {@link Segment}
+     *
+     */
     public static class Builder {
         private String name;
         private SegmentType type;

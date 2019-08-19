@@ -67,8 +67,6 @@ public class Account extends MailchimpObject{
 	/**
 	 * The ID associated with the user who owns this API key. If you can login to
 	 * multiple accounts, this ID will be the same for each account.
-	 * 
-	 * @return
 	 */
 	public String getLoginId() {
 		return loginId;
@@ -76,7 +74,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * The name of the account
-	 * @return
 	 */
 	public String getAccountName() {
 		return accountName;
@@ -84,7 +81,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * The account email address
-	 * @return
 	 */
 	public String getEmail() {
 		return email;
@@ -92,7 +88,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * The first name tied to the account
-	 * @return
 	 */
 	public String getFirstName() {
 		return firstName;
@@ -100,7 +95,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * The last name tied to the account
-	 * @return
 	 */
 	public String getLastName() {
 		return lastName;
@@ -108,7 +102,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * The username tied to the account
-	 * @return
 	 */
 	public String getUsername() {
 		return username;
@@ -116,7 +109,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * URL of the avatar for the user
-	 * @return
 	 */
 	public String getAvatarUrl() {
 		return avatarUrl;
@@ -124,7 +116,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * The user role for the account
-	 * @return
 	 */
 	public String getRole() {
 		return role;
@@ -132,7 +123,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * The date and time that the account was created
-	 * @return
 	 */
 	public LocalDateTime getMemberSince() {
 		return memberSince;
@@ -140,7 +130,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * The type of pricing plan the account is on
-	 * @return
 	 */
 	public PricingPlanType getPricingPlanType() {
 		return pricingPlanType;
@@ -148,7 +137,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * Date of first payment for monthly plans
-	 * @return
 	 */
 	public LocalDateTime getFirstPayment() {
 		return firstPayment;
@@ -156,7 +144,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * The timezone currently set for the account
-	 * @return
 	 */
 	public String getAccountTimezone() {
 		return accountTimezone;
@@ -164,7 +151,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * The user-specified industry associated with the account
-	 * @return
 	 */
 	public String getAccountIndustry() {
 		return accountIndustry;
@@ -172,7 +158,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * Whether the account includes Mailchimp Pro
-	 * @return
 	 */
 	public boolean isProEnabled() {
 		return proEnabled;
@@ -180,7 +165,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * The date and time of the last login for this account 
-	 * @return
 	 */
 	public LocalDateTime getLastLogin() {
 		return lastLogin;
@@ -188,7 +172,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * The total number of subscribers across all lists in the account
-	 * @return
 	 */
 	public int getTotalSubscribers() {
 		return totalSubscribers;
@@ -196,7 +179,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * Information about the account contact
-	 * @return
 	 */
 	public Contact getContact() {
 		return contact;
@@ -204,7 +186,6 @@ public class Account extends MailchimpObject{
 
 	/**
 	 * The average campaign statistics for all campaigns in the account’s specified industry
-	 * @return
 	 */
 	public IndustryStats getIndustryStats() {
 		return industryStats;
@@ -270,7 +251,6 @@ public class Account extends MailchimpObject{
 
 		/**
 		 * The company name for the account
-		 * @return
 		 */
 		public String getCompany() {
 			return company;
@@ -278,7 +258,6 @@ public class Account extends MailchimpObject{
 
 		/**
 		 * The street address for the account contact
-		 * @return
 		 */
 		public String getAddress1() {
 			return address1;
@@ -286,7 +265,6 @@ public class Account extends MailchimpObject{
 
 		/**
 		 * The street address for the account contact
-		 * @return
 		 */
 		public String getAddress2() {
 			return address2;
@@ -294,7 +272,6 @@ public class Account extends MailchimpObject{
 
 		/**
 		 * The city for the account contact
-		 * @return
 		 */
 		public String getCity() {
 			return city;
@@ -302,7 +279,6 @@ public class Account extends MailchimpObject{
 
 		/**
 		 * The state for the account contact
-		 * @return
 		 */
 		public String getState() {
 			return state;
@@ -310,7 +286,6 @@ public class Account extends MailchimpObject{
 
 		/**
 		 * The zip code for the account contact
-		 * @return
 		 */
 		public String getZip() {
 			return zip;
@@ -318,7 +293,6 @@ public class Account extends MailchimpObject{
 
 		/**
 		 * The country for the account contact
-		 * @return
 		 */
 		public String getCountry() {
 			return country;
@@ -351,7 +325,6 @@ public class Account extends MailchimpObject{
 
 		/**
 		 * The average unique open rate for all campaigns in the account’s specified industry
-		 * @return
 		 */
 		public double getOpen_rate() {
 			return open_rate;
@@ -359,7 +332,6 @@ public class Account extends MailchimpObject{
 
 		/**
 		 * The average bounce rate for all campaigns in the account’s specified industry
-		 * @return
 		 */
 		public double getBounce_rate() {
 			return bounce_rate;
@@ -367,7 +339,6 @@ public class Account extends MailchimpObject{
 
 		/**
 		 * The average unique click rate for all campaigns in the account’s specified industry
-		 * @return
 		 */
 		public double getClick_rate() {
 			return click_rate;

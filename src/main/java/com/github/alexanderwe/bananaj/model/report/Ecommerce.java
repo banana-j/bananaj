@@ -21,7 +21,6 @@ public class Ecommerce {
 
 	/**
 	 * The total orders for a campaign
-	 * @return
 	 */
 	public int getTotalOrders() {
 		return totalOrders;
@@ -29,7 +28,6 @@ public class Ecommerce {
 
 	/**
 	 * The total spent for a campaign. Calculated as the sum of all order totals with no deductions.
-	 * @return
 	 */
 	public double getTotalSpent() {
 		return totalSpent;
@@ -37,7 +35,6 @@ public class Ecommerce {
 
 	/**
 	 * The total revenue for a campaign. Calculated as the sum of all order totals minus shipping and tax totals.
-	 * @return
 	 */
 	public double getTotalRevenue() {
 		return totalRevenue;
@@ -45,7 +42,6 @@ public class Ecommerce {
 
 	/**
 	 * The three-letter ISO 4217 code for the currency
-	 * @return
 	 */
 	public String getCurrencyCode() {
 		return currencyCode;

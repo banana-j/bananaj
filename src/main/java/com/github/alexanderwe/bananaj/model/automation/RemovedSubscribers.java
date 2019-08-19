@@ -31,7 +31,6 @@ public class RemovedSubscribers extends Subscriber {
 
 	/**
 	 * A string that uniquely identifies an Automation workflow
-	 * @return
 	 */
 	public String getWorkflowId() {
 		return workflowId;
@@ -39,7 +38,6 @@ public class RemovedSubscribers extends Subscriber {
 
 	/**
 	 * An array of objects, each representing a subscriber who was removed from an Automation workflow
-	 * @return
 	 */
 	public List<Subscriber> getSubscribers() {
 		return subscribers;
@@ -47,7 +45,6 @@ public class RemovedSubscribers extends Subscriber {
 
 	/**
 	 * The total number of items matching the query regardless of pagination
-	 * @return
 	 */
 	public int getTotalItems() {
 		return totalItems;

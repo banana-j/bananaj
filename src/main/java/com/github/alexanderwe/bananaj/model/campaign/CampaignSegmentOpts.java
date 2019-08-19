@@ -3,9 +3,11 @@ package com.github.alexanderwe.bananaj.model.campaign;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.github.alexanderwe.bananaj.connection.Connection;
 import com.github.alexanderwe.bananaj.exceptions.ConditionException;
 import com.github.alexanderwe.bananaj.model.list.segment.AbstractCondition;
 import com.github.alexanderwe.bananaj.model.list.segment.ConditionType;
@@ -25,6 +27,7 @@ import com.github.alexanderwe.bananaj.model.list.segment.StringCondition;
  * segment by including both match and conditions options.
  */
 public class CampaignSegmentOpts {
+	private final static Logger logger = Logger.getLogger(Connection.class);
 
 	private Integer savedSegmentId;
 	private Integer prebuiltSegmentId;
@@ -37,7 +40,7 @@ public class CampaignSegmentOpts {
 	 * @param b
 	 */
 
-	public CampaignSegmentOpts(Builder b) throws ConditionException{
+	public CampaignSegmentOpts(Builder b) {
 		this.savedSegmentId = b.savedSegmentId;
 		this.prebuiltSegmentId = b.prebuiltSegmentId;
 		this.match = b.match;
@@ -178,7 +181,8 @@ public class CampaignSegmentOpts {
 					}
 				}
 				catch (Exception e) {
-	            	// TODO: log warning for unknown or invalid condition
+	            	// log warning for unknown or invalid condition
+					logger.warn("Unknown or invalid condition : " + e.getMessage(), e);
 					// Use raw condition for unknowns.
 					conditions.add( new RawCondition.Builder()
 							.json(jsonCondition)
@@ -224,7 +228,6 @@ public class CampaignSegmentOpts {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @return
 	 */
 	public JSONObject getJsonRepresentation(){
 		JSONObject segmentOpts = new JSONObject();
@@ -299,12 +302,7 @@ public class CampaignSegmentOpts {
 		}
 
 		public CampaignSegmentOpts build() {
-			try {
-				return new CampaignSegmentOpts(this);
-			} catch (ConditionException e) {
-				e.printStackTrace();
-			}
-			return null;
+			return new CampaignSegmentOpts(this);
 		}
 	}
 

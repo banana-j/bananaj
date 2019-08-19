@@ -44,7 +44,6 @@ public class AutomationSubscriberQueue {
 	
 	/**
 	 * A string that uniquely identifies an Automation workflow
-	 * @return
 	 */
 	public String getWorkflowId() {
 		return workflowId;
@@ -52,7 +51,6 @@ public class AutomationSubscriberQueue {
 
 	/**
 	 * A string that uniquely identifies an email in an Automation workflow
-	 * @return
 	 */
 	public String getEmailId() {
 		return emailId;
@@ -60,7 +58,6 @@ public class AutomationSubscriberQueue {
 
 	/**
 	 * An array of objects, each representing a subscriber queue for an email in an Automation workflow
-	 * @return
 	 */
 	public List<AutomationSubscriber> getQueue() {
 		return queue;
@@ -68,7 +65,6 @@ public class AutomationSubscriberQueue {
 
 	/**
 	 * The total number of items matching the query regardless of pagination
-	 * @return
 	 */
 	public int getTotalItems() {
 		return totalItems;

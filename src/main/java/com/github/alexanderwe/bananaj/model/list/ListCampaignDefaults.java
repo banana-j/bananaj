@@ -22,7 +22,6 @@ public class ListCampaignDefaults {
 
 	/**
 	 * The default from name for campaigns sent to this list
-	 * @return
 	 */
 	public String getFromName() {
 		return fromName;
@@ -30,7 +29,6 @@ public class ListCampaignDefaults {
 
 	/**
 	 * The default from email for campaigns sent to this list
-	 * @return
 	 */
 	public String getFromEmail() {
 		return fromEmail;
@@ -38,7 +36,6 @@ public class ListCampaignDefaults {
 
 	/**
 	 * The default subject line for campaigns sent to this list
-	 * @return
 	 */
 	public String getSubject() {
 		return subject;
@@ -46,7 +43,6 @@ public class ListCampaignDefaults {
 
 	/**
 	 * The default language for this lists’s forms
-	 * @return
 	 */
 	public String getLanguage() {
 		return language;

@@ -62,11 +62,13 @@ public class InterestCategory extends MailchimpObject {
 	
 	@Override
     public String toString(){
-        return  "ID: " + this.getId() +  System.lineSeparator() +
-                "Title: " + this.getTitle() +  System.lineSeparator() +
-                "Type: " + this.getType() + System.lineSeparator() +
-                "List ID: " + this.getList_id() + System.lineSeparator() +
-                "Display Order: " +  this.getDisplay_order() + System.lineSeparator();
+        return  
+				"Interest Category:" + System.lineSeparator() +
+        		"    ID: " + this.getId() +  System.lineSeparator() +
+                "    Title: " + this.getTitle() +  System.lineSeparator() +
+                "    Type: " + this.getType() + System.lineSeparator() +
+                "    List ID: " + this.getList_id() + System.lineSeparator() +
+                "    Display Order: " +  this.getDisplay_order();
     }
 	
 	public static class Builder {

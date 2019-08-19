@@ -28,7 +28,6 @@ public class AutomationSubscriber extends Subscriber {
 
 	/**
 	 * A string that uniquely identifies an email in an Automation workflow
-	 * @return
 	 */
 	public String getEmailId() {
 		return emailId;
@@ -44,7 +43,6 @@ public class AutomationSubscriber extends Subscriber {
 
 	/**
 	 * The date and time of the next send for the workflow email
-	 * @return
 	 */
 	public LocalDateTime getNextSend() {
 		return nextSend;

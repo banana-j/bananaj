@@ -45,7 +45,7 @@ public class MemberNote {
 	}
 
 	/**
-	 * @param The content of the note. Note length is limited to 1,000 characters.
+	 * The content of the note. Note length is limited to 1,000 characters.
 	 */
 	public void setNote(String note) {
 		this.note = note;
@@ -108,7 +108,6 @@ public class MemberNote {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @return
 	 */
 	public JSONObject getJsonRepresentation() throws Exception {
 		JSONObject jsonObj = new JSONObject();

@@ -36,7 +36,6 @@ public class AutomationRecipient {
 
 	/**
 	 * The unique list id
-	 * @return
 	 */
 	public String getListId() {
 		return listId;
@@ -52,7 +51,6 @@ public class AutomationRecipient {
 
 	/**
 	 * The id of the store
-	 * @return
 	 */
 	public String getStoreId() {
 		return storeId;
@@ -68,7 +66,6 @@ public class AutomationRecipient {
 
 	/**
 	 * The status of the list used, namely if it’s deleted or disabled
-	 * @return
 	 */
 	public boolean isListIsActive() {
 		return listIsActive;
@@ -76,7 +73,6 @@ public class AutomationRecipient {
 
 	/**
 	 * List Name
-	 * @return
 	 */
 	public String getListName() {
 		return listName;
@@ -84,7 +80,6 @@ public class AutomationRecipient {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @return
 	 */
 	public JSONObject getJsonRepresentation() throws Exception {
 		JSONObject json = new JSONObject();

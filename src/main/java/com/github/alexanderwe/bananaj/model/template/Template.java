@@ -74,7 +74,6 @@ public class Template {
 
 	/**
 	 * Get the default content for a template
-	 * @return
 	 * @throws Exception
 	 */
 	public JSONObject getDefaultContent() throws Exception {
@@ -214,7 +213,6 @@ public class Template {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @return
 	 */
 	public JSONObject getJsonRepresentation() throws Exception {
 		JSONObject jsonObj = new JSONObject();

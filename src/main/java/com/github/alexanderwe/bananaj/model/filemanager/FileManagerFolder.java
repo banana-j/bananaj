@@ -13,11 +13,11 @@ import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 /**
- * Class representing a file manager folder.
- * Created by alexanderweiss on 22.01.16.
+ * Manage specific folders in the File Manager for your Mailchimp account. The
+ * File Manager is a place to store images, documents, and other files you
+ * include or link to in your campaigns, templates, or signup forms.
  */
 public class FileManagerFolder {
-
 	private int id;
 	private String name;
 	private int fileCount;
@@ -41,21 +41,26 @@ public class FileManagerFolder {
 
 	/**
 	 * Rename folder
+	 * 
 	 * @param name the new folder name
 	 * @throws Exception
 	 */
 	public void rename(String name) throws Exception {
-		JSONObject jsonObj  = getJsonRepresentation();
-		String results = getConnection().do_Patch(new URL(getConnection().getFilemanagerfolderendpoint()+"/"+getId()), jsonObj.toString(), getConnection().getApikey());
+		JSONObject jsonObj = getJsonRepresentation();
+		String results = getConnection().do_Patch(
+				new URL(getConnection().getFilemanagerfolderendpoint() + "/" + getId()), jsonObj.toString(),
+				getConnection().getApikey());
 		parse(connection, new JSONObject(results));
 	}
 
 	/**
-	 * 	Remove a folder from File Manager
+	 * Remove a folder from File Manager
+	 * 
 	 * @throws Exception
 	 */
 	public void delete() throws Exception {
-		getConnection().do_Delete(new URL(getConnection().getFilemanagerfolderendpoint()+"/"+getId()), getConnection().getApikey());
+		getConnection().do_Delete(new URL(getConnection().getFilemanagerfolderendpoint() + "/" + getId()),
+				getConnection().getApikey());
 	}
 
 	/**
@@ -93,38 +98,42 @@ public class FileManagerFolder {
 		return createdBy;
 	}
 
-	public ArrayList<FileManagerFile> getFiles() {
-		if (files == null) {	// defer loading files list until requested.
-			try {
-				setFiles();
-			} catch(Exception e) {
-				e.printStackTrace();
-			}
+	/**
+	 * Gets a list of all files stored in the mailchimp account. Mailchimp does not
+	 * allow querying for files that belong to a specific folder so the full list of
+	 * files is cached on first read.
+	 * 
+	 * @return List of all file manager files
+	 * @throws Exception
+	 */
+	public List<FileManagerFile> getFiles() throws Exception {
+		if (files == null) { // defer loading files list until requested.
+			cacheFoldersFiles();
 		}
 		return files;
 	}
 
 	/**
-	 * Mailchimp API does not allow quering for files by folder Id so we have to
-	 * request all files and filter them.
+	 * Mailchimp API does not allow querying for files by folder Id so we have to
+	 * request all files and filter them by the desired folder.
 	 * 
 	 * @throws Exception
 	 */
-	private void setFiles() throws Exception {
+	private void cacheFoldersFiles() throws Exception {
 		ArrayList<FileManagerFile> files = new ArrayList<FileManagerFile>();
 		if (fileCount > 0) {
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 			formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
 
 			int offset = 0;
-			int count = 100;
+			int count = 500;
 			List<FileManagerFile> filelist;
 
 			do {
 				filelist = connection.getFileManager().getFileManagerFiles(count, offset);
 				offset += count;
-				for(FileManagerFile file : filelist) {
-					if(file.getFolderId() == id) {
+				for (FileManagerFile file : filelist) {
+					if (file.getFolderId() == id) {
 						files.add(file);
 					}
 				}
@@ -133,16 +142,21 @@ public class FileManagerFolder {
 		this.files = files;
 	}
 
-	public FileManagerFile getFile(int id) {
-		if (files == null) {	// defer loading files list until requested.
-			try {
-				setFiles();
-			} catch(Exception e) {
-				e.printStackTrace();
-			}
+	/**
+	 * Searches the list of all files stored in the mailchimp account for the
+	 * specified file. Mailchimp does not allow querying for files that belong to a
+	 * specific folder so the full list of files is cached on first read.
+	 * 
+	 * @param id
+	 * @return The matching file by ID or null
+	 * @throws Exception
+	 */
+	public FileManagerFile getFile(int id) throws Exception {
+		if (files == null) { // defer loading files list until requested.
+			cacheFoldersFiles();
 		}
 		for (FileManagerFile file : files) {
-			if(file.getId() == id) {
+			if (file.getId() == id) {
 				return file;
 			}
 		}
@@ -155,20 +169,19 @@ public class FileManagerFolder {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @return
 	 */
 	public JSONObject getJsonRepresentation() throws Exception {
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("name", getName());
 		return jsonObj;
 	}
-	
+
 	@Override
-	public String toString(){
-		return 
-				"Folder-name: " + getName() + 
-				" Folder-Id: " + getId() + 
-				" File-count: " + getFileCount() + 
-				" Created at: " + getCreatedAt() + System.lineSeparator(); 
+	public String toString() {
+		return "Folder: " + getName() +  System.lineSeparator() +
+        		"    ID: " + getId() +  System.lineSeparator() +
+        		"    File count: " + getFileCount() + System.lineSeparator() +
+				"    Created at: " + getCreatedAt() + System.lineSeparator() +
+				"    Created by: " + getCreatedBy();
 	}
 }

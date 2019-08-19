@@ -4,7 +4,7 @@ apply plugin: "maven-publish"
 apply plugin: 'signing'
 
 group = 'com.github.alexanderwe'
-version = '0.5.1'
+version = '0.6.1'
 
 description = 'A simple MailChimp API wrapper written in Java'
 
@@ -24,6 +24,8 @@ dependencies {
     compile group: 'net.sourceforge.jexcelapi', name: 'jxl', version: '2.6.12'
     compile group: 'org.json', name: 'json', version: '20180130'
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.5'
+	
+	// testCompile 'junit:junit:4.12'
 }
 
 task javadocJar(type: Jar) {

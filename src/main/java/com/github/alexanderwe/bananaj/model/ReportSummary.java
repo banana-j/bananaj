@@ -33,7 +33,6 @@ public class ReportSummary {
 
 	/**
 	 * The total number of opens for a campaign
-	 * @return
 	 */
 	public int getOpens() {
 		return opens;
@@ -41,7 +40,6 @@ public class ReportSummary {
 
 	/**
 	 * The number of unique opens
-	 * @return
 	 */
 	public int getUniqueOpens() {
 		return uniqueOpens;
@@ -49,7 +47,6 @@ public class ReportSummary {
 
 	/**
 	 * The number of unique opens divided by the total number of successful deliveries
-	 * @return
 	 */
 	public double getOpenRate() {
 		return openRate;
@@ -57,7 +54,6 @@ public class ReportSummary {
 
 	/**
 	 * The total number of clicks for a campaign
-	 * @return
 	 */
 	public int getClicks() {
 		return clicks;
@@ -65,7 +61,6 @@ public class ReportSummary {
 
 	/**
 	 * The number of unique clicks
-	 * @return
 	 */
 	public int getSubscriberClicks() {
 		return subscriberClicks;
@@ -73,7 +68,6 @@ public class ReportSummary {
 
 	/**
 	 * The number of unique clicks divided by the total number of successful deliveries
-	 * @return
 	 */
 	public double getClickRate() {
 		return clickRate;

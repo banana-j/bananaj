@@ -35,8 +35,7 @@ public class AutomationDelay {
 	}
 	
 	/**
-	 * he delay amount for an automation email
-	 * @return
+	 * The delay amount for an automation email
 	 */
 	public Integer getAmount() {
 		return amount;
@@ -52,7 +51,6 @@ public class AutomationDelay {
 
 	/**
 	 * The type of delay for an automation email
-	 * @return
 	 */
 	public DelayType getType() {
 		return type;
@@ -68,7 +66,6 @@ public class AutomationDelay {
 
 	/**
 	 * Whether the delay settings describe before or after the delay action of an automation email
-	 * @return
 	 */
 	public DelayDirection getDirection() {
 		return direction;
@@ -84,7 +81,6 @@ public class AutomationDelay {
 
 	/**
 	 * The action that triggers the delay of an automation emails
-	 * @return
 	 */
 	public DelayAction getAction() {
 		return action;
@@ -100,7 +96,6 @@ public class AutomationDelay {
 
 	/**
 	 * The user-friendly description of the action that triggers an Automation email
-	 * @return
 	 */
 	public String getActionDescription() {
 		return actionDescription;
@@ -108,7 +103,6 @@ public class AutomationDelay {
 
 	/**
 	 * The user-friendly description of the delay and trigger action settings for an Automation email
-	 * @return
 	 */
 	public String getFullDescription() {
 		return fullDescription;
@@ -116,7 +110,6 @@ public class AutomationDelay {
 
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 * @return
 	 */
 	public JSONObject getJsonRepresentation() throws Exception {
 		JSONObject json = new JSONObject();
