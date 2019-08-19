@@ -4,8 +4,6 @@
  */
 package com.github.alexanderwe.bananaj.model.list;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -22,7 +20,6 @@ import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
 import com.github.alexanderwe.bananaj.exceptions.EmailException;
-import com.github.alexanderwe.bananaj.exceptions.FileFormatException;
 import com.github.alexanderwe.bananaj.exceptions.TransportException;
 import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import com.github.alexanderwe.bananaj.model.list.interests.Interest;
@@ -38,22 +35,6 @@ import com.github.alexanderwe.bananaj.model.list.segment.Segment;
 import com.github.alexanderwe.bananaj.model.list.segment.SegmentType;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
 import com.github.alexanderwe.bananaj.utils.EmailValidator;
-import com.github.alexanderwe.bananaj.utils.FileInspector;
-
-import jxl.Cell;
-import jxl.CellType;
-import jxl.CellView;
-import jxl.Sheet;
-import jxl.Workbook;
-import jxl.read.biff.BiffException;
-import jxl.write.Label;
-import jxl.write.Number;
-import jxl.write.WritableCellFormat;
-import jxl.write.WritableFont;
-import jxl.write.WritableSheet;
-import jxl.write.WritableWorkbook;
-import jxl.write.WriteException;
-import jxl.write.biff.RowsExceededException;
 
 
 /**
@@ -337,41 +318,6 @@ public class MailChimpList extends MailchimpObject {
 		member.parse(this, new JSONObject(results));  // update member object with current data
 	}
 	
-	public void importMembersFromFile(File file) throws FileFormatException, IOException {
-		//TODO fully implement read from xls
-		String extension = FileInspector.getInstance().getExtension(file);
-
-		if(extension.equals(".xls")|| extension.equals(".xlsx")){
-			Workbook w;
-			try {
-				w = Workbook.getWorkbook(file);
-				// Get the first sheet
-				Sheet sheet = w.getSheet(0);
-				// Loop over first 10 column and lines
-
-				for (int j = 0; j < sheet.getColumns(); j++) {
-					for (int i = 0; i < sheet.getRows(); i++) {
-						Cell cell = sheet.getCell(j, i);
-						CellType type = cell.getType();
-						if (type == CellType.LABEL) {
-							System.out.println("I got a label "
-									+ cell.getContents());
-						}
-
-						if (type == CellType.NUMBER) {
-							System.out.println("I got a number "
-									+ cell.getContents());
-						}
-
-					}
-				}
-			} catch (BiffException e) {
-				e.printStackTrace();
-			}
-
-		}
-	}
-
 	/**
 	 * Delete a member from list.
 	 * @param memberID
@@ -710,113 +656,6 @@ public class MailChimpList extends MailchimpObject {
 
 	public void deleteMergeField(String mergeFieldID) throws MalformedURLException, TransportException, URISyntaxException {
 		connection.do_Delete(new URL(connection.getListendpoint()+"/"+getId()+"/merge-fields/"+mergeFieldID),connection.getApikey());
-	}
-	
-	/**
-	 * Writes the data of this list to an excel file in current directory. Define whether to show merge fields or not
-	 * @param show_merge
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws JSONException 
-	 * @throws IOException 
-	 * @throws WriteException 
-	 * @throws RowsExceededException 
-	 */
-	public void writeToExcel(String filepath,boolean show_merge) throws JSONException, TransportException, URISyntaxException, IOException, RowsExceededException, WriteException {
-		List<Member> members = getMembers(0,0);
-		int merge_field_count = 0;
-		WritableWorkbook workbook;
-
-
-		if(filepath.contains(".xls")){
-			workbook = Workbook.createWorkbook(new File(filepath));
-		}else{
-			workbook = Workbook.createWorkbook(new File(filepath+".xls"));
-		}
-
-		WritableSheet sheet = workbook.createSheet(getName(), 0);
-		
-		
-		WritableFont times16font = new WritableFont(WritableFont.TIMES, 16, WritableFont.BOLD, false); 
-		WritableCellFormat times16format = new WritableCellFormat (times16font); 
-		
-		Label memberIDLabel = new Label(0, 0, "MemberID",times16format);
-		Label email_addressLabel = new Label(1,0,"Email Address",times16format);
-		Label timestamp_sign_inLabel = new Label(2,0,"Sign up",times16format);
-		Label ip_signinLabel = new Label(3,0,"IP Sign up", times16format);
-		Label timestamp_opt_inLabel = new Label(4,0,"Opt in",times16format);
-		Label ip_optLabel = new Label(5,0,"IP Opt in", times16format);
-		Label statusLabel = new Label(6,0,"Status",times16format);
-		Label avg_open_rateLabel = new Label(7,0,"Avg. open rate",times16format);
-		Label avg_click_rateLabel = new Label(8,0,"Avg. click rate",times16format);
-		
-
-		sheet.addCell(memberIDLabel);
-		sheet.addCell(email_addressLabel);
-		sheet.addCell(timestamp_sign_inLabel);
-		sheet.addCell(ip_signinLabel);
-		sheet.addCell(timestamp_opt_inLabel);
-		sheet.addCell(ip_optLabel);
-		sheet.addCell(statusLabel);
-		sheet.addCell(avg_open_rateLabel);
-		sheet.addCell(avg_click_rateLabel);
-
-		if (show_merge){
-			int last_column = 9;
-
-			Iterator<Entry<String, String>> iter = members.get(0).getMergeFields().entrySet().iterator();
-			while (iter.hasNext()) {
-				Entry<String, String> pair = iter.next();
-				sheet.addCell(new Label(last_column,0,pair.getKey(),times16format));
-				iter.remove(); // avoids a ConcurrentModificationException
-				last_column++;
-				merge_field_count++;
-			}
-		}
-
-
-		for(int i = 0 ; i < members.size();i++)
-		{
-			Member member = members.get(i);
-			sheet.addCell(new Label(0,i+1,member.getId()));
-			sheet.addCell(new Label(1,i+1,member.getEmailAddress()));
-			sheet.addCell(new Label(2,i+1,member.getTimestampSignup().toString()));
-			sheet.addCell(new Label(3,i+1,member.getIpSignup()));
-			sheet.addCell(new Label(4,i+1,member.getTimestampOpt().toString()));
-			sheet.addCell(new Label(5,i+1,member.getIpOpt()));
-			sheet.addCell(new Label(6,i+1,member.getStatus().getStringRepresentation()));
-			sheet.addCell(new Number(7,i+1,member.getStats().getAvgOpenRate()));
-			sheet.addCell(new Number(8,i+1,member.getStats().getAvgClickRate()));
-
-			if (show_merge){
-				//add merge fields values
-				int last_index = 9;
-				Iterator<Entry<String, String>> iter_member = member.getMergeFields().entrySet().iterator();
-				while (iter_member.hasNext()) {
-					Entry<String, String> pair = iter_member.next();
-					sheet.addCell(new Label(last_index,i+1,pair.getValue()));
-					iter_member.remove(); // avoids a ConcurrentModificationException
-					last_index++;
-
-				}
-			}
-		}
-
-		CellView cell;
-
-		int column_count = 9 + merge_field_count;
-		for(int x=0;x<column_count;x++)
-		{
-			cell=sheet.getColumnView(x);
-			cell.setAutosize(true);
-			sheet.setColumnView(x, cell);
-		}
-
-
-		workbook.write(); 
-		workbook.close();
-
-		System.out.println("Writing to excel - done");
 	}
 
 	/**

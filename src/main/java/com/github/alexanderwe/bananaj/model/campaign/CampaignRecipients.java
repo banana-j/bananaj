@@ -31,7 +31,7 @@ public class CampaignRecipients {
      * @see CampaignRecipients.Builder
      * @param b
      */
-    public CampaignRecipients(Builder b) throws ConditionException{
+    public CampaignRecipients(Builder b) {
     	this.segmentOpts = b.segmentOpts;
     	this.listId = b.listId;
     }
@@ -185,12 +185,7 @@ public class CampaignRecipients {
         }
 
         public CampaignRecipients build() {
-            try {
-                return new CampaignRecipients(this);
-            } catch (ConditionException e) {
-                e.printStackTrace();
-            }
-            return null;
+        	return new CampaignRecipients(this);
         }
     }
 

@@ -133,7 +133,7 @@ public class FileManager {
 	 * @throws MalformedURLException
 	 * @throws Exception
 	 */
-	public FileManagerFile upload(int folder_id, String filename, File file) throws JSONException, MalformedURLException, Exception{
+	public FileManagerFile upload(int folder_id, String filename, File file) throws JSONException, MalformedURLException, Exception {
 		String fExt = FileInspector.getInstance().getExtension(file);
 		String fName = filename.endsWith(fExt) ? filename : filename+fExt;
 		JSONObject upload_data  = new JSONObject();
@@ -152,7 +152,7 @@ public class FileManager {
 	 * @throws MalformedURLException
 	 * @throws Exception
 	 */
-	public FileManagerFile upload(String filename, File file) throws JSONException, MalformedURLException, Exception{
+	public FileManagerFile upload(String filename, File file) throws JSONException, MalformedURLException, Exception {
 		String fExt = FileInspector.getInstance().getExtension(file);
 		String fName = filename.endsWith(fExt) ? filename : filename+fExt;
 		JSONObject upload_data  = new JSONObject();
