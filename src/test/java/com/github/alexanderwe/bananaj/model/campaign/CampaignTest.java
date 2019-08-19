@@ -2,8 +2,12 @@ package com.github.alexanderwe.bananaj.model.campaign;
 
 import static org.junit.Assert.*;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
+
+import com.github.alexanderwe.bananaj.model.list.segment.ConditionType;
+import com.github.alexanderwe.bananaj.model.list.segment.MatchType;
 
 public class CampaignTest {
 
@@ -21,4 +25,20 @@ public class CampaignTest {
 		// TODO: JSONObject json = campaign.getJsonRepresentation();
 	}
 
+	@Test
+	public void testCampaignSegmentOptsJSONObject() {
+		JSONObject jsonObj = new JSONObject("{\"saved_segment_id\":40229,\"match\":\"any\",\"conditions\":[{\"condition_type\":\"Interests\",\"field\":\"interests-6dc9e2022a\",\"op\":\"interestcontains\",\"value\":[\"66af3e0301\"]}]}");
+		CampaignSegmentOpts segopts = new CampaignSegmentOpts(jsonObj);
+		assertEquals(segopts.getSavedSegmentId().intValue(), 40229);
+		assertEquals(segopts.getMatch(), MatchType.ANY);
+		assertEquals(segopts.getConditions().size(), 1);
+		assertEquals(segopts.getConditions().get(0).getConditionType(), ConditionType.INTERESTS);
+		
+		JSONObject json = segopts.getJsonRepresentation();
+		assertEquals(json.getString("match"), MatchType.ANY.getStringRepresentation());
+		assertEquals(json.getInt("saved_segment_id"), 40229);
+		JSONArray jsonarr = json.getJSONArray("conditions");
+		JSONObject cond = (JSONObject)jsonarr.get(0);
+		assertEquals(cond.getString("condition_type"), ConditionType.INTERESTS.value());
+	}
 }

@@ -68,7 +68,7 @@ public class StringCondition implements AbstractCondition {
 	@Override
 	public JSONObject getJsonRepresentation(){
 		JSONObject condition = new JSONObject();
-		condition.put("condition_type", getConditionType());
+		condition.put("condition_type", getConditionType().value());
 		condition.put("op", getOp().value());
 		condition.put("field", getField());
 		if (getExtra() != null) {

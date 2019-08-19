@@ -70,7 +70,7 @@ public class StringArrayCondition implements AbstractCondition {
 			valuearray.put(v.next());
 		}
 
-		condition.put("condition_type", getConditionType());
+		condition.put("condition_type", getConditionType().value());
 		condition.put("op", getOp().value());
 		condition.put("field", getField());
 		condition.put("value", valuearray);
