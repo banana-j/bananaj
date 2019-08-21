@@ -10,14 +10,14 @@ bananaj provides an Java wrapper for the MailChimp API 3.0. It is possible acces
 # How to use
 
 ## Add to your project 
-This is still in alpha. If you encounter some bugs or issues, please feel free to report them to the [Issues section](https://github.com/alexanderwe/bananaj/issues).
+This is still in alpha. If you encounter some bugs or issues, please feel free to report them to the [Issues section](https://github.com/banana-j/bananaj/issues).
 
 Add this dependency to your pom.xml to use **bananaj** in your project.
 ```
 <dependency>
-  <groupId>com.github.alexanderwe</groupId>
+  <groupId>com.github.banana-j</groupId>
   <artifactId>bananaj</artifactId>
-  <version>0.5.1</version>
+  <version>0.6.1</version>
 </dependency>
 ```
 or with Gradle
@@ -28,11 +28,11 @@ repositories {
 }
 
 dependencies {
-    compile group: 'com.github.alexanderwe', name: 'bananaj', version: '0.5.1'
+    compile group: 'com.github.banana-j', name: 'bananaj', version: '0.6.1'
 }
 ```
 
-If you are not using Maven or Gradle you can download the latest `fat jar` from the [releases section](https://github.com/alexanderwe/bananaj/releases).
+If you are not using Maven or Gradle you can download the latest `fat jar` from the [releases section](https://github.com/banana-j/bananaj/releases).
 
 ## MailChimpObject class
 Most of the com.github.alexanderwe.bananaj.model classes extend the MailChimpObject class.They are immutable, to prevent asynchronous data between the client and the MailChimp server. 
