@@ -4,154 +4,172 @@
  */
 package com.github.alexanderwe.bananaj.model.report;
 
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
-import com.github.alexanderwe.bananaj.model.campaign.Bounce;
+import java.time.LocalDateTime;
+
 import org.json.JSONObject;
 
-import java.time.LocalDateTime;
+import com.github.alexanderwe.bananaj.model.MailchimpObject;
+import com.github.alexanderwe.bananaj.model.campaign.Bounce;
+import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 /**
  * Object for representing a report of a campaign
  * @author alexanderweiss
  *
  */
-public class Report extends MailchimpObject{
+public class Report extends MailchimpObject {
 
-	private String campaign_title;
-	private int emails_sent_total;
-	private int abuse_report;
-	private int unsubscribe_total;
-	private LocalDateTime time_sent;
+	private String campaignTitle;
+	//private String type;
+	//private String list_id;
+	//private boolean list_is_active;
+	//private String list_name;
+	//private String subject_line;
+	//private String preview_text;
+	private int emailsSent;
+	private int abuseReport;
+	private int unsubscribed;
+	private LocalDateTime sendtime;
+	//private String rss_last_send;
 	private Bounce bounces;
 	private Forward forwards;
 	private Open opens;
 	private Click clicks;
-	private FacebookLikes facebook_likes;
-	private IndustryStats industry_stats;
-	private ReportListStats report_list_stats;
-	
-	
-	public Report(String campaignID,String campaign_title, int emails_sent_total, int abuse_report, int unsubscribe_total, LocalDateTime time_sent, Bounce bounces, Forward forwards,Click clicks,Open opens,FacebookLikes facebook_likes,IndustryStats industry_stats,ReportListStats report_list_stats,JSONObject jsonRepresentation) {
-		super(campaignID,jsonRepresentation);
-		this.campaign_title = campaign_title;
-		this.emails_sent_total = emails_sent_total;
-		this.abuse_report = abuse_report;
-		this.unsubscribe_total = unsubscribe_total;
-		this.time_sent = time_sent;
-		this.bounces = bounces;
-		this.forwards = forwards;
-		this.clicks = clicks;
-		this.opens = opens;
-		this.facebook_likes = facebook_likes;
-		this.industry_stats = industry_stats;
-		this.report_list_stats = report_list_stats;
+	private FacebookLikes facebookLikes;
+	private IndustryStats industryStats;
+	private ReportListStats listStats;
+	//private Object ab_split;
+	//private List<Object> timewarp;
+	//private List<Object> timeseries;
+	//private Object share_report;
+	private Ecommerce ecommerce;
+	//private Object delivery_status;
+
+	public Report(JSONObject jsonObj) {
+		super(jsonObj.getString("id"), null);
+		campaignTitle = jsonObj.getString("campaign_title");
+		emailsSent = jsonObj.getInt("emails_sent");
+		abuseReport = jsonObj.getInt("abuse_reports");
+		unsubscribed = jsonObj.getInt("unsubscribed");
+		sendtime = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("send_time"));
+		bounces = new Bounce(jsonObj.getJSONObject("bounces"));
+		forwards = new Forward(jsonObj.getJSONObject("forwards"));
+		clicks = new Click(jsonObj.getJSONObject("clicks"));
+		opens = new Open(jsonObj.getJSONObject("opens"));
+		facebookLikes = new FacebookLikes(jsonObj.getJSONObject("facebook_likes"));
+		industryStats = new IndustryStats(jsonObj.getJSONObject("industry_stats"));
+		if (jsonObj.has("list_stats")) {
+			this.listStats = new ReportListStats(jsonObj.getJSONObject("list_stats"));
+		}
+		ecommerce = new Ecommerce(jsonObj.getJSONObject("ecommerce"));
 	}
 
-
 	/**
-	 * @return the emails_send
+	 * @return The total number of emails sent for the campaign.
 	 */
-	public int getEmails_send_total() {
-		return emails_sent_total;
+	public int getEmailsSent() {
+		return emailsSent;
 	}
 
 	/**
-	 * @return the campaign_title
+	 * @return The title of the campaign.
 	 */
-	public String getCampaign_title() {
-		return campaign_title;
+	public String getCampaignTitle() {
+		return campaignTitle;
 	}
 
 	/**
-	 * @return the abuse_report
+	 * @return The number of abuse reports generated for this campaign.
 	 */
-	public int getAbuse_report() {
-		return abuse_report;
+	public int getAbuseReport() {
+		return abuseReport;
 	}
 
 	/**
-	 * @return the unsubscribe_total
+	 * @return The total number of unsubscribed members for this campaign.
 	 */
-	public int getUnsubscribe_total() {
-		return unsubscribe_total;
+	public int getUnsubscribed() {
+		return unsubscribed;
 	}
 
 	/**
-	 * @return the time_sent
+	 * @return The date and time a campaign was sent.
 	 */
-	public LocalDateTime getTime_sent() {
-		return time_sent;
+	public LocalDateTime getSendTime() {
+		return sendtime;
 	}
 
 	/**
-	 * @return the bounces
+	 * @return The bounce summary for the campaign.
 	 */
 	public Bounce getBounces() {
 		return bounces;
 	}
 
 	/**
-	 * @return the forwards
+	 * @return The forwards and forward activity for the campaign.
 	 */
 	public Forward getForwards() {
 		return forwards;
 	}
 
 	/**
-	 * @return the clicks
+	 * @return The click activity for the campaign.
 	 */
 	public Click getClicks() {
 		return clicks;
 	}
 
 	/**
-	 * @return the opens
+	 * @return The open activity for the campaign.
 	 */
 	public Open getOpens() {
 		return opens;
 	}
 
 	/**
-	 * @return the facebook_likes
+	 * @return Campaign engagement on Facebook.
 	 */
-	public FacebookLikes getFacebook_likes() {
-		return facebook_likes;
+	public FacebookLikes getFacebookLikes() {
+		return facebookLikes;
 	}
 
 	/**
-	 * @return the industry_stats
+	 * @return The average campaign statistics for your industry.
 	 */
-	public IndustryStats getIndustry_stats() {
-		return industry_stats;
+	public IndustryStats getIndustryStats() {
+		return industryStats;
 	}
 
 	/**
-	 * @return the report_list_stats
+	 * @return The average campaign statistics for your list. Null if it hasn't been calculated it yet for the list.
 	 */
-	public ReportListStats getReport_list_stats() {
-		return report_list_stats;
+	public ReportListStats getListStats() {
+		return listStats;
+	}
+
+	/**
+	 * @return E-Commerce stats for a campaign.
+	 */
+	public Ecommerce getEcommerce() {
+		return ecommerce;
 	}
 
 	@Override
 	public String toString(){
-		return "Report of campaign: " + this.getId() +" " +this.getCampaign_title() + System.lineSeparator() +
-				"Total emails sent: " + this.getEmails_send_total() + System.lineSeparator() +
-				"Total abuse reports: " + this.getAbuse_report() +  System.lineSeparator() +
-				"Total unsubscribed: " + this.getUnsubscribe_total() + System.lineSeparator() +
-				"Time sent: " + this.getTime_sent() + System.lineSeparator() +
-				"Bounces: " + System.lineSeparator() +
-				"    Soft bounces: " + this.getBounces().getSoft_bounces() + System.lineSeparator() +
-				"    Hard bounces: " +  this.getBounces().getHard_bounces() + System.lineSeparator() +
-				"    Syntax error bounces: " + this.getBounces().getSyntax_error_bounces() + System.lineSeparator() +
-				"Forwards: " + System.lineSeparator() +
-				"    Forward count: " + this.getForwards().getCount() + System.lineSeparator() +
-				"    Forward open: " + this.getForwards().getForwards_open() + System.lineSeparator() +
-				"Clicks: " + System.lineSeparator() +
-				"    Clicks total: " + this.getClicks().getClicks_total() + System.lineSeparator() +
-				"    Unique clicks: " + this.getClicks().getUnique_clicks() + System.lineSeparator() +
-				"    Unique subscriber links: " + this.getClicks().getUnique_subscriber_clicks() + System.lineSeparator() +
-				"    Click rate: " + this.getClicks().getClick_rate() + System.lineSeparator() +
-				"    Last click: " + this.getClicks().getLast_click();
+		return "Report of campaign: " + getId() + " " + this.getCampaignTitle() + System.lineSeparator() +
+				"Total emails sent: " + getEmailsSent() + System.lineSeparator() +
+				"Total abuse reports: " + getAbuseReport() +  System.lineSeparator() +
+				"Total unsubscribed: " + getUnsubscribed() + System.lineSeparator() +
+				"Time sent: " + getSendTime() + System.lineSeparator() +
+				getForwards().toString() + System.lineSeparator() +
+				getOpens().toString() + System.lineSeparator() +
+				getBounces().toString() + System.lineSeparator() +
+				getClicks().toString() + System.lineSeparator() +
+				getFacebookLikes().toString() + System.lineSeparator() +
+				getIndustryStats().toString() + System.lineSeparator() +
+				(getListStats() != null ? getListStats().toString() + System.lineSeparator() : "") +
+				getEcommerce().toString();
 	}
 
 }

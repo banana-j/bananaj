@@ -6,12 +6,11 @@ package com.github.alexanderwe.bananaj.model.campaign;
 
 public enum CampaignStatus {
 
-	
 	SAVE("save"), PAUSED("paused"), SCHEDULE("schedule"), SENDING("sending"), SENT("sent");
 	
 	private String stringRepresentation;
 	
-	CampaignStatus(String stringRepresentation ){
+	CampaignStatus(String stringRepresentation ) {
 		setStringRepresentation(stringRepresentation);
 	}
 
@@ -28,5 +27,4 @@ public enum CampaignStatus {
 	private void setStringRepresentation(String stringRepresentation) {
 		this.stringRepresentation = stringRepresentation;
 	}
-	
 }

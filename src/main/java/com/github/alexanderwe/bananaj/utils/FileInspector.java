@@ -3,6 +3,7 @@ package com.github.alexanderwe.bananaj.utils;
 import org.apache.commons.codec.binary.Base64;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 /**
@@ -17,14 +18,14 @@ public class FileInspector {
 
     }
 
-    public static FileInspector getInstance(){
+    public static FileInspector getInstance() {
         if(instance == null){
             instance = new FileInspector();
         }
         return instance;
     }
 
-    public String getExtension(File file){
+    public String getExtension(File file) {
         String extension = "";
 
         int i = file.getName().lastIndexOf('.');
@@ -38,15 +39,11 @@ public class FileInspector {
     /**
      * Encode a file to base 64 binary
      * @param file
-     * @return
+     * @throws Exception 
      */
-    public String encodeFileToBase64Binary(File file){
+    public String encodeFileToBase64Binary(File file) throws Exception {
         byte[] encodedBytes = null;
-        try {
-            encodedBytes = Base64.encodeBase64(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+        encodedBytes = Base64.encodeBase64(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
 
         return new String(encodedBytes);
     }

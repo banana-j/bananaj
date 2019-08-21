@@ -4,6 +4,8 @@
  */
 package com.github.alexanderwe.bananaj.model.report;
 
+import org.json.JSONObject;
+
 /**
  * Class for representing the opens of a campaign
  * @author alexanderweiss
@@ -11,44 +13,58 @@ package com.github.alexanderwe.bananaj.model.report;
  */
 public class Open {
 
-	private int opens_total;
-	private int unique_opens;
-	private double open_rate;
-	private String last_open;
+	private int opensTotal;
+	private int uniqueOpens;
+	private double openRate;
+	private String lastOpen;
 	
 	
-	public Open(int opens_total, int unique_opens, double open_rate, String last_open) {
-		this.opens_total = opens_total;
-		this.unique_opens = unique_opens;
-		this.open_rate = open_rate;
-		this.last_open = last_open;
+	public Open(JSONObject jsonObj) {
+		opensTotal = jsonObj.getInt("opens_total");
+		uniqueOpens = jsonObj.getInt("unique_opens");
+		openRate = jsonObj.getDouble("open_rate");
+		lastOpen = jsonObj.getString("last_open");
 	}
 
 	/**
-	 * @return the opens_total
+	 * @return The total number of opens for a campaign.
 	 */
-	public int getOpens_total() {
-		return opens_total;
+	public int getOpensTotal() {
+		return opensTotal;
 	}
 
 	/**
-	 * @return the unique_opens
+	 * @return The total number of unique opens.
 	 */
-	public int getUnique_opens() {
-		return unique_opens;
+	public int getUniqueOpens() {
+		return uniqueOpens;
 	}
 
 	/**
-	 * @return the open_rate
+	 * @return The number of unique opens divided by the total number of successful deliveries.
 	 */
-	public double getOpen_rate() {
-		return open_rate;
+	public double getOpenRate() {
+		return openRate;
 	}
 
 	/**
-	 * @return the last_open
+	 * @return The date and time of the last recorded open.
 	 */
-	public String getLast_open() {
-		return last_open;
+	public String getLastOpen() {
+		return lastOpen;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return
+				"Opens:" + System.lineSeparator() +
+				"    Total: " + getOpensTotal() + System.lineSeparator() +
+				"    Unique: " +  getUniqueOpens() + System.lineSeparator() +
+				"    Open Rate: " +  getOpenRate() + System.lineSeparator() +
+				"    Last Open: " + getLastOpen();
+	}
+
 }

@@ -4,32 +4,48 @@
  */
 package com.github.alexanderwe.bananaj.model.report;
 
+import org.json.JSONObject;
+
 /**
- * Class for representing a forward in a campaign
+ * Class for representing forward counts in a campaign
+ * 
  * @author alexanderweiss
  *
  */
-public class Forward{
+public class Forward {
 
 	private int count;
-	private int forwards_open;
+	private int opens;
 	
-	public Forward(int count, int forward_open) {
-		this.count = count;
-		this.forwards_open = forward_open;
+	public Forward(JSONObject jsonObj) {
+		count = jsonObj.getInt("forwards_count");
+		opens = jsonObj.getInt("forwards_opens");
 	}
 
 	/**
-	 * @return the count
+	 * @return How many times the campaign has been forwarded.
 	 */
 	public int getCount() {
 		return count;
 	}
 
 	/**
-	 * @return the forwards_open
+	 * @return How many times the forwarded campaign has been opened.
 	 */
-	public int getForwards_open() {
-		return forwards_open;
+	public int getOpens() {
+		return opens;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return
+				"Forwards:" + System.lineSeparator() +
+				"    Forward count: " + getCount() + System.lineSeparator() +
+				"    Forward open: " + getOpens();
+	}
+	
+	
 }

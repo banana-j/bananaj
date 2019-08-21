@@ -22,6 +22,14 @@
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
 
+# Eclipse
+.settings
+.classpath
+.project
+.metadata
+*.launch
+.metadata
+
 # Gradle
 .idea/**/gradle.xml
 .idea/**/libraries
@@ -129,4 +137,3 @@ gradle-app.setting
 
 
 ### Project specific ###
-src/test/*

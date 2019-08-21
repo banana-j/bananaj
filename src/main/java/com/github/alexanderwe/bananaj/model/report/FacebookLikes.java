@@ -4,6 +4,7 @@
  */
 package com.github.alexanderwe.bananaj.model.report;
 
+import org.json.JSONObject;
 
 /**
  * Class for representing facebook likes
@@ -12,35 +13,45 @@ package com.github.alexanderwe.bananaj.model.report;
  */
 public class FacebookLikes {
 
-	private int recipient_likes;
-	private int unique_likes;
-	private int facebook_likes;
+	private int recipientLikes;
+	private int uniqueLikes;
+	private int facebookLikes;
 	
-	public FacebookLikes(int recipient_likes, int unique_likes, int facebook_likes  ) {
-		this.recipient_likes = recipient_likes;
-		this.unique_likes = unique_likes;
-		this.facebook_likes = facebook_likes;
+	public FacebookLikes(JSONObject jsonObj) {
+		recipientLikes = jsonObj.getInt("recipient_likes");
+		uniqueLikes = jsonObj.getInt("unique_likes");
+		facebookLikes = jsonObj.getInt("facebook_likes");
+	}
+	/**
+	 * @return The number of recipients who liked the campaign on Facebook.
+	 */
+	public int getRecipientLikes() {
+		return recipientLikes;
 	}
 
 	/**
-	 * @return the recipient_likes
+	 * @return The number of unique likes.
 	 */
-	public int getRecipient_likes() {
-		return recipient_likes;
+	public int getUniqueLikes() {
+		return uniqueLikes;
 	}
 
 	/**
-	 * @return the unique_likes
+	 * @return The number of Facebook likes for the campaign.
 	 */
-	public int getUnique_likes() {
-		return unique_likes;
+	public int getFacebookLikes() {
+		return facebookLikes;
 	}
-
-	/**
-	 * @return the facebook_likes
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
 	 */
-	public int getFacebook_likes() {
-		return facebook_likes;
+	@Override
+	public String toString() {
+		return
+				"Facebook:" + System.lineSeparator() +
+				"    Recipient Likes: " + getRecipientLikes() + System.lineSeparator() +
+				"    Unique Likes: " +  getUniqueLikes() + System.lineSeparator() +
+				"    Facebook Likes: " + getFacebookLikes();
 	}
 
 }

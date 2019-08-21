@@ -10,132 +10,178 @@ import java.util.TimeZone;
 import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 /**
- * Class for representing a file manager folder.
- * Created by alexanderweiss on 22.01.16.
+ * Manage specific folders in the File Manager for your Mailchimp account. The
+ * File Manager is a place to store images, documents, and other files you
+ * include or link to in your campaigns, templates, or signup forms.
  */
-public class FileManagerFolder extends MailchimpObject{
+public class FileManagerFolder {
+	private int id;
+	private String name;
+	private int fileCount;
+	private LocalDateTime createdAt;
+	private String createdBy;
+	private ArrayList<FileManagerFile> files;
+	private MailChimpConnection connection;
 
+	public FileManagerFolder(MailChimpConnection connection, JSONObject jsonFileManagerFolder) {
+		parse(connection, jsonFileManagerFolder);
+	}
 
-    private int folderId;
-    private String name;
-    private int file_count;
-    private LocalDateTime createdAt;
-    private String createdBy;
-    private ArrayList<FileManagerFile> files;
-    private JSONObject jsonData;
-    private MailChimpConnection connection;
+	public void parse(MailChimpConnection connection, JSONObject jsonFileManagerFolder) {
+		id = jsonFileManagerFolder.getInt("id");
+		name = jsonFileManagerFolder.getString("name");
+		fileCount = jsonFileManagerFolder.getInt("file_count");
+		createdAt = DateConverter.getInstance().createDateFromISO8601(jsonFileManagerFolder.getString("created_at"));
+		createdBy = jsonFileManagerFolder.getString("created_by");
+		this.connection = connection;
+	}
 
+	/**
+	 * Rename folder
+	 * 
+	 * @param name the new folder name
+	 * @throws Exception
+	 */
+	public void rename(String name) throws Exception {
+		JSONObject jsonObj = getJsonRepresentation();
+		String results = getConnection().do_Patch(
+				new URL(getConnection().getFilemanagerfolderendpoint() + "/" + getId()), jsonObj.toString(),
+				getConnection().getApikey());
+		parse(connection, new JSONObject(results));
+	}
 
+	/**
+	 * Remove a folder from File Manager
+	 * 
+	 * @throws Exception
+	 */
+	public void delete() throws Exception {
+		getConnection().do_Delete(new URL(getConnection().getFilemanagerfolderendpoint() + "/" + getId()),
+				getConnection().getApikey());
+	}
 
-    public FileManagerFolder(int id, String name, int file_count, LocalDateTime createdAt, String createdBy, JSONObject jsonData, MailChimpConnection connection){
-        super(String.valueOf(id),jsonData);	// set string representation of folder id
-        this.folderId = id;	// set integer representation of folder id
-        this.name = name;
-        this.file_count = file_count;
-        this.createdAt = createdAt;
-        this.createdBy = createdBy;
-        this.connection = connection;
-    }
+	/**
+	 * @return The unique id for the folder.
+	 */
+	public int getId() {
+		return id;
+	}
 
-    public FileManagerFolder(MailChimpConnection connection, JSONObject jsonFileManagerFolder){
-        super(String.valueOf(jsonFileManagerFolder.getInt("id")), jsonFileManagerFolder);	// set string representation of folder id
-        this.folderId = jsonFileManagerFolder.getInt("id");	// set integer representation of folder id
-        this.name = jsonFileManagerFolder.getString("name");
-        this.file_count = jsonFileManagerFolder.getInt("file_count");
-        this.createdAt = DateConverter.getInstance().createDateFromISO8601(jsonFileManagerFolder.getString("created_at"));
-        this.createdBy = jsonFileManagerFolder.getString("created_by");
-        this.connection = connection;
-    }
+	/**
+	 * @return The name of the folder.
+	 */
+	public String getName() {
+		return name;
+	}
 
-    public void changeName(String name) throws Exception{
-        JSONObject changedFolder  = new JSONObject();
-        changedFolder.put("name", name);
-        this.connection.do_Patch(new URL(this.getConnection().getFilemanagerfolderendpoint()+"/"+this.getId()), changedFolder.toString(), this.getConnection().getApikey());
+	/**
+	 * @return The number of files in the folder.
+	 */
+	public int getFileCount() {
+		return fileCount;
+	}
 
-    }
+	/**
+	 * @return The date and time a file was added to the File Manager
+	 */
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
 
-    public void deleteFolder() throws Exception {
-    	getConnection().do_Delete(new URL(getConnection().getFilemanagerfolderendpoint()+"/"+getId()), getConnection().getApikey());
-    }
+	/**
+	 * @return The username of the profile that created the folder.
+	 */
+	public String getCreatedBy() {
+		return createdBy;
+	}
 
-    public String getName() {
-        return name;
-    }
+	/**
+	 * Gets a list of all files stored in the mailchimp account. Mailchimp does not
+	 * allow querying for files that belong to a specific folder so the full list of
+	 * files is cached on first read.
+	 * 
+	 * @return List of all file manager files
+	 * @throws Exception
+	 */
+	public List<FileManagerFile> getFiles() throws Exception {
+		if (files == null) { // defer loading files list until requested.
+			cacheFoldersFiles();
+		}
+		return files;
+	}
 
-    public int getFile_count() {
-        return file_count;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public ArrayList<FileManagerFile> getFiles() {
-    	if (files == null) {	// defer loading files list untill requested.
-            try{
-                setFiles();
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-    	}
-        return files;
-    }
-
-    private void setFiles() throws Exception {
+	/**
+	 * Mailchimp API does not allow querying for files by folder Id so we have to
+	 * request all files and filter them by the desired folder.
+	 * 
+	 * @throws Exception
+	 */
+	private void cacheFoldersFiles() throws Exception {
 		ArrayList<FileManagerFile> files = new ArrayList<FileManagerFile>();
-    	if (file_count > 0) {
+		if (fileCount > 0) {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+			formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-    		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    		formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
-    		
-    		int offset = 0;
-    		int count = 100;
+			int offset = 0;
+			int count = 500;
 			List<FileManagerFile> filelist;
 
-    		do {
+			do {
 				filelist = connection.getFileManager().getFileManagerFiles(count, offset);
 				offset += count;
-				for(FileManagerFile file : filelist) {
-	    			if(file.getFolder_id() == folderId) {
-	    				files.add(file);
-	    			}
+				for (FileManagerFile file : filelist) {
+					if (file.getFolderId() == id) {
+						files.add(file);
+					}
 				}
-    		} while (filelist.size() == 100 && files.size() < file_count);
-    	}
-    	this.files = files;
-    }
+			} while (filelist.size() > 0 && files.size() < fileCount);
+		}
+		this.files = files;
+	}
 
-    public FileManagerFile getFile(int id){
-        for (FileManagerFile file:files){
-            if(Integer.parseInt(file.getId()) == id){
-                return file;
-            }
-        }
-        return null;
-    }
+	/**
+	 * Searches the list of all files stored in the mailchimp account for the
+	 * specified file. Mailchimp does not allow querying for files that belong to a
+	 * specific folder so the full list of files is cached on first read.
+	 * 
+	 * @param id
+	 * @return The matching file by ID or null
+	 * @throws Exception
+	 */
+	public FileManagerFile getFile(int id) throws Exception {
+		if (files == null) { // defer loading files list until requested.
+			cacheFoldersFiles();
+		}
+		for (FileManagerFile file : files) {
+			if (file.getId() == id) {
+				return file;
+			}
+		}
+		return null;
+	}
 
-    public int getFolderId() {
-    	return folderId;
-    }
+	public MailChimpConnection getConnection() {
+		return connection;
+	}
 
-    public JSONObject getJsonData() {
-        return jsonData;
-    }
-
-    public MailChimpConnection getConnection() {
-        return connection;
-    }
+	/**
+	 * Helper method to convert JSON for mailchimp PATCH/POST operations
+	 */
+	public JSONObject getJsonRepresentation() throws Exception {
+		JSONObject jsonObj = new JSONObject();
+		jsonObj.put("name", getName());
+		return jsonObj;
+	}
 
 	@Override
-    public String toString(){
-        return "Folder-name: " + this.getName() + "Folder-Id: " + this.getId() + " File-count: " + this.getFile_count() + " Created at: " + this.getCreatedAt() +System.lineSeparator()+ " Files: "+ this.getFiles();
-    }
+	public String toString() {
+		return "Folder: " + getName() +  System.lineSeparator() +
+        		"    ID: " + getId() +  System.lineSeparator() +
+        		"    File count: " + getFileCount() + System.lineSeparator() +
+				"    Created at: " + getCreatedAt() + System.lineSeparator() +
+				"    Created by: " + getCreatedBy();
+	}
 }

@@ -3,8 +3,8 @@ apply plugin: "maven"
 apply plugin: "maven-publish"
 apply plugin: 'signing'
 
-group = 'com.github.alexanderwe'
-version = '0.5.1'
+group = 'com.github.banana-j'
+version = '0.6.1'
 
 description = 'A simple MailChimp API wrapper written in Java'
 
@@ -24,6 +24,8 @@ dependencies {
     compile group: 'net.sourceforge.jexcelapi', name: 'jxl', version: '2.6.12'
     compile group: 'org.json', name: 'json', version: '20180130'
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.5'
+	
+	// testCompile 'junit:junit:4.12'
 }
 
 task javadocJar(type: Jar) {
@@ -54,11 +56,11 @@ publishing {
             pom {
                 name = 'bananaj'
                 description = 'A simple MailChimp API wrapper written in Java'
-                url = 'https://github.com/alexanderwe/bananaj'
+                url = 'https://github.com/banana-j/bananaj'
                 licenses {
                     license {
                         name = 'MIT'
-                        url = 'https://raw.githubusercontent.com/alexanderwe/bananaj/master/LICENSE.md'
+                        url = 'https://raw.githubusercontent.com/banana-j/bananaj/master/LICENSE.md'
                     }
                 }
                 developers {
@@ -66,14 +68,18 @@ publishing {
                         name = 'Alexander Weiß'
                         email = 'https://www.github.com/alexanderwe'
                     }
+                    developer {
+                        name = 'Gary Scriver'
+                        email = 'https://www.github.com/gscriver'
+                    }
                 }
                 scm {
-                    connection = 'scm:git:git://github.com/alexanderwe/bananaj.git'
-                    developerConnection = 'scm:git:git://github.com/alexanderwe/bananaj.git'
-                    url = 'https://github.com/alexanderwe/bananaj'
+                    connection = 'scm:git:ssh://git@github.com:banana-j/bananaj.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:banana-j/bananaj.git'
+                    url = 'https://github.com/banana-j/bananaj'
                 }
                 issueManagement {
-                    url = 'https://github.com/alexanderwe/bananaj/issues'
+                    url = 'https://github.com/banana-j/bananaj/issues'
                     system = 'GitHub'
                 }
             }
