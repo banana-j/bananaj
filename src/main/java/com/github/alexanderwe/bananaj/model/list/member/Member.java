@@ -490,11 +490,11 @@ public class Member {
 	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
 	 * 
 	 * @param key
-	 * @param value
+	 * @param object
 	 * @return the previous value associated with key, or null if there was none.
 	 */
-	public Object putMergeFields(String key, String Object) {
-		return mergeFields.put(key, Object);
+	public Object putMergeFields(String key, String object) {
+		return mergeFields.put(key, object);
 	}
 
 	/**

@@ -249,12 +249,14 @@ public class Campaign {
 	 */
 	private void getCampaignContent() throws Exception{
 		JSONObject content = new JSONObject(getConnection().do_Get(new URL(connection.getCampaignendpoint()+"/"+this.getId()+"/content"),connection.getApikey()));
-		this.content = new CampaignContent(
-				content.has("plain_text") ? content.getString("plain_text") : null, 
-				content.has("html") ? content.getString("html") : null, 
-				this) ;
+		this.content = new CampaignContent(this, content);
 	}
 
+	// TODO:
+//	public CampaignFeedback getFeedback() throws Exception {
+//		
+//	}
+	
 	/**
 	 * The ID used in the Mailchimp web application. View this campaign in your Mailchimp account at https://{dc}.admin.mailchimp.com/campaigns/show/?id={web_id}.
 	 */

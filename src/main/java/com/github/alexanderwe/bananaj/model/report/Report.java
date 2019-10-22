@@ -168,6 +168,55 @@ public class Report extends MailchimpObject {
 		return ecommerce;
 	}
 
+	/**
+	 * @return The type of campaign (regular, plain-text, ab_split, rss, automation, variate, or auto).
+	 */
+	public CampaignType getType() {
+		return type;
+	}
+
+	/**
+	 * @return The unique list id.
+	 */
+	public String getListId() {
+		return listId;
+	}
+
+	/**
+	 * @return The status of the list used, namely if it's deleted or disabled.
+	 */
+	public boolean isListIsActive() {
+		return listIsActive;
+	}
+
+	/**
+	 * @return The name of the list.
+	 */
+	public String getListName() {
+		return listName;
+	}
+
+	/**
+	 * @return The subject line for the campaign.
+	 */
+	public String getSubjectLine() {
+		return subjectLine;
+	}
+
+	/**
+	 * @return The preview text for the campaign.
+	 */
+	public String getPreviewText() {
+		return previewText;
+	}
+
+	/**
+	 * @return The date and time a campaign was sent
+	 */
+	public LocalDateTime getSendtime() {
+		return sendtime;
+	}
+
 	@Override
 	public String toString(){
 		return "Report of campaign: " + getId() + " " + this.getCampaignTitle() + System.lineSeparator() +
@@ -179,10 +228,10 @@ public class Report extends MailchimpObject {
 				getOpens().toString() + System.lineSeparator() +
 				getBounces().toString() + System.lineSeparator() +
 				getClicks().toString() + System.lineSeparator() +
-				getFacebookLikes().toString() + System.lineSeparator() +
-				getIndustryStats().toString() + System.lineSeparator() +
+				(getFacebookLikes() != null ? getFacebookLikes().toString() + System.lineSeparator() : "") +
+				(getIndustryStats() != null ? getIndustryStats().toString() + System.lineSeparator() : "") +
 				(getListStats() != null ? getListStats().toString() + System.lineSeparator() : "") +
-				getEcommerce().toString();
+				(getEcommerce() != null ? getEcommerce().toString() : "");
 	}
 
 }

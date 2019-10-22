@@ -13,13 +13,14 @@ public class ReportTest {
 		Report report = new Report(jsonObj);
 		assertEquals(report.getId(), "024a680c00");
 		assertEquals(report.getCampaignTitle(), "TEST #15 2018");
-		//assertEquals(report.getListId(), "0d12345678");
+		assertEquals(report.getListId(), "0d12345876");
 		assertEquals(report.getAbuseReport(), 0);
-		//assertEquals(report.getSubjectLine(), "Implementation for TEST on March 14, 2019");
+		assertEquals(report.getSubjectLine(), "Implementation for TEST on March 14, 2019");
 		assertEquals(report.getEmailsSent(), 9);
 		assertEquals(report.getForwards().getCount(), 1);
 		assertEquals(report.getOpens().getOpensTotal(), 23);
 		assertNotNull(report.getIndustryStats());
+		report.toString();
 	}
 
 	@Test
@@ -30,13 +31,14 @@ public class ReportTest {
 		Report report = new Report(jsonObj);
 		assertEquals(report.getId(), "024a680c00");
 		assertEquals(report.getCampaignTitle(), "TEST #15 2018");
-		//assertEquals(report.getListId(), "0d12345678");
+		assertEquals(report.getListId(), "0d12345876");
 		assertEquals(report.getAbuseReport(), 0);
-		//assertEquals(report.getSubjectLine(), "Implementation for TEST on March 14, 2019");
+		assertEquals(report.getSubjectLine(), "Implementation for TEST on March 14, 2019");
 		assertEquals(report.getEmailsSent(), 9);
 		assertEquals(report.getForwards().getCount(), 1);
 		assertEquals(report.getOpens().getOpensTotal(), 23);
 		assertNull(report.getIndustryStats());
+		report.toString();
 	}
 
 }
