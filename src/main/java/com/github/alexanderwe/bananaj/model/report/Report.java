@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import com.github.alexanderwe.bananaj.model.campaign.Bounce;
+import com.github.alexanderwe.bananaj.model.campaign.CampaignType;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 /**
@@ -20,12 +21,12 @@ import com.github.alexanderwe.bananaj.utils.DateConverter;
 public class Report extends MailchimpObject {
 
 	private String campaignTitle;
-	//private String type;
-	//private String list_id;
-	//private boolean list_is_active;
-	//private String list_name;
-	//private String subject_line;
-	//private String preview_text;
+	private CampaignType type;
+	private String listId;
+	private boolean listIsActive;
+	private String listName;
+	private String subjectLine;
+	private String previewText;
 	private int emailsSent;
 	private int abuseReport;
 	private int unsubscribed;
@@ -48,6 +49,12 @@ public class Report extends MailchimpObject {
 	public Report(JSONObject jsonObj) {
 		super(jsonObj.getString("id"), null);
 		campaignTitle = jsonObj.getString("campaign_title");
+		type = CampaignType.valueOf(jsonObj.getString("type").toUpperCase());
+		listId = jsonObj.getString("list_id");
+		listIsActive = jsonObj.getBoolean("list_is_active");
+		listName = jsonObj.getString("list_name");
+		subjectLine = jsonObj.getString("subject_line");
+		previewText = jsonObj.getString("preview_text");
 		emailsSent = jsonObj.getInt("emails_sent");
 		abuseReport = jsonObj.getInt("abuse_reports");
 		unsubscribed = jsonObj.getInt("unsubscribed");
@@ -56,12 +63,18 @@ public class Report extends MailchimpObject {
 		forwards = new Forward(jsonObj.getJSONObject("forwards"));
 		clicks = new Click(jsonObj.getJSONObject("clicks"));
 		opens = new Open(jsonObj.getJSONObject("opens"));
-		facebookLikes = new FacebookLikes(jsonObj.getJSONObject("facebook_likes"));
-		industryStats = new IndustryStats(jsonObj.getJSONObject("industry_stats"));
+		if (jsonObj.has("facebook_likes")) {
+			facebookLikes = new FacebookLikes(jsonObj.getJSONObject("facebook_likes"));
+		}
+		if (jsonObj.has("industry_stats")) {
+			industryStats = new IndustryStats(jsonObj.getJSONObject("industry_stats"));
+		}
 		if (jsonObj.has("list_stats")) {
 			this.listStats = new ReportListStats(jsonObj.getJSONObject("list_stats"));
 		}
-		ecommerce = new Ecommerce(jsonObj.getJSONObject("ecommerce"));
+		if (jsonObj.has("ecommerce")) {
+			ecommerce = new Ecommerce(jsonObj.getJSONObject("ecommerce"));
+		}
 	}
 
 	/**
