@@ -47,7 +47,7 @@ public class RawCondition implements AbstractCondition {
             this.jsonObj = jsonObj;
             try {
             	if (condition_type == null) {
-            		condition_type = ConditionType.fromValue(jsonObj.getString("condition_type"));
+            		condition_type = ConditionType.valueOf(jsonObj.getString("condition_type").toUpperCase());
             	}
             } catch (Exception e) {
             	// log warning for unknown condition_type

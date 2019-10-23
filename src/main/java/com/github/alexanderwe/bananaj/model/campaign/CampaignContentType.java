@@ -2,7 +2,10 @@ package com.github.alexanderwe.bananaj.model.campaign;
 
 public enum CampaignContentType {
 
-	TEMPLATE("template"), DRAG_AND_DROP("drag_and_drop"), HTML("html"), URL("url");
+	TEMPLATE("template"), 
+	DRAG_AND_DROP("drag_and_drop"), 
+	HTML("html"), 
+	URL("url");
 	
 	private String stringRepresentation;
 	
@@ -10,17 +13,16 @@ public enum CampaignContentType {
 		setStringRepresentation(stringRepresentation);
 	}
 
-	/**
-	 * @return the stringRepresentation
-	 */
-	public String getStringRepresentation() {
+	@Override
+	public String toString() {
 		return stringRepresentation;
 	}
 
 	/**
-	 * @param stringRepresentation the stringRepresentation to set
+	 * @param Set the stringRepresentation for the enum constant.
 	 */
 	private void setStringRepresentation(String stringRepresentation) {
 		this.stringRepresentation = stringRepresentation;
 	}
+	
 }

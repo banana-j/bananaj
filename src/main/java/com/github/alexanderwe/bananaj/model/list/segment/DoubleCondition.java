@@ -62,8 +62,8 @@ public class DoubleCondition implements AbstractCondition {
 	@Override
 	public JSONObject getJsonRepresentation(){
 		JSONObject condition = new JSONObject();
-		condition.put("condition_type", getConditionType().value());
-		condition.put("op", getOp().value());
+		condition.put("condition_type", getConditionType().toString());
+		condition.put("op", getOp().toString());
 		condition.put("field", getField());
 		condition.put("value", getValue());
 

@@ -228,7 +228,7 @@ public class Automation {
 				"    Id: " + getId() + System.lineSeparator() +
 				"    Created: " + getCreateTime() + System.lineSeparator() +
 				"    Started: " + getStartTime() + System.lineSeparator() +
-				"    Status: " + getStatus().getStringRepresentation() + System.lineSeparator() +
+				"    Status: " + getStatus().toString() + System.lineSeparator() +
 				"    Emails Sent: " + getEmailsSent() + System.lineSeparator() +
 				getRecipients().toString() + System.lineSeparator() +
 				getSettings().toString() + System.lineSeparator() +

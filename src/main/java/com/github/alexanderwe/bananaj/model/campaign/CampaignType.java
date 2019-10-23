@@ -5,27 +5,31 @@
 package com.github.alexanderwe.bananaj.model.campaign;
 
 /**
- * Enum for representing different campaign types
+ * Enum representation of different campaign types
  */
 public enum CampaignType {
 
-	REGULAR("regular"), PLAINTEXT("plaintext"), ABSPLIT("absplit"), RSS("rss"), AUTOMATION("automation"), VARIATE("variate"), AUTO("auto");
+	REGULAR("regular"), 
+	PLAINTEXT("plaintext"), 
+	ABSPLIT("absplit"), 
+	RSS("rss"), 
+	AUTOMATION("automation"), 
+	VARIATE("variate"), 
+	AUTO("auto");
 	
 	private String stringRepresentation;
 	
-	CampaignType(String stringRepresentation ){
+	CampaignType(String stringRepresentation ) {
 		setStringRepresentation(stringRepresentation);
 	}
 
-	/**
-	 * @return the stringRepresentation
-	 */
-	public String getStringRepresentation() {
+	@Override
+	public String toString() {
 		return stringRepresentation;
 	}
 
 	/**
-	 * @param stringRepresentation the stringRepresentation to set
+	 * @param Set the stringRepresentation for the enum constant.
 	 */
 	public void setStringRepresentation(String stringRepresentation) {
 		this.stringRepresentation = stringRepresentation;

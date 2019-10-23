@@ -2,7 +2,8 @@ package com.github.alexanderwe.bananaj.model.filemanager;
 
 public enum FileType {
 	
-	IMAGE("image"), FILE("file");
+	IMAGE("image"), 
+	FILE("file");
 
 	private String stringRepresentation;
 	
@@ -10,17 +11,16 @@ public enum FileType {
 		setStringRepresentation(stringRepresentation);
 	}
 
-	/**
-	 * @return the stringRepresentation
-	 */
-	public String getStringRepresentation() {
+	@Override
+	public String toString() {
 		return stringRepresentation;
 	}
 
 	/**
-	 * @param stringRepresentation the stringRepresentation to set
+	 * @param Set the stringRepresentation for the enum constant.
 	 */
 	private void setStringRepresentation(String stringRepresentation) {
 		this.stringRepresentation = stringRepresentation;
 	}
+	
 }

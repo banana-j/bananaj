@@ -187,7 +187,7 @@ public class Member {
 	 */
 	public void changeStatus(MemberStatus status) throws MalformedURLException, TransportException, URISyntaxException {
 		JSONObject updateMember = new JSONObject();
-		updateMember.put("status", status.getStringRepresentation());
+		updateMember.put("status", status.toString());
 		String results = getConnection().do_Patch(new URL(getConnection().getListendpoint()+"/"+ getMailChimpList().getId()+"/members/"+getId()), updateMember.toString(), getConnection().getApikey());
 		parse(mailChimpList, new JSONObject(results));  // update member object with current data
 	}
@@ -244,7 +244,7 @@ public class Member {
 		for(Entry<String, TagStatus> e : tagsMap.entrySet()) {
 			tagsArray.put(new JSONObject()
 					.put("name", e.getKey())
-					.put("status", e.getValue().getStringRepresentation()));
+					.put("status", e.getValue().toString()));
 			
 			Optional<MemberTag> optional = tags.stream()
 					.filter(t -> e.getKey().equals(t.getName()))
@@ -719,13 +719,13 @@ public class Member {
 		
 		if (getStatusIfNew() != null) {
 			// used by PUT 'Add or update a list member'
-			json.put("status_if_new", getStatusIfNew().getStringRepresentation());
+			json.put("status_if_new", getStatusIfNew().toString());
 		}
 		
 		if (getEmailType() != null) {
-			json.put("email_type", getEmailType().getStringRepresentation());
+			json.put("email_type", getEmailType().toString());
 		}
-		json.put( "status", getStatus().getStringRepresentation());
+		json.put( "status", getStatus().toString());
 
 		{
 			JSONObject mergeFields = new JSONObject();
@@ -803,8 +803,8 @@ public class Member {
 				"    Id: " + getId() + System.lineSeparator() +
 				"    Email: " + getEmailAddress() + System.lineSeparator() +
 				"    Email Id: " + getUniqueEmailId() + System.lineSeparator() +
-				"    Email Type: " + getEmailType().getStringRepresentation() + System.lineSeparator() +
-				"    Status: " + getStatus().getStringRepresentation() + System.lineSeparator() +
+				"    Email Type: " + getEmailType().toString() + System.lineSeparator() +
+				"    Status: " + getStatus().toString() + System.lineSeparator() +
 				"    List Id: " + getListId() + System.lineSeparator() +
 				"    Signup Timestamp: " + getTimestampSignup() + System.lineSeparator() +
 				"    Signup IP: " + getIpSignup() + System.lineSeparator() +

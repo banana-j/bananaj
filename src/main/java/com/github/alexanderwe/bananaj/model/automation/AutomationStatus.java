@@ -6,28 +6,29 @@ package com.github.alexanderwe.bananaj.model.automation;
 
 public enum AutomationStatus {
 
-	SAVE("save"),PAUSED("paused"),SENDING("sending");
+	SAVE("save"),
+	PAUSED("paused"),
+	SENDING("sending");
 
-	
+
 	private String stringRepresentation;
-	
-	AutomationStatus(String stringRepresentation){
+
+	AutomationStatus(String stringRepresentation) {
 		setStringRepresentation(stringRepresentation);
 	}
 
-	/**
-	 * @return the stringRepresentation
-	 */
-	public String getStringRepresentation() {
+	@Override
+	public String toString() {
 		return stringRepresentation;
 	}
 
 	/**
-	 * @param stringRepresentation the stringRepresentation to set
+	 * @param Set the stringRepresentation for the enum constant.
 	 */
 	private void setStringRepresentation(String stringRepresentation) {
 		this.stringRepresentation = stringRepresentation;
 	}
+
 }
 
 

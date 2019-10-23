@@ -115,9 +115,9 @@ public class AutomationDelay {
 		JSONObject json = new JSONObject();
 
 		json.put("amount", amount);
-		json.put("type", type.getStringRepresentation());
-		json.put("direction", direction.getStringRepresentation());
-		json.put("action", action.getStringRepresentation());
+		json.put("type", type.toString());
+		json.put("direction", direction.toString());
+		json.put("action", action.toString());
 
 		return json;
 	}
@@ -130,9 +130,9 @@ public class AutomationDelay {
 		return
 		"Delay:" + System.lineSeparator() +
 		"    amount: " + getAmount() + System.lineSeparator() +
-		"    Type: " + getType().getStringRepresentation() + System.lineSeparator() +
-		"    Direction: " + getDirection().getStringRepresentation() + System.lineSeparator() +
-		"    Action: " + getAction().getStringRepresentation() + System.lineSeparator() +
+		"    Type: " + getType().toString() + System.lineSeparator() +
+		"    Direction: " + getDirection().toString() + System.lineSeparator() +
+		"    Action: " + getAction().toString() + System.lineSeparator() +
 		"    Action Description: " + getActionDescription() + System.lineSeparator() +
 		"    Full Description: " + getFullDescription(); 
 	}

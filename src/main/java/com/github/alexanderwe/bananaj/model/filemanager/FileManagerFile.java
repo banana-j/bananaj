@@ -241,7 +241,7 @@ public class FileManagerFile {
 		return 
 				"ID: " + getId() +
 				" Name: " + getName() + 
-				" Type: " + getType().getStringRepresentation() + 
+				" Type: " + getType().toString() + 
 				(getType() == FileType.IMAGE ?  
 					" Width: " + getWidth()+"px " + 
 					" Height: "+ getHeight()+"px" : "" ) +

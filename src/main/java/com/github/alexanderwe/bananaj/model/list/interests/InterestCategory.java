@@ -56,7 +56,7 @@ public class InterestCategory extends MailchimpObject {
 		String list_id = jsonRepresentation.getString("list_id");
 		String title = jsonRepresentation.getString("title");
 		Integer display_order = jsonRepresentation.getInt("display_order");
-		InterestCategoryType type = InterestCategoryType.fromValue(jsonRepresentation.getString("type"));
+		InterestCategoryType type = InterestCategoryType.valueOf(jsonRepresentation.getString("type").toUpperCase());
 		return new InterestCategory(id, list_id, title, display_order, type, connection, jsonRepresentation);
 	}
 	
@@ -105,13 +105,13 @@ public class InterestCategory extends MailchimpObject {
         
         public Builder type(InterestCategoryType type) {
             this.type = type;
-            jsonRepresentation.put("type", type.value());
+            jsonRepresentation.put("type", type.toString());
             return this;
         }
 
         public Builder type(String type) {
-            this.type = InterestCategoryType.fromValue(type);
-            jsonRepresentation.put("type", this.type.value());
+            this.type = InterestCategoryType.valueOf(type.toUpperCase());
+            jsonRepresentation.put("type", this.type.toString());
             return this;
         }
         

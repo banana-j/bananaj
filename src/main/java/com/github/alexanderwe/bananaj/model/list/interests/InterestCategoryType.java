@@ -1,43 +1,28 @@
 package com.github.alexanderwe.bananaj.model.list.interests;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public enum InterestCategoryType {
 
 	CHECKBOXES("checkboxes"),
 	DROPDOWN("dropdown"),
 	RADIO("radio"),
 	HIDDEN("hidden");
-	
-    private final String value;
-    private final static Map<String, InterestCategoryType> CONSTANTS = new HashMap<String, InterestCategoryType>();
 
-    static {
-        for (InterestCategoryType c: values()) {
-            CONSTANTS.put(c.value, c);
-        }
-    }
+	private String stringRepresentation;
 
-    private InterestCategoryType(String value) {
-        this.value = value;
-    }
+	InterestCategoryType(String stringRepresentation ) {
+		setStringRepresentation(stringRepresentation);
+	}
 
-    @Override
-    public String toString() {
-        return this.value;
-    }
-    
-    public String value() {
-        return value;
-    }
+	@Override
+	public String toString() {
+		return stringRepresentation;
+	}
 
-    public static InterestCategoryType fromValue(String value) {
-    	InterestCategoryType constant = CONSTANTS.get(value);
-        if (constant == null) {
-            throw new IllegalArgumentException(value);
-        } else {
-            return constant;
-        }
-    }
+	/**
+	 * @param Set the stringRepresentation for the enum constant.
+	 */
+	public void setStringRepresentation(String stringRepresentation) {
+		this.stringRepresentation = stringRepresentation;
+	}
+
 }

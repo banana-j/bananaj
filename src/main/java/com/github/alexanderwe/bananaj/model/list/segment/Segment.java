@@ -205,7 +205,7 @@ public class Segment {
 				"Segment:" + System.lineSeparator() +
         		"    Id: " + getId() +  System.lineSeparator() +
                 "    Name: " + getName() +  System.lineSeparator() +
-                "    Type: " + getType() + System.lineSeparator() +
+                "    Type: " + getType().toString() + System.lineSeparator() +
                 "    List ID: " + getListId() + System.lineSeparator() +
                 "    Created at: " + getCreatedAt() + System.lineSeparator() +
                 "    Updated at: " + getUpdatedAt() +  System.lineSeparator() +

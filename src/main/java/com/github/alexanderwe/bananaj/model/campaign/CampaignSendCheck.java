@@ -62,7 +62,7 @@ public class CampaignSendCheck {
 	public String toString() {
 		return 
 				"id: " + getId() + System.lineSeparator() +
-				"type: " + getType().getStringRepresentation() + System.lineSeparator() +
+				"type: " + getType().toString() + System.lineSeparator() +
 				"heading: " + getHeading() + System.lineSeparator() +
 				"details: ";
 	}

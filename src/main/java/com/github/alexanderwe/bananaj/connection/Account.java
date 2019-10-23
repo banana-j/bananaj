@@ -49,12 +49,16 @@ public class Account extends MailchimpObject{
 			this.firstPayment = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("first_payment"));
 		}
 		this.accountTimezone = jsonObj.getString("account_timezone");
-		this.accountIndustry = jsonObj.getString("account_industry");
+		if (jsonObj.has("account_industry")) {
+			this.accountIndustry = jsonObj.getString("account_industry");
+		}
 		this.proEnabled = jsonObj.getBoolean("pro_enabled");
 		this.lastLogin = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("last_login"));
 		this.totalSubscribers = jsonObj.getInt("total_subscribers");
 		contact = new Contact(jsonObj.getJSONObject("contact"));
-		industryStats = new IndustryStats(jsonObj.getJSONObject("industry_stats"));
+		if (jsonObj.has("industry_stats")) {
+			industryStats = new IndustryStats(jsonObj.getJSONObject("industry_stats"));
+		}
 	}
 
 	/**
@@ -193,17 +197,22 @@ public class Account extends MailchimpObject{
 
 	@Override
 	public String toString() {
-		return this.getId() + System.lineSeparator() +
-				this.getEmail() + System.lineSeparator() +
-				this.getAccountName() + System.lineSeparator() +
-				this.getContact().toString() + System.lineSeparator() +
-				"Last Login: " + this.lastLogin + System.lineSeparator() +
-				"Total subscribers: " + this.totalSubscribers;
+		return "Id: " + getId() + System.lineSeparator() +
+				"Email: " + getEmail() + System.lineSeparator() +
+				"Account name: " + getAccountName() + System.lineSeparator() +
+				"Contact: " + getContact().toString() + System.lineSeparator() +
+				"User: " + getFirstName() + " " + getLastName() + " <" + getUsername() +">" + System.lineSeparator() +
+				"Last Login: " + getLastLogin() + System.lineSeparator() +
+				"Total subscribers: " + getTotalSubscribers() +
+				(getAccountIndustry() != null ? System.lineSeparator() + "Industry: " + getAccountIndustry() : "") +
+				(getIndustryStats() != null ? System.lineSeparator() + getIndustryStats().toString() : "");
 	}
 
 	public enum PricingPlanType {
 
-		MONTHLY("monthly"), PAY_AS_YOU_GO("pay_as_you_go"), FOREVER_FREE("forever_free");
+		MONTHLY("monthly"), 
+		PAY_AS_YOU_GO("pay_as_you_go"), 
+		FOREVER_FREE("forever_free");
 
 		private String stringRepresentation;
 
@@ -211,15 +220,13 @@ public class Account extends MailchimpObject{
 			setStringRepresentation(stringRepresentation);
 		}
 
-		/**
-		 * @return the stringRepresentation
-		 */
-		public String getStringRepresentation() {
+		@Override
+		public String toString() {
 			return stringRepresentation;
 		}
 
 		/**
-		 * @param stringRepresentation the stringRepresentation to set
+		 * @param Set the stringRepresentation for the enum constant.
 		 */
 		private void setStringRepresentation(String stringRepresentation) {
 			this.stringRepresentation = stringRepresentation;
@@ -309,39 +316,48 @@ public class Account extends MailchimpObject{
 	}
 
 	public class IndustryStats {
-		private double open_rate;
-		private double bounce_rate;
-		private double click_rate;
+		private double openRate;
+		private double bounceRate;
+		private double clickRate;
 
 		public IndustryStats() {
 
 		}
 
 		public IndustryStats(JSONObject jsonObj) {
-			this.open_rate = jsonObj.getDouble("open_rate");
-			this.bounce_rate = jsonObj.getDouble("bounce_rate");
-			this.click_rate = jsonObj.getDouble("click_rate");
+			this.openRate = jsonObj.getDouble("open_rate");
+			this.bounceRate = jsonObj.getDouble("bounce_rate");
+			this.clickRate = jsonObj.getDouble("click_rate");
 		}
 
 		/**
 		 * The average unique open rate for all campaigns in the account’s specified industry
 		 */
-		public double getOpen_rate() {
-			return open_rate;
+		public double getOpenRate() {
+			return openRate;
 		}
 
 		/**
 		 * The average bounce rate for all campaigns in the account’s specified industry
 		 */
-		public double getBounce_rate() {
-			return bounce_rate;
+		public double getBounceRate() {
+			return bounceRate;
 		}
 
 		/**
 		 * The average unique click rate for all campaigns in the account’s specified industry
 		 */
-		public double getClick_rate() {
-			return click_rate;
+		public double getClickRate() {
+			return clickRate;
+		}
+
+		@Override
+		public String toString() {
+			return
+					"Industry Stats:" + System.lineSeparator() +
+					"    Open Rate: " + getOpenRate() + System.lineSeparator() +
+					"    Click Rate: " + getClickRate() + System.lineSeparator() +
+					"    Bounce Rate: " + getBounceRate();
 		}
 	}
 }

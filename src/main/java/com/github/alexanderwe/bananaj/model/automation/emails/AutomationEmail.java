@@ -268,7 +268,7 @@ public class AutomationEmail {
 				"    Created: " + getCreateTime() + System.lineSeparator() +
 				"    Started: " + getStartTime() + System.lineSeparator() +
 				"    Archive URL: " + getArchiveUrl() + System.lineSeparator() +
-				"    Status: " + getStatus().getStringRepresentation() + System.lineSeparator() +
+				"    Status: " + getStatus().toString() + System.lineSeparator() +
 				"    Emails Sent: " + getEmailsSent() + System.lineSeparator() +
 				"    Send Time: " + getSendTime() + System.lineSeparator() +
 				"    Content Type: " + getContentType() + System.lineSeparator() +

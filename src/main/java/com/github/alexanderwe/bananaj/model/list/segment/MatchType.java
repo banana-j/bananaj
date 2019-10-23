@@ -5,26 +5,25 @@ package com.github.alexanderwe.bananaj.model.list.segment;
  */
 public enum MatchType {
 
-    ANY("any"),
-    ALL("all");
-	
+	ANY("any"),
+	ALL("all");
+
 	private String stringRepresentation;
-	
+
 	MatchType(String stringRepresentation ) {
 		setStringRepresentation(stringRepresentation);
 	}
 
-	/**
-	 * @return the stringRepresentation
-	 */
-	public String getStringRepresentation() {
+	@Override
+	public String toString() {
 		return stringRepresentation;
 	}
 
 	/**
-	 * @param stringRepresentation the stringRepresentation to set
+	 * @param Set the stringRepresentation for the enum constant.
 	 */
 	private void setStringRepresentation(String stringRepresentation) {
 		this.stringRepresentation = stringRepresentation;
 	}
+
 }

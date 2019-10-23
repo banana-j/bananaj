@@ -8,7 +8,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.connection.Connection;
-import com.github.alexanderwe.bananaj.exceptions.ConditionException;
 import com.github.alexanderwe.bananaj.model.list.segment.AbstractCondition;
 import com.github.alexanderwe.bananaj.model.list.segment.ConditionType;
 import com.github.alexanderwe.bananaj.model.list.segment.DoubleCondition;
@@ -60,7 +59,7 @@ public class CampaignSegmentOpts {
 				JSONObject jsonCondition = jsonConditions.getJSONObject(i);
 
 				try {
-					ConditionType conditiontype = ConditionType.fromValue(jsonCondition.getString("condition_type"));
+					ConditionType conditiontype = ConditionType.valueOf(jsonCondition.getString("condition_type").toUpperCase());
 					switch(conditiontype) {
 					case AIM:
 					case AUTOMATION:
@@ -86,7 +85,7 @@ public class CampaignSegmentOpts {
 						conditions.add( new StringCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
+								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
 								.value(jsonCondition.getString("value"))
 								.build());
 						break;
@@ -96,7 +95,7 @@ public class CampaignSegmentOpts {
 						conditions.add( new IntegerCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
+								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
 								.value(jsonCondition.getInt("value"))
 								.build());
 						break;
@@ -110,7 +109,7 @@ public class CampaignSegmentOpts {
 						conditions.add( new DoubleCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
+								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
 								.value(jsonCondition.getDouble("value"))
 								.build());
 						break;
@@ -121,7 +120,7 @@ public class CampaignSegmentOpts {
 						conditions.add( new StringCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
+								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
 								.extra(jsonCondition.getString("extra"))
 								.value(jsonCondition.getString("value"))
 								.build());
@@ -135,7 +134,7 @@ public class CampaignSegmentOpts {
 						conditions.add( new OpCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
+								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
 								.build());
 						break;
 
@@ -152,7 +151,7 @@ public class CampaignSegmentOpts {
 						conditions.add( new StringArrayCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
+								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
 								.value(values)
 								.build());
 						break;
@@ -161,7 +160,7 @@ public class CampaignSegmentOpts {
 						conditions.add( new IntegerCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
+								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
 								.extra(jsonCondition.getInt("extra"))
 								.value(jsonCondition.getInt("value"))
 								.build());
@@ -171,7 +170,7 @@ public class CampaignSegmentOpts {
 						conditions.add( new IPGeoInCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
+								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
 								.lng(jsonCondition.getString("lng"))
 								.lat(jsonCondition.getString("lat"))
 								.value(jsonCondition.getInt("value"))
@@ -241,7 +240,7 @@ public class CampaignSegmentOpts {
 		}
 
 		if (getMatch() != null) {
-			segmentOpts.put("match", getMatch().getStringRepresentation());
+			segmentOpts.put("match", getMatch().toString());
 		}
 
 		if (getConditions() != null) {

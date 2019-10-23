@@ -229,7 +229,7 @@ public class Template {
 		return 
 				"Template Id: " + getId() + System.lineSeparator() +
 				"Name: " + getName() + System.lineSeparator() +
-				"Type: " + getType().getStringRepresentation() + System.lineSeparator() +
+				"Type: " + getType().toString() + System.lineSeparator() +
 				"DragAndDrop: " + isDragAndDrop() + System.lineSeparator() +
 				"Responsive: " + isResponsive() + System.lineSeparator() +
 				"Category: " + getCategory() + System.lineSeparator() +

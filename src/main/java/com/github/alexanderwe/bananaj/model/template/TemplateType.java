@@ -6,31 +6,26 @@ package com.github.alexanderwe.bananaj.model.template;
 
 public enum TemplateType {
 
+	USER("user"),
+	BASE("base"),
+	GALLERY("gallery");
 
-		USER("user"),BASE("base"),GALLERY("gallery");
-		
-		private String stringRepresentation;
-		
-		TemplateType(String stringRepresentation ){
-			setStringRepresentation(stringRepresentation);
-		}
+	private String stringRepresentation;
 
-		/**
-		 * @return the stringRepresentation
-		 */
-		public String getStringRepresentation() {
-			return stringRepresentation;
-		}
+	TemplateType(String stringRepresentation ) {
+		setStringRepresentation(stringRepresentation);
+	}
 
-		/**
-		 * @param stringRepresentation the stringRepresentation to set
-		 */
-		private void setStringRepresentation(String stringRepresentation) {
-			this.stringRepresentation = stringRepresentation;
-		}
-		
-	
+	@Override
+	public String toString() {
+		return stringRepresentation;
+	}
 
-	
-	
+	/**
+	 * @param Set the stringRepresentation for the enum constant.
+	 */
+	private void setStringRepresentation(String stringRepresentation) {
+		this.stringRepresentation = stringRepresentation;
+	}
+
 }

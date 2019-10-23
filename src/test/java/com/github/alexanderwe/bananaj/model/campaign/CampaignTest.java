@@ -39,11 +39,11 @@ public class CampaignTest {
 		assertEquals(segopts.getConditions().get(0).getConditionType(), ConditionType.INTERESTS);
 		
 		JSONObject json = segopts.getJsonRepresentation();
-		assertEquals(json.getString("match"), MatchType.ANY.getStringRepresentation());
+		assertEquals(json.getString("match"), MatchType.ANY.toString());
 		assertEquals(json.getInt("saved_segment_id"), 40229);
 		JSONArray jsonarr = json.getJSONArray("conditions");
 		JSONObject cond = (JSONObject)jsonarr.get(0);
-		assertEquals(cond.getString("condition_type"), ConditionType.INTERESTS.value());
+		assertEquals(cond.getString("condition_type"), ConditionType.INTERESTS.toString());
 	}
 	
 	@Test

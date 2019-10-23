@@ -227,7 +227,7 @@ public class MailChimpList extends MailchimpObject {
 	public Member addMember(MemberStatus status, String emailAddress) throws MalformedURLException, TransportException, URISyntaxException  {
 		JSONObject json = new JSONObject();
 		json.put("email_address", emailAddress);
-		json.put("status", status.getStringRepresentation());
+		json.put("status", status.toString());
 
 		String results = getConnection().do_Post(new URL(connection.getListendpoint()+"/"+getId()+"/members"),json.toString(),connection.getApikey());
 		Member member = new Member(this, new JSONObject(results));
@@ -273,7 +273,7 @@ public class MailChimpList extends MailchimpObject {
 			merge_fields.put(pair.getKey(), pair.getValue());
 		}
 		
-		json.put("status", status.getStringRepresentation());
+		json.put("status", status.toString());
 		json.put("email_address", emailAddress);
 		json.put("merge_fields", merge_fields);
 		String results = getConnection().do_Post(url,json.toString(),connection.getApikey());
@@ -311,7 +311,7 @@ public class MailChimpList extends MailchimpObject {
 		JSONObject json = member.getJsonRepresentation();
 		
 		if (member.getStatusIfNew() == null) {
-			json.put("status_if_new", MemberStatus.SUBSCRIBED.getStringRepresentation());
+			json.put("status_if_new", MemberStatus.SUBSCRIBED.toString());
 		}
 		
 		String results = getConnection().do_Put(new URL(connection.getListendpoint()+"/"+getId()+"/members/"+member.getId()),json.toString(),connection.getApikey());

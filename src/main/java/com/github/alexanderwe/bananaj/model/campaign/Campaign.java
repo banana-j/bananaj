@@ -380,8 +380,8 @@ public class Campaign {
 	public String toString() {
 		return "ID: " + getId() + System.lineSeparator() +
 				getSettings().toString() + System.lineSeparator() +
-				"Type: " + getType().getStringRepresentation() + System.lineSeparator() +
-				"Status: " + getStatus().getStringRepresentation() + System.lineSeparator() +
+				"Type: " + getType().toString() + System.lineSeparator() +
+				"Status: " + getStatus().toString() + System.lineSeparator() +
 				(getRecipients() != null ? getRecipients().toString() + System.lineSeparator() : "") +
 				getTracking().toString() + 
 				(getReportSummary() != null ? System.lineSeparator() + getReportSummary().toString() : "");

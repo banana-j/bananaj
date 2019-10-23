@@ -232,7 +232,7 @@ public class MailChimpConnection extends Connection{
 				sheet.addCell(new Label(3,i+1,member.getIpSignup() != null ? member.getIpSignup() : ""));
 				sheet.addCell(new Label(4,i+1,member.getTimestampOpt() != null ? member.getTimestampOpt().toString() : ""));
 				sheet.addCell(new Label(5,i+1,member.getIpOpt() != null ? member.getIpOpt() : ""));
-				sheet.addCell(new Label(6,i+1,member.getStatus().getStringRepresentation()));
+				sheet.addCell(new Label(6,i+1,member.getStatus().toString()));
 				sheet.addCell(new Number(7,i+1,member.getStats().getAvgOpenRate()));
 				sheet.addCell(new Number(8,i+1,member.getStats().getAvgClickRate()));
 
@@ -379,7 +379,7 @@ public class MailChimpConnection extends Connection{
 		
 		JSONObject jsonSettings = settings.getJsonRepresentation();
 		
-		campaign.put("type", type.getStringRepresentation());
+		campaign.put("type", type.toString());
 		campaign.put("recipients", recipients);
 		campaign.put("settings", jsonSettings);
 		
@@ -394,7 +394,7 @@ public class MailChimpConnection extends Connection{
 		
 		JSONObject jsonSettings = settings.getJsonRepresentation();
 		
-		campaign.put("type", type.getStringRepresentation());
+		campaign.put("type", type.toString());
 		campaign.put("recipients", recipients);
 		campaign.put("settings", jsonSettings);
 		

@@ -86,7 +86,7 @@ public class IndustryStats {
 	@Override
 	public String toString() {
 		return
-		"Industry Statistics:" + System.lineSeparator() +
+		"Industry Stats:" + System.lineSeparator() +
 		"    Type: " + getType() + System.lineSeparator() +
 		"    Open Rate: " + getOpenRate() + System.lineSeparator() +
 		"    Click Rate: " + getClickRate() + System.lineSeparator() +

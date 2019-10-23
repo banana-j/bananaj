@@ -2,25 +2,27 @@ package com.github.alexanderwe.bananaj.model.automation;
 
 public enum DelayType {
 
-	NOW("now"), DAY("day"), HOUR("hour"), WEEK("week");
-	
+	NOW("now"), 
+	DAY("day"), 
+	HOUR("hour"), 
+	WEEK("week");
+
 	private String stringRepresentation;
-	
+
 	DelayType(String stringRepresentation ) {
 		setStringRepresentation(stringRepresentation);
 	}
 
-	/**
-	 * @return the stringRepresentation
-	 */
-	public String getStringRepresentation() {
+	@Override
+	public String toString() {
 		return stringRepresentation;
 	}
 
 	/**
-	 * @param stringRepresentation the stringRepresentation to set
+	 * @param Set the stringRepresentation for the enum constant.
 	 */
 	private void setStringRepresentation(String stringRepresentation) {
 		this.stringRepresentation = stringRepresentation;
 	}
+
 }

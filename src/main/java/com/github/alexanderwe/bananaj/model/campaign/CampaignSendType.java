@@ -1,44 +1,29 @@
 package com.github.alexanderwe.bananaj.model.campaign;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * 
+ * Enum representation of different campaign send types
  */
 public enum CampaignSendType {
 
 	HTML("html"),
 	PLAINTEXT("plaintext");
 
-    private final String value;
-    private final static Map<String, CampaignSendType> CONSTANTS = new HashMap<String, CampaignSendType>();
+	private String stringRepresentation;
+	
+	CampaignSendType(String stringRepresentation ) {
+		setStringRepresentation(stringRepresentation);
+	}
 
-    static {
-        for (CampaignSendType c: values()) {
-            CONSTANTS.put(c.value, c);
-        }
-    }
+	@Override
+	public String toString() {
+		return stringRepresentation;
+	}
 
-    private CampaignSendType(String value) {
-        this.value = value;
-    }
+	/**
+	 * @param Set the stringRepresentation for the enum constant.
+	 */
+	public void setStringRepresentation(String stringRepresentation) {
+		this.stringRepresentation = stringRepresentation;
+	}
 
-    @Override
-    public String toString() {
-        return this.value;
-    }
-    
-    public String value() {
-        return value;
-    }
-
-    public static CampaignSendType fromValue(String value) {
-    	CampaignSendType constant = CONSTANTS.get(value);
-        if (constant == null) {
-            throw new IllegalArgumentException(value);
-        } else {
-            return constant;
-        }
-    }
 }

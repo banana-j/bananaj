@@ -39,7 +39,7 @@ public class Options {
 				JSONObject jsonCondition = jsonConditions.getJSONObject(i);
 
 				try {
-					ConditionType conditiontype = ConditionType.fromValue(jsonCondition.getString("condition_type"));
+					ConditionType conditiontype = ConditionType.valueOf(jsonCondition.getString("condition_type").toUpperCase());
 					switch(conditiontype) {
 					case AIM:
 					case AUTOMATION:
@@ -65,7 +65,7 @@ public class Options {
 						conditions.add( new StringCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
+								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
 								.value(jsonCondition.getString("value"))
 								.build());
 						break;
@@ -75,7 +75,7 @@ public class Options {
 						conditions.add( new IntegerCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
+								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
 								.value(jsonCondition.getInt("value"))
 								.build());
 						break;
@@ -89,7 +89,7 @@ public class Options {
 						conditions.add( new DoubleCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
+								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
 								.value(jsonCondition.getDouble("value"))
 								.build());
 						break;
@@ -100,7 +100,7 @@ public class Options {
 						conditions.add( new StringCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
+								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
 								.extra(jsonCondition.getString("extra"))
 								.value(jsonCondition.getString("value"))
 								.build());
@@ -114,7 +114,7 @@ public class Options {
 						conditions.add( new OpCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
+								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
 								.build());
 						break;
 
@@ -131,7 +131,7 @@ public class Options {
 						conditions.add( new StringArrayCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
+								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
 								.value(values)
 								.build());
 						break;
@@ -140,7 +140,7 @@ public class Options {
 						conditions.add( new IntegerCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
+								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
 								.extra(jsonCondition.getInt("extra"))
 								.value(jsonCondition.getInt("value"))
 								.build());
@@ -150,7 +150,7 @@ public class Options {
 						conditions.add( new IPGeoInCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
+								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
 								.lng(jsonCondition.getString("lng"))
 								.lat(jsonCondition.getString("lat"))
 								.value(jsonCondition.getInt("value"))
@@ -209,7 +209,7 @@ public class Options {
 	 */
 	public JSONObject getJsonRepresentation() {
 		JSONObject options = new JSONObject();
-		options.put("match", this.getMatch().getStringRepresentation());
+		options.put("match", this.getMatch().toString());
 
 		JSONArray conditions = new JSONArray();
 
@@ -225,7 +225,7 @@ public class Options {
 	public String toString() {
 		return 
 				"Options:" + System.lineSeparator() +
-				"    Match type: " + getMatch().getStringRepresentation() +  System.lineSeparator() +
+				"    Match type: " + getMatch().toString() +  System.lineSeparator() +
 				(getConditions() != null ? "    " + getConditions().toString() : "");
 	}
 
