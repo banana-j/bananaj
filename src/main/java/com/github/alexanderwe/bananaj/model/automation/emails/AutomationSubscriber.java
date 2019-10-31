@@ -19,7 +19,7 @@ public class AutomationSubscriber extends Subscriber {
 		if (jsonObj.has("list_is_active")) {
 			this.listIsActive = jsonObj.getBoolean("list_is_active");
 		}
-        this.nextSend = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("next_send"));
+        this.nextSend = DateConverter.createDateFromISO8601(jsonObj.getString("next_send"));
 	}
 
 	public AutomationSubscriber() {

@@ -30,7 +30,26 @@ public class CampaignTest {
 	}
 
 	@Test
-	public void CampaignSegmentOpts() {
+	public void testCampaign_w_segmentOps() throws Exception {
+		JSONObject jsonObj = new JSONObject("{\"id\":\"0606061661\",\"web_id\":2146833,\"type\":\"regular\",\"create_time\":\"2019-08-22T02:30:10+00:00\",\"archive_url\":\"http://eepurl.com/12345\",\"long_archive_url\":\"https://us6.campaign-archive.com/?u=e03f3f53ccb8ead1d3dd0002d&id=0606061661\",\"status\":\"sent\",\"emails_sent\":8,\"send_time\":\"2019-08-22T02:30:14+00:00\",\"content_type\":\"html\",\"needs_block_refresh\":false,\"has_logo_merge_tag\":false,\"resendable\":true,\"recipients\":{\"list_id\":\"0a05001000\",\"list_is_active\":true,\"list_name\":\"TEST_LIST\",\"segment_text\":\"<p class=\\\"!margin--lv0 display--inline\\\">Contacts that match <strong>any</strong> of the following conditions:</p><ol id=\\\"conditions\\\" class=\\\"small-meta text-transform--none\\\"><li class=\\\"margin--lv1 !margin-left-right--lv0\\\">Tags contact is tagged <strong>BTS_FAY</strong></li></ol><span>For a total of <strong>8</strong> emails sent.</span>\",\"recipient_count\":8,\"segment_opts\":{\"saved_segment_id\":67277,\"match\":\"any\",\"conditions\":[{\"condition_type\":\"StaticSegment\",\"field\":\"static_segment\",\"op\":\"static_is\",\"value\":67277}]}},\"settings\":{\"subject_line\":\"Insights for Fayette\",\"title\":\"BTS FAY #1 2019\",\"from_name\":\"Mr Tester\",\"reply_to\":\"test.account@gmail.com\",\"use_conversation\":false,\"to_name\":\"*|FNAME|* *|LNAME|*\",\"folder_id\":\"f42a42307b\",\"authenticate\":true,\"auto_footer\":false,\"inline_css\":false,\"auto_tweet\":false,\"fb_comments\":true,\"timewarp\":false,\"template_id\":0,\"drag_and_drop\":false},\"tracking\":{\"opens\":true,\"html_clicks\":true,\"text_clicks\":false,\"goal_tracking\":false,\"ecomm360\":false,\"google_analytics\":\"\",\"clicktale\":\"N\"},\"report_summary\":{\"opens\":8,\"unique_opens\":3,\"open_rate\":0.375,\"clicks\":0,\"subscriber_clicks\":0,\"click_rate\":0,\"ecommerce\":{\"total_orders\":0,\"total_spent\":0,\"total_revenue\":0}},\"delivery_status\":{\"enabled\":false},\"_links\":[]} ");
+		Campaign campaign = new Campaign(null, jsonObj);
+		assertEquals(campaign.getId(), "0606061661");
+		assertEquals(campaign.getType(), CampaignType.REGULAR);
+		assertEquals(campaign.getStatus(), CampaignStatus.SENT);
+		assertEquals(campaign.getRecipients().getListId(), "0a05001000");
+		assertEquals(campaign.getRecipients().getListName(), "TEST_LIST");
+		assertEquals(campaign.getRecipients().getSegmentOpts().getSavedSegmentId(), new Integer(67277));
+		assertEquals(campaign.getRecipients().getSegmentOpts().getMatch(), MatchType.ANY);
+		assertEquals(campaign.getRecipients().getSegmentOpts().getConditions().size(), 1);
+		assertEquals(campaign.getReportSummary().getOpens(), 8);
+		assertEquals(campaign.getTracking().isHtmlClicks(), Boolean.TRUE);
+		assertEquals(campaign.getReportSummary().getOpens(), 8);
+		assertEquals(campaign.getSettings().getAuthenticate(), Boolean.TRUE);
+		assertEquals(campaign.getSettings().getSubjectLine(), "Insights for Fayette");
+	}
+	
+	@Test
+	public void testCampaignSegmentOpts() {
 		JSONObject jsonObj = new JSONObject("{\"saved_segment_id\":40229,\"match\":\"any\",\"conditions\":[{\"condition_type\":\"Interests\",\"field\":\"interests-6dc9e2022a\",\"op\":\"interestcontains\",\"value\":[\"66af3e0301\"]}]}");
 		CampaignSegmentOpts segopts = new CampaignSegmentOpts(jsonObj);
 		assertEquals(segopts.getSavedSegmentId().intValue(), 40229);

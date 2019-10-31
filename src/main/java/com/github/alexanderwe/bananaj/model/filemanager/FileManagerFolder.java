@@ -34,7 +34,7 @@ public class FileManagerFolder {
 		id = jsonFileManagerFolder.getInt("id");
 		name = jsonFileManagerFolder.getString("name");
 		fileCount = jsonFileManagerFolder.getInt("file_count");
-		createdAt = DateConverter.getInstance().createDateFromISO8601(jsonFileManagerFolder.getString("created_at"));
+		createdAt = DateConverter.createDateFromISO8601(jsonFileManagerFolder.getString("created_at"));
 		createdBy = jsonFileManagerFolder.getString("created_by");
 		this.connection = connection;
 	}
@@ -170,7 +170,7 @@ public class FileManagerFolder {
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 */
-	public JSONObject getJsonRepresentation() throws Exception {
+	protected JSONObject getJsonRepresentation() throws Exception {
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("name", getName());
 		return jsonObj;

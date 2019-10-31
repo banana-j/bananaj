@@ -8,8 +8,6 @@ import java.net.URL;
 
 import org.json.JSONObject;
 
-import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
-
 public class CampaignContent {
 
 	private Campaign campaign;

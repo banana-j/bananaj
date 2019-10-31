@@ -21,9 +21,9 @@ public class MemberNote {
 
 	public MemberNote(JSONObject jsonObj) {
 		id = jsonObj.getInt("id");
-		createdAt = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("created_at"));
+		createdAt = DateConverter.createDateFromISO8601(jsonObj.getString("created_at"));
 		createdBy = jsonObj.getString("created_by");
-		updatedAt = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("updated_at"));
+		updatedAt = DateConverter.createDateFromISO8601(jsonObj.getString("updated_at"));
 		note = jsonObj.getString("note");
 		listId = jsonObj.getString("list_id");
 		emailId = jsonObj.getString("email_id");
@@ -109,7 +109,7 @@ public class MemberNote {
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 */
-	public JSONObject getJsonRepresentation() throws Exception {
+	protected JSONObject getJsonRepresentation() throws Exception {
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("note", note);
 		return jsonObj;

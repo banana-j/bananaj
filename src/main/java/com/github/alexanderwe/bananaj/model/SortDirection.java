@@ -1,14 +1,13 @@
-package com.github.alexanderwe.bananaj.model.campaign;
+package com.github.alexanderwe.bananaj.model;
 
-public enum CampaignCheckType {
+public enum SortDirection {
 
-	SUCCESS("success"), 
-	WARNING("warning"), 
-	ERROR("error");
+	ASC("ASC"),
+	DESC("DESC");
 
 	private String stringRepresentation;
 
-	CampaignCheckType(String stringRepresentation ) {
+	SortDirection(String stringRepresentation ) {
 		setStringRepresentation(stringRepresentation);
 	}
 

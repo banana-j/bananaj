@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -19,7 +20,6 @@ import com.github.alexanderwe.bananaj.model.automation.AutomationRecipient;
 import com.github.alexanderwe.bananaj.model.automation.AutomationSettings;
 import com.github.alexanderwe.bananaj.model.automation.emails.AutomationEmail;
 import com.github.alexanderwe.bananaj.model.campaign.Campaign;
-import com.github.alexanderwe.bananaj.model.campaign.CampaignDefaults;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignFolder;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignRecipients;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignSettings;
@@ -27,8 +27,10 @@ import com.github.alexanderwe.bananaj.model.campaign.CampaignType;
 import com.github.alexanderwe.bananaj.model.filemanager.FileManager;
 import com.github.alexanderwe.bananaj.model.list.MailChimpList;
 import com.github.alexanderwe.bananaj.model.list.member.Member;
+import com.github.alexanderwe.bananaj.model.report.Report;
 import com.github.alexanderwe.bananaj.model.template.Template;
 import com.github.alexanderwe.bananaj.model.template.TemplateFolder;
+import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 import jxl.CellView;
 import jxl.Workbook;
@@ -89,6 +91,7 @@ public class MailChimpConnection extends Connection{
 	 * Get the lists in your account
 	 * @return List containing the first 100 lists
 	 * @throws Exception
+	 * @deprecated
 	 */
 	public List<MailChimpList> getLists() throws Exception {
 		return getLists(100,0);
@@ -96,7 +99,7 @@ public class MailChimpConnection extends Connection{
 
 	/**
 	 * Get lists in your account with pagination
-	 * @param count Number of lists to return
+	 * @param count Number of lists to return. Maximum value is 1000.
 	 * @param offset Zero based offset
 	 * @return List containing Mailchimp lists
 	 * @throws Exception
@@ -129,35 +132,13 @@ public class MailChimpConnection extends Connection{
 		return new MailChimpList(this, jsonList);
 	}
 
-
 	/**
-	 * Create a new list in your mailchimp account
-	 * @param listName
+	 * Create a new List/Audience in your mailchimp account
+	 * @param audience
 	 */
-	public MailChimpList createList(String listName, String permission_reminder, boolean email_type_option, CampaignDefaults campaignDefaults) throws Exception{
+	public MailChimpList createList(MailChimpList audience) throws Exception {
 		cacheAccountInfo();
-		JSONObject jsonList = new JSONObject();
-		
-		JSONObject contact = new JSONObject();
-		contact.put("company", account.getContact().getCompany());
-		contact.put("address1", account.getContact().getAddress1());
-		contact.put("city", account.getContact().getCity());
-		contact.put("state", account.getContact().getState());
-		contact.put("zip", account.getContact().getZip());
-		contact.put("country", account.getContact().getCountry());
-		
-		JSONObject JSONCampaignDefaults = new JSONObject();
-		JSONCampaignDefaults.put("from_name", campaignDefaults.getFrom_name());
-		JSONCampaignDefaults.put("from_email", campaignDefaults.getFrom_email());
-		JSONCampaignDefaults.put("subject", campaignDefaults.getSubject());
-		JSONCampaignDefaults.put("language", campaignDefaults.getLanguage());
-		
-		jsonList.put("name",listName);
-		jsonList.put("permission_reminder", permission_reminder);
-		jsonList.put("email_type_option", email_type_option);
-		jsonList.put("contact", contact);
-		jsonList.put("campaign_defaults", JSONCampaignDefaults);
-
+		JSONObject jsonList = audience.getJSONRepresentation();
 		JSONObject jsonNewList = new JSONObject(do_Post(new URL(listendpoint), jsonList.toString(),getApikey()));
 		return new MailChimpList(this, jsonNewList);
 	}
@@ -269,6 +250,7 @@ public class MailChimpConnection extends Connection{
     /**
      * Get campaign folders from MailChimp
      * @return List containing the first 100 campaign folders
+	 * @deprecated
      */
     public List<CampaignFolder> getCampaignFolders() throws Exception{
         return getCampaignFolders(100,0);
@@ -276,7 +258,7 @@ public class MailChimpConnection extends Connection{
 
     /**
      * Get campaign folders from MailChimp with pagination
-     * @param count Number of campaign folders to return
+     * @param count Number of campaign folders to return. Maximum value is 1000.
      * @param offset Zero based offset
      * @return List containing the campaign folders
      */
@@ -327,6 +309,7 @@ public class MailChimpConnection extends Connection{
      * Get campaigns from mailchimp account
      * @return List containing the first 100 campaigns
      * @throws Exception
+     * @deprecated
      */
     public List<Campaign> getCampaigns() throws Exception {
     	return getCampaigns(100,0);
@@ -334,16 +317,16 @@ public class MailChimpConnection extends Connection{
 
     /**
      * Get campaigns from mailchimp account with pagination
-     * @param count Number of campaigns to return
+     * @param count Number of campaigns to return. Maximum value is 1000.
      * @param offset Zero based offset
      * @return List containing campaigns
      * @throws Exception
      */
     public List<Campaign> getCampaigns(int count, int offset) throws Exception {
-    	List<Campaign> campaigns = new ArrayList<Campaign>();
     	// parse response
     	JSONObject jsonCampaigns = new JSONObject(do_Get(new URL(campaignendpoint+ "?offset=" + offset + "&count=" + count),getApikey()));
     	JSONArray campaignsArray = jsonCampaigns.getJSONArray("campaigns");
+    	List<Campaign> campaigns = new ArrayList<Campaign>(campaignsArray.length());
     	for( int i = 0; i< campaignsArray.length();i++)
     	{
     		JSONObject campaignDetail = campaignsArray.getJSONObject(i);
@@ -411,9 +394,58 @@ public class MailChimpConnection extends Connection{
 		do_Delete(new URL(campaignendpoint +"/"+campaignID),getApikey());
 	}
 
+	/**
+	 * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
+	 * 
+	 * @param campaignId
+	 * @return Report for the specified campaign. 
+	 * @throws JSONException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 * @throws MalformedURLException
+	 */
+	public Report getCampaignReport(String campaignId) throws JSONException, TransportException, URISyntaxException, MalformedURLException {
+		URL url = new URL(reportsendpoint + "/" + campaignId);
+		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
+    	return new Report(jsonReport);
+	}
+	
+	/**
+	 * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
+	 * @param count Number of reports to return. Maximum value is 1000.
+	 * @param offset Zero based offset
+	 * @param campaignType Optional, restrict the response by campaign type
+	 * @param beforeSendTime Optional, restrict the response to campaigns sent before the set time.
+	 * @param sinceSendTime Optional, restrict the response to campaigns sent after the set time.
+	 * @return Campaign reports meeting the specified criteria.
+	 * @throws JSONException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 * @throws MalformedURLException
+	 */
+	public List<Report> getCampaignReports(int count, int offset, CampaignType campaignType, LocalDateTime beforeSendTime, LocalDateTime sinceSendTime) throws JSONException, TransportException, URISyntaxException, MalformedURLException {
+		// TODO:
+		URL url = new URL(reportsendpoint + "?offset=" + offset + "&count=" + count +
+				(campaignType!=null ? "&type" + campaignType.toString() : "") +
+				(beforeSendTime!=null ? "&before_send_time" + DateConverter.toNormal(beforeSendTime) : "") +
+				(sinceSendTime!=null ? "&since_send_time" + DateConverter.toNormal(sinceSendTime) : "") );
+		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
+		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
+    	JSONArray reportsArray = jsonReports.getJSONArray("reports");
+    	List<Report> reports = new ArrayList<Report>(reportsArray.length());
+    	for( int i = 0; i< reportsArray.length();i++)
+    	{
+    		JSONObject reportDetail = reportsArray.getJSONObject(i);
+    		Report report = new Report(reportDetail);
+    		reports.add(report);
+    	}
+    	return reports;
+	}
+	
     /**
      * Get template folders from MailChimp
      * @return List containing the first 100 template folders
+	 * @deprecated
      */
 	public List<TemplateFolder> getTemplateFolders() throws Exception{
         return getTemplateFolders(100,0);
@@ -421,7 +453,7 @@ public class MailChimpConnection extends Connection{
 
     /**
      * Get template folders from MailChimp with pagination
-	 * @param count Number of templates to return
+	 * @param count Number of templates to return. Maximum value is 1000.
 	 * @param offset Zero based offset
      * @return List of template folders
      */
@@ -471,6 +503,7 @@ public class MailChimpConnection extends Connection{
 	 * Get templates from mailchimp account
 	 * @return List containing the first 100 templates
 	 * @throws Exception
+	 * @deprecated
 	 */
 	public List<Template> getTemplates() throws Exception{
 		return getTemplates(100,0);
@@ -478,7 +511,7 @@ public class MailChimpConnection extends Connection{
 
 	/**
 	 * Get templates from mailchimp account with pagination
-	 * @param count Number of templates to return
+	 * @param count Number of templates to return. Maximum value is 1000.
 	 * @param offset Zero based offset
 	 * @return list of templates
 	 * @throws Exception
@@ -562,6 +595,7 @@ public class MailChimpConnection extends Connection{
 	 * Get a list of Automations
 	 * @return List containing the first 100 automations
 	 * @throws Exception
+	 * @deprecated
 	 */
 	public List<Automation> getAutomations() throws Exception{
 		return getAutomations(100,0);
@@ -569,7 +603,7 @@ public class MailChimpConnection extends Connection{
 	
 	/**
 	 * Get a list of Automations with pagination
-	 * @param count Number of templates to return
+	 * @param count Number of templates to return. Maximum value is 1000.
 	 * @param offset Zero based offset
 	 * @return List containing automations
 	 * @throws Exception
@@ -657,7 +691,7 @@ public class MailChimpConnection extends Connection{
 	/**
 	 * Get a list of automated emails in a workflow with pagination
 	 * @param workflowId The unique id for the Automation workflow
-	 * @param count Number of emails to return
+	 * @param count Number of emails to return. Maximum value is 1000.
 	 * @param offset Zero based offset
 	 * @return List containing automation emails
 	 * @throws Exception

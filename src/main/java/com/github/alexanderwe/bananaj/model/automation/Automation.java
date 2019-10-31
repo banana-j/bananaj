@@ -50,8 +50,8 @@ public class Automation {
 	private void parse(MailChimpConnection connection, JSONObject jsonObj) {
 		id = jsonObj.getString("id");
 		this.connection = connection;
-		createTime = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("create_time"));
-		startTime = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("start_time"));
+		createTime = DateConverter.createDateFromISO8601(jsonObj.getString("create_time"));
+		startTime = DateConverter.createDateFromISO8601(jsonObj.getString("start_time"));
 		status = AutomationStatus.valueOf(jsonObj.getString("status").toUpperCase());
 		emailsSent = jsonObj.getInt("emails_sent");
 		if (jsonObj.has("recipients")) {

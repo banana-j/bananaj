@@ -51,8 +51,8 @@ public class Template {
 		dragAndDrop = jsonObj.getBoolean("drag_and_drop");
 		responsive = jsonObj.getBoolean("responsive");
 		category = jsonObj.has("category") ? jsonObj.getString("category") : null;
-		dateCreated = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("date_created"));
-		dateEdited = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("date_edited"));
+		dateCreated = DateConverter.createDateFromISO8601(jsonObj.getString("date_created"));
+		dateEdited = DateConverter.createDateFromISO8601(jsonObj.getString("date_edited"));
 		createdBy = jsonObj.getString("created_by");
 		editedBy = jsonObj.getString("edited_by");
 		active = jsonObj.getBoolean("active");

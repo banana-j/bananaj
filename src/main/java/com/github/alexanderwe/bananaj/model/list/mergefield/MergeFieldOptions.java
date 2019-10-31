@@ -3,78 +3,186 @@ package com.github.alexanderwe.bananaj.model.list.mergefield;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import com.github.alexanderwe.bananaj.model.list.interests.Interest;
+
 /**
- *  Class for representing merge field options.
- * Created by Alexander on 09.08.2016.
+ *  Extra options for some merge field types.
+ *  
  */
 public class MergeFieldOptions {
 
-    private int default_country;
-    private String phone_format;
-    private String date_format;
-    private List<String> choices;
-    private int size;
+	private Integer defaultCountry;
+	private String phoneFormat;
+	private String dateFormat;
+	private List<String> choices;
+	private Integer size;
 
-    /**
-     * Default constructor
-     */
-    public MergeFieldOptions(){
-    }
+	/**
+	 * Construct class given a Mailchimp JSON object
+	 * 
+	 * @param jsonObj
+	 */
+	public MergeFieldOptions(JSONObject jsonObj) {
+		defaultCountry = jsonObj.has("default_country") ? defaultCountry = jsonObj.getInt("default_country") : null;
+		phoneFormat = jsonObj.has("phone_format") ? jsonObj.getString("phone_format") : null;
+		dateFormat = jsonObj.has("date_format") ? dateFormat = jsonObj.getString("date_format") : null;
+		size = jsonObj.has("size") ? jsonObj.getInt("size") : null;
+		if (jsonObj.has("choices")) {
+			JSONArray choicesObj = jsonObj.getJSONArray("choices");
+			choices = new ArrayList<String>(choicesObj.length());
+			for (int i = 0; i < choicesObj.length(); i++) {
+				choices.add((String )choicesObj.get(i));
+			}
+		}
+	}
 
-    public MergeFieldOptions(int default_country, String phone_format, String date_format, ArrayList<String> choices, int size){
-        this.default_country = default_country;
-        this.phone_format = phone_format;
-        this.date_format = date_format;
-        this.choices = choices;
-        this.size = size;
-    }
+	/**
+	 * 
+	 * @param default_country In an address field, the default country code if none supplied.
+	 * @param phone_format In a phone field, the phone number type: US or International.
+	 * @param date_format In a date or birthday field, the format of the date.
+	 * @param choices In a radio or dropdown non-group field, the available options for members to pick from.
+	 * @param size In a text field, the default length of the text field.
+	 */
+	public MergeFieldOptions(int default_country, String phone_format, String date_format, List<String> choices, int size){
+		this.defaultCountry = default_country;
+		this.phoneFormat = phone_format;
+		this.dateFormat = date_format;
+		this.choices = choices;
+		this.size = size;
+	}
 
-    public int getDefault_country() {
-        return default_country;
-    }
+	public MergeFieldOptions(Builder b) {
+		defaultCountry = b.defaultCountry;
+		phoneFormat = b.phoneFormat;
+		dateFormat = b.dateFormat;
+		choices = b.choices;
+		size = b.size;
+	}
 
-    public String getPhone_format() {
-        return phone_format;
-    }
+	/**
+	 * @return In an address field, the default country code if none supplied.
+	 */
+	public int getDefaultCountry() {
+		return defaultCountry;
+	}
 
-    public String getDate_format() {
-        return date_format;
-    }
+	/**
+	 * @return In a phone field, the phone number type: US or International.
+	 */
+	public String getPhoneFormat() {
+		return phoneFormat;
+	}
 
-    public List<String> getChoices() {
-        return choices;
-    }
+	/**
+	 * @return In a date or birthday field, the format of the date.
+	 */
+	public String getDateFormat() {
+		return dateFormat;
+	}
 
-    public int getSize() {
-        return size;
-    }
+	/**
+	 * @return In a radio or dropdown non-group field, the available options for members to pick from.
+	 */
+	public List<String> getChoices() {
+		return choices;
+	}
 
-    public void setPhone_format(String phone_format) {
-        this.phone_format = phone_format;
-    }
+	/**
+	 * @return In a text field, the default length of the text field.
+	 */
+	public int getSize() {
+		return size;
+	}
 
-    public void setDate_format(String date_format) {
-        this.date_format = date_format;
-    }
+	/**
+	 * Helper method to convert JSON for mailchimp PATCH/POST operations
+	 */
+	public JSONObject getJsonRepresentation() {
+		JSONObject json = new JSONObject();
 
-    public void setChoices(ArrayList<String> choices) {
-        this.choices = choices;
-    }
+		if (defaultCountry != null) {
+			json.put("default_country", defaultCountry.intValue());
+		}
+		if (phoneFormat != null) {
+			json.put("phone_format", phoneFormat);
+		}
+		if (dateFormat != null) {
+			json.put("date_format", dateFormat);
+		}
+		if (choices != null && choices.size() > 0) {
+			JSONArray choiceArry = new JSONArray();
+			for(String choice: choices) {
+				choiceArry.put(choice);
+			}
+			json.put("choices", choiceArry);
+		}
+		if (size != null) {
+			json.put("size", size.intValue());
+		}
 
-    public void setSize(int size) {
-        this.size = size;
-    }
+		return json;
+	}
+	
+	@Override
+	public String toString() {
+		return (defaultCountry != null ? System.lineSeparator() + "    Default country: " + defaultCountry : "") +
+				(phoneFormat != null ? System.lineSeparator() + "    Phone format: " + phoneFormat : "") +
+				(dateFormat != null ? System.lineSeparator() + "    Date format: " + dateFormat : "") +
+				(choices != null ? System.lineSeparator() + "    Choices: " + choices : "") +
+				(size != null ? System.lineSeparator() + "    Size: " + size : "");
+	}
 
-    @Override
-    public String toString(){
-        return "Default_Country: " + this.default_country + System.lineSeparator() +
-                "Phone_Format: " + this.phone_format + System.lineSeparator() +
-                "Date_Format: " + this.date_format + System.lineSeparator() +
-                "Choices: " + this.choices + System.lineSeparator() +
-                "Size: " + this.size;
-    }
+	/**
+	 * Builder for {@link Interest}
+	 */
+	public static class Builder {
+		private Integer defaultCountry;
+		private String phoneFormat;
+		private String dateFormat;
+		private List<String> choices;
+		private Integer size;
+		/**
+		 * @param defaultCountry In an address field, the default country code if none supplied.
+		 */
+		public Builder defaultCountry(Integer defaultCountry) {
+			this.defaultCountry = defaultCountry;
+			return this;
+		}
+		/**
+		 * @param phoneFormat In a phone field, the phone number type: US or International.
+		 */
+		public Builder phoneFormat(String phoneFormat) {
+			this.phoneFormat = phoneFormat;
+			return this;
+		}
+		/**
+		 * @param dateFormat In a date or birthday field, the format of the date.
+		 */
+		public Builder dateFormat(String dateFormat) {
+			this.dateFormat = dateFormat;
+			return this;
+		}
+		/**
+		 * @param choices In a radio or dropdown non-group field, the available options for members to pick from.
+		 */
+		public Builder choices(List<String> choices) {
+			this.choices = choices;
+			return this;
+		}
+		/**
+		 * @param size In a text field, the default length of the text field.
+		 */
+		public Builder size(Integer size) {
+			this.size = size;
+			return this;
+		}
 
-    public void setDefault_country(int default_country) {
-        this.default_country = default_country;
-    }
+		public MergeFieldOptions build() {
+			return new MergeFieldOptions(this);
+		}
+	}
 }

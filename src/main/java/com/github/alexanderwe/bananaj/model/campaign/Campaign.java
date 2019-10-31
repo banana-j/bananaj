@@ -64,13 +64,13 @@ public class Campaign {
 			this.parentCampaignId = jsonObj.getString("parent_campaign_id");
 		}
 		this.type = CampaignType.valueOf(jsonObj.getString("type").toUpperCase());
-		this.createTime = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("create_time"));
+		this.createTime = DateConverter.createDateFromISO8601(jsonObj.getString("create_time"));
 		this.archiveUrl = jsonObj.getString("archive_url");
 		this.longArchiveUrl = jsonObj.getString("long_archive_url");
 		this.status = CampaignStatus.valueOf(jsonObj.getString("status").toUpperCase());
 		this.emailsSent = jsonObj.getInt("emails_sent");
 		if (jsonObj.has("send_time")) {
-			this.sendTime = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("send_time"));
+			this.sendTime = DateConverter.createDateFromISO8601(jsonObj.getString("send_time"));
 		}
 		this.contentType = CampaignContentType.valueOf(jsonObj.getString("content_type").toUpperCase());
 		this.needsBlockRefresh = jsonObj.getBoolean("needs_block_refresh");
@@ -215,7 +215,7 @@ public class Campaign {
 	 * @throws Exception
 	 */
 	public Report getReport() throws Exception {
-		final JSONObject report = new JSONObject(getConnection().do_Get(new URL(connection.getReportsendpoint()+"/"+getId()), getConnection().getApikey()));
+		final JSONObject report = new JSONObject(connection.do_Get(new URL(connection.getReportsendpoint()+"/"+getId()), connection.getApikey()));
 		return new Report(report);
 	}
 

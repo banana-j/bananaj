@@ -22,7 +22,7 @@ public enum TemplateType {
 	}
 
 	/**
-	 * @param Set the stringRepresentation for the enum constant.
+	 * @param stringRepresentation Set the stringRepresentation for the enum constant.
 	 */
 	private void setStringRepresentation(String stringRepresentation) {
 		this.stringRepresentation = stringRepresentation;

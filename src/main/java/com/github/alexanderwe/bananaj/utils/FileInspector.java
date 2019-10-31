@@ -1,11 +1,10 @@
 package com.github.alexanderwe.bananaj.utils;
 
-import org.apache.commons.codec.binary.Base64;
-
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+import org.apache.commons.codec.binary.Base64;
 /**
  * Class for util method for files.
  * Created by alexanderweiss on 30.12.16.

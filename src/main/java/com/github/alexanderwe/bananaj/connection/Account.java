@@ -4,15 +4,15 @@ import java.time.LocalDateTime;
 
 import org.json.JSONObject;
 
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 /**
- * Class for representing your mailchimp account
+ * The API root resource links to all other resources available in the API. Also includes details about the Mailchimp user account.
  */
-public class Account extends MailchimpObject{
+public class Account {
 
 	private MailChimpConnection connection;
+	private String id;
 	private String loginId;
 	private String accountName;
 	private String email;
@@ -33,7 +33,7 @@ public class Account extends MailchimpObject{
 	private IndustryStats industryStats;
 
 	public Account(MailChimpConnection connection, JSONObject jsonObj) {
-		super(jsonObj.getString("account_id"), jsonObj);
+		this.id = jsonObj.getString("account_id");
 		this.connection = connection;
 		this.loginId = jsonObj.getString("login_id");
 		this.accountName = jsonObj.getString("account_name");
@@ -43,17 +43,17 @@ public class Account extends MailchimpObject{
 		this.username = jsonObj.getString("username");
 		this.avatarUrl = jsonObj.getString("avatar_url");
 		this.role = jsonObj.getString("role");
-		this.memberSince = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("member_since"));
+		this.memberSince = DateConverter.createDateFromISO8601(jsonObj.getString("member_since"));
 		this.pricingPlanType = PricingPlanType.valueOf(jsonObj.getString("pricing_plan_type").toUpperCase());
 		if (jsonObj.has("first_payment")) {
-			this.firstPayment = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("first_payment"));
+			this.firstPayment = DateConverter.createDateFromISO8601(jsonObj.getString("first_payment"));
 		}
 		this.accountTimezone = jsonObj.getString("account_timezone");
 		if (jsonObj.has("account_industry")) {
 			this.accountIndustry = jsonObj.getString("account_industry");
 		}
 		this.proEnabled = jsonObj.getBoolean("pro_enabled");
-		this.lastLogin = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("last_login"));
+		this.lastLogin = DateConverter.createDateFromISO8601(jsonObj.getString("last_login"));
 		this.totalSubscribers = jsonObj.getInt("total_subscribers");
 		contact = new Contact(jsonObj.getJSONObject("contact"));
 		if (jsonObj.has("industry_stats")) {
@@ -68,6 +68,13 @@ public class Account extends MailchimpObject{
 		return connection;
 	}
 
+	/**
+	 * @return The Mailchimp account ID, used for features like list subscribe forms.
+	 */
+	public String getId() {
+		return id;
+	}
+	
 	/**
 	 * The ID associated with the user who owns this API key. If you can login to
 	 * multiple accounts, this ID will be the same for each account.
@@ -226,7 +233,7 @@ public class Account extends MailchimpObject{
 		}
 
 		/**
-		 * @param Set the stringRepresentation for the enum constant.
+		 * @param stringRepresentation Set the stringRepresentation for the enum constant.
 		 */
 		private void setStringRepresentation(String stringRepresentation) {
 			this.stringRepresentation = stringRepresentation;

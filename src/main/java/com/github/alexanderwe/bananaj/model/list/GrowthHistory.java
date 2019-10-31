@@ -4,6 +4,7 @@
  */
 package com.github.alexanderwe.bananaj.model.list;
 
+import org.json.JSONObject;
 
 /**
  * Class for representing a growth history of a mailChimpList
@@ -12,71 +13,140 @@ package com.github.alexanderwe.bananaj.model.list;
  */
 public class GrowthHistory {
 
-	private MailChimpList mailChimpList;
-	private String list_id;
+	//	private MailChimpList mailChimpList;
+	private String id;
 	private String month;
-	private int existing;
-	private int imports;
-	private int optins;
+	private Integer existing;	// (deprecated)
+	private Integer imports;	// (deprecated)
+	private Integer optins;	// (deprecated)
+	private int subscribed;
+	private int unsubscribed;
+	private int reconfirm;
+	private int cleaned;
+	private int pending;
+	private int deleted;
+	private int transactional;
 
-	public GrowthHistory(MailChimpList mailChimpList, String month, int existing, int imports, int optins) {
-		this.mailChimpList = mailChimpList;
-		this.list_id = mailChimpList.getId();
-		this.month = month;
-		this.existing = existing;
-		this.imports = imports;
-		this.optins = optins;
+	public GrowthHistory(JSONObject jsonObj) {
+		id = jsonObj.getString("list_id");
+		month = jsonObj.getString("month");
+		existing = jsonObj.has("existing") ? jsonObj.getInt("existing") : null;
+		imports = jsonObj.has("imports") ? jsonObj.getInt("imports") : null;
+		optins = jsonObj.has("optins") ? jsonObj.getInt("optins") : null;
+		subscribed = jsonObj.getInt("subscribed");
+		unsubscribed = jsonObj.getInt("unsubscribed");
+		reconfirm = jsonObj.getInt("reconfirm");
+		cleaned = jsonObj.getInt("cleaned");
+		pending = jsonObj.getInt("pending");
+		deleted = jsonObj.getInt("deleted");
+		transactional = jsonObj.getInt("transactional");
 	}
-	
+
 	/**
-	 * @return the mailChimpList
+	 * @return The list id for the growth activity report.
 	 */
-	public MailChimpList getMailChimpList() {
-		return mailChimpList;
+	public String getId() {
+		return id;
 	}
 
-	/**
-	 * @return the list_id
-	 */
-	public String getList_id() {
-		return list_id;
-	}
 
 	/**
-	 * @return the month
+	 * @return The month that the growth history is describing.
 	 */
 	public String getMonth() {
 		return month;
 	}
 
+
 	/**
-	 * @return the existing
+	 * @deprecated
 	 */
-	public int getExisting() {
+	public Integer getExisting() {
 		return existing;
 	}
 
+
 	/**
-	 * @return the imports
+	 * @deprecated
 	 */
-	public int getImports() {
+	public Integer getImports() {
 		return imports;
 	}
 
+
 	/**
-	 * @return the optins
+	 * @deprecated
 	 */
-	public int getOptins() {
+	public Integer getOptins() {
 		return optins;
+	}
+
+
+	/**
+	 * @return Newly subscribed members on the list for a specific month.
+	 */
+	public int getSubscribed() {
+		return subscribed;
+	}
+
+
+	/**
+	 * @return Newly unsubscribed members on the list for a specific month.
+	 */
+	public int getUnsubscribed() {
+		return unsubscribed;
+	}
+
+
+	/**
+	 * @return Newly reconfirmed members on the list for a specific month.
+	 */
+	public int getReconfirm() {
+		return reconfirm;
+	}
+
+
+	/**
+	 * @return Newly cleaned (hard-bounced) members on the list for a specific month.
+	 */
+	public int getCleaned() {
+		return cleaned;
+	}
+
+
+	/**
+	 * @return Pending members on the list for a specific month.
+	 */
+	public int getPending() {
+		return pending;
+	}
+
+
+	/**
+	 * @return Newly deleted members on the list for a specific month.
+	 */
+	public int getDeleted() {
+		return deleted;
+	}
+
+
+	/**
+	 * @return Subscribers that have been sent transactional emails via Mandrill.
+	 */
+	public int getTransactional() {
+		return transactional;
 	}
 
 	@Override
 	public String toString(){
-		return "Growth History for mailChimpList: " + getList_id() + System.lineSeparator() +
-				"Month: " + getMonth() + System.lineSeparator() +
-				"Existing members: " + getExisting() + System.lineSeparator() +
-				"Imported member: " + getImports() + System.lineSeparator() +
-				"Opt-ins: " + getOptins();
+		return "Growth History Id: " + getId() + " " + getMonth() + System.lineSeparator() +
+				"    Subsribed: " + getSubscribed() + System.lineSeparator() +
+				"    Unsubscribed: " + getUnsubscribed() + System.lineSeparator() +
+				"    reconfirm: " + getReconfirm() + System.lineSeparator() +
+				"    cleaned: " + getCleaned() + System.lineSeparator() +
+				"    pending: " + getPending() + System.lineSeparator() +
+				"    deleted: " + getDeleted() + System.lineSeparator() +
+				"    transactional: " + getTransactional();
 	}
-	
+
 }

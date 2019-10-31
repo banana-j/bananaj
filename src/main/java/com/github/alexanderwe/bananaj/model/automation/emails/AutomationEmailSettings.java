@@ -126,7 +126,7 @@ public class AutomationEmailSettings {
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 */
-	public JSONObject getJsonRepresentation() throws Exception {
+	protected JSONObject getJsonRepresentation() throws Exception {
 		JSONObject json = new JSONObject();
 
 		json.put("subject_line", subjectLine);

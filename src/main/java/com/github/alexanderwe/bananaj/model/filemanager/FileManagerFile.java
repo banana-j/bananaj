@@ -52,7 +52,7 @@ public class FileManagerFile {
 		fullSizeUrl = jsonObj.getString("full_size_url");
 		thumbnailUrl = jsonObj.getString("thumbnail_url");
 		size = jsonObj.getInt("size");
-		createdAt = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("created_at"));
+		createdAt = DateConverter.createDateFromISO8601(jsonObj.getString("created_at"));
 		createdBy = jsonObj.getString("created_by");
 		this.connection = connection;
 
@@ -227,7 +227,7 @@ public class FileManagerFile {
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 */
-	public JSONObject getJsonRepresentation() throws Exception {
+	protected JSONObject getJsonRepresentation() throws Exception {
 		JSONObject jsonObj = new JSONObject();
 
 		jsonObj.put("name", getName());

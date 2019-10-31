@@ -2,15 +2,21 @@ package com.github.alexanderwe.bananaj.model.automation;
 
 import org.json.JSONObject;
 
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
+/**
+ * Mailchimp's Automation feature lets you build a series of emails that send to
+ * subscribers when triggered by a specific date, activity, or event. Use the
+ * API to manage Automation workflows, emails, and queues.
+ *
+ */
+public class Subscriber {
 
-public class Subscriber extends MailchimpObject {
+	private String id;
 	private String workflowId;
 	private String listId;
 	private String emailAddress;
 
 	public Subscriber(JSONObject jsonObj) {
-		super(jsonObj.getString("id"), jsonObj);
+		id = jsonObj.getString("id");
 		this.workflowId = jsonObj.getString("workflow_id");
 		this.listId = jsonObj.getString("list_id");
 		this.emailAddress = jsonObj.getString("email_address");
@@ -20,6 +26,13 @@ public class Subscriber extends MailchimpObject {
 
 	}
 
+	/**
+	 * @return The MD5 hash of the lowercase version of the list member's email address.
+	 */
+	public String getId() {
+		return id;
+	}
+	
 	/**
 	 * A string that uniquely identifies an Automation workflow
 	 */

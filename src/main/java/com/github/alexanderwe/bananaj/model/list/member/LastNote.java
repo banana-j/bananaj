@@ -18,7 +18,7 @@ public class LastNote {
 
 	public LastNote(JSONObject jsonObj) {
 		id = jsonObj.getInt("note_id");
-		createdAt = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("created_at"));
+		createdAt = DateConverter.createDateFromISO8601(jsonObj.getString("created_at"));
 		createdBy = jsonObj.getString("created_by");
 		note = jsonObj.getString("note");
 	}

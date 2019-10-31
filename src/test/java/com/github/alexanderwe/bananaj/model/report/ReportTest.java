@@ -2,6 +2,8 @@ package com.github.alexanderwe.bananaj.model.report;
 
 import static org.junit.Assert.*;
 
+import java.time.LocalDateTime;
+
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -41,4 +43,18 @@ public class ReportTest {
 		report.toString();
 	}
 
+	@Test
+	public void testReport_abuse_report() {
+		JSONObject jsonObj = new JSONObject("{\"id\":1486,\"campaign_id\": \"42694e9e57\",\"list_id\":\"a70b3a068a\",\"email_id\":\"1986e2ad5e507dd4cd5b91a6058837d4\",\"email_address\":\"mr.test@gmail.com\",\"merge_fields\":{\"FNAME\":\"John\",\"LNAME\":\"Smith\",\"ADDRESS\":\"123 Mocking Bird Ln\",\"PHONE\":\"555-1234\"},\"vip\":true,\"date\":\"2019-04-04T23:39:59+00:00\",\"_links\":[]}");
+		AbuseReport abuse = new AbuseReport(jsonObj);
+		assertEquals(abuse.getId(), 1486);
+		assertEquals(abuse.getCampaignId(), "42694e9e57");
+		assertEquals(abuse.getListId(), "a70b3a068a");
+		assertEquals(abuse.getEmailId(), "1986e2ad5e507dd4cd5b91a6058837d4");
+		assertEquals(abuse.getEmailAddress(), "mr.test@gmail.com");
+		assertEquals(abuse.getMergeFields().size(), 4);
+		assertEquals(abuse.isVip(), true);
+		assertEquals(abuse.getDate(), LocalDateTime.of(2019, 4, 4, 23, 39, 59));
+	}
+	
 }

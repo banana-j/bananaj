@@ -1,6 +1,13 @@
 package com.github.alexanderwe.bananaj.model.list.interests;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+
 import org.json.JSONObject;
+
+import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
+import com.github.alexanderwe.bananaj.exceptions.TransportException;
 
 /**
  * Manage interests for a specific Mailchimp audience list. Assign subscribers
@@ -9,6 +16,7 @@ import org.json.JSONObject;
  *
  */
 public class Interest {
+	private MailChimpConnection connection;
 	private String categoryId;
     private String listId;
     private String id;
@@ -21,13 +29,8 @@ public class Interest {
      * 
      * @param jsonObj
      */
-	public Interest(JSONObject jsonObj) {
-		categoryId = jsonObj.getString("category_id");
-		listId = jsonObj.getString("list_id");
-        id = jsonObj.getString("id");
-        name = jsonObj.getString("name");
-        subscriberCount = jsonObj.getString("subscriber_count");
-        displayOrder = jsonObj.getInt("display_order");
+	public Interest(MailChimpConnection connection, JSONObject jsonObj) {
+		parse(connection, jsonObj);
 	}
 	
     /**
@@ -42,9 +45,20 @@ public class Interest {
 		this.name = b.name;
 		this.subscriberCount = b.subscriberCount;
 		this.displayOrder = b.displayOrder;
+		this.connection = b.connection;
     }
     
-    /**
+	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
+		categoryId = jsonObj.getString("category_id");
+		listId = jsonObj.getString("list_id");
+        id = jsonObj.getString("id");
+        name = jsonObj.getString("name");
+        subscriberCount = jsonObj.getString("subscriber_count");
+        displayOrder = jsonObj.getInt("display_order");
+        this.connection = connection;
+	}
+
+	/**
      * @return The id for the interest category.
      */
 	public String getCategoryId() {
@@ -73,6 +87,15 @@ public class Interest {
 	}
 
 	/**
+	 * @param name The name of the interest. This can be shown publicly on a
+	 *             subscription form. You must call {@link #update()} for changes to
+	 *             take effect.
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
 	 * @return The number of subscribers associated with this interest.
 	 */
 	public String getSubscriberCount() {
@@ -86,6 +109,51 @@ public class Interest {
 		return displayOrder;
 	}
 
+	/**
+	 * @param displayOrder The display order for interests. You must call
+	 *                     {@link #update()} for changes to take effect.
+	 */
+	public void setDisplayOrder(Integer displayOrder) {
+		this.displayOrder = displayOrder;
+	}
+
+	/**
+	 * Helper method to convert JSON for mailchimp PATCH/POST operations
+	 */
+	protected JSONObject getJsonRepresentation() {
+		JSONObject json = new JSONObject();
+
+		json.put("name", getName());
+		if (getDisplayOrder() != null) {
+			json.put("display_order", getDisplayOrder());
+		}
+		return json;
+	}
+	
+	/**
+	 * Remove this interest
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 */
+	public void delete() throws MalformedURLException, TransportException, URISyntaxException {
+		connection.do_Delete(new URL(connection.getListendpoint()+"/"+getListId()+"/interest-categories/"+getCategoryId()+"/interests/"+getId()), connection.getApikey());
+	}
+	
+	/**
+	 * Update this interest via a PATCH operation. Fields will be freshened
+	 * from MailChimp.
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 */
+	public void update() throws MalformedURLException, TransportException, URISyntaxException {
+		JSONObject json = getJsonRepresentation();
+
+		String results = connection.do_Patch(new URL(connection.getListendpoint()+"/"+getListId()+"/interest-categories/"+getCategoryId()+"/interests/"+getId()), json.toString(),connection.getApikey());
+		parse(connection, new JSONObject(results));  // update this object with current data
+	}
+	
 	@Override
     public String toString(){
         return  
@@ -102,6 +170,7 @@ public class Interest {
 	 * Builder for {@link Interest}
 	 */
 	public static class Builder {
+		private MailChimpConnection connection;
 		private String categoryId;
 	    private String listId;
 	    private String id;
@@ -109,6 +178,11 @@ public class Interest {
 	    private String subscriberCount;
 	    private Integer displayOrder;
 		
+        public Builder connection(MailChimpConnection connection) {
+            this.connection = connection;
+            return this;
+        }
+        
         public Builder categoryId(String s) {
             this.categoryId = s;
             return this;

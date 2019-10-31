@@ -8,18 +8,19 @@ import java.time.LocalDateTime;
 
 import org.json.JSONObject;
 
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
 import com.github.alexanderwe.bananaj.model.campaign.Bounce;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignType;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 /**
- * Object for representing a report of a campaign
+ * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
+ * 
  * @author alexanderweiss
  *
  */
-public class Report extends MailchimpObject {
+public class Report {
 
+	private String id;
 	private String campaignTitle;
 	private CampaignType type;
 	private String listId;
@@ -47,7 +48,7 @@ public class Report extends MailchimpObject {
 	//private Object delivery_status;
 
 	public Report(JSONObject jsonObj) {
-		super(jsonObj.getString("id"), null);
+		id = jsonObj.getString("id");
 		campaignTitle = jsonObj.getString("campaign_title");
 		type = CampaignType.valueOf(jsonObj.getString("type").toUpperCase());
 		listId = jsonObj.getString("list_id");
@@ -58,7 +59,7 @@ public class Report extends MailchimpObject {
 		emailsSent = jsonObj.getInt("emails_sent");
 		abuseReport = jsonObj.getInt("abuse_reports");
 		unsubscribed = jsonObj.getInt("unsubscribed");
-		sendtime = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("send_time"));
+		sendtime = DateConverter.createDateFromISO8601(jsonObj.getString("send_time"));
 		bounces = new Bounce(jsonObj.getJSONObject("bounces"));
 		forwards = new Forward(jsonObj.getJSONObject("forwards"));
 		clicks = new Click(jsonObj.getJSONObject("clicks"));
@@ -77,6 +78,13 @@ public class Report extends MailchimpObject {
 		}
 	}
 
+	/**
+	 * @return A string that uniquely identifies this campaign.
+	 */
+	public String getId() {
+		return id;
+	}
+	
 	/**
 	 * @return The total number of emails sent for the campaign.
 	 */

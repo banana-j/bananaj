@@ -54,7 +54,7 @@ public class ListStats {
 		if(stats.has(key)) {
 			String value = stats.getString(key);
 			if (value.length() > 0) {
-				return DateConverter.getInstance().createDateFromISO8601(value);
+				return DateConverter.createDateFromISO8601(value);
 			}
 		}
 		return null;

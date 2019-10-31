@@ -19,9 +19,9 @@ public enum InterestCategoryType {
 	}
 
 	/**
-	 * @param Set the stringRepresentation for the enum constant.
+	 * @param stringRepresentation Set the stringRepresentation for the enum constant.
 	 */
-	public void setStringRepresentation(String stringRepresentation) {
+	private void setStringRepresentation(String stringRepresentation) {
 		this.stringRepresentation = stringRepresentation;
 	}
 

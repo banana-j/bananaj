@@ -5,7 +5,8 @@ package com.github.alexanderwe.bananaj.model.list;
  */
 public enum ListVisibility {
 
-	PUB("pub"),PRV("prv");
+	PUB("pub"),
+	PRV("prv");
 	
 	private String stringRepresentation;
 	
@@ -13,15 +14,13 @@ public enum ListVisibility {
 		setStringRepresentation(stringRepresentation);
 	}
 
-	/**
-	 * @return the stringRepresentation
-	 */
-	public String getStringRepresentation() {
+	@Override
+	public String toString() {
 		return stringRepresentation;
 	}
 
 	/**
-	 * @param stringRepresentation the stringRepresentation to set
+	 * @param stringRepresentation Set the stringRepresentation for the enum constant.
 	 */
 	private void setStringRepresentation(String stringRepresentation) {
 		this.stringRepresentation = stringRepresentation;

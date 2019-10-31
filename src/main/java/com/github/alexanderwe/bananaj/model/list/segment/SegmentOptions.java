@@ -12,24 +12,23 @@ import com.github.alexanderwe.bananaj.connection.Connection;
 /**
  * The conditions of a segment. Static segments (tags) and fuzzy segments don’t have conditions.
  * 
- * Created by alexanderweiss on 04.02.16.
  */
-public class Options {
+public class SegmentOptions {
 	private final static Logger logger = Logger.getLogger(Connection.class);
 
 	private MatchType match;
 	private List<AbstractCondition> conditions;
 
-	public Options() {
+	public SegmentOptions() {
 
 	}
 
-	public Options (MatchType matchType, ArrayList<AbstractCondition> conditions) {
+	public SegmentOptions (MatchType matchType, ArrayList<AbstractCondition> conditions) {
 		setMatch(matchType);
 		setConditions(conditions);
 	}
 
-	public Options (JSONObject jsonObj) {
+	public SegmentOptions (JSONObject jsonObj) {
 		match = MatchType.valueOf(jsonObj.getString("match").toUpperCase());
 
 		if (jsonObj.has("conditions")) {
@@ -44,24 +43,24 @@ public class Options {
 					case AIM:
 					case AUTOMATION:
 					case CONVERSATION:
-					case EMAIL_CLIENT:
+					case EMAILCLIENT:
 					case LANGUAGE:
-					case SIGNUP_SOURCE:
-					case SURVEY_MONKEY:
-					case ECOMM_CATEGORY:
-					case ECOMM_STORE:
-					case GOAL_ACTIVITY:
-					case IP_GEO_COUNTRY_STATE:
-					case SOCIAL_AGE:
-					case SOCIAL_GENDER:
-					case SOCIAL_NETWORK_MEMBER:
-					case SOCIAL_NETWORK_FOLLOW:
-					case ADDRESS_MERGE:
-					case BIRTHDAY_MERGE:
-					case DATE_MERGE:
-					case TEXT_MERGE:
-					case SELECT_MERGE:
-					case EMAIL_ADDRESS:
+					case SIGNUPSOURCE:
+					case SURVEYMONKEY:
+					case ECOMMCATEGORY:
+					case ECOMMSTORE:
+					case GOALACTIVITY:
+					case IPGEOCOUNTRYSTATE:
+					case SOCIALAGE:
+					case SOCIALGENDER:
+					case SOCIALNETWORKMEMBER:
+					case SOCIALNETWORKFOLLOW:
+					case ADDRESSMERGE:
+					case BIRTHDAYMERGE:
+					case DATEMERGE:
+					case TEXTMERGE:
+					case SELECTMERGE:
+					case EMAILADDRESS:
 						conditions.add( new StringCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
@@ -70,8 +69,8 @@ public class Options {
 								.build());
 						break;
 
-					case ECOMM_SPENT:
-					case IP_GEO_ZIP:
+					case ECOMMSPENT:
+					case IPGEOZIP:
 						conditions.add( new IntegerCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
@@ -80,12 +79,12 @@ public class Options {
 								.build());
 						break;
 
-					case CAMPAIGN_POLL:
-					case MEMBER_RATING:
-					case ECOMM_NUMBER:
-					case FUZZY_SEGMENT:
-					case STATIC_SEGMENT:
-					case SOCIAL_INFLUENCE:
+					case CAMPAIGNPOLL:
+					case MEMBERRATING:
+					case ECOMMNUMBER:
+					case FUZZYSEGMENT:
+					case STATICSEGMENT:
+					case SOCIALINFLUENCE:
 						conditions.add( new DoubleCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
@@ -95,8 +94,8 @@ public class Options {
 						break;
 
 					case DATE:
-					case GOAL_TIMESTAMP:
-					case ZIP_MERGE:
+					case GOALTIMESTAMP:
+					case ZIPMERGE:
 						conditions.add( new StringCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
@@ -109,8 +108,8 @@ public class Options {
 
 					case MANDRILL:
 					case VIP:
-					case ECOMM_PURCHASED:
-					case IP_GEO_UNKNOWN:
+					case ECOMMPURCHASED:
+					case IPGEOUNKNOWN:
 						conditions.add( new OpCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
@@ -136,7 +135,7 @@ public class Options {
 								.build());
 						break;
 
-					case IP_GEO_IN_ZIP:
+					case IPGEOINZIP:
 						conditions.add( new IntegerCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
@@ -146,7 +145,7 @@ public class Options {
 								.build());
 						break;
 
-					case IP_GEO_IN:
+					case IPGEOIN:
 						conditions.add( new IPGeoInCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))

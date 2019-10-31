@@ -1,5 +1,7 @@
 package com.github.alexanderwe.bananaj.model.list.segment;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -9,6 +11,7 @@ import org.json.JSONObject;
 
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
 import com.github.alexanderwe.bananaj.exceptions.SegmentException;
+import com.github.alexanderwe.bananaj.exceptions.TransportException;
 import com.github.alexanderwe.bananaj.model.list.member.Member;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
 
@@ -27,10 +30,9 @@ public class Segment {
     private SegmentType type;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Options options;
+    private SegmentOptions options;
     private String listId;
     private MailChimpConnection connection;
-	private JSONObject jsonRepresentation;
 
 	/**
 	 * Construct class given a Mailchimp JSON object
@@ -38,22 +40,7 @@ public class Segment {
 	 * @param jsonObj
 	 */
 	public Segment(MailChimpConnection connection, JSONObject jsonObj) {
-        this.connection = connection;
-		jsonRepresentation = jsonObj;
-		
-        id = jsonObj.getInt("id");
-        name = jsonObj.getString("name");
-		listId = jsonObj.getString("list_id");
-		type = SegmentType.valueOf(jsonObj.getString("type").toUpperCase());
-		createdAt = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("created_at"));
-		updatedAt = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("updated_at"));
-		memberCount = jsonObj.getInt("member_count");
-		options = null;
-
-		// Static segments (tags) and fuzzy segments don’t have conditions
-		if ((type != SegmentType.STATIC && type != SegmentType.FUZZY) && jsonObj.has("options")) {
-			options = new Options(jsonObj.getJSONObject("options"));
-		}
+		parse(connection, jsonObj);
 	}
 	
     /**
@@ -64,9 +51,27 @@ public class Segment {
     public Segment(Builder b) {
         this.name = b.name;
         this.type = b.type;
-        this.jsonRepresentation = b.jsonRepresentation;
+        this.connection = b.connection;
     }
 
+	private void parse(MailChimpConnection connection, JSONObject jsonObj) {
+        this.connection = connection;
+		
+        id = jsonObj.getInt("id");
+        name = jsonObj.getString("name");
+		listId = jsonObj.getString("list_id");
+		type = SegmentType.valueOf(jsonObj.getString("type").toUpperCase());
+		createdAt = DateConverter.createDateFromISO8601(jsonObj.getString("created_at"));
+		updatedAt = DateConverter.createDateFromISO8601(jsonObj.getString("updated_at"));
+		memberCount = jsonObj.getInt("member_count");
+		options = null;
+
+		// Static segments (tags) and fuzzy segments don’t have conditions
+		if ((type != SegmentType.STATIC && type != SegmentType.FUZZY) && jsonObj.has("options")) {
+			options = new SegmentOptions(jsonObj.getJSONObject("options"));
+		}
+	}
+	
     /**
      * Add a member to this segment, only STATIC segments allowed
      * @param member
@@ -78,7 +83,7 @@ public class Segment {
         }
         JSONObject jsonObj = new JSONObject();
         jsonObj.put("email_address", member.getEmailAddress());
-        getConnection().do_Post(new URL(connection.getListendpoint()+"/"+this.getListId()+"/segments/"+this.getId()+"/members"), jsonObj.toString(), connection.getApikey());
+        connection.do_Post(new URL(connection.getListendpoint()+"/"+this.getListId()+"/segments/"+this.getId()+"/members"), jsonObj.toString(), connection.getApikey());
     }
 
     /**
@@ -92,9 +97,9 @@ public class Segment {
         ArrayList<Member> members = new ArrayList<Member>();
         final JSONObject list;
         if(count != 0){
-            list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getListId()+"/segments/"+this.getId()+"/members?count="+count+"&offset="+offset),connection.getApikey()));
+            list = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+this.getListId()+"/segments/"+this.getId()+"/members?count="+count+"&offset="+offset),connection.getApikey()));
         } else {
-            list = new JSONObject(getConnection().do_Get(new URL("https://"+connection.getServer()+".api.mailchimp.com/3.0/lists/"+this.getListId()+"/segments/"+this.getId()+"/members?count="+this.getMemberCount()+"&offset="+offset),connection.getApikey()));
+            list = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+this.getListId()+"/segments/"+this.getId()+"/members?count="+this.getMemberCount()+"&offset="+offset),connection.getApikey()));
         }
 
         final JSONArray membersArray = list.getJSONArray("members");
@@ -119,7 +124,7 @@ public class Segment {
         if (!this.getType().equals(SegmentType.STATIC)) {
             throw new SegmentException();
         }
-        getConnection().do_Delete(new URL(connection.getListendpoint()+"/"+this.getListId()+"/segments/"+this.getId()+"/members/"+member.getId()),connection.getApikey());
+        connection.do_Delete(new URL(connection.getListendpoint()+"/"+this.getListId()+"/segments/"+this.getId()+"/members/"+member.getId()),connection.getApikey());
     }
 
     /**
@@ -128,7 +133,7 @@ public class Segment {
      * @throws Exception
      */
     public void update(Segment updatedSegment) throws Exception {
-        getConnection().do_Patch(new URL(connection.getListendpoint()+"/"+this.getListId()+"/segments/"+this.getId()),updatedSegment.getJSONRepresentation().toString(),connection.getApikey());
+    	connection.do_Patch(new URL(connection.getListendpoint()+"/"+this.getListId()+"/segments/"+this.getId()),updatedSegment.getJSONRepresentation().toString(),connection.getApikey());
     }
 
 
@@ -147,6 +152,14 @@ public class Segment {
     }
 
     /**
+	 * @param name Change the name of the segment. You must call {@link #update()}
+	 *             for changes to take effect.
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
 	 * @return The number of active subscribers currently included in the segment.
 	 */
     public int getMemberCount() {
@@ -175,13 +188,22 @@ public class Segment {
     }
 
     /**
+     * The conditions of the segment. Static and fuzzy segments don't have conditions.
 	 * @return The conditions of the segment. Static segments (tags) and fuzzy segments don’t have conditions.
 	 */
-    public Options getOptions() {
+    public SegmentOptions getOptions() {
         return options;
     }
 
     /**
+     * The conditions of the segment. Static and fuzzy segments don't have conditions.
+	 * @param options Change segment options. You must call {@link #update()} for changes to take effect.
+	 */
+	public void setOptions(SegmentOptions options) {
+		this.options = options;
+	}
+
+	/**
 	 * @return The list id.
 	 */
     public String getListId() {
@@ -195,8 +217,77 @@ public class Segment {
 	/**
 	 * @return the jsonRepresentation
 	 */
-	public JSONObject getJSONRepresentation() {
-		return jsonRepresentation;
+	protected JSONObject getJSONRepresentation() {
+		JSONObject json = new JSONObject();
+
+		json.put("name", getName());
+		if (getOptions() != null) {
+			json.put("options", getOptions().getJsonRepresentation());
+		}
+		return json;
+	}
+	
+	/**
+	 * Batch add/remove list members to static segment
+	 * 
+	 * @param membersToAdd    Members to add to the static segment. An array of
+	 *                        emails to be used for a static segment. Any emails
+	 *                        provided that are not present on the list will be
+	 *                        ignored.
+	 * @param membersToRemove Members to remove from the static segment. An array of
+	 *                        emails to be used for a static segment. Any emails
+	 *                        provided that are not present on the list will be
+	 *                        ignored.
+	 * @throws MalformedURLException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public void updateMembers(String [] membersToAdd, String [] membersToRemove) throws MalformedURLException, TransportException, URISyntaxException {
+		JSONObject json = new JSONObject();
+		if (membersToAdd != null) {
+			json.put("members_to_add", membersToAdd);
+		}
+		if (membersToRemove != null) {
+			json.put("members_to_remove", membersToRemove);
+		}
+		connection.do_Post(new URL(connection.getListendpoint()+"/"+getListId()+"/segments/"+getId()), json.toString(), connection.getApikey());
+		// TODO: return response object members_added / members_removed
+	}
+	
+	/**
+	 * Update segment via a PATCH operation. Member fields will be freshened.
+	 * @param emails An array of emails to be used for a static segment. Any emails provided that are not present on the list will be ignored. Passing an empty array for an existing static segment will reset that segment and remove all members. This field cannot be provided with the options field.
+	 * @throws MalformedURLException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public void updateMembers(String [] emails) throws MalformedURLException, TransportException, URISyntaxException {
+		JSONObject json = new JSONObject();
+		json.put("name", getName());
+		json.put("static_segment", emails);
+		String results = connection.do_Patch(new URL(connection.getListendpoint()+"/"+getListId()+"/segments/"+getId()), json.toString(), connection.getApikey());
+		parse(connection, new JSONObject(results));  // update this object with current data
+	}
+	
+	/**
+	 * Delete the segment
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 */
+	public void delete() throws MalformedURLException, TransportException, URISyntaxException {
+		connection.do_Delete(new URL(connection.getListendpoint()+"/"+getListId()+"/segments/"+getId()), connection.getApikey());
+	}
+	
+	/**
+	 * Update segment via a PATCH operation. Member fields will be freshened.
+	 * @throws MalformedURLException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public void update() throws MalformedURLException, TransportException, URISyntaxException {
+		String results = connection.do_Patch(new URL(connection.getListendpoint()+"/"+getListId()+"/segments/"+getId()), getJSONRepresentation().toString(), connection.getApikey());
+		parse(connection, new JSONObject(results));  // update this object with current data
 	}
 	
     @Override
@@ -218,19 +309,22 @@ public class Segment {
      *
      */
     public static class Builder {
+		private MailChimpConnection connection;
         private String name;
         private SegmentType type;
-        private JSONObject jsonRepresentation = new JSONObject();
 
+        public Builder connection(MailChimpConnection connection) {
+            this.connection = connection;
+            return this;
+        }
+        
         public Builder name(String s) {
             this.name = s;
-            jsonRepresentation.put("name", s);
             return this;
         }
 
         public Builder type(SegmentType type) {
             this.type = type;
-            jsonRepresentation.put("type", type.getStringRepresentation());
             return this;
         }
         

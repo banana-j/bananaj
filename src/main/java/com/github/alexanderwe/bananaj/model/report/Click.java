@@ -28,7 +28,7 @@ public class Click {
 		uniqueClicks = jsonObj.getInt("unique_clicks");
 		uniqueSubscriberClicks = jsonObj.getInt("unique_subscriber_clicks");
 		clickRate = jsonObj.getDouble("click_rate");
-		lastClick = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("last_click"));
+		lastClick = DateConverter.createDateFromISO8601(jsonObj.getString("last_click"));
 	}
 
 	/**

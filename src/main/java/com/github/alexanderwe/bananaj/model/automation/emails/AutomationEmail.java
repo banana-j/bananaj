@@ -52,12 +52,12 @@ public class AutomationEmail {
 		workflowId = jsonObj.getString("workflow_id");
 		position = jsonObj.getInt("position");
 		delay = new AutomationDelay(jsonObj.getJSONObject("delay"));
-        createTime = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("create_time"));
-        startTime = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("start_time"));
+        createTime = DateConverter.createDateFromISO8601(jsonObj.getString("create_time"));
+        startTime = DateConverter.createDateFromISO8601(jsonObj.getString("start_time"));
         archiveUrl = jsonObj.getString("archive_url");
 		status = AutomationStatus.valueOf(jsonObj.getString("status").toUpperCase());
 		emailsSent = jsonObj.getInt("emails_sent");
-        sendTime = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("send_time"));
+        sendTime = DateConverter.createDateFromISO8601(jsonObj.getString("send_time"));
         contentType = jsonObj.getString("content_type");
         needsBlockRefresh = jsonObj.getBoolean("needs_block_refresh");
         hasLogoMergeTag = jsonObj.getBoolean("has_logo_merge_tag");
@@ -239,7 +239,7 @@ public class AutomationEmail {
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 */
-	public JSONObject getJsonRepresentation() throws Exception {
+	protected JSONObject getJsonRepresentation() throws Exception {
 		JSONObject json = new JSONObject();
 		
 		if (settings != null) {

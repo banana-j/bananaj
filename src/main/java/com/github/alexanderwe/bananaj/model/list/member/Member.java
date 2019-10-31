@@ -122,11 +122,11 @@ public class Member {
 		
 		stats = new MemberStats(member.getJSONObject("stats"));
 		ipSignup = member.getString("ip_signup");
-		timestampSignup = DateConverter.getInstance().createDateFromISO8601(member.getString("timestamp_signup"));
+		timestampSignup = DateConverter.createDateFromISO8601(member.getString("timestamp_signup"));
 		rating = member.getInt("member_rating");
 		ipOpt = member.getString("ip_opt");
-		timestampOpt = DateConverter.getInstance().createDateFromISO8601(member.getString("timestamp_opt"));
-		lastChanged = DateConverter.getInstance().createDateFromISO8601(member.getString("last_changed"));
+		timestampOpt = DateConverter.createDateFromISO8601(member.getString("timestamp_opt"));
+		lastChanged = DateConverter.createDateFromISO8601(member.getString("last_changed"));
 		language = member.getString("language");
 		vip = member.getBoolean("vip");
 		emailClient = member.has("email_client") ? member.getString("email_client") : null;
@@ -144,26 +144,6 @@ public class Member {
 		listId = member.getString("list_id");
 	}
 
-	/**
-	 * Remove this list member
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 */
-	public void delete() throws MalformedURLException, TransportException, URISyntaxException {
-		getConnection().do_Delete(new URL(getConnection().getListendpoint()+"/"+getMailChimpList().getId()+"/members/"+getId()), getConnection().getApikey());
-	}
-	
-	/**
-	 * Permanently delete this list member
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
-	 */
-	public void deletePermanent() throws MalformedURLException, TransportException, URISyntaxException {
-		getConnection().do_Post(new URL(getConnection().getListendpoint()+"/"+getMailChimpList().getId()+"/members/"+getId()+"/actions/delete-permanent"), getConnection().getApikey());
-	}
-	
 	/**
 	 * Change this subscribers email address.
 	 * @param emailAddress
@@ -192,17 +172,6 @@ public class Member {
 		parse(mailChimpList, new JSONObject(results));  // update member object with current data
 	}
 
-	/**
-	 * Update subscriber via a PATCH operation. Member fields will be freshened
-	 * from MailChimp.
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 */
-	public void update() throws MalformedURLException, TransportException, URISyntaxException {
-		mailChimpList.updateMember(this);
-	}
-	
 	/**
 	 * Add or update a list member via a PUT operation. When a new member is added
 	 * and no status_if_new has been specified SUBSCRIBED will be used. Member
@@ -271,22 +240,25 @@ public class Member {
 		return optional.isPresent();
 	}
 	
+	//
+	// TODO: Events -- Use the Events endpoint to collect website or in-app actions and trigger targeted automations.
+	//
+	
 	/**
-	 * Get the last 50 events of a member’s activity, including opens, clicks, and unsubscribes.
+	 * Get details about subscribers' recent activity.
 	 * 
-	 * @return the member activities
+	 * @return The last 50 events of a member's activity, including opens, clicks, and unsubscribes.
 	 * @throws URISyntaxException 
 	 * @throws TransportException 
 	 * @throws MalformedURLException 
 	 * @throws JSONException 
 	 */
 	public List<MemberActivity> getActivities() throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		List<MemberActivity> activities = new ArrayList<MemberActivity>();
-
-		final JSONObject activity = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+mailChimpList.getId()+"/members/"+getId()+"/activity?count=50&offset=0"), getConnection().getApikey()));
+		final JSONObject activity = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+mailChimpList.getId()+"/members/"+getId()+"/activity"), getConnection().getApikey()));
 		//String email_id = activity.getString("email_id");
 		//String list_id = activity.getString("list_id");
-		//int total_items = activity.getInt("total_items");
+		int total_items = activity.getInt("total_items");	// The total number of items matching the query regardless of pagination
+		List<MemberActivity> activities = new ArrayList<MemberActivity>(total_items);
 		final JSONArray activityArray = activity.getJSONArray("activity");
 
 		for (int i = 0 ; i < activityArray.length();i++)
@@ -297,6 +269,14 @@ public class Member {
 		return activities;
 	}
 
+	//
+	// TODO: Member Goals -- Get information about recent goal events.
+	//
+	
+	//
+	// Member Notes -- Manage recent notes for a list/audience member.
+	//
+	
 	/**
 	 * Get recent notes for this list member.
 	 * @param count Number of items to return
@@ -307,12 +287,11 @@ public class Member {
 	 * @throws JSONException 
 	 */
 	public List<MemberNote> getNotes(int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		List<MemberNote> notes = new ArrayList<MemberNote>();
-
 		final JSONObject noteObj = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+mailChimpList.getId()+"/members/"+getId()+"/notes?count="+count+"&offset="+offset), getConnection().getApikey()));
 		//String email_id = noteObj.getString("email_id");
 		//String list_id = noteObj.getString("list_id");
-		//int total_items = noteObj.getInt("total_items");
+		//int total_items = noteObj.getInt("total_items");	// The total number of items matching the query regardless of pagination
+		List<MemberNote> notes = new ArrayList<MemberNote>();
 		final JSONArray noteArray = noteObj.getJSONArray("notes");
 
 		for (int i = 0 ; i < noteArray.length();i++)
@@ -374,10 +353,12 @@ public class Member {
 	public MemberNote updateNote(int noteId, String note) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("note", note);
+		jsonObj.put("list_id", getListId());
+		jsonObj.put("email_id", getId());
 		final JSONObject noteObj = new JSONObject(getConnection().do_Patch(new URL(getConnection().getListendpoint()+"/"+mailChimpList.getId()+"/members/"+getId()+"/notes/"+noteId), jsonObj.toString(), getConnection().getApikey()));
 		return new MemberNote(noteObj);
 	}
-	
+
     /**
 	 * @return The MD5 hash of the lowercase version of the list member’s email address.
 	 */
@@ -779,6 +760,37 @@ public class Member {
 		return json;
 	}
 
+	/**
+	 * Update subscriber via a PATCH operation. Member fields will be freshened
+	 * from MailChimp.
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 */
+	public void update() throws MalformedURLException, TransportException, URISyntaxException {
+		mailChimpList.updateMember(this);
+	}
+	
+	/**
+	 * Remove this list member
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 */
+	public void delete() throws MalformedURLException, TransportException, URISyntaxException {
+		getConnection().do_Delete(new URL(getConnection().getListendpoint()+"/"+getMailChimpList().getId()+"/members/"+getId()), getConnection().getApikey());
+	}
+	
+	/**
+	 * Permanently delete this list member
+	 * @throws MalformedURLException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public void deletePermanent() throws MalformedURLException, TransportException, URISyntaxException {
+		getConnection().do_Post(new URL(getConnection().getListendpoint()+"/"+getMailChimpList().getId()+"/members/"+getId()+"/actions/delete-permanent"), getConnection().getApikey());
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();

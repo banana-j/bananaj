@@ -1,10 +1,10 @@
 package com.github.alexanderwe.bananaj.utils;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 import org.junit.Test;
 
@@ -58,16 +58,15 @@ public class UtilsTest {
 
 	@Test
 	public void testDateConverter() {
-		DateConverter d = DateConverter.getInstance();
-		LocalDateTime ld1 = d.createDateFromISO8601("2019-03-15T14:34:59+00:00");
+		LocalDateTime ld1 = DateConverter.createDateFromISO8601("2019-03-15T14:34:59+00:00");
 		LocalDateTime ld2 = LocalDateTime.of(2019, 03, 15, 14, 34, 59);
 		assertEquals(ld1, ld2);
 		
-		ld1 = d.createDateFromISO8601("-001-11-30T00:00:00+00:00");
+		ld1 = DateConverter.createDateFromISO8601("-001-11-30T00:00:00+00:00");
 		ld2 = LocalDateTime.of(LocalDateTime.now().getYear() - 1, 11, 30, 0, 0, 0);
 		assertEquals(ld1, ld2);
 		
-		ld1 = d.createDateFromNormal("2019-03-15 14:34:59");
+		ld1 = DateConverter.createDateFromNormal("2019-03-15 14:34:59");
 		ld2 =LocalDateTime.of(2019, 03, 15, 14, 34, 59);
 		assertEquals(ld1, ld2);
 		assertEquals(DateConverter.toNormal(ld2), "2019-03-15 14:34:59");

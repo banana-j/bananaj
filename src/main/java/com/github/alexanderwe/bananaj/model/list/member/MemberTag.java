@@ -44,7 +44,7 @@ public class MemberTag {
 	/**
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 */
-	public JSONObject getJsonRepresentation() {
+	protected JSONObject getJsonRepresentation() {
 		JSONObject jsonObj = new JSONObject();
 
 		jsonObj.put("name", name);

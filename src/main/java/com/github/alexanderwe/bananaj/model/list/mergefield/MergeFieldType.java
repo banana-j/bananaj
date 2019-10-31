@@ -1,14 +1,21 @@
-package com.github.alexanderwe.bananaj.model.campaign;
+package com.github.alexanderwe.bananaj.model.list.mergefield;
 
-public enum CampaignCheckType {
-
-	SUCCESS("success"), 
-	WARNING("warning"), 
-	ERROR("error");
+public enum MergeFieldType {
+	TEXT("text"),
+	NUMBER("number"),
+	ADDRESS("address"),
+	PHONE("phone"),
+	DATE("date"),
+	URL("url"),
+	IMAGEURL("imageurl"),
+	RADIO("radio"),
+	DROPDOWN("dropdown"),
+	BIRTHDAY("birthday"),
+	ZIP("zip");
 
 	private String stringRepresentation;
 
-	CampaignCheckType(String stringRepresentation ) {
+	MergeFieldType(String stringRepresentation ) {
 		setStringRepresentation(stringRepresentation);
 	}
 

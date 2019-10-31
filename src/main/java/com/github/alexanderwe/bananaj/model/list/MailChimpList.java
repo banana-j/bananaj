@@ -21,7 +21,7 @@ import org.json.JSONObject;
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
 import com.github.alexanderwe.bananaj.exceptions.EmailException;
 import com.github.alexanderwe.bananaj.exceptions.TransportException;
-import com.github.alexanderwe.bananaj.model.MailchimpObject;
+import com.github.alexanderwe.bananaj.model.SortDirection;
 import com.github.alexanderwe.bananaj.model.list.interests.Interest;
 import com.github.alexanderwe.bananaj.model.list.interests.InterestCategory;
 import com.github.alexanderwe.bananaj.model.list.member.Member;
@@ -29,22 +29,23 @@ import com.github.alexanderwe.bananaj.model.list.member.MemberNote;
 import com.github.alexanderwe.bananaj.model.list.member.MemberStatus;
 import com.github.alexanderwe.bananaj.model.list.member.MemberTag;
 import com.github.alexanderwe.bananaj.model.list.mergefield.MergeField;
-import com.github.alexanderwe.bananaj.model.list.mergefield.MergeFieldOptions;
-import com.github.alexanderwe.bananaj.model.list.segment.Options;
+import com.github.alexanderwe.bananaj.model.list.segment.SegmentOptions;
 import com.github.alexanderwe.bananaj.model.list.segment.Segment;
 import com.github.alexanderwe.bananaj.model.list.segment.SegmentType;
+import com.github.alexanderwe.bananaj.model.report.AbuseReport;
 import com.github.alexanderwe.bananaj.utils.DateConverter;
 import com.github.alexanderwe.bananaj.utils.EmailValidator;
 
 
 /**
- * Class for representing a mailchimp list.
+ * Mailchimp list, also known as audience, is where you store and manage all of your contacts.
  * 
  * @author alexanderweiss
  *
  */
-public class MailChimpList extends MailchimpObject {
+public class MailChimpList {
 
+	private String id;				// A string that uniquely identifies this list.
 	private int webId;				// The ID used in the Mailchimp web application. View this list in your Mailchimp account at https://{dc}.admin.mailchimp.com/lists/members/?id={web_id}
 	private String name;			// The name of the list
 	private ListContact contact;	// Contact information displayed in campaign footers to comply with international spam laws
@@ -68,20 +69,27 @@ public class MailChimpList extends MailchimpObject {
 	private MailChimpConnection connection;
 	
 
-	public MailChimpList(String id, String name,LocalDateTime dateCreated, ListStats stats,  MailChimpConnection connection, JSONObject jsonRepresentation) {
-		super(id,jsonRepresentation);
-		this.name = name;
-		this.dateCreated = dateCreated;
-		if (stats == null) {
-			this.stats = new ListStats();
-		} else {
-			this.stats = stats;
-		}
-		this.connection = connection;
-	}
-
 	public MailChimpList(MailChimpConnection connection, JSONObject jsonList) {
-		super(jsonList.getString("id"), jsonList);
+		parse(connection, jsonList);
+	}
+	
+	public MailChimpList(Builder b) {
+        connection = b.connection;
+    	name = b.name;
+    	contact = b.contact;
+    	permissionReminder = b.permissionReminder;
+    	useArchiveBar = b.useArchiveBar;
+    	campaignDefaults = b.campaignDefaults;
+    	notifyOnSubscribe = b.notifyOnSubscribe;
+    	notifyOnUnsubscribe = b.notifyOnUnsubscribe; 
+    	emailTypeOption = b.emailTypeOption;
+    	visibility = b.visibility;
+    	doubleOptin = b.doubleOptin;
+    	marketingPermissions = b.marketingPermissions;
+	}
+	
+	private void parse(MailChimpConnection connection, JSONObject jsonList) {
+		id = jsonList.getString("id");
 		webId = jsonList.getInt("web_id");
 		name = jsonList.getString("name");
 		contact = new ListContact(jsonList.getJSONObject("contact"));
@@ -90,7 +98,7 @@ public class MailChimpList extends MailchimpObject {
 		campaignDefaults = new ListCampaignDefaults(jsonList.getJSONObject("campaign_defaults"));
 		notifyOnSubscribe = jsonList.getString("notify_on_subscribe");
 		notifyOnUnsubscribe = jsonList.getString("notify_on_unsubscribe");
-		dateCreated = DateConverter.getInstance().createDateFromISO8601(jsonList.getString("date_created"));
+		dateCreated = DateConverter.createDateFromISO8601(jsonList.getString("date_created"));
 		listRating = jsonList.getInt("list_rating");
 		emailTypeOption = jsonList.getBoolean("email_type_option");
 		subscribeUrlShort = jsonList.getString("subscribe_url_short");
@@ -105,9 +113,104 @@ public class MailChimpList extends MailchimpObject {
 		this.connection = connection;
 	}
 
+
+	/**
+	 * Get information about abuse reports. An abuse complaint occurs when your
+	 * recipient reports an email as spam in their mail program.
+	 * 
+	 * @param count Number of abuse reports to return. Maximum value is 1000.
+	 * @param offset Zero based offset
+	 * @return List of abuse reports
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
+	 * @throws JSONException
+	 */
+	public List<AbuseReport> getAbuseReports(int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		final JSONObject list = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/abuse-reports?count="+count+"&offset="+offset), connection.getApikey()));
+		final JSONArray rptArray = list.getJSONArray("abuse_reports");
+		ArrayList<AbuseReport> reports = new ArrayList<AbuseReport>(rptArray.length());
+		for (int i = 0 ; i < rptArray.length();i++)
+		{
+			final JSONObject rptDetail = rptArray.getJSONObject(i);
+			AbuseReport report = new AbuseReport(rptDetail);
+			reports.add(report);
+		}
+		return reports;
+	}
+	
+	/**
+	 * Get details about a specific abuse report. An abuse complaint occurs when
+	 * your recipient reports an email as spam in their mail program.
+	 * 
+	 * @param reportId
+	 * @return Details about a specific abuse report
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
+	 * @throws JSONException
+	 */
+	public AbuseReport getAbuseReports(int reportId) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		final JSONObject report = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/abuse-reports/"+reportId), connection.getApikey()));
+    	return new AbuseReport(report);
+	}
+	
+	// TODO: Add support for Activity -- Get recent daily, aggregated activity stats for your list. For example, view unsubscribes, signups, total emails sent, opens, clicks, and more, for up to 180 days.
+//	public List<ListActivity> getActivity() {
+//		final JSONObject list = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/activity"), connection.getApikey()));
+//		final JSONArray rptArray = list.getJSONArray("activity");
+//		ArrayList<ListActivity> reports = new ArrayList<ListActivity>(rptArray.length());
+//		for (int i = 0 ; i < rptArray.length();i++)
+//		{
+//			final JSONObject rptDetail = rptArray.getJSONObject(i);
+//			ListActivity report = new ListActivity(rptDetail);
+//			reports.add(report);
+//		}
+//		return reports;
+//	}
+
+	// TODO: Add support for Clients -- Get information about the most popular email clients for subscribers in a specific Mailchimp list.
+//	public List<Clients> getActivity() {
+//		final JSONObject list = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/clients"), connection.getApikey()));
+//		final JSONArray rptArray = list.getJSONArray("clients");
+//		ArrayList<Clients> reports = new ArrayList<Clients>(rptArray.length());
+//		for (int i = 0 ; i < rptArray.length();i++)
+//		{
+//			final JSONObject rptDetail = rptArray.getJSONObject(i);
+//			Clients report = new Clients(rptDetail);
+//			reports.add(report);
+//		}
+//		return reports;
+//	}
+
+	// TODO: Add support for Locations -- Get the locations (countries) that the list's subscribers have been tagged to based on geocoding their IP address.
+//	public List<Locations> getActivity() {
+//		final JSONObject list = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/locations"), connection.getApikey()));
+//		final JSONArray rptArray = list.getJSONArray("locations");
+//		ArrayList<Locations> reports = new ArrayList<Locations>(rptArray.length());
+//		for (int i = 0 ; i < rptArray.length();i++)
+//		{
+//			final JSONObject rptDetail = rptArray.getJSONObject(i);
+//			Locations report = new Locations(rptDetail);
+//			reports.add(report);
+//		}
+//		return reports;
+//	}
+
+	// TODO: Add support for Preview Segment -- Provide conditions to preview segment.
+	// TODO: Add support for Signup Forms - Manage list signup forms.
+	// TODO: Add support for Webhooks -- Manage webhooks for a specific Mailchimp list.
+
+	//
+	// Members -- Manage members of a specific Mailchimp list, including currently subscribed, unsubscribed, and bounced members.
+	//
+	// TODO: Members > Events -- Use the Events endpoint to collect website or in-app actions and trigger targeted automations.
+	// TODO: Members > Member Activity -- Get details about subscribers' recent activity.
+	// TODO: Members > Member Goals -- Get information about recent goal events for a specific list member.
+	
 	/**
 	 * Get information about members in this list with pagination
-	 * @param count Number of members to return or 0 to return all members
+	 * @param count Number of members to return. Maximum value is 1000.
 	 * @param offset Zero based offset
 	 * @return List of members
 	 * @throws URISyntaxException 
@@ -116,17 +219,10 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws JSONException 
 	 */
 	public List<Member> getMembers(int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-
 		ArrayList<Member> members = new ArrayList<Member>();
-		final JSONObject list;
-		if(count != 0){
-			list = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+getId()+"/members?count="+count+"&offset="+offset),connection.getApikey()));
-		} else {
-			list = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+getId()+"/members?count="+(getStats().getTotalMemberCount()+1000)+"&offset="+offset),connection.getApikey()));
-		}
+		final JSONObject list = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+getId()+"/members?count="+count+"&offset="+offset),connection.getApikey()));
 
 		final JSONArray membersArray = list.getJSONArray("members");
-
 
 		for (int i = 0 ; i < membersArray.length();i++)
 		{
@@ -153,44 +249,199 @@ public class MailChimpList extends MailchimpObject {
 	}
 	
 	/**
-	 * 	Get the tags on a list member.
-	 * @param subscriberHash The MD5 hash of the lowercase version of the list member’s email address.
-	 * @param count Number of items to return
-	 * @param offset Zero based offset
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
+	 * Add a member with the minimum of information
+	 * 
+	 * @param status       Subscriber’s current status
+	 * @param emailAddress Email address for a subscriber
+	 * @return The newly created member
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
 	 */
-	public List<MemberTag> getMemberTags(String subscriberHash, int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		final JSONObject tagsObj = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+getId()+"/members/"+subscriberHash+"/tags" + "?offset=" + offset + "&count=" + count), getConnection().getApikey()));
-		//int total_items = tagsObj.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
-		List<MemberTag> tags = new ArrayList<MemberTag>();
-		final JSONArray tagsArray = tagsObj.getJSONArray("tags");
-		for(int i = 0; i < tagsArray.length(); i++) {
-			tags.add(new MemberTag(tagsArray.getJSONObject(i)));
-		}
-    	return tags;
+	public Member addMember(MemberStatus status, String emailAddress)
+			throws MalformedURLException, TransportException, URISyntaxException {
+		JSONObject json = new JSONObject();
+		json.put("email_address", emailAddress);
+		json.put("status", status.toString());
+
+		String results = getConnection().do_Post(new URL(connection.getListendpoint() + "/" + getId() + "/members"),
+				json.toString(), connection.getApikey());
+		Member member = new Member(this, new JSONObject(results));
+		return member;
+	}
+
+	/**
+	 * Add a new member to the list
+	 * 
+	 * @param member
+	 * @return The newly added member
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
+	 */
+	public Member addMember(Member member) throws MalformedURLException, TransportException, URISyntaxException {
+		JSONObject json = member.getJsonRepresentation();
+		
+		String results = connection.do_Post(new URL(connection.getListendpoint()+"/"+getId()+"/members"), json.toString(), connection.getApikey());
+		Member newMember = new Member(this, new JSONObject(results)); 
+        return newMember;
 	}
 	
 	/**
+	 * Add a member with first and last name
+	 * 
+	 * @param status              Subscriber’s current status
+	 * @param emailAddress        Email address for a subscriber
+	 * @param merge_fields_values
+	 * @return The newly added member
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
+	 */
+	public Member addMember(MemberStatus status, String emailAddress, HashMap<String, Object> merge_fields_values)
+			throws TransportException, URISyntaxException, MalformedURLException {
+		URL url = new URL(connection.getListendpoint() + "/" + getId() + "/members");
+
+		JSONObject json = new JSONObject();
+		JSONObject merge_fields = new JSONObject();
+
+		Iterator<Entry<String, Object>> it = merge_fields_values.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<String, Object> pair = it.next();
+			it.remove(); // avoids a ConcurrentModificationException
+			merge_fields.put(pair.getKey(), pair.getValue());
+		}
+
+		json.put("status", status.toString());
+		json.put("email_address", emailAddress);
+		json.put("merge_fields", merge_fields);
+		String results = getConnection().do_Post(url, json.toString(), connection.getApikey());
+		Member member = new Member(this, new JSONObject(results));
+		return member;
+	}
+
+	/**
+	 * Update list subscriber via a PATCH operation. Member fields will be freshened
+	 * from MailChimp.
+	 * 
+	 * @param member
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
+	 */
+	public void updateMember(Member member) throws MalformedURLException, TransportException, URISyntaxException {
+		JSONObject json = member.getJsonRepresentation();
+
+		String results = getConnection().do_Patch(
+				new URL(connection.getListendpoint() + "/" + getId() + "/members/" + member.getId()), json.toString(),
+				connection.getApikey());
+		member.parse(this, new JSONObject(results)); // update member object with current data
+	}
+
+	/**
+	 * Add or update a list member via a PUT operation. When a new member is added
+	 * and no status_if_new has been specified SUBSCRIBED will be used. Member
+	 * fields will be freshened from mailchimp.
+	 * 
+	 * @param member
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
+	 */
+	public void addOrUpdateMember(Member member) throws MalformedURLException, TransportException, URISyntaxException {
+		JSONObject json = member.getJsonRepresentation();
+
+		if (member.getStatusIfNew() == null) {
+			json.put("status_if_new", MemberStatus.SUBSCRIBED.toString());
+		}
+
+		String results = getConnection().do_Put(
+				new URL(connection.getListendpoint() + "/" + getId() + "/members/" + member.getId()), json.toString(),
+				connection.getApikey());
+		member.parse(this, new JSONObject(results)); // update member object with current data
+	}
+
+	/**
+	 * Delete a member from list.
+	 * 
+	 * @param memberID
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
+	 */
+	public void deleteMember(String memberID)
+			throws MalformedURLException, TransportException, URISyntaxException {
+		getConnection().do_Delete(new URL(connection.getListendpoint() + "/" + getId() + "/members/" + memberID),
+				connection.getApikey());
+	}
+
+	/**
+	 * Permanently delete a member for list.
+	 * 
+	 * @param memberID
+	 * @throws MalformedURLException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public void deleteMemberPermanent(String memberID)
+			throws MalformedURLException, TransportException, URISyntaxException {
+		getConnection().do_Post(new URL(getConnection().getListendpoint() + "/" + getId() + "/members/" + memberID
+				+ "/actions/delete-permanent"), getConnection().getApikey());
+	}
+
+	//
+	// Members > Member Tags -- Manage all the tags that have been assigned to a contact.
+	//
+	
+	/**
+	 * Get the tags on a list member.
+	 * 
+	 * @param subscriberHash The MD5 hash of the lowercase version of the list
+	 *                       member’s email address.
+	 * @param count          Number of items to return
+	 * @param offset         Zero based offset
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
+	 * @throws JSONException
+	 */
+	public List<MemberTag> getMemberTags(String subscriberHash, int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		final JSONObject tagsObj = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint() + "/"
+				+ getId() + "/members/" + subscriberHash + "/tags" + "?offset=" + offset + "&count=" + count),
+				getConnection().getApikey()));
+		// int total_items = tagsObj.getInt("total_items");	// The total number of items matching the query regardless of pagination
+		// matching the query regardless of pagination
+		final JSONArray tagsArray = tagsObj.getJSONArray("tags");
+		List<MemberTag> tags = new ArrayList<MemberTag>(tagsArray.length());
+		for (int i = 0; i < tagsArray.length(); i++) {
+			tags.add(new MemberTag(tagsArray.getJSONObject(i)));
+		}
+		return tags;
+	}
+
+	//
+	// Members > Member Notes -- Manage recent notes for a specific list member.
+	//
+	
+	/**
 	 * Get recent notes for this list member.
-	 * @param subscriberHash The MD5 hash of the lowercase version of the list member’s email address.
-	 * @param count Number of items to return
-	 * @param offset Zero based offset
+	 * 
+	 * @param subscriberHash The MD5 hash of the lowercase version of the list
+	 *                       member’s email address.
+	 * @param count          Number of items to return
+	 * @param offset         Zero based offset
 	 * @throws JSONException
 	 * @throws MalformedURLException
 	 * @throws TransportException
 	 * @throws URISyntaxException
 	 */
 	public List<MemberNote> getMemberNotes(String subscriberHash, int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		List<MemberNote> notes = new ArrayList<MemberNote>();
-
 		final JSONObject noteObj = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+getId()+"/members/"+subscriberHash+"/notes?count="+count+"&offset="+offset), getConnection().getApikey()));
 		//String email_id = noteObj.getString("email_id");
 		//String list_id = noteObj.getString("list_id");
-		//int total_items = noteObj.getInt("total_items");
+		//int total_items = noteObj.getInt("total_items");	// The total number of items matching the query regardless of pagination
 		final JSONArray noteArray = noteObj.getJSONArray("notes");
+		List<MemberNote> notes = new ArrayList<MemberNote>(noteArray.length());
 
 		for (int i = 0 ; i < noteArray.length();i++)
 		{
@@ -202,251 +453,229 @@ public class MailChimpList extends MailchimpObject {
 	
 	/**
 	 * Get a specific note for the member
-	 * @param subscriberHash The MD5 hash of the lowercase version of the list member’s email address.
-	 * @param noteId The id for the note.
+	 * 
+	 * @param subscriberHash The MD5 hash of the lowercase version of the list
+	 *                       member’s email address.
+	 * @param noteId         The id for the note.
 	 * @throws JSONException
 	 * @throws MalformedURLException
 	 * @throws TransportException
 	 * @throws URISyntaxException
 	 */
-	public MemberNote getMemberNote(String subscriberHash, int noteId) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		final JSONObject noteObj = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+getId()+"/members/"+subscriberHash+"/notes/"+noteId), getConnection().getApikey()));
+	public MemberNote getMemberNote(String subscriberHash, int noteId)
+			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		final JSONObject noteObj = new JSONObject(getConnection().do_Get(new URL(
+				getConnection().getListendpoint() + "/" + getId() + "/members/" + subscriberHash + "/notes/" + noteId),
+				getConnection().getApikey()));
 		return new MemberNote(noteObj);
-		
+
 	}
+
+	//
+	// Growth History -- View a summary of the month-by-month growth activity 
+	//                   for the list/audience.
+	//
+	//
 	
 	/**
-	 *  Add a member with the minimum of information
-	 * @param status Subscriber’s current status
-	 * @param emailAddress Email address for a subscriber
-	 * @return The newly created member
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 */
-	public Member addMember(MemberStatus status, String emailAddress) throws MalformedURLException, TransportException, URISyntaxException  {
-		JSONObject json = new JSONObject();
-		json.put("email_address", emailAddress);
-		json.put("status", status.toString());
-
-		String results = getConnection().do_Post(new URL(connection.getListendpoint()+"/"+getId()+"/members"),json.toString(),connection.getApikey());
-		Member member = new Member(this, new JSONObject(results));
-        return member;
-	}
-
-	/**
-	 * Add a new member to the list
-	 * @param member
-	 * @return The newly added member
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 */
-	public Member addMember(Member member) throws MalformedURLException, TransportException, URISyntaxException {
-		JSONObject json = member.getJsonRepresentation();
-		
-		String results = getConnection().do_Post(new URL(connection.getListendpoint()+"/"+getId()+"/members"),json.toString(),connection.getApikey());
-		Member newMember = new Member(this, new JSONObject(results)); 
-        return newMember;
-	}
-	
-	/**
-	 * Add a member with first and last name
-	 * @param status Subscriber’s current status
-	 * @param emailAddress Email address for a subscriber
-	 * @param merge_fields_values
-	 * @return The newly added member
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 */
-	public Member addMember(MemberStatus status, String emailAddress, HashMap<String, Object> merge_fields_values) throws TransportException, URISyntaxException, MalformedURLException  {
-		URL url = new URL(connection.getListendpoint()+"/"+getId()+"/members");
-		
-		JSONObject json = new JSONObject();
-		JSONObject merge_fields = new JSONObject();
-
-		Iterator<Entry<String, Object>> it = merge_fields_values.entrySet().iterator();
-		while (it.hasNext()) {
-			Entry<String, Object> pair = it.next();
-			it.remove(); // avoids a ConcurrentModificationException
-			merge_fields.put(pair.getKey(), pair.getValue());
-		}
-		
-		json.put("status", status.toString());
-		json.put("email_address", emailAddress);
-		json.put("merge_fields", merge_fields);
-		String results = getConnection().do_Post(url,json.toString(),connection.getApikey());
-		Member member = new Member(this, new JSONObject(results)); 
-        return member;
-	}
-
-	/**
-	 * Update list subscriber via a PATCH operation. Member fields will be freshened
-	 * from MailChimp.
+	 * Get a summary of the month-by-month growth activity for this list/audience.
 	 * 
-	 * @param member
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 */
-	public void updateMember(Member member) throws MalformedURLException, TransportException, URISyntaxException {
-		JSONObject json = member.getJsonRepresentation();
-
-		String results = getConnection().do_Patch(new URL(connection.getListendpoint()+"/"+getId()+"/members/"+member.getId()),json.toString(),connection.getApikey());
-		member.parse(this, new JSONObject(results));  // update member object with current data
-	}
-
-	/**
-	 * Add or update a list member via a PUT operation. When a new member is added
-	 * and no status_if_new has been specified SUBSCRIBED will be used. Member
-	 * fields will be freshened from mailchimp.
-	 * 
-	 * @param member
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 */
-	public void addOrUpdateMember(Member member) throws MalformedURLException, TransportException, URISyntaxException {
-		JSONObject json = member.getJsonRepresentation();
-		
-		if (member.getStatusIfNew() == null) {
-			json.put("status_if_new", MemberStatus.SUBSCRIBED.toString());
-		}
-		
-		String results = getConnection().do_Put(new URL(connection.getListendpoint()+"/"+getId()+"/members/"+member.getId()),json.toString(),connection.getApikey());
-		member.parse(this, new JSONObject(results));  // update member object with current data
-	}
-	
-	/**
-	 * Delete a member from list.
-	 * @param memberID
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 */
-	public void deleteMemberFromList(String memberID) throws MalformedURLException, TransportException, URISyntaxException {
-		getConnection().do_Delete(new URL(connection.getListendpoint()+"/"+getId()+"/members/"+memberID),connection.getApikey());
-	}
-
-	/**
-	 * Permanently delete a member for list.
-	 * @param memberID
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
-	 */
-	public void deleteMemberPermanent(String memberID) throws MalformedURLException, TransportException, URISyntaxException {
-		getConnection().do_Post(new URL(getConnection().getListendpoint()+"/"+getId()+"/members/"+memberID+"/actions/delete-permanent"), getConnection().getApikey());
-	}
-	
-	/**
-	 * Get the growth history of this list
 	 * @return a growth history
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
+	 * @throws JSONException
 	 */
-	public GrowthHistory getGrowthHistory() throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		final JSONObject growth_history = new JSONObject(getConnection().do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/growth-history"),connection.getApikey()));
-    	final JSONArray history = growth_history.getJSONArray("history");
-    	final JSONObject historyDetail = history.getJSONObject(0);
-    	
-    	return new GrowthHistory(this, historyDetail.getString("month"), historyDetail.getInt("existing"), historyDetail.getInt("imports"), historyDetail.getInt("optins"));
+	public List<GrowthHistory> getGrowthHistory(int count, int offset, SortDirection dir) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		String response = connection.do_Get(new URL(connection.getListendpoint() + "/" + getId() + "/growth-history?count="+count+"&offset="+offset+"&sort_field=month&sort_dir="+dir.toString()), connection.getApikey());
+		JSONObject jsonObj = new JSONObject(response);
+		
+		//int totalItems = jsonObj.getInt("total_items");	// The total number of items matching the query regardless of pagination
+        //String listId = jsonObj.getString("list_id");
+        JSONArray history = jsonObj.getJSONArray("history");
+        
+        ArrayList<GrowthHistory> growthHistory = new ArrayList<GrowthHistory>(history.length());
+        for (int i = 0; i<history.length(); i++) {
+        	JSONObject gh = (JSONObject)history.get(i);
+        	growthHistory.add(new GrowthHistory(gh));
+        }
+        
+        return growthHistory;
 	}
 
+	//
+	// Interest Categories -- Manage interest categories for a specific list. Interest categories 
+	//                        organize interests, which are used to group subscribers based on their 
+	//                        preferences. These correspond to 'group titles' in the Mailchimp application.
+	//
+	
 	/**
-	 * Get interest categories for list. These correspond to ‘group titles’ in the MailChimp application.
-	 * @param count Number of items to return
+	 * Get interest categories for list. These correspond to ‘group titles’ in the
+	 * MailChimp application.
+	 * 
+	 * @param count  Number of items to return
 	 * @param offset Zero based offset
 	 * @return List of interest categories
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
+	 * @throws JSONException
 	 */
-	public List<InterestCategory> getInterestCategories(int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException  {
+	public List<InterestCategory> getInterestCategories(int count, int offset)
+			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
 		ArrayList<InterestCategory> categories = new ArrayList<InterestCategory>();
-		JSONObject list = new JSONObject(getConnection().do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/interest-categories?count="+count+"&offset="+offset),connection.getApikey()));
+		JSONObject list = new JSONObject(getConnection().do_Get(new URL(connection.getListendpoint() + "/" + getId()
+				+ "/interest-categories?count=" + count + "&offset=" + offset), connection.getApikey()));
 		JSONArray categoryArray = list.getJSONArray("categories");
 
-		for (int i = 0 ; i < categoryArray.length();i++)
-		{
+		for (int i = 0; i < categoryArray.length(); i++) {
 			final JSONObject jsonCategory = categoryArray.getJSONObject(i);
-			InterestCategory category = InterestCategory.build(connection, jsonCategory);
+			InterestCategory category = new InterestCategory(connection, jsonCategory);
 			categories.add(category);
 
 		}
 		return categories;
 	}
-	
-	public InterestCategory getInterestCategory(String interestCategoryId) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		JSONObject jsonCategory = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/interest-categories/"+interestCategoryId) ,connection.getApikey()));
-		return InterestCategory.build(connection, jsonCategory);
+
+	public InterestCategory getInterestCategory(String interestCategoryId)
+			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		JSONObject jsonCategory = new JSONObject(connection.do_Get(
+				new URL(connection.getListendpoint() + "/" + getId() + "/interest-categories/" + interestCategoryId),
+				connection.getApikey()));
+		return new InterestCategory(connection, jsonCategory);
 	}
+
+	/**
+	 * Remove an interest category from list.
+	 * 
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
+	 */
+	public InterestCategory addInrestCategory(InterestCategory category)
+			throws MalformedURLException, TransportException, URISyntaxException {
+		JSONObject json = category.getJsonRepresentation();
+		String results = getConnection().do_Post(
+				new URL(getConnection().getListendpoint() + "/" + getId() + "/interest-categories"), json.toString(),
+				getConnection().getApikey());
+		return new InterestCategory(connection, new JSONObject(results));
+	}
+
+	/**
+	 * Remove an interest category from list.
+	 * 
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
+	 */
+	public void deleteInrestCategory(String categoryId)
+			throws MalformedURLException, TransportException, URISyntaxException {
+		getConnection().do_Delete(
+				new URL(getConnection().getListendpoint() + "/" + getId() + "/interest-categories/" + categoryId),
+				getConnection().getApikey());
+	}
+
+	//
+	// Interest Categories > Interests 
+	//     Manage interests for a specific Mailchimp list. Assign subscribers to interests 
+	//     to group them together. Interests are referred to as 'group names' in the 
+	//     Mailchimp application.
+	//
 	
 	/**
-	 * Get interests for this list. Interests are referred to as ‘group names’ in the MailChimp application. 
+	 * Get interests for this list. Interests are referred to as ‘group names’ in
+	 * the MailChimp application.
+	 * 
 	 * @param interestCategoryId
-	 * @param count Number of members to return or 0 to return all members
-	 * @param offset Zero based offset
+	 * @param count              Number of members to return. Maximum value is 1000.
+	 * @param offset             Zero based offset
 	 * @return List of interests for this list
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
+	 * @throws JSONException
 	 */
-	public List<Interest> getInterests(String interestCategoryId, int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	public List<Interest> getInterests(String interestCategoryId, int count, int offset)
+			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
 		ArrayList<Interest> interests = new ArrayList<Interest>();
-		JSONObject list = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/interest-categories/"+interestCategoryId+"/interests?count="+count+"&offset="+offset) ,connection.getApikey()));
+		JSONObject list = new JSONObject(
+				connection.do_Get(
+						new URL(connection.getListendpoint() + "/" + getId() + "/interest-categories/"
+								+ interestCategoryId + "/interests?count=" + count + "&offset=" + offset),
+						connection.getApikey()));
 		JSONArray interestArray = list.getJSONArray("interests");
 
-		for (int i = 0 ; i < interestArray.length();i++)
-		{
+		for (int i = 0; i < interestArray.length(); i++) {
 			final JSONObject jsonInterest = interestArray.getJSONObject(i);
-			Interest interest = new Interest(jsonInterest);
+			Interest interest = new Interest(connection, jsonInterest);
 			interests.add(interest);
 
 		}
 		return interests;
 	}
-	
-	public Interest getInterest(String interestCategoryId, String interestId) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		JSONObject jsonInterests = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/interest-categories/"+interestCategoryId+"/interests/"+interestId) ,connection.getApikey()));
-		return new Interest(jsonInterests);
+
+	/**
+	 * Get a specific interests for this list. Interests are referred to as ‘group
+	 * names’ in the MailChimp application.
+	 * 
+	 * @param interestCategoryId
+	 * @param interestId
+	 * @return The requested interest
+	 * @throws JSONException
+	 * @throws MalformedURLException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public Interest getInterest(String interestCategoryId, String interestId)
+			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		JSONObject jsonInterests = new JSONObject(connection.do_Get(new URL(connection.getListendpoint() + "/" + getId()
+				+ "/interest-categories/" + interestCategoryId + "/interests/" + interestId), connection.getApikey()));
+		return new Interest(connection, jsonInterests);
 	}
+
+	//
+	// Segments -- Manage segments and tags for a specific Mailchimp list. 
+	//             A segment is a section of your list that includes only those 
+	//             subscribers who share specific common field information. Tags 
+	//             are labels you create to help organize your contacts.
+	//
 	
 	/**
-	 * Get all segments of this list. A segment is a section of your list that includes only those subscribers who share specific common field information.
-	 * @param count Number of templates to return
+	 * Get all segments of this list. A segment is a section of your list that
+	 * includes only those subscribers who share specific common field information.
+	 * 
+	 * @param count  Number of templates to return
 	 * @param offset Zero based offset
 	 * @return List containing segments
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
-     */
-	public List<Segment> getSegments(int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-        ArrayList<Segment> segments = new ArrayList<Segment>();
-		JSONObject jsonSegments = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/segments?offset=" + offset + "&count=" + count) ,connection.getApikey()));
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
+	 * @throws JSONException
+	 */
+	public List<Segment> getSegments(int count, int offset)
+			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		ArrayList<Segment> segments = new ArrayList<Segment>();
+		JSONObject jsonSegments = new JSONObject(connection.do_Get(new URL(
+				connection.getListendpoint() + "/" + getId() + "/segments?offset=" + offset + "&count=" + count),
+				connection.getApikey()));
 
 		final JSONArray segmentsArray = jsonSegments.getJSONArray("segments");
 
-		for (int i = 0; i<segmentsArray.length(); i++) {
+		for (int i = 0; i < segmentsArray.length(); i++) {
 			final JSONObject segmentDetail = segmentsArray.getJSONObject(i);
 			Segment segment = new Segment(getConnection(), segmentDetail);
 			segments.add(segment);
 		}
 
-        return segments;
-    }
+		return segments;
+	}
 
 	/**
-	 * Get all segments of this list. A segment is a section of your list that includes only those subscribers who share specific common field information.
+	 * Get all segments of this list. A segment is a section of your list that
+	 * includes only those subscribers who share specific common field information.
 	 * 
-	 * @param type Limit results based on segment type
-	 * @param count Number of templates to return
+	 * @param type   Limit results based on segment type
+	 * @param count  Number of templates to return
 	 * @param offset Zero based offset
 	 * @return List containing segments of the specified type
 	 * @throws JSONException
@@ -454,268 +683,305 @@ public class MailChimpList extends MailchimpObject {
 	 * @throws TransportException
 	 * @throws URISyntaxException
 	 */
-	public List<Segment> getSegments(SegmentType type, int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-        ArrayList<Segment> segments = new ArrayList<Segment>();
-		JSONObject jsonSegments = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/segments?offset=" + offset + "&count=" + count + "&type" + type.getStringRepresentation()) ,connection.getApikey()));
+	public List<Segment> getSegments(SegmentType type, int count, int offset)
+			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		ArrayList<Segment> segments = new ArrayList<Segment>();
+		JSONObject jsonSegments = new JSONObject(
+				connection.do_Get(new URL(connection.getListendpoint() + "/" + getId() + "/segments?offset=" + offset
+						+ "&count=" + count + "&type" + type.toString()), connection.getApikey()));
 
 		final JSONArray segmentsArray = jsonSegments.getJSONArray("segments");
 
-		for (int i = 0; i<segmentsArray.length(); i++) {
+		for (int i = 0; i < segmentsArray.length(); i++) {
 			final JSONObject segmentDetail = segmentsArray.getJSONObject(i);
 			Segment segment = new Segment(getConnection(), segmentDetail);
 			segments.add(segment);
 		}
 
-        return segments;
-    }
+		return segments;
+	}
 
 	/**
 	 * Get a specific segment of this list
+	 * 
 	 * @param segmentID
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
+	 * @throws JSONException
 	 */
-	public Segment getSegment(String segmentID) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		JSONObject jsonSegment = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/segments/"+segmentID) ,connection.getApikey()));
+	public Segment getSegment(String segmentID)
+			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		String response = connection.do_Get(
+				new URL(connection.getListendpoint() + "/" + getId() + "/segments/" + segmentID),
+				connection.getApikey());
+		JSONObject jsonSegment = new JSONObject(response);
 		return new Segment(getConnection(), jsonSegment);
 	}
 
 	/**
 	 * Add a segment to the list
-	 * @param name
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * 
+	 * @param name   The name of the segment.
+	 * @param option The conditions of the segment. Static and fuzzy segments don't
+	 *               have conditions.
+	 * @return The newly created segment
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
 	 */
-	public void addSegment(String name,Options option) throws MalformedURLException, TransportException, URISyntaxException {
+	public Segment addSegment(String name, SegmentOptions option)
+			throws MalformedURLException, TransportException, URISyntaxException {
 		JSONObject segment = new JSONObject();
 		segment.put("name", name);
+		if (option != null) {
+			segment.put("options", option.getJsonRepresentation());
+		}
 
-		segment.put("options",option.getJsonRepresentation());
-		System.out.println(segment.toString());
-
-		getConnection().do_Post(new URL(connection.getListendpoint()+"/"+getId()+"/segments"),segment.toString(),connection.getApikey());
+		String response = connection.do_Post(new URL(connection.getListendpoint() + "/" + getId() + "/segments"),
+				segment.toString(), connection.getApikey());
+		JSONObject jsonSegment = new JSONObject(response);
+		return new Segment(getConnection(), jsonSegment);
 	}
 
-
 	/**
-	 * Add a static segment with a name and predefined emails to this list.
-	 * Every E-Mail address which is not present on the list itself will be ignored and not added to the static segment.
-	 * @param name
-	 * @param emails
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws EmailException 
+	 * Add a static segment with a name and predefined emails to this list. Every
+	 * E-Mail address which is not present on the list itself will be ignored and
+	 * not added to the static segment.
+	 * 
+	 * @param name   The name of the segment.
+	 * @param emails An array of emails to be used for a static segment. Any emails
+	 *               provided that are not present on the list will be ignored.
+	 *               Passing an empty array will create a static segment without any
+	 *               subscribers.
+	 * @return The newly created segment
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
+	 * @throws EmailException
 	 */
-	public void addStaticSegment(String name, String [] emails) throws MalformedURLException, TransportException, URISyntaxException, EmailException {
+	public Segment addStaticSegment(String name, String[] emails)
+			throws MalformedURLException, TransportException, URISyntaxException, EmailException {
 		JSONObject segment = new JSONObject();
 		segment.put("name", name);
-		for (String email : emails){
-			if(!EmailValidator.getInstance().validate(email)){
+		for (String email : emails) {
+			if (!EmailValidator.getInstance().validate(email)) {
 				throw new EmailException(email);
 			}
 		}
 		segment.put("static_segment", emails);
-		getConnection().do_Post(new URL(connection.getListendpoint()+"/"+getId()+"/segments"),segment.toString(),connection.getApikey());
-
+		String response = getConnection().do_Post(new URL(connection.getListendpoint() + "/" + getId() + "/segments"),
+				segment.toString(), connection.getApikey());
+		JSONObject jsonSegment = new JSONObject(response);
+		return new Segment(getConnection(), jsonSegment);
 	}
 
 	/**
-	 * Delete a specific segment
+	 * Delete a specific segment.
+	 * 
 	 * @param segmentId
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws MalformedURLException
 	 */
 	public void deleteSegment(String segmentId) throws MalformedURLException, TransportException, URISyntaxException {
-		getConnection().do_Delete(new URL(connection.getListendpoint()+"/"+getId()+"/segments/"+segmentId),connection.getApikey());
+		connection.do_Delete(new URL(connection.getListendpoint() + "/" + getId() + "/segments/" + segmentId),
+				connection.getApikey());
 	}
 
+	//
+	// Merge Fields -- Manage merge fields (formerly merge vars) for the list.
+	//
+	
 	/**
-	 * Get a list of all merge fields of this list
-	 * @throws MalformedURLException 
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws JSONException 
+	 * Get a list of all merge fields of this list.
+	 * 
+	 * @param count The number of records to return. Maximum value is 1000.
+	 * @param offset Zero based offset
+	 * @throws MalformedURLException
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws JSONException
 	 */
-	public List<MergeField> getMergeFields() throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+	public List<MergeField> getMergeFields(int count, int offset) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
 		ArrayList<MergeField> mergeFields = new ArrayList<MergeField>();
-		URL url = new URL(connection.getListendpoint()+"/"+getId()+"/merge-fields?offset=0&count=100"); // Note: Mailchimp currently supports a maximim of 80 merge fields
+		URL url = new URL(connection.getListendpoint()+"/"+getId()+"/merge-fields?offset=" + offset + "&count=" + count); // Note: Mailchimp currently supports a maximim of 80 merge fields
 
-		JSONObject merge_fields = new JSONObject(connection.do_Get(url,connection.getApikey()));
+		JSONObject merge_fields = new JSONObject(connection.do_Get(url, connection.getApikey()));
 		final JSONArray mergeFieldsArray = merge_fields.getJSONArray("merge_fields");
 
 		for (int i = 0 ; i < mergeFieldsArray.length(); i++) {
 			final JSONObject mergeFieldDetail = mergeFieldsArray.getJSONObject(i);
-
-			final JSONObject mergeFieldOptionsJSON = mergeFieldDetail.getJSONObject("options");
-			MergeFieldOptions mergeFieldOptions = new MergeFieldOptions();
-
-			switch(mergeFieldDetail.getString("type")){
-				case "address":mergeFieldOptions.setDefault_country(mergeFieldOptionsJSON.getInt("default_country"));break;
-				case "phone":mergeFieldOptions.setPhone_format(mergeFieldOptionsJSON.getString("phone_format"));break;
-				case "date":mergeFieldOptions.setDate_format(mergeFieldOptionsJSON.getString("date_format"));break;
-				case "birthday":mergeFieldOptions.setDate_format(mergeFieldOptionsJSON.getString("date_format"));break;
-				case "text":mergeFieldOptions.setSize(mergeFieldOptionsJSON.getInt("size"));break;
-				case "radio":
-					JSONArray mergeFieldOptionChoicesRadio = mergeFieldOptionsJSON.getJSONArray("choices");
-					ArrayList<String> choicesRadio = new ArrayList<String>();
-					for (int j = 0; j < mergeFieldOptionChoicesRadio.length(); j++){
-						choicesRadio.add((String )mergeFieldOptionChoicesRadio.get(j));
-					}
-					mergeFieldOptions.setChoices(choicesRadio);
-					break;
-				case "dropdown":
-					JSONArray mergeFieldOptionChoicesDropdown = mergeFieldOptionsJSON.getJSONArray("choices");
-					ArrayList<String> choicesDropdown = new ArrayList<String>();
-					for (int j = 0; j < mergeFieldOptionChoicesDropdown.length(); j++){
-						choicesDropdown.add((String )mergeFieldOptionChoicesDropdown.get(j));
-					}
-					mergeFieldOptions.setChoices(choicesDropdown);
-					break;
-			}
-
-
-			MergeField mergeField = new MergeField(
-					String.valueOf(mergeFieldDetail.getInt("merge_id")),
-					mergeFieldDetail.getString("tag"),
-					mergeFieldDetail.getString("name"),
-					mergeFieldDetail.getString("type"),
-					mergeFieldDetail.getBoolean("required"),
-					mergeFieldDetail.getString("default_value"),
-					mergeFieldDetail.getBoolean("public"),
-					mergeFieldDetail.getString("list_id"),
-					mergeFieldOptions,
-					mergeFieldDetail
-			);
+			MergeField mergeField = new MergeField(getConnection(), mergeFieldDetail);
 			mergeFields.add(mergeField);
 		}
 		return mergeFields;
 	}
 
 	/**
-	 * Get a specific merge field of this list
+	 * Get a specific merge field of this list/audience.
+	 * 
 	 * @param mergeFieldID
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws JSONException 
-	 * @throws MalformedURLException 
+	 * @throws URISyntaxException
+	 * @throws TransportException
+	 * @throws JSONException
+	 * @throws MalformedURLException
 	 */
 	public MergeField getMergeField(String mergeFieldID) throws JSONException, TransportException, URISyntaxException, MalformedURLException {
 		URL url = new URL(connection.getListendpoint()+"/"+getId()+"/merge-fields/"+mergeFieldID);
 		JSONObject mergeFieldJSON = new JSONObject(connection.do_Get(url,connection.getApikey()));
-
-		final JSONObject mergeFieldOptionsJSON = mergeFieldJSON.getJSONObject("options");
-		MergeFieldOptions mergeFieldOptions = new MergeFieldOptions();
-
-		switch(mergeFieldJSON.getString("type")){
-			case "address":mergeFieldOptions.setDefault_country(mergeFieldOptionsJSON.getInt("default_country"));break;
-			case "phone":mergeFieldOptions.setPhone_format(mergeFieldOptionsJSON.getString("phone_format"));break;
-			case "date":mergeFieldOptions.setDate_format(mergeFieldOptionsJSON.getString("date_format"));break;
-			case "birthday":mergeFieldOptions.setDate_format(mergeFieldOptionsJSON.getString("date_format"));break;
-			case "text":mergeFieldOptions.setSize(mergeFieldOptionsJSON.getInt("size"));break;
-			case "radio":
-				JSONArray mergeFieldOptionChoicesRadio = mergeFieldOptionsJSON.getJSONArray("choices");
-				ArrayList<String> choicesRadio = new ArrayList<String>();
-				for (int j = 0; j < mergeFieldOptionChoicesRadio.length(); j++){
-					choicesRadio.add((String )mergeFieldOptionChoicesRadio.get(j));
-				}
-				mergeFieldOptions.setChoices(choicesRadio);
-				break;
-			case "dropdown":
-				JSONArray mergeFieldOptionChoicesDropdown = mergeFieldOptionsJSON.getJSONArray("choices");
-				ArrayList<String> choicesDropdown = new ArrayList<String>();
-				for (int j = 0; j < mergeFieldOptionChoicesDropdown.length(); j++){
-					choicesDropdown.add((String )mergeFieldOptionChoicesDropdown.get(j));
-				}
-				mergeFieldOptions.setChoices(choicesDropdown);
-				break;
-		}
-
-		 return new MergeField(
-				String.valueOf(mergeFieldJSON.getInt("merge_id")),
-				mergeFieldJSON.getString("tag"),
-				mergeFieldJSON.getString("name"),
-				mergeFieldJSON.getString("type"),
-				mergeFieldJSON.getBoolean("required"),
-				mergeFieldJSON.getString("default_value"),
-				mergeFieldJSON.getBoolean("public"),
-				mergeFieldJSON.getString("list_id"),
-				mergeFieldOptions,
-				mergeFieldJSON
-		);
+		return new MergeField(connection, mergeFieldJSON);
 	}
 
-	public void addMergeField(MergeField mergeFieldtoAdd){
-		// TODO:
+	/**
+	 * Add a merge field to this list/audience
+	 * @param mergeFieldtoAdd
+	 * @return The new Mailchimp merge field that was added.
+	 * @throws JSONException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 * @throws MalformedURLException
+	 */
+	public MergeField addMergeField(MergeField mergeFieldtoAdd) throws JSONException, TransportException, URISyntaxException, MalformedURLException {
+		URL url = new URL(connection.getListendpoint()+"/"+getId()+"/merge-fields");
+		JSONObject mergeFieldJSON = new JSONObject(connection.do_Post(url, mergeFieldtoAdd.getJsonRepresentation().toString(), connection.getApikey()));
+		return new MergeField(connection, mergeFieldJSON);
 	}
 
 
 	public void deleteMergeField(String mergeFieldID) throws MalformedURLException, TransportException, URISyntaxException {
-		connection.do_Delete(new URL(connection.getListendpoint()+"/"+getId()+"/merge-fields/"+mergeFieldID),connection.getApikey());
+		connection.do_Delete(new URL(connection.getListendpoint()+"/"+getId()+"/merge-fields/"+mergeFieldID), connection.getApikey());
 	}
 
 	/**
-	 * The ID used in the Mailchimp web application. View this list in your Mailchimp account at https://{dc}.admin.mailchimp.com/lists/members/?id={web_id}
+	 * A string that uniquely identifies this list.
+	 */
+	public String getId() {
+		return id;
+	}
+
+	/**
+	 * The ID used in the Mailchimp web application. View this list in your Mailchimp 
+	 * account at https://{dc}.admin.mailchimp.com/lists/members/?id={web_id}.
 	 */
 	public int getWebId() {
 		return webId;
 	}
 
 	/**
-	 * The name of the list
+	 * The name of the list/audience.
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * Contact information displayed in campaign footers to comply with international spam laws
+	 * @param name The name of the list/audience. You must call {@link #update()}
+	 *             for changes to take effect.
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * Contact information displayed in campaign footers to comply with
+	 * international spam laws.
 	 */
 	public ListContact getContact() {
 		return contact;
 	}
 
 	/**
-	 * The permission reminder for the list
+	 * @param contact Contact information displayed in campaign footers to comply
+	 *                with international spam laws. You must call {@link #update()}
+	 *                for changes to take effect.
+	 */
+	public void setContact(ListContact contact) {
+		this.contact = contact;
+	}
+
+	/**
+	 * The permission reminder for the list.
 	 */
 	public String getPermissionReminder() {
 		return permissionReminder;
 	}
 
 	/**
-	 * Whether campaigns for this list use the Archive Bar in archives by default
+	 * @param permissionReminder The permission reminder for the list. You must call
+	 *                           {@link #update()} for changes to take effect.
+	 */
+	public void setPermissionReminder(String permissionReminder) {
+		this.permissionReminder = permissionReminder;
+	}
+
+	/**
+	 * Whether campaigns for this list use the Archive Bar in archives by default.
 	 */
 	public boolean isUseArchiveBar() {
 		return useArchiveBar;
 	}
 
 	/**
-	 * Default values for campaigns created for this list
+	 * @param useArchiveBar Whether campaigns for this list use the Archive Bar in
+	 *                      archives by default. You must call {@link #update()} for
+	 *                      changes to take effect.
+	 */
+	public void setUseArchiveBar(boolean useArchiveBar) {
+		this.useArchiveBar = useArchiveBar;
+	}
+
+	/**
+	 * Default values for campaigns created for this list.
 	 */
 	public ListCampaignDefaults getCampaignDefaults() {
 		return campaignDefaults;
 	}
 
 	/**
-	 * The email address to send subscribe notifications to
+	 * @param campaignDefaults Default values for campaigns created for this list.
+	 *                         You must call {@link #update()} for changes to take
+	 *                         effect.
+	 */
+	public void setCampaignDefaults(ListCampaignDefaults campaignDefaults) {
+		this.campaignDefaults = campaignDefaults;
+	}
+
+	/**
+	 * The email address to send subscribe notifications to.
 	 */
 	public String getNotifyOnSubscribe() {
 		return notifyOnSubscribe;
 	}
 
 	/**
-	 * The email address to send unsubscribe notifications to
+	 * @param notifyOnSubscribe The email address to send subscribe notifications
+	 *                          to. You must call {@link #update()} for changes to
+	 *                          take effect.
+	 */
+	public void setNotifyOnSubscribe(String notifyOnSubscribe) {
+		this.notifyOnSubscribe = notifyOnSubscribe;
+	}
+
+	/**
+	 * The email address to send unsubscribe notifications to.
 	 */
 	public String getNotifyOnUnsubscribe() {
 		return notifyOnUnsubscribe;
 	}
 
 	/**
+	 * @param notifyOnUnsubscribe The email address to send unsubscribe
+	 *                            notifications to. You must call {@link #update()}
+	 *                            for changes to take effect.
+	 */
+	public void setNotifyOnUnsubscribe(String notifyOnUnsubscribe) {
+		this.notifyOnUnsubscribe = notifyOnUnsubscribe;
+	}
+
+	/**
 	 * The date and time that this list was created.
+	 * 
 	 * @return the dateCreated
 	 */
 	public LocalDateTime getDateCreated() {
@@ -723,7 +989,7 @@ public class MailChimpList extends MailchimpObject {
 	}
 
 	/**
-	 * An auto-generated activity score for the list (0-5)
+	 * An auto-generated activity score for the list (0-5).
 	 */
 	public int getListRating() {
 		return listRating;
@@ -740,49 +1006,79 @@ public class MailChimpList extends MailchimpObject {
 	}
 
 	/**
-	 * EepURL shortened version of this list’s subscribe form
+	 * @param emailTypeOption Whether the list supports multiple formats for emails.
+	 *                        When set to true, subscribers can choose whether they
+	 *                        want to receive HTML or plain-text emails. When set to
+	 *                        false, subscribers will receive HTML emails, with a
+	 *                        plain-text alternative backup. You must call
+	 *                        {@link #update()} for changes to take effect.
+	 */
+	public void setEmailTypeOption(boolean emailTypeOption) {
+		this.emailTypeOption = emailTypeOption;
+	}
+
+	/**
+	 * Mailchimp EepURL shortened version of this list's subscribe form.
 	 */
 	public String getSubscribeUrlShort() {
 		return subscribeUrlShort;
 	}
 
 	/**
-	 * The full version of this list’s subscribe form (host will vary)
+	 * The full version of this list’s subscribe form (host will vary).
 	 */
 	public String getSubscribeUrlLong() {
 		return subscribeUrlLong;
 	}
 
 	/**
-	 * The list’s Email Beamer address
+	 * The list’s Email Beamer address.
 	 */
 	public String getBeamerAddress() {
 		return beamerAddress;
 	}
 
 	/**
-	 * Whether this list is public or private
+	 * Whether this list is public or private.
 	 */
 	public ListVisibility getVisibility() {
 		return visibility;
 	}
 
 	/**
-	 * Whether or not to require the subscriber to confirm subscription via email
+	 * @param visibility Whether this list is public or private. You must call
+	 *                   {@link #update()} for changes to take effect.
+	 */
+	public void setVisibility(ListVisibility visibility) {
+		this.visibility = visibility;
+	}
+
+	/**
+	 * Whether or not to require the subscriber to confirm subscription via email.
 	 */
 	public boolean isDoubleOptin() {
 		return doubleOptin;
 	}
 
 	/**
-	 * Whether or not this list has a welcome automation connected. Welcome Automations: welcomeSeries, singleWelcome, emailFollowup.
+	 * @param doubleOptin Whether or not to require the subscriber to confirm
+	 *                    subscription via email. You must call {@link #update()}
+	 *                    for changes to take effect.
+	 */
+	public void setDoubleOptin(boolean doubleOptin) {
+		this.doubleOptin = doubleOptin;
+	}
+
+	/**
+	 * Whether or not this list has a welcome automation connected. Welcome
+	 * Automations: welcomeSeries, singleWelcome, emailFollowup.
 	 */
 	public boolean isHasWelcome() {
 		return hasWelcome;
 	}
 
 	/**
-	 * Whether or not the list has marketing permissions (eg. GDPR) enabled
+	 * Whether or not the list has marketing permissions (eg. GDPR) enabled.
 	 */
 	public boolean isMarketingPermissions() {
 		return marketingPermissions;
@@ -790,6 +1086,7 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 * Stats for the list. Many of these are cached for at least five minutes.
+	 * 
 	 * @return the list stats
 	 */
 	public ListStats getStats() {
@@ -798,12 +1095,55 @@ public class MailChimpList extends MailchimpObject {
 
 	/**
 	 *
-	 * @return the MailChimp com.github.alexanderwe.bananaj.connection
+	 * @return the MailChimp com.github.alexanderwe.bananaj.connection.
 	 */
-	public MailChimpConnection getConnection(){
+	public MailChimpConnection getConnection() {
 		return connection;
 	}
 
+	/**
+	 * @return the jsonRepresentation
+	 */
+	public JSONObject getJSONRepresentation() {
+		JSONObject jsonList = new JSONObject();
+		
+		jsonList.put("name",name);
+		jsonList.put("contact", contact.getJSONRepresentation());
+		jsonList.put("permission_reminder", permissionReminder);
+		jsonList.put("use_archive_bar", useArchiveBar);
+		jsonList.put("campaign_defaults", campaignDefaults.getJSONRepresentation());
+		jsonList.put("notify_on_subscribe", notifyOnSubscribe);
+		jsonList.put("notify_on_unsubscribe", notifyOnUnsubscribe);
+		jsonList.put("email_type_option", emailTypeOption);
+		jsonList.put("visibility", visibility.toString());
+		jsonList.put("double_optin", doubleOptin);
+		jsonList.put("marketing_permissions", marketingPermissions);
+
+		return jsonList;
+	}
+	
+	/**
+	 * Update list/audience via a PATCH operation. Member fields will be freshened.
+	 * @throws MalformedURLException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public void update() throws MalformedURLException, TransportException, URISyntaxException {
+		String results = connection.do_Patch(new URL(connection.getListendpoint()+"/"+getId()), getJSONRepresentation().toString(), connection.getApikey());
+		parse(connection, new JSONObject(results));  // update this object with current data
+	}
+	
+	/**
+	 * Delete this list/audience from your account
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 * @throws Exception
+	 */
+	public void delete() throws MalformedURLException, TransportException, URISyntaxException {
+		connection.do_Delete(new URL(connection.getListendpoint() +"/"+getId()), connection.getApikey());
+	}
+	
 	@Override
 	public String toString() {
 		return 
@@ -821,7 +1161,7 @@ public class MailChimpList extends MailchimpObject {
 				"    Subscribe URL Short: " + getSubscribeUrlShort() + System.lineSeparator() +
 				"    Subscribe URL Long: " + getSubscribeUrlLong() + System.lineSeparator() +
 				"    Beamer Address: " + getBeamerAddress() + System.lineSeparator() +
-				"    Visibility: " + getVisibility().getStringRepresentation() + System.lineSeparator() +
+				"    Visibility: " + getVisibility().toString() + System.lineSeparator() +
 				"    Double Option: " + isDoubleOptin() + System.lineSeparator() +
 				"    Has Welcome: " + isHasWelcome() + System.lineSeparator() +
 				"    Marketing Permissions: " + isMarketingPermissions() + System.lineSeparator() +
@@ -830,4 +1170,132 @@ public class MailChimpList extends MailchimpObject {
 				getStats().toString();
 	}
 
+    /**
+     * Builder for {@link MailChimpList}
+     *
+     */
+    public static class Builder {
+        private MailChimpConnection connection;
+    	private String name;			// The name of the list
+    	private ListContact contact;	// Contact information displayed in campaign footers to comply with international spam laws
+    	private String permissionReminder;	// The permission reminder for the list
+    	private boolean useArchiveBar = false;	// Whether campaigns for this list use the Archive Bar in archives by default
+    	private ListCampaignDefaults campaignDefaults;	// Default values for campaigns created for this list
+    	private String notifyOnSubscribe;	// The email address to send subscribe notifications to
+    	private String notifyOnUnsubscribe; // The email address to send unsubscribe notifications to 
+    	private boolean emailTypeOption = false;	// Whether the list supports multiple formats for emails. When set to true, subscribers can choose whether they want to receive HTML or plain-text emails. When set to false, subscribers will receive HTML emails, with a plain-text alternative backup.
+    	private ListVisibility visibility = ListVisibility.PRV;	// Whether this list is public or private (pub, prv)
+    	private boolean doubleOptin = false;	// Whether or not to require the subscriber to confirm subscription via email
+    	private boolean marketingPermissions = false;	// Whether or not the list has marketing permissions (eg. GDPR) enabled
+
+		/**
+		 * @param connection the connection to set
+		 */
+		public Builder connection(MailChimpConnection connection) {
+			this.connection = connection;
+			return this;
+		}
+
+		/**
+		 * @param name The name of the list/audience.
+		 */
+		public Builder name(String name) {
+			this.name = name;
+			return this;
+		}
+
+		/**
+		 * @param contact Contact information displayed in campaign footers to comply
+		 *                with international spam laws.
+		 */
+		public Builder contact(ListContact contact) {
+			this.contact = contact;
+			return this;
+		}
+
+		/**
+		 * @param permissionReminder The permission reminder for the list.
+		 */
+		public Builder permissionReminder(String permissionReminder) {
+			this.permissionReminder = permissionReminder;
+			return this;
+		}
+
+		/**
+		 * @param useArchiveBar Whether campaigns for this list use the Archive Bar in
+		 *                      archives by default.
+		 */
+		public Builder useArchiveBar(boolean useArchiveBar) {
+			this.useArchiveBar = useArchiveBar;
+			return this;
+		}
+
+		/**
+		 * @param campaignDefaults Default values for campaigns created for this list.
+		 */
+		public Builder campaignDefaults(ListCampaignDefaults campaignDefaults) {
+			this.campaignDefaults = campaignDefaults;
+			return this;
+		}
+
+		/**
+		 * @param notifyOnSubscribe The email address to send subscribe notifications
+		 *                          to.
+		 */
+		public Builder notifyOnSubscribe(String notifyOnSubscribe) {
+			this.notifyOnSubscribe = notifyOnSubscribe;
+			return this;
+		}
+
+		/**
+		 * @param notifyOnUnsubscribe The email address to send unsubscribe
+		 *                            notifications to.
+		 */
+		public Builder notifyOnUnsubscribe(String notifyOnUnsubscribe) {
+			this.notifyOnUnsubscribe = notifyOnUnsubscribe;
+			return this;
+		}
+
+		/**
+		 * @param emailTypeOption Whether the list supports multiple formats for emails.
+		 *                        When set to true, subscribers can choose whether they
+		 *                        want to receive HTML or plain-text emails. When set to
+		 *                        false, subscribers will receive HTML emails, with a
+		 *                        plain-text alternative backup.
+		 */
+		public Builder emailTypeOption(boolean emailTypeOption) {
+			this.emailTypeOption = emailTypeOption;
+			return this;
+		}
+
+		/**
+		 * @param visibility Whether this list is public or private.
+		 */
+		public Builder visibility(ListVisibility visibility) {
+			this.visibility = visibility;
+			return this;
+		}
+
+		/**
+		 * @param doubleOptin Whether or not to require the subscriber to confirm
+		 *                    subscription via email.
+		 */
+		public Builder doubleOptin(boolean doubleOptin) {
+			this.doubleOptin = doubleOptin;
+			return this;
+		}
+
+		/**
+		 * @param marketingPermissions Whether or not the list has marketing permissions
+		 *                             (eg. GDPR) enabled.
+		 */
+		public Builder marketingPermissions(boolean marketingPermissions) {
+			this.marketingPermissions = marketingPermissions;
+			return this;
+		}
+
+    	public MailChimpList build() {
+    		return new MailChimpList(this);
+    	}
+    }
 }
