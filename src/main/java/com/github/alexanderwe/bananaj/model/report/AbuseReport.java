@@ -1,6 +1,6 @@
 package com.github.alexanderwe.bananaj.model.report;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +20,7 @@ public class AbuseReport {
 	private String emailAddress;
 	private Map<String, Object> mergeFields;
 	private boolean vip;
-	private LocalDateTime date;
+	private ZonedDateTime date;
 
 	public AbuseReport(JSONObject abuse) {
 		id = abuse.getInt("id");
@@ -36,7 +36,7 @@ public class AbuseReport {
 			}
 		}
 		vip = abuse.getBoolean("vip");
-		date = DateConverter.createDateFromISO8601(abuse.getString("date"));
+		date = DateConverter.fromISO8601(abuse.getString("date"));
 	}
 
 	/**
@@ -91,7 +91,7 @@ public class AbuseReport {
 	/**
 	 * @return Date for the abuse report
 	 */
-	public LocalDateTime getDate() {
+	public ZonedDateTime getDate() {
 		return date;
 	}
 
@@ -101,7 +101,7 @@ public class AbuseReport {
 	@Override
 	public String toString() {
 		return
-				"Abuse Report: " + date + " ID: " + id + "Campaign ID: " + campaignId + " List ID: " + listId + System.lineSeparator() +
+				"Abuse Report: " + DateConverter.toLocalString(date) + " ID: " + id + "Campaign ID: " + campaignId + " List ID: " + listId + System.lineSeparator() +
 				"    Email: " + emailAddress + " Email ID:" + emailId + " VIP: " + vip;
 	}
 	

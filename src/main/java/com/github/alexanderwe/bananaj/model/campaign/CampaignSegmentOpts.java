@@ -120,13 +120,15 @@ public class CampaignSegmentOpts {
 					case DATE:
 					case GOALTIMESTAMP:
 					case ZIPMERGE:
-						conditions.add( new StringCondition.Builder()
+						StringCondition.Builder b = new StringCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
 								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
-								.extra(jsonCondition.getString("extra"))
-								.value(jsonCondition.getString("value"))
-								.build());
+								.value(jsonCondition.getString("value"));
+						if (jsonCondition.has("extra")) {
+							b.extra(jsonCondition.getString("extra"));
+						}
+						conditions.add(b.build());
 						break;
 
 

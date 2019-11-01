@@ -5,7 +5,7 @@
 package com.github.alexanderwe.bananaj.model.campaign;
 
 import java.net.URL;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,12 +30,12 @@ public class Campaign {
 	private int webId;
 	private String parentCampaignId;
 	private CampaignType type;
-	private LocalDateTime createTime;
+	private ZonedDateTime createTime;
 	private String archiveUrl;
 	private String longArchiveUrl;
 	private CampaignStatus status;
 	private int emailsSent;
-	private LocalDateTime sendTime;
+	private ZonedDateTime sendTime;
 	private CampaignContentType contentType;
 	private boolean needsBlockRefresh;
 	private boolean hasLogoMergeTag;
@@ -64,13 +64,13 @@ public class Campaign {
 			this.parentCampaignId = jsonObj.getString("parent_campaign_id");
 		}
 		this.type = CampaignType.valueOf(jsonObj.getString("type").toUpperCase());
-		this.createTime = DateConverter.createDateFromISO8601(jsonObj.getString("create_time"));
+		this.createTime = DateConverter.fromISO8601(jsonObj.getString("create_time"));
 		this.archiveUrl = jsonObj.getString("archive_url");
 		this.longArchiveUrl = jsonObj.getString("long_archive_url");
 		this.status = CampaignStatus.valueOf(jsonObj.getString("status").toUpperCase());
 		this.emailsSent = jsonObj.getInt("emails_sent");
 		if (jsonObj.has("send_time")) {
-			this.sendTime = DateConverter.createDateFromISO8601(jsonObj.getString("send_time"));
+			this.sendTime = DateConverter.fromISO8601(jsonObj.getString("send_time"));
 		}
 		this.contentType = CampaignContentType.valueOf(jsonObj.getString("content_type").toUpperCase());
 		this.needsBlockRefresh = jsonObj.getBoolean("needs_block_refresh");
@@ -190,7 +190,7 @@ public class Campaign {
 	}
 	
 	// TODO: additional actions (schedule, unschedule)
-//	public void schedule(LocalDateTime schedule_time, boolean timewarp, BatchDelivery batch_delivery) throws Exception {
+//	public void schedule(ZonedDateTime schedule_time, boolean timewarp, BatchDelivery batch_delivery) throws Exception {
 //		getConnection().do_Post(new URL(getConnection().getCampaignendpoint()+"/"+getId()+"/actions/schedule"), getConnection().getApikey());
 //	}
 //	
@@ -281,7 +281,7 @@ public class Campaign {
 	/**
 	 * The date and time the campaign was created
 	 */
-	public LocalDateTime getCreateTime() {
+	public ZonedDateTime getCreateTime() {
 		return createTime;
 	}
 
@@ -316,7 +316,7 @@ public class Campaign {
 	/**
 	 * The date and time a campaign was sent
 	 */
-	public LocalDateTime getSendTime() {
+	public ZonedDateTime getSendTime() {
 		return sendTime;
 	}
 
@@ -378,10 +378,16 @@ public class Campaign {
 
 	@Override
 	public String toString() {
-		return "ID: " + getId() + System.lineSeparator() +
+		return "ID: " + getId() + " " + getSettings().getTitle() + System.lineSeparator() +
+				"    WebId: " + getWebId() + System.lineSeparator() +
+				"    Type: " + getType().toString() + System.lineSeparator() +
+				"    Status: " + getStatus().toString() + System.lineSeparator() +
+				"    Content Type: " + getContentType().toString() + System.lineSeparator() +
+				"    Created: " +  DateConverter.toLocalString(getCreateTime()) + System.lineSeparator() +
+				"    Sent: " + (getSendTime()!=null ? DateConverter.toLocalString(getSendTime()) : "") + System.lineSeparator() +
+				"    Archive URL: " + getArchiveUrl() + System.lineSeparator() +
+				"    Emails Sent: " + getEmailsSent() + System.lineSeparator() +
 				getSettings().toString() + System.lineSeparator() +
-				"Type: " + getType().toString() + System.lineSeparator() +
-				"Status: " + getStatus().toString() + System.lineSeparator() +
 				(getRecipients() != null ? getRecipients().toString() + System.lineSeparator() : "") +
 				getTracking().toString() + 
 				(getReportSummary() != null ? System.lineSeparator() + getReportSummary().toString() : "");

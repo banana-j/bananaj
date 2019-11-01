@@ -1,6 +1,6 @@
 package com.github.alexanderwe.bananaj.model.automation.emails;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import org.json.JSONObject;
 
@@ -11,7 +11,7 @@ public class AutomationSubscriber extends Subscriber {
 
 	private String emailId;
 	private Boolean listIsActive;
-	private LocalDateTime nextSend;
+	private ZonedDateTime nextSend;
 
 	public AutomationSubscriber(JSONObject jsonObj) {
 		super(jsonObj);
@@ -19,7 +19,9 @@ public class AutomationSubscriber extends Subscriber {
 		if (jsonObj.has("list_is_active")) {
 			this.listIsActive = jsonObj.getBoolean("list_is_active");
 		}
-        this.nextSend = DateConverter.createDateFromISO8601(jsonObj.getString("next_send"));
+		if (jsonObj.has("next_send")) {
+			this.nextSend = DateConverter.fromISO8601(jsonObj.getString("next_send"));
+		}
 	}
 
 	public AutomationSubscriber() {
@@ -44,7 +46,7 @@ public class AutomationSubscriber extends Subscriber {
 	/**
 	 * The date and time of the next send for the workflow email
 	 */
-	public LocalDateTime getNextSend() {
+	public ZonedDateTime getNextSend() {
 		return nextSend;
 	}
 
@@ -57,8 +59,7 @@ public class AutomationSubscriber extends Subscriber {
 				"Subscriber:" + System.lineSeparator() +
 				"    Email Id: " + getEmailId() + System.lineSeparator() +
 				"    Is List Active: " + isListIsActive() + System.lineSeparator() +
-				"    Next Send: " + getNextSend() + System.lineSeparator() +
-				super.toString();
+				"    Next Send: " + (getNextSend()!=null ? DateConverter.toLocalString(getNextSend()) : "");
 	}
 
 }

@@ -5,7 +5,7 @@
 package com.github.alexanderwe.bananaj.model.automation;
 
 import java.net.URL;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,8 +28,8 @@ import com.github.alexanderwe.bananaj.utils.DateConverter;
 public class Automation {
 
 	private String id;
-	private LocalDateTime createTime;
-	private LocalDateTime startTime;
+	private ZonedDateTime createTime;
+	private ZonedDateTime startTime;
 	private AutomationStatus status;
 	private int emailsSent;
 	private AutomationRecipient recipients;
@@ -50,8 +50,8 @@ public class Automation {
 	private void parse(MailChimpConnection connection, JSONObject jsonObj) {
 		id = jsonObj.getString("id");
 		this.connection = connection;
-		createTime = DateConverter.createDateFromISO8601(jsonObj.getString("create_time"));
-		startTime = DateConverter.createDateFromISO8601(jsonObj.getString("start_time"));
+		createTime = DateConverter.fromISO8601(jsonObj.getString("create_time"));
+		startTime = jsonObj.has("start_time") ? DateConverter.fromISO8601(jsonObj.getString("start_time")) : null;
 		status = AutomationStatus.valueOf(jsonObj.getString("status").toUpperCase());
 		emailsSent = jsonObj.getInt("emails_sent");
 		if (jsonObj.has("recipients")) {
@@ -144,14 +144,14 @@ public class Automation {
 	/**
 	 * The date and time the Automation was created
 	 */
-	public LocalDateTime getCreateTime() {
+	public ZonedDateTime getCreateTime() {
 		return createTime;
 	}
 
 	/**
 	 * The date and time the Automation was started
 	 */
-	public LocalDateTime getStartTime() {
+	public ZonedDateTime getStartTime() {
 		return startTime;
 	}
 
@@ -226,8 +226,8 @@ public class Automation {
 		return
 				"Automation Email:" + System.lineSeparator() +
 				"    Id: " + getId() + System.lineSeparator() +
-				"    Created: " + getCreateTime() + System.lineSeparator() +
-				"    Started: " + getStartTime() + System.lineSeparator() +
+				"    Created: " + DateConverter.toLocalString(getCreateTime()) + System.lineSeparator() +
+				"    Started: " + (getStartTime()!=null ? DateConverter.toLocalString(getStartTime()) : "") + System.lineSeparator() +
 				"    Status: " + getStatus().toString() + System.lineSeparator() +
 				"    Emails Sent: " + getEmailsSent() + System.lineSeparator() +
 				getRecipients().toString() + System.lineSeparator() +

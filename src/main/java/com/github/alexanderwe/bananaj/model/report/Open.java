@@ -4,7 +4,11 @@
  */
 package com.github.alexanderwe.bananaj.model.report;
 
+import java.time.ZonedDateTime;
+
 import org.json.JSONObject;
+
+import com.github.alexanderwe.bananaj.utils.DateConverter;
 
 /**
  * Class for representing the opens of a campaign
@@ -16,14 +20,14 @@ public class Open {
 	private int opensTotal;
 	private int uniqueOpens;
 	private double openRate;
-	private String lastOpen;
+	private ZonedDateTime lastOpen;
 	
 	
 	public Open(JSONObject jsonObj) {
 		opensTotal = jsonObj.getInt("opens_total");
 		uniqueOpens = jsonObj.getInt("unique_opens");
 		openRate = jsonObj.getDouble("open_rate");
-		lastOpen = jsonObj.getString("last_open");
+		lastOpen = DateConverter.fromISO8601(jsonObj.getString("last_open"));
 	}
 
 	/**
@@ -50,7 +54,7 @@ public class Open {
 	/**
 	 * @return The date and time of the last recorded open.
 	 */
-	public String getLastOpen() {
+	public ZonedDateTime getLastOpen() {
 		return lastOpen;
 	}
 
@@ -64,7 +68,7 @@ public class Open {
 				"    Total: " + getOpensTotal() + System.lineSeparator() +
 				"    Unique: " +  getUniqueOpens() + System.lineSeparator() +
 				"    Open Rate: " +  getOpenRate() + System.lineSeparator() +
-				"    Last Open: " + getLastOpen();
+				"    Last Open: " + DateConverter.toLocalString(getLastOpen());
 	}
 
 }

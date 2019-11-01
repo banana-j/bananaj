@@ -74,8 +74,12 @@ public enum Operator {
 	FOLLOW("follow"), 
 	NOTFOLLOW("notfollow"),
 
-	GEOIN("geoin");
+	GEOIN("geoin"),
 
+	DATE_WITHIN("date_within"),
+	WITHIN("within"),
+	NOTWITHIN("notwithin");
+	
 	private String stringRepresentation;
 
 	Operator(String stringRepresentation ) {

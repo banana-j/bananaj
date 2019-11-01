@@ -3,7 +3,7 @@ package com.github.alexanderwe.bananaj.model.list.segment;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -28,8 +28,8 @@ public class Segment {
     private String name;
     private int memberCount;
     private SegmentType type;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
     private SegmentOptions options;
     private String listId;
     private MailChimpConnection connection;
@@ -61,8 +61,8 @@ public class Segment {
         name = jsonObj.getString("name");
 		listId = jsonObj.getString("list_id");
 		type = SegmentType.valueOf(jsonObj.getString("type").toUpperCase());
-		createdAt = DateConverter.createDateFromISO8601(jsonObj.getString("created_at"));
-		updatedAt = DateConverter.createDateFromISO8601(jsonObj.getString("updated_at"));
+		createdAt = DateConverter.fromISO8601(jsonObj.getString("created_at"));
+		updatedAt = DateConverter.fromISO8601(jsonObj.getString("updated_at"));
 		memberCount = jsonObj.getInt("member_count");
 		options = null;
 
@@ -108,9 +108,8 @@ public class Segment {
         for (int i = 0 ; i < membersArray.length();i++)
         {
             final JSONObject memberDetail = membersArray.getJSONObject(i);
-            Member member = new Member(connection.getList(this.getListId()), memberDetail);
+            Member member = new Member(connection, memberDetail);
             members.add(member);
-
         }
         return members;
     }
@@ -176,14 +175,14 @@ public class Segment {
     /**
 	 * @return The date and time the segment was created.
 	 */
-    public LocalDateTime getCreatedAt() {
+    public ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
     /**
 	 * @return The date and time the segment was last updated.
 	 */
-    public LocalDateTime getUpdatedAt() {
+    public ZonedDateTime getUpdatedAt() {
         return updatedAt;
     }
 
@@ -298,8 +297,8 @@ public class Segment {
                 "    Name: " + getName() +  System.lineSeparator() +
                 "    Type: " + getType().toString() + System.lineSeparator() +
                 "    List ID: " + getListId() + System.lineSeparator() +
-                "    Created at: " + getCreatedAt() + System.lineSeparator() +
-                "    Updated at: " + getUpdatedAt() +  System.lineSeparator() +
+                "    Created at: " + DateConverter.toLocalString(getCreatedAt()) + System.lineSeparator() +
+                "    Updated at: " + DateConverter.toLocalString(getUpdatedAt()) +  System.lineSeparator() +
                 "    Member count: " +  getMemberCount() +
                 (getOptions() != null ? System.lineSeparator() + getOptions().toString() : "");
     }

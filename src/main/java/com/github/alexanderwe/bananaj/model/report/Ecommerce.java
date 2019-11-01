@@ -50,11 +50,11 @@ public class Ecommerce {
 	@Override
 	public String toString() {
 		return 
-				"Ecommerce:" + System.lineSeparator() +
-				"    Total Orders: " + getTotalOrders() + System.lineSeparator() +
-				"    Total Spent: " + getTotalSpent() + System.lineSeparator() +
-				"    Total Revenue: " + getTotalRevenue() + 
-				(getCurrencyCode() != null ? System.lineSeparator() + "    Currency Code: " + getCurrencyCode() : "");
+				"    Ecommerce:" + System.lineSeparator() +
+				"        Total Orders: " + getTotalOrders() + System.lineSeparator() +
+				"        Total Spent: " + getTotalSpent() + System.lineSeparator() +
+				"        Total Revenue: " + getTotalRevenue() + 
+				(getCurrencyCode() != null ? System.lineSeparator() + "        Currency Code: " + getCurrencyCode() : "");
 	}
 
 }

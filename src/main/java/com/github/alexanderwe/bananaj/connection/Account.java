@@ -1,6 +1,6 @@
 package com.github.alexanderwe.bananaj.connection;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import org.json.JSONObject;
 
@@ -21,14 +21,14 @@ public class Account {
 	private String username;
 	private String avatarUrl;
 	private String role;
-	private LocalDateTime memberSince;
+	private ZonedDateTime memberSince;
 	private PricingPlanType pricingPlanType;
-	private LocalDateTime firstPayment;
+	private ZonedDateTime firstPayment;
 	private String accountTimezone;
 	private String accountIndustry;
 	private Contact contact;
 	private boolean proEnabled;
-	private LocalDateTime lastLogin;
+	private ZonedDateTime lastLogin;
 	private int totalSubscribers;
 	private IndustryStats industryStats;
 
@@ -43,17 +43,17 @@ public class Account {
 		this.username = jsonObj.getString("username");
 		this.avatarUrl = jsonObj.getString("avatar_url");
 		this.role = jsonObj.getString("role");
-		this.memberSince = DateConverter.createDateFromISO8601(jsonObj.getString("member_since"));
+		this.memberSince = DateConverter.fromISO8601(jsonObj.getString("member_since"));
 		this.pricingPlanType = PricingPlanType.valueOf(jsonObj.getString("pricing_plan_type").toUpperCase());
 		if (jsonObj.has("first_payment")) {
-			this.firstPayment = DateConverter.createDateFromISO8601(jsonObj.getString("first_payment"));
+			this.firstPayment = DateConverter.fromISO8601(jsonObj.getString("first_payment"));
 		}
 		this.accountTimezone = jsonObj.getString("account_timezone");
 		if (jsonObj.has("account_industry")) {
 			this.accountIndustry = jsonObj.getString("account_industry");
 		}
 		this.proEnabled = jsonObj.getBoolean("pro_enabled");
-		this.lastLogin = DateConverter.createDateFromISO8601(jsonObj.getString("last_login"));
+		this.lastLogin = DateConverter.fromISO8601(jsonObj.getString("last_login"));
 		this.totalSubscribers = jsonObj.getInt("total_subscribers");
 		contact = new Contact(jsonObj.getJSONObject("contact"));
 		if (jsonObj.has("industry_stats")) {
@@ -135,7 +135,7 @@ public class Account {
 	/**
 	 * The date and time that the account was created
 	 */
-	public LocalDateTime getMemberSince() {
+	public ZonedDateTime getMemberSince() {
 		return memberSince;
 	}
 
@@ -149,7 +149,7 @@ public class Account {
 	/**
 	 * Date of first payment for monthly plans
 	 */
-	public LocalDateTime getFirstPayment() {
+	public ZonedDateTime getFirstPayment() {
 		return firstPayment;
 	}
 
@@ -177,7 +177,7 @@ public class Account {
 	/**
 	 * The date and time of the last login for this account 
 	 */
-	public LocalDateTime getLastLogin() {
+	public ZonedDateTime getLastLogin() {
 		return lastLogin;
 	}
 

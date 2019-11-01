@@ -1,10 +1,12 @@
 package com.github.alexanderwe.bananaj.connection;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.time.LocalDateTime;
+import java.net.URLEncoder;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -209,9 +211,9 @@ public class MailChimpConnection extends Connection{
 				Member member = members.get(i);
 				sheet.addCell(new Label(0,i+1,member.getId()));
 				sheet.addCell(new Label(1,i+1,member.getEmailAddress()));
-				sheet.addCell(new Label(2,i+1,member.getTimestampSignup() != null ? member.getTimestampSignup().toString() : ""));
+				sheet.addCell(new Label(2,i+1,member.getTimestampSignup() != null ? DateConverter.toISO8601UTC(member.getTimestampSignup()) : ""));
 				sheet.addCell(new Label(3,i+1,member.getIpSignup() != null ? member.getIpSignup() : ""));
-				sheet.addCell(new Label(4,i+1,member.getTimestampOpt() != null ? member.getTimestampOpt().toString() : ""));
+				sheet.addCell(new Label(4,i+1,member.getTimestampOpt() != null ? DateConverter.toISO8601UTC(member.getTimestampOpt()) : ""));
 				sheet.addCell(new Label(5,i+1,member.getIpOpt() != null ? member.getIpOpt() : ""));
 				sheet.addCell(new Label(6,i+1,member.getStatus().toString()));
 				sheet.addCell(new Number(7,i+1,member.getStats().getAvgOpenRate()));
@@ -422,13 +424,14 @@ public class MailChimpConnection extends Connection{
 	 * @throws TransportException
 	 * @throws URISyntaxException
 	 * @throws MalformedURLException
+	 * @throws UnsupportedEncodingException 
 	 */
-	public List<Report> getCampaignReports(int count, int offset, CampaignType campaignType, LocalDateTime beforeSendTime, LocalDateTime sinceSendTime) throws JSONException, TransportException, URISyntaxException, MalformedURLException {
+	public List<Report> getCampaignReports(int count, int offset, CampaignType campaignType, ZonedDateTime beforeSendTime, ZonedDateTime sinceSendTime) throws JSONException, TransportException, URISyntaxException, MalformedURLException, UnsupportedEncodingException {
 		// TODO:
 		URL url = new URL(reportsendpoint + "?offset=" + offset + "&count=" + count +
 				(campaignType!=null ? "&type" + campaignType.toString() : "") +
-				(beforeSendTime!=null ? "&before_send_time" + DateConverter.toNormal(beforeSendTime) : "") +
-				(sinceSendTime!=null ? "&since_send_time" + DateConverter.toNormal(sinceSendTime) : "") );
+				(beforeSendTime!=null ? "&before_send_time=" + URLEncoder.encode(DateConverter.toISO8601UTC(beforeSendTime), "UTF-8") : "") +
+				(sinceSendTime!=null ? "&since_send_time=" + URLEncoder.encode(DateConverter.toISO8601UTC(sinceSendTime), "UTF-8") : "") );
 		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
 		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
     	JSONArray reportsArray = jsonReports.getJSONArray("reports");

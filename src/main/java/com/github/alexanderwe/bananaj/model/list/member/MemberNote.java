@@ -1,6 +1,6 @@
 package com.github.alexanderwe.bananaj.model.list.member;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import org.json.JSONObject;
 
@@ -12,18 +12,18 @@ import com.github.alexanderwe.bananaj.utils.DateConverter;
 public class MemberNote {
 
 	private int id;
-	private LocalDateTime createdAt;
+	private ZonedDateTime createdAt;
 	private String createdBy;
-	private LocalDateTime updatedAt;
+	private ZonedDateTime updatedAt;
 	private String note;
 	private String listId;
 	private String emailId;
 
 	public MemberNote(JSONObject jsonObj) {
 		id = jsonObj.getInt("id");
-		createdAt = DateConverter.createDateFromISO8601(jsonObj.getString("created_at"));
+		createdAt = DateConverter.fromISO8601(jsonObj.getString("created_at"));
 		createdBy = jsonObj.getString("created_by");
-		updatedAt = DateConverter.createDateFromISO8601(jsonObj.getString("updated_at"));
+		updatedAt = DateConverter.fromISO8601(jsonObj.getString("updated_at"));
 		note = jsonObj.getString("note");
 		listId = jsonObj.getString("list_id");
 		emailId = jsonObj.getString("email_id");
@@ -61,7 +61,7 @@ public class MemberNote {
 	/**
 	 * @return The date and time the note was created.
 	 */
-	public LocalDateTime getCreatedAt() {
+	public ZonedDateTime getCreatedAt() {
 		return createdAt;
 	}
 
@@ -75,7 +75,7 @@ public class MemberNote {
 	/**
 	 * @return The date and time the note was last updated.
 	 */
-	public LocalDateTime getUpdatedAt() {
+	public ZonedDateTime getUpdatedAt() {
 		return updatedAt;
 	}
 
@@ -99,8 +99,8 @@ public class MemberNote {
 	@Override
 	public String toString() {
 		return 
-				"Note: " + getId() + " " + getCreatedAt() + " " + getCreatedBy() + System.lineSeparator() +
-				"    Updated: " + getUpdatedAt() + System.lineSeparator() +
+				"Note: " + getId() + " " + DateConverter.toLocalString(getCreatedAt()) + " " + getCreatedBy() + System.lineSeparator() +
+				"    Updated: " + DateConverter.toLocalString(getUpdatedAt()) + System.lineSeparator() +
 				"    List Id: " + getListId() + System.lineSeparator() +
 				"    Email Id: " + getEmailId() + System.lineSeparator() +
 				"    Message: " + getNote(); 

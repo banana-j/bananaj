@@ -2,7 +2,7 @@ package com.github.alexanderwe.bananaj.model.filemanager;
 
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
@@ -21,7 +21,7 @@ public class FileManagerFolder {
 	private int id;
 	private String name;
 	private int fileCount;
-	private LocalDateTime createdAt;
+	private ZonedDateTime createdAt;
 	private String createdBy;
 	private ArrayList<FileManagerFile> files;
 	private MailChimpConnection connection;
@@ -34,7 +34,7 @@ public class FileManagerFolder {
 		id = jsonFileManagerFolder.getInt("id");
 		name = jsonFileManagerFolder.getString("name");
 		fileCount = jsonFileManagerFolder.getInt("file_count");
-		createdAt = DateConverter.createDateFromISO8601(jsonFileManagerFolder.getString("created_at"));
+		createdAt = DateConverter.fromISO8601(jsonFileManagerFolder.getString("created_at"));
 		createdBy = jsonFileManagerFolder.getString("created_by");
 		this.connection = connection;
 	}
@@ -87,7 +87,7 @@ public class FileManagerFolder {
 	/**
 	 * @return The date and time a file was added to the File Manager
 	 */
-	public LocalDateTime getCreatedAt() {
+	public ZonedDateTime getCreatedAt() {
 		return createdAt;
 	}
 
@@ -181,7 +181,7 @@ public class FileManagerFolder {
 		return "Folder: " + getName() +  System.lineSeparator() +
         		"    ID: " + getId() +  System.lineSeparator() +
         		"    File count: " + getFileCount() + System.lineSeparator() +
-				"    Created at: " + getCreatedAt() + System.lineSeparator() +
+				"    Created at: " + DateConverter.toLocalString(getCreatedAt()) + System.lineSeparator() +
 				"    Created by: " + getCreatedBy();
 	}
 }

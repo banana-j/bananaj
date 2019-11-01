@@ -5,7 +5,7 @@
 package com.github.alexanderwe.bananaj.model.template;
 
 import java.net.URL;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import org.json.JSONObject;
 
@@ -23,8 +23,8 @@ public class Template {
 	private boolean dragAndDrop;
 	private boolean responsive;
 	private String category;
-	private LocalDateTime dateCreated;
-	private LocalDateTime dateEdited;
+	private ZonedDateTime dateCreated;
+	private ZonedDateTime dateEdited;
 	private String createdBy;
 	private String editedBy;
 	private boolean active;
@@ -51,8 +51,8 @@ public class Template {
 		dragAndDrop = jsonObj.getBoolean("drag_and_drop");
 		responsive = jsonObj.getBoolean("responsive");
 		category = jsonObj.has("category") ? jsonObj.getString("category") : null;
-		dateCreated = DateConverter.createDateFromISO8601(jsonObj.getString("date_created"));
-		dateEdited = DateConverter.createDateFromISO8601(jsonObj.getString("date_edited"));
+		dateCreated = DateConverter.fromISO8601(jsonObj.getString("date_created"));
+		dateEdited = DateConverter.fromISO8601(jsonObj.getString("date_edited"));
 		createdBy = jsonObj.getString("created_by");
 		editedBy = jsonObj.getString("edited_by");
 		active = jsonObj.getBoolean("active");
@@ -134,14 +134,14 @@ public class Template {
 	/**
 	 * @return The date and time the template was created
 	 */
-	public LocalDateTime getDateCreated() {
+	public ZonedDateTime getDateCreated() {
 		return dateCreated;
 	}
 
 	/**
 	 * @return The date and time the template was edited
 	 */
-	public LocalDateTime getDateEdited() {
+	public ZonedDateTime getDateEdited() {
 		return dateEdited;
 	}
 
@@ -227,19 +227,18 @@ public class Template {
 	@Override
 	public String toString(){
 		return 
-				"Template Id: " + getId() + System.lineSeparator() +
-				"Name: " + getName() + System.lineSeparator() +
-				"Type: " + getType().toString() + System.lineSeparator() +
-				"DragAndDrop: " + isDragAndDrop() + System.lineSeparator() +
-				"Responsive: " + isResponsive() + System.lineSeparator() +
-				"Category: " + getCategory() + System.lineSeparator() +
-				"Date created: " + getDateCreated() + System.lineSeparator() +
-				"Created By: " + getCreatedBy() + System.lineSeparator() +
-				"Date edited: " + getDateEdited() + System.lineSeparator() +
-				"Edited By: " + getEditedBy() + System.lineSeparator() +
-				"Active: " + isActive() + System.lineSeparator() +
-				"Folder Id: " + getFolderId() +  System.lineSeparator()+
-				"Share url: "+  getShareUrl();
+				"Template Id: " + getId() + " Name: " + getName() + System.lineSeparator() +
+				"    Type: " + getType().toString() + System.lineSeparator() +
+				"    DragAndDrop: " + isDragAndDrop() + System.lineSeparator() +
+				"    Responsive: " + isResponsive() + System.lineSeparator() +
+				"    Category: " + getCategory() + System.lineSeparator() +
+				"    Date created: " + DateConverter.toLocalString(getDateCreated()) + System.lineSeparator() +
+				"    Created By: " + getCreatedBy() + System.lineSeparator() +
+				"    Date edited: " + DateConverter.toLocalString(getDateEdited()) + System.lineSeparator() +
+				"    Edited By: " + getEditedBy() + System.lineSeparator() +
+				"    Active: " + isActive() + System.lineSeparator() +
+				"    Folder Id: " + getFolderId() +  System.lineSeparator()+
+				"    Share url: "+  getShareUrl();
 	}
 
 	public static class Builder {

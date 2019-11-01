@@ -93,8 +93,6 @@ public class TemplateFolder {
 
     @Override
     public String toString(){
-        return "Id: " + getId() + System.lineSeparator() +
-                "Name: " + getName() + System.lineSeparator() +
-                "Count: " + getCount();
+        return "Id: " + getId() + " Name: " + getName() + "Count: " + getCount();
     }
 }

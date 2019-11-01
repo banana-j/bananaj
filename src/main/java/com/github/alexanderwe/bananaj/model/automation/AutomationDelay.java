@@ -17,8 +17,7 @@ public class AutomationDelay {
 		action = DelayAction.SIGNUP;
 	}
 
-	public AutomationDelay(int amount, DelayType type, DelayDirection direction, DelayAction action) {
-		super();
+	public AutomationDelay(Integer amount, DelayType type, DelayDirection direction, DelayAction action) {
 		this.amount = amount;
 		this.type = type;
 		this.direction = direction;
@@ -129,12 +128,12 @@ public class AutomationDelay {
 	public String toString() {
 		return
 		"Delay:" + System.lineSeparator() +
-		"    amount: " + getAmount() + System.lineSeparator() +
 		"    Type: " + getType().toString() + System.lineSeparator() +
-		"    Direction: " + getDirection().toString() + System.lineSeparator() +
 		"    Action: " + getAction().toString() + System.lineSeparator() +
-		"    Action Description: " + getActionDescription() + System.lineSeparator() +
-		"    Full Description: " + getFullDescription(); 
+		(getAmount() != null ? "    amount: " + getAmount() + System.lineSeparator() : "") +
+		(getDirection() != null ? "    Direction: " + getDirection().toString() + System.lineSeparator() : "") +
+		(getActionDescription() != null ? "    Action Description: " + getActionDescription() + System.lineSeparator() : "") +
+		(getFullDescription() != null ? "    Full Description: " + getFullDescription() : ""); 
 	}
 	
 	

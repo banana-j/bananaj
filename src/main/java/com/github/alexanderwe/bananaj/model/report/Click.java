@@ -4,7 +4,7 @@
  */
 package com.github.alexanderwe.bananaj.model.report;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import org.json.JSONObject;
 
@@ -21,14 +21,14 @@ public class Click {
 	private int uniqueClicks;
 	private int uniqueSubscriberClicks;
 	private double clickRate;
-	private LocalDateTime lastClick;
+	private ZonedDateTime lastClick;
 
 	public Click(JSONObject jsonObj) {
 		clicksTotal = jsonObj.getInt("clicks_total");
 		uniqueClicks = jsonObj.getInt("unique_clicks");
 		uniqueSubscriberClicks = jsonObj.getInt("unique_subscriber_clicks");
 		clickRate = jsonObj.getDouble("click_rate");
-		lastClick = DateConverter.createDateFromISO8601(jsonObj.getString("last_click"));
+		lastClick = DateConverter.fromISO8601(jsonObj.getString("last_click"));
 	}
 
 	/**
@@ -62,7 +62,7 @@ public class Click {
 	/**
 	 * @return The date and time of the last recorded click for the campaign.
 	 */
-	public LocalDateTime getLastClick() {
+	public ZonedDateTime getLastClick() {
 		return lastClick;
 	}
 
@@ -77,7 +77,7 @@ public class Click {
 				"    Unique clicks: " + getUniqueClicks() + System.lineSeparator() +
 				"    Unique subscriber links: " + getUniqueSubscriberClicks() + System.lineSeparator() +
 				"    Click rate: " + getClickRate() + System.lineSeparator() +
-				"    Last click: " + getLastClick();
+				"    Last click: " + (getLastClick()!=null ? DateConverter.toLocalString(getLastClick()) : "");
 	}
 
 }

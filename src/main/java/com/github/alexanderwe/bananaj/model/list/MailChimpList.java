@@ -7,11 +7,12 @@ package com.github.alexanderwe.bananaj.model.list;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Map.Entry;
 
 import org.json.JSONArray;
@@ -54,7 +55,7 @@ public class MailChimpList {
 	private ListCampaignDefaults campaignDefaults;	// Default values for campaigns created for this list
 	private String notifyOnSubscribe;	// The email address to send subscribe notifications to
 	private String notifyOnUnsubscribe; // The email address to send unsubscribe notifications to 
-	private LocalDateTime dateCreated;	// The date and time that this list was created
+	private ZonedDateTime dateCreated;	// The date and time that this list was created
 	private int listRating;			// An auto-generated activity score for the list (0-5)
 	private boolean emailTypeOption;	// Whether the list supports multiple formats for emails. When set to true, subscribers can choose whether they want to receive HTML or plain-text emails. When set to false, subscribers will receive HTML emails, with a plain-text alternative backup.
 	private String subscribeUrlShort;	// EepURL shortened version of this list’s subscribe form
@@ -98,7 +99,7 @@ public class MailChimpList {
 		campaignDefaults = new ListCampaignDefaults(jsonList.getJSONObject("campaign_defaults"));
 		notifyOnSubscribe = jsonList.getString("notify_on_subscribe");
 		notifyOnUnsubscribe = jsonList.getString("notify_on_unsubscribe");
-		dateCreated = DateConverter.createDateFromISO8601(jsonList.getString("date_created"));
+		dateCreated = DateConverter.fromISO8601(jsonList.getString("date_created"));
 		listRating = jsonList.getInt("list_rating");
 		emailTypeOption = jsonList.getBoolean("email_type_option");
 		subscribeUrlShort = jsonList.getString("subscribe_url_short");
@@ -227,7 +228,7 @@ public class MailChimpList {
 		for (int i = 0 ; i < membersArray.length();i++)
 		{
 			final JSONObject memberDetail = membersArray.getJSONObject(i);
-	    	Member member = new Member(this, memberDetail);
+	    	Member member = new Member(connection, memberDetail);
 			members.add(member);
 		}
 		return members;
@@ -245,7 +246,7 @@ public class MailChimpList {
 	 */
 	public Member getMember(String subscriberHash) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
 		final JSONObject member = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+getId()+"/members/"+subscriberHash),connection.getApikey()));
-    	return new Member(this, member);
+    	return new Member(connection, member);
 	}
 	
 	/**
@@ -266,29 +267,28 @@ public class MailChimpList {
 
 		String results = getConnection().do_Post(new URL(connection.getListendpoint() + "/" + getId() + "/members"),
 				json.toString(), connection.getApikey());
-		Member member = new Member(this, new JSONObject(results));
+		Member member = new Member(connection, new JSONObject(results));
 		return member;
 	}
 
 	/**
-	 * Add a new member to the list
+	 * Add a new member to the list. Member fields will be freshened from mailchimp.
 	 * 
 	 * @param member
-	 * @return The newly added member
+	 * @return The member with fields freshened from mailchimp.
 	 * @throws URISyntaxException
 	 * @throws TransportException
 	 * @throws MalformedURLException
 	 */
 	public Member addMember(Member member) throws MalformedURLException, TransportException, URISyntaxException {
 		JSONObject json = member.getJsonRepresentation();
-		
 		String results = connection.do_Post(new URL(connection.getListendpoint()+"/"+getId()+"/members"), json.toString(), connection.getApikey());
-		Member newMember = new Member(this, new JSONObject(results)); 
-        return newMember;
+		member.parse(connection, new JSONObject(results));
+        return member;
 	}
 	
 	/**
-	 * Add a member with first and last name
+	 * Add a member with first and last name.
 	 * 
 	 * @param status              Subscriber’s current status
 	 * @param emailAddress        Email address for a subscriber
@@ -316,7 +316,7 @@ public class MailChimpList {
 		json.put("email_address", emailAddress);
 		json.put("merge_fields", merge_fields);
 		String results = getConnection().do_Post(url, json.toString(), connection.getApikey());
-		Member member = new Member(this, new JSONObject(results));
+		Member member = new Member(connection, new JSONObject(results));
 		return member;
 	}
 
@@ -325,17 +325,19 @@ public class MailChimpList {
 	 * from MailChimp.
 	 * 
 	 * @param member
+	 * @return The member with fields freshened from mailchimp.
 	 * @throws URISyntaxException
 	 * @throws TransportException
 	 * @throws MalformedURLException
 	 */
-	public void updateMember(Member member) throws MalformedURLException, TransportException, URISyntaxException {
+	public Member updateMember(Member member) throws MalformedURLException, TransportException, URISyntaxException {
 		JSONObject json = member.getJsonRepresentation();
 
 		String results = getConnection().do_Patch(
 				new URL(connection.getListendpoint() + "/" + getId() + "/members/" + member.getId()), json.toString(),
 				connection.getApikey());
-		member.parse(this, new JSONObject(results)); // update member object with current data
+		member.parse(connection, new JSONObject(results)); // update member object with current data
+		return member;
 	}
 
 	/**
@@ -344,11 +346,12 @@ public class MailChimpList {
 	 * fields will be freshened from mailchimp.
 	 * 
 	 * @param member
+	 * @return The member with fields freshened from mailchimp.
 	 * @throws URISyntaxException
 	 * @throws TransportException
 	 * @throws MalformedURLException
 	 */
-	public void addOrUpdateMember(Member member) throws MalformedURLException, TransportException, URISyntaxException {
+	public Member addOrUpdateMember(Member member) throws MalformedURLException, TransportException, URISyntaxException {
 		JSONObject json = member.getJsonRepresentation();
 
 		if (member.getStatusIfNew() == null) {
@@ -358,7 +361,8 @@ public class MailChimpList {
 		String results = getConnection().do_Put(
 				new URL(connection.getListendpoint() + "/" + getId() + "/members/" + member.getId()), json.toString(),
 				connection.getApikey());
-		member.parse(this, new JSONObject(results)); // update member object with current data
+		member.parse(getConnection(), new JSONObject(results)); // update member object with current data
+		return member;
 	}
 
 	/**
@@ -984,7 +988,7 @@ public class MailChimpList {
 	 * 
 	 * @return the dateCreated
 	 */
-	public LocalDateTime getDateCreated() {
+	public ZonedDateTime getDateCreated() {
 		return dateCreated;
 	}
 
@@ -1155,7 +1159,7 @@ public class MailChimpList {
 				"    Use Archive Bar: " + isUseArchiveBar() + System.lineSeparator() +
 				"    Notify On Subscribe: " + getNotifyOnSubscribe() + System.lineSeparator() +
 				"    Notify On Unsubscribe: " + getNotifyOnUnsubscribe() + System.lineSeparator() +
-				"    Created: " + getDateCreated() + System.lineSeparator() +
+				"    Created: " + DateConverter.toLocalString(getDateCreated()) + System.lineSeparator() +
 				"    List Rating: " + getListRating() + System.lineSeparator() +
 				"    Email Type Option: " + isEmailTypeOption() + System.lineSeparator() +
 				"    Subscribe URL Short: " + getSubscribeUrlShort() + System.lineSeparator() +
@@ -1295,6 +1299,11 @@ public class MailChimpList {
 		}
 
     	public MailChimpList build() {
+			Objects.requireNonNull(name, "name");
+			Objects.requireNonNull(contact, "contact");
+			Objects.requireNonNull(permissionReminder, "permission_reminder");
+			Objects.requireNonNull(campaignDefaults, "campaign_defaults");
+			//Objects.requireNonNull(emailTypeOption, "email_type_option");
     		return new MailChimpList(this);
     	}
     }

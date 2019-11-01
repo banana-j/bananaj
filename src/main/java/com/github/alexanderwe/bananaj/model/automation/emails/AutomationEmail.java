@@ -1,7 +1,7 @@
 package com.github.alexanderwe.bananaj.model.automation.emails;
 
 import java.net.URL;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import org.json.JSONObject;
 
@@ -20,12 +20,12 @@ public class AutomationEmail {
 	private String workflowId;
 	private int position;
 	private AutomationDelay delay;
-	private LocalDateTime createTime;
-	private LocalDateTime startTime;
+	private ZonedDateTime createTime;
+	private ZonedDateTime startTime;
 	private String archiveUrl;
 	private AutomationStatus status;
 	private int emailsSent;
-	private LocalDateTime sendTime;
+	private ZonedDateTime sendTime;
 	private String contentType;
 	private boolean needsBlockRefresh;
 	private boolean hasLogoMergeTag;
@@ -52,12 +52,12 @@ public class AutomationEmail {
 		workflowId = jsonObj.getString("workflow_id");
 		position = jsonObj.getInt("position");
 		delay = new AutomationDelay(jsonObj.getJSONObject("delay"));
-        createTime = DateConverter.createDateFromISO8601(jsonObj.getString("create_time"));
-        startTime = DateConverter.createDateFromISO8601(jsonObj.getString("start_time"));
+        createTime = DateConverter.fromISO8601(jsonObj.getString("create_time"));
+        startTime = jsonObj.has("start_time") ? DateConverter.fromISO8601(jsonObj.getString("start_time")) : null;
         archiveUrl = jsonObj.getString("archive_url");
 		status = AutomationStatus.valueOf(jsonObj.getString("status").toUpperCase());
 		emailsSent = jsonObj.getInt("emails_sent");
-        sendTime = DateConverter.createDateFromISO8601(jsonObj.getString("send_time"));
+        sendTime = jsonObj.has("send_time") ? DateConverter.fromISO8601(jsonObj.getString("send_time")) : null;
         contentType = jsonObj.getString("content_type");
         needsBlockRefresh = jsonObj.getBoolean("needs_block_refresh");
         hasLogoMergeTag = jsonObj.getBoolean("has_logo_merge_tag");
@@ -68,6 +68,10 @@ public class AutomationEmail {
         this.connection = connection;
 	}
 
+	/**
+	 * 
+	 * @deprecated
+	 */
 	public AutomationSubscriberQueue getSubscriberQueue() throws Exception {
 		return getSubscriberQueue(100, 0);
 	}
@@ -148,14 +152,14 @@ public class AutomationEmail {
 	/**
 	 * The date and time the campaign was created
 	 */
-	public LocalDateTime getCreateTime() {
+	public ZonedDateTime getCreateTime() {
 		return createTime;
 	}
 
 	/**
 	 * The date and time the campaign was started
 	 */
-	public LocalDateTime getStartTime() {
+	public ZonedDateTime getStartTime() {
 		return startTime;
 	}
 
@@ -183,7 +187,7 @@ public class AutomationEmail {
 	/**
 	 * The date and time a campaign was sent
 	 */
-	public LocalDateTime getSendTime() {
+	public ZonedDateTime getSendTime() {
 		return sendTime;
 	}
 
@@ -265,12 +269,12 @@ public class AutomationEmail {
 				"    Id: " + getId() + System.lineSeparator() +
 				"    Web Id: " + getWebId() + System.lineSeparator() +
 				"    Position: " + getPosition() + System.lineSeparator() +
-				"    Created: " + getCreateTime() + System.lineSeparator() +
-				"    Started: " + getStartTime() + System.lineSeparator() +
+				"    Created: " + DateConverter.toLocalString(getCreateTime()) + System.lineSeparator() +
+				"    Started: " + (getStartTime()!=null ? DateConverter.toLocalString(getStartTime()) : "") + System.lineSeparator() +
 				"    Archive URL: " + getArchiveUrl() + System.lineSeparator() +
 				"    Status: " + getStatus().toString() + System.lineSeparator() +
 				"    Emails Sent: " + getEmailsSent() + System.lineSeparator() +
-				"    Send Time: " + getSendTime() + System.lineSeparator() +
+				"    Send Time: " + (getSendTime()!=null ? DateConverter.toLocalString(getSendTime()) : "") + System.lineSeparator() +
 				"    Content Type: " + getContentType() + System.lineSeparator() +
 				"    Needs Block Refresh: " + isNeedsBlockRefresh() + System.lineSeparator() +
 				"    Has Logo Merge Tag: " + isHasLogoMergeTag() + System.lineSeparator() +

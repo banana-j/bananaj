@@ -1,6 +1,6 @@
 package com.github.alexanderwe.bananaj.model.list;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import org.json.JSONObject;
 
@@ -15,15 +15,15 @@ public class ListStats {
 	private int unsubscribeCountSinceSend;	// The number of members who have unsubscribed since the last campaign was sent.
 	private int cleanedCountSinceSend;		// The number of members cleaned from the list since the last campaign was sent.
 	private int campaignCount;		// The number of campaigns in any status that use this list.
-	private LocalDateTime campaignLastSent;	// The date and time the last campaign was sent to this list. This is updated when a campaign is sent to 10 or more recipients.
+	private ZonedDateTime campaignLastSent;	// The date and time the last campaign was sent to this list. This is updated when a campaign is sent to 10 or more recipients.
 	private int mergeFieldCount;	// The number of merge vars for this list (not EMAIL, which is required).
 	private Double avgSubscritionRate;	// The average number of subscriptions per month for the list (not returned if we haven’t calculated it yet).
 	private Double avgUnsubscribeRate;	// The average number of unsubscriptions per month for the list (not returned if we haven’t calculated it yet).
 	private Double targetSubscriptionRate;	// The target number of subscriptions per month for the list to keep it growing (not returned if we haven’t calculated it yet).
 	private Double openRate;		// The average open rate (a percentage represented as a number between 0 and 100) per campaign for the list (not returned if we haven’t calculated it yet).
 	private Double clickRate;		// The average click rate (a percentage represented as a number between 0 and 100) per campaign for the list (not returned if we haven’t calculated it yet).
-	private LocalDateTime lastSubcribedDate;	// The date and time of the last time someone subscribed to this list.
-	private LocalDateTime lastUnsubscrivedDate;	// The date and time of the last time someone unsubscribed from this list.
+	private ZonedDateTime lastSubcribedDate;	// The date and time of the last time someone subscribed to this list.
+	private ZonedDateTime lastUnsubscrivedDate;	// The date and time of the last time someone unsubscribed from this list.
 	
 	public ListStats() {
 
@@ -50,11 +50,11 @@ public class ListStats {
 		}
 	}
 	
-	private LocalDateTime getOptionalDate(JSONObject stats, String key) {
+	private ZonedDateTime getOptionalDate(JSONObject stats, String key) {
 		if(stats.has(key)) {
 			String value = stats.getString(key);
 			if (value.length() > 0) {
-				return DateConverter.createDateFromISO8601(value);
+				return DateConverter.fromISO8601(value);
 			}
 		}
 		return null;
@@ -131,7 +131,7 @@ public class ListStats {
 	/**
 	 * The date and time the last campaign was sent to this list. This is updated when a campaign is sent to 10 or more recipients.
 	 */
-	public LocalDateTime getCampaignLastSent() {
+	public ZonedDateTime getCampaignLastSent() {
 		return campaignLastSent;
 	}
 
@@ -180,14 +180,14 @@ public class ListStats {
 	/**
 	 * The date and time of the last time someone subscribed to this list
 	 */
-	public LocalDateTime getLastSubcribedDate() {
+	public ZonedDateTime getLastSubcribedDate() {
 		return lastSubcribedDate;
 	}
 
 	/**
 	 * The date and time of the last time someone unsubscribed from this list
 	 */
-	public LocalDateTime getLastUnsubscrivedDate() {
+	public ZonedDateTime getLastUnsubscrivedDate() {
 		return lastUnsubscrivedDate;
 	}
 
@@ -205,15 +205,15 @@ public class ListStats {
 				"    Unsubscribed Since Send: " + getUnsubscribeCountSinceSend() + System.lineSeparator() +
 				"    Cleaned Since Send: " + getCleanedCountSinceSend() + System.lineSeparator() +
 				"    Campaigns: " + getCampaignCount() + System.lineSeparator() +
-				(getCampaignLastSent() != null ? "    Campaign Last Sent: " + getCampaignLastSent() + System.lineSeparator() : "") +
+				(getCampaignLastSent() != null ? "    Campaign Last Sent: " + DateConverter.toLocalString(getCampaignLastSent()) + System.lineSeparator() : "") +
 				"    Merge Fields: " + getMergeFieldCount() + System.lineSeparator() +
 				(getAvgSubscritionRate() != null ? "    Avg Subscription Rate: " + getAvgSubscritionRate() + System.lineSeparator() : "") +
 				(getAvgUnsubscribeRate() != null ? "    Avg Unsubscribe Rate: " + getAvgUnsubscribeRate() + System.lineSeparator() : "") +
 				(getTargetSubscriptionRate() != null ? "    Target Subscription Rate: " + getTargetSubscriptionRate() + System.lineSeparator() : "") +
 				(getOpenRate() != null ? "    Open Rate: " + getOpenRate() + System.lineSeparator() : "") +
 				(getClickRate() != null ? "    Click Rate: " + getClickRate() + System.lineSeparator() : "") +
-				(getLastSubcribedDate() != null ? "    Last Subscribed: " + getLastSubcribedDate() + System.lineSeparator() : "") +
-				(getLastUnsubscrivedDate() != null ? "    Last Unscribe: " + getLastUnsubscrivedDate() : "");
+				(getLastSubcribedDate() != null ? "    Last Subscribed: " + DateConverter.toLocalString(getLastSubcribedDate()) + System.lineSeparator() : "") +
+				(getLastUnsubscrivedDate() != null ? "    Last Unscribe: " + DateConverter.toLocalString(getLastUnsubscrivedDate()) : "");
 	}
 
 }

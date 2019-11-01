@@ -1,6 +1,6 @@
 package com.github.alexanderwe.bananaj.model.list.member;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import org.json.JSONObject;
 
@@ -12,13 +12,13 @@ import com.github.alexanderwe.bananaj.utils.DateConverter;
 public class LastNote {
 	
 	private int id;
-	private LocalDateTime createdAt;
+	private ZonedDateTime createdAt;
 	private String createdBy;
 	private String note;
 
 	public LastNote(JSONObject jsonObj) {
 		id = jsonObj.getInt("note_id");
-		createdAt = DateConverter.createDateFromISO8601(jsonObj.getString("created_at"));
+		createdAt = DateConverter.fromISO8601(jsonObj.getString("created_at"));
 		createdBy = jsonObj.getString("created_by");
 		note = jsonObj.getString("note");
 	}
@@ -40,7 +40,7 @@ public class LastNote {
 	/**
 	 * @return The date and time the note was created.
 	 */
-	public LocalDateTime getCreatedAt() {
+	public ZonedDateTime getCreatedAt() {
 		return createdAt;
 	}
 
@@ -57,7 +57,7 @@ public class LastNote {
 	@Override
 	public String toString() {
 		return 
-				"    Note: " + getId() + " " + getCreatedAt() + " " + getCreatedBy() + System.lineSeparator() +
+				"    Note: " + getId() + " " + DateConverter.toLocalString(getCreatedAt()) + " " + getCreatedBy() + System.lineSeparator() +
 				"        " + getNote(); 
 	}
 

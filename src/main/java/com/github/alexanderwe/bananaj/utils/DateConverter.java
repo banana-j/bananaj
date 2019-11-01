@@ -2,12 +2,12 @@ package com.github.alexanderwe.bananaj.utils;
 
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Validator for E-Mail addresses. Replacement for deprecated apache commons EmailValidator.
- * Created by alexanderweiss on 27.12.16.
+ * Date time conversion functions for conversion and formatting of Mailchimp dates
  */
 public class DateConverter {
 
@@ -17,62 +17,68 @@ public class DateConverter {
 
     }
 
-    public static DateConverter getInstance(){
-        if(instance == null){
-            instance = new DateConverter();
-        }
-        return instance;
-    }
-
     /**
-     * Convert a date formatted in IS8601 to a normal java date
-     * @param dateString
+     * Convert a date string in ISO 8601 formant to a date-time with a time-zone in the ISO-8601 calendar system.
+     * @param iso8601String
      * @return Date
      */
-    public LocalDateTime createDateFromISO8601(String dateString) {
-    	if (dateString == null || dateString.length() == 0) {
+    public static ZonedDateTime fromISO8601(String iso8601String) {
+    	if (iso8601String == null || iso8601String.length() == 0) {
     		return null;
     	}
 
 		// mailchimp sometimes returns a year offset rather than a properly formated ISO
 		// 8601 such as '-001-11-30T00:00:00+00:00'
-    	if (dateString.startsWith("-")) {
-    		int yearOffset = Integer.parseInt(dateString.substring(0, 4));
+    	if (iso8601String.startsWith("-")) {
+    		// Note: as of 2019-10-31 no longer seeing dates with offset year (-001). May have been fixed in Mailchimp API
+    		int yearOffset = Integer.parseInt(iso8601String.substring(0, 4));
     		int adjustedYear = LocalDateTime.now().getYear() + yearOffset;
-    		String adjustedDate = "" + adjustedYear + dateString.substring(4);
-    		return ZonedDateTime.parse(adjustedDate).toLocalDateTime();
+    		String adjustedDate = "" + adjustedYear + iso8601String.substring(4);
+    		return ZonedDateTime.parse(adjustedDate);
     	}
-    	return ZonedDateTime.parse(dateString).toLocalDateTime();
+    	return ZonedDateTime.parse(iso8601String, DateTimeFormatter.ISO_OFFSET_DATE_TIME).withFixedOffsetZone();
     }
 
     /**
-     *  Convert a date formatted in IS8601 to a normal java date
-     * @param dateString
-     * @return Date
-     */
-    public LocalDateTime createDateFromNormal(String dateString) {
-        String formatIn = "yyyy-MM-dd HH:mm:ss";
-        return LocalDateTime.parse(dateString, DateTimeFormatter.ofPattern(formatIn));
+	 * Convert a ZonedDateTime to a string in universal time coordinates using the
+	 * format YYYY-MM-DDThh:mm:ssTZD (eg 1997-07-16T19:20:30+00:00).
+	 * 
+	 * @param zonedDateTime
+	 * @return The string representation of zonedDateTime as YYYY-MM-DDThh:mm:ssTZD
+	 *         (eg 1997-07-16T19:20:30+00:00).
+	 */
+    public static String toISO8601UTC(ZonedDateTime zonedDateTime) {
+		ZonedDateTime utc = ZonedDateTime.ofInstant(zonedDateTime.toInstant(), ZoneId.of("UTC"));
+    	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ssxxxxx");
+    	return utc.format(formatter);
     }
     
     /**
-	 * Mailchimp does not handle correct ISO8601 dates when sent to the API. It
-	 * requires the "T" to be a space, and will reject a date that includes the
-	 * timezone (the +HH:MM on the end).
-	 * 
-	 * @param ldt
-	 */
-    public static String toNormal(LocalDateTime ldt) {
+     * Converts a ZonedDateTime, offset to UTC, as a local string. 
+     * @param zonedDateTime
+     * @return Date time string (yyy-mm-dd hh:mm:ss) in UTC time.
+     */
+    public static String toUTCLocalString(ZonedDateTime zonedDateTime) {
+    	if (zonedDateTime == null) {
+    		return "";
+    	}
+		ZonedDateTime utc = ZonedDateTime.ofInstant(zonedDateTime.toInstant(), ZoneId.of("UTC"));
     	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd' 'HH:mm:ss");
-    	return ldt.format(formatter);
-    	
-//    	ZonedDateTime zdt = ldt.atZone(ZoneId.systemDefault());
-//    	return zdt.toString();
-
-//        Date ts = Date.from(zdt.toInstant());
-//
-//		SimpleDateFormat dateFormatGmt = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
-//		String timeStamp = dateFormatGmt.format(new Date());
-//		return timeStamp;
+    	return utc.format(formatter);
     }
+    
+    /**
+     * Converts a ZonedDateTime, offset to the system default time zone, as a local string.
+     * @param zonedDateTime
+     * @return Date time string (yyy-mm-dd hh:mm:ss) in the system time zone
+     */
+    public static String toLocalString(ZonedDateTime zonedDateTime) {
+    	if (zonedDateTime == null) {
+    		return "";
+    	}
+		ZonedDateTime utc = ZonedDateTime.ofInstant(zonedDateTime.toInstant(), ZoneId.systemDefault());
+    	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd' 'HH:mm:ss");
+    	return utc.format(formatter);
+    }
+    
 }

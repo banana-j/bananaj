@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import org.json.JSONObject;
 
@@ -27,7 +27,7 @@ public class FileManagerFile {
 	private String fullSizeUrl;
 	private String thumbnailUrl;
 	private int size;
-	private LocalDateTime createdAt;
+	private ZonedDateTime createdAt;
 	private String createdBy;
 	private int width;
 	private int height;
@@ -52,7 +52,7 @@ public class FileManagerFile {
 		fullSizeUrl = jsonObj.getString("full_size_url");
 		thumbnailUrl = jsonObj.getString("thumbnail_url");
 		size = jsonObj.getInt("size");
-		createdAt = DateConverter.createDateFromISO8601(jsonObj.getString("created_at"));
+		createdAt = DateConverter.fromISO8601(jsonObj.getString("created_at"));
 		createdBy = jsonObj.getString("created_by");
 		this.connection = connection;
 
@@ -195,7 +195,7 @@ public class FileManagerFile {
 	/**
 	 * @return The date and time a file was added to the File Manager
 	 */
-	public LocalDateTime getCreatedAt() {
+	public ZonedDateTime getCreatedAt() {
 		return createdAt;
 	}
 
@@ -245,7 +245,8 @@ public class FileManagerFile {
 				(getType() == FileType.IMAGE ?  
 					" Width: " + getWidth()+"px " + 
 					" Height: "+ getHeight()+"px" : "" ) +
-				" Folder-Id: " + getId();
+				" Folder-Id: " + getId() +
+				" Created: " + DateConverter.toLocalString(getCreatedAt());
 	}
 
 

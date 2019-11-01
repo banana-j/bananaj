@@ -4,7 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.json.JSONObject;
 import org.junit.Test;
@@ -113,7 +114,7 @@ public class MailChimpListTest {
 		assertEquals(abuse.getEmailAddress(), "mr.test@gmail.com");
 		assertEquals(abuse.getMergeFields().size(), 4);
 		assertEquals(abuse.isVip(), true);
-		assertEquals(abuse.getDate(), LocalDateTime.of(2019, 4, 4, 23, 39, 59));
+		assertEquals(abuse.getDate(), ZonedDateTime.of(2019, 4, 4, 23, 39, 59, 0, ZoneId.of("+00:00")));
 	}
 	
 	// TODO:

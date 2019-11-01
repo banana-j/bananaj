@@ -4,7 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
@@ -58,18 +59,20 @@ public class UtilsTest {
 
 	@Test
 	public void testDateConverter() {
-		LocalDateTime ld1 = DateConverter.createDateFromISO8601("2019-03-15T14:34:59+00:00");
-		LocalDateTime ld2 = LocalDateTime.of(2019, 03, 15, 14, 34, 59);
-		assertEquals(ld1, ld2);
-		
-		ld1 = DateConverter.createDateFromISO8601("-001-11-30T00:00:00+00:00");
-		ld2 = LocalDateTime.of(LocalDateTime.now().getYear() - 1, 11, 30, 0, 0, 0);
-		assertEquals(ld1, ld2);
-		
-		ld1 = DateConverter.createDateFromNormal("2019-03-15 14:34:59");
-		ld2 =LocalDateTime.of(2019, 03, 15, 14, 34, 59);
-		assertEquals(ld1, ld2);
-		assertEquals(DateConverter.toNormal(ld2), "2019-03-15 14:34:59");
+		ZonedDateTime ld1 = DateConverter.fromISO8601("2019-03-15T14:34:59+00:00");
+		ZonedDateTime ld2 = ZonedDateTime.of(2019, 03, 15, 14, 34, 59, 0, ZoneId.of("+00:00"));
+		assertEquals("2019-03-15T14:34:59+00:00", DateConverter.toISO8601UTC(ld1));
+		assertEquals(DateConverter.toISO8601UTC(ld1), DateConverter.toISO8601UTC(ld2));
+		ld2 = ZonedDateTime.of(2019, 03, 15, 14, 34, 59, 0, ZoneId.of("UTC"));
+		assertEquals(DateConverter.toISO8601UTC(ld1), DateConverter.toISO8601UTC(ld2));
+
+		// Time offset to UTC test
+		assertEquals("2019-03-15T19:04:59+00:00", DateConverter.toISO8601UTC(DateConverter.fromISO8601("2019-03-15T14:04:59-05:00")));
+
+		// Mailchimp sometimes reports a year offset. Note: as of 2019-10-31 no longer seeing this
+		ld1 = DateConverter.fromISO8601("-001-11-30T00:00:00+00:00");
+		ld2 = ZonedDateTime.of(ZonedDateTime.now().getYear() - 1, 11, 30, 0, 0, 0, 0, ZoneId.of("UTC"));
+		assertEquals(DateConverter.toISO8601UTC(ld1), DateConverter.toISO8601UTC(ld2));
 	}
 
 }

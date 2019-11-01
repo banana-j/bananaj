@@ -4,7 +4,7 @@
  */
 package com.github.alexanderwe.bananaj.model.report;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import org.json.JSONObject;
 
@@ -31,7 +31,7 @@ public class Report {
 	private int emailsSent;
 	private int abuseReport;
 	private int unsubscribed;
-	private LocalDateTime sendtime;
+	private ZonedDateTime sendtime;
 	//private String rss_last_send;
 	private Bounce bounces;
 	private Forward forwards;
@@ -59,7 +59,7 @@ public class Report {
 		emailsSent = jsonObj.getInt("emails_sent");
 		abuseReport = jsonObj.getInt("abuse_reports");
 		unsubscribed = jsonObj.getInt("unsubscribed");
-		sendtime = DateConverter.createDateFromISO8601(jsonObj.getString("send_time"));
+		sendtime = DateConverter.fromISO8601(jsonObj.getString("send_time"));
 		bounces = new Bounce(jsonObj.getJSONObject("bounces"));
 		forwards = new Forward(jsonObj.getJSONObject("forwards"));
 		clicks = new Click(jsonObj.getJSONObject("clicks"));
@@ -116,7 +116,7 @@ public class Report {
 	/**
 	 * @return The date and time a campaign was sent.
 	 */
-	public LocalDateTime getSendTime() {
+	public ZonedDateTime getSendTime() {
 		return sendtime;
 	}
 
@@ -221,17 +221,17 @@ public class Report {
 	/**
 	 * @return The date and time a campaign was sent
 	 */
-	public LocalDateTime getSendtime() {
+	public ZonedDateTime getSendtime() {
 		return sendtime;
 	}
 
 	@Override
 	public String toString(){
 		return "Report of campaign: " + getId() + " " + this.getCampaignTitle() + System.lineSeparator() +
-				"Total emails sent: " + getEmailsSent() + System.lineSeparator() +
-				"Total abuse reports: " + getAbuseReport() +  System.lineSeparator() +
-				"Total unsubscribed: " + getUnsubscribed() + System.lineSeparator() +
-				"Time sent: " + getSendTime() + System.lineSeparator() +
+				"    Total emails sent: " + getEmailsSent() + System.lineSeparator() +
+				"    Total abuse reports: " + getAbuseReport() +  System.lineSeparator() +
+				"    Total unsubscribed: " + getUnsubscribed() + System.lineSeparator() +
+				"    Time sent: " + (getSendTime()!=null ? DateConverter.toLocalString(getSendTime()) : "") + System.lineSeparator() +
 				getForwards().toString() + System.lineSeparator() +
 				getOpens().toString() + System.lineSeparator() +
 				getBounces().toString() + System.lineSeparator() +
