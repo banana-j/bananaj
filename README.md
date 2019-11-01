@@ -17,7 +17,7 @@ Add this dependency to your pom.xml to use **bananaj** in your project.
 <dependency>
   <groupId>com.github.banana-j</groupId>
   <artifactId>bananaj</artifactId>
-  <version>0.6.1</version>
+  <version>0.6.2</version>
 </dependency>
 ```
 or with Gradle
@@ -28,7 +28,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'com.github.banana-j', name: 'bananaj', version: '0.6.1'
+    compile group: 'com.github.banana-j', name: 'bananaj', version: '0.6.2'
 }
 ```
 
