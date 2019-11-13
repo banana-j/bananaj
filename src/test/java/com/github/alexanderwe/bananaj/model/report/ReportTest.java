@@ -22,7 +22,7 @@ public class ReportTest {
 		assertEquals(report.getEmailsSent(), 9);
 		assertEquals(report.getForwards().getCount(), 1);
 		assertEquals(report.getOpens().getOpensTotal(), 23);
-		assertNotNull(report.getIndustryStats());
+		assertNotNull("Expeced IndustryStats found null", report.getIndustryStats());
 		report.toString();
 	}
 
@@ -40,7 +40,7 @@ public class ReportTest {
 		assertEquals(report.getEmailsSent(), 9);
 		assertEquals(report.getForwards().getCount(), 1);
 		assertEquals(report.getOpens().getOpensTotal(), 23);
-		assertNull(report.getIndustryStats());
+		assertNull("Expeced null for IndustryStats", report.getIndustryStats());
 		report.toString();
 	}
 
@@ -56,6 +56,29 @@ public class ReportTest {
 		assertEquals(abuse.getMergeFields().size(), 4);
 		assertEquals(abuse.isVip(), true);
 		assertEquals(abuse.getDate(), ZonedDateTime.of(2019, 4, 4, 23, 39, 59, 0, ZoneId.of("+00:00")));
+	}
+	
+	@Test
+	public void testReport_OpenReport() {
+		JSONObject jsonObj = new JSONObject("{\"members\":[{\"campaign_id\":\"f32bbb4333\",\"list_id\":\"dbbcce6ad3\",\"list_is_active\":true,\"contact_status\":\"subscribed\",\"email_id\":\"53b9e632ccb57cc123f2d2d04f9440aa\",\"email_address\":\"jeanne.tester@gmail.com\",\"merge_fields\":{\"FNAME\":\"Jeanne\",\"LNAME\":\"Tester\",\"ADDRESS\":\"\",\"PHONE\":\"\"},\"vip\":false,\"opens_count\":1,\"opens\":[{\"timestamp\":\"2019-11-05T01:48:56+00:00\"}],\"_links\":[]},{\"campaign_id\":\"f32bbb4333\",\"list_id\":\"dbbcce6ad3\",\"list_is_active\":true,\"contact_status\":\"subscribed\",\"email_id\":\"ef9925ae9f7f581443530123d62e53bb\",\"email_address\":\"mark.tester@gmail.com\",\"merge_fields\":{\"FNAME\":\"Mark\",\"LNAME\":\"Tester\",\"ADDRESS\":\"\",\"PHONE\":\"\"},\"vip\":false,\"opens_count\":2,\"opens\":[{\"timestamp\":\"2019-11-04T23:57:40+00:00\"},{\"timestamp\":\"2019-11-05T15:29:37+00:00\"}],\"_links\":[]},{\"campaign_id\":\"f32bbb4333\",\"list_id\":\"dbbcce6ad3\",\"list_is_active\":true,\"contact_status\":\"subscribed\",\"email_id\":\"c82262d08d2b3a2346a2da1af1705bcc\",\"email_address\":\"mark.tester@gmail.com\",\"merge_fields\":{\"FNAME\":\"Mark\",\"LNAME\":\"Tester\",\"ADDRESS\":\"\",\"PHONE\":\"\"},\"vip\":false,\"opens_count\":1,\"opens\":[{\"timestamp\":\"2019-11-05T19:54:07+00:00\"}],\"_links\":[]},{\"campaign_id\":\"f32bbb4333\",\"list_id\":\"dbbcce6ad3\",\"list_is_active\":true,\"contact_status\":\"subscribed\",\"email_id\":\"5b68d1a1345a3f7523e433e482b0e2dd\",\"email_address\":\"marianne.tester@gmail.com\",\"merge_fields\":{\"FNAME\":\"Marianne\",\"LNAME\":\"Tester\",\"ADDRESS\":{\"addr1\":\"1313 Mocking\",\"addr2\":\"Suite 200\",\"city\":\"Phoenix\",\"state\":\"AZ\",\"zip\":\"85001\",\"country\":\"US\"},\"PHONE\":\"\"},\"vip\":false,\"opens_count\":1,\"opens\":[{\"timestamp\":\"2019-11-04T21:40:11+00:00\"}],\"_links\":[]}],\"campaign_id\":\"f32bbb4333\",\"total_opens\":5,\"total_items\":4,\"_links\":[]}");
+		OpenReport rpt = new OpenReport(jsonObj);
+		assertEquals(rpt.getCampaignId(), "f32bbb4333");
+		assertEquals(rpt.getTotalOpens(), 5);
+		assertEquals(rpt.getTotalItems(), 4);
+		assertEquals(rpt.getMembers().size(), 4);
+	}
+	
+	@Test
+	public void testReport_OpenReport_Member() {
+		JSONObject jsonObj = new JSONObject("{\"campaign_id\":\"f32bbb4333\",\"list_id\":\"dbbcce6ad3\",\"list_is_active\":true,\"contact_status\":\"subscribed\",\"email_id\":\"53b9e632ccb57cc123f2d2d04f9440aa\",\"email_address\":\"jeanne.tester@gmail.com\",\"merge_fields\":{\"FNAME\":\"Jeanne\",\"LNAME\":\"Tester\",\"ADDRESS\":\"\",\"PHONE\":\"\"},\"vip\":false,\"opens_count\":1,\"opens\":[{\"timestamp\":\"2019-11-05T01:48:56+00:00\"}],\"_links\":[]}");
+		OpenReportMember rpt = new OpenReportMember(jsonObj);
+		assertEquals(rpt.getCampaignId(), "f32bbb4333");
+		assertEquals(rpt.getListId(), "dbbcce6ad3");
+		assertEquals(rpt.getEmailId(), "53b9e632ccb57cc123f2d2d04f9440aa");
+		assertEquals(rpt.getEmailAddress(), "jeanne.tester@gmail.com");
+		assertEquals(rpt.getOpensCount(), 1);
+		assertEquals(rpt.getMergeFields().size(), 4);
+		assertEquals(rpt.getOpens().size(), 1);
 	}
 	
 }

@@ -15,7 +15,9 @@ public enum MemberStatus {
 	SUBSCRIBED("subscribed"),
 	UNSUBSCRIBED("unsubscribed"),
 	CLEANED("cleaned"),
-	TRANSACTIONAL("transactional");
+	TRANSACTIONAL("transactional"),
+	ARCHIVED("archived");
+	
 	
 	private String stringRepresentation;
 	

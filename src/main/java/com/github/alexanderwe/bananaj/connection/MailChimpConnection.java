@@ -29,6 +29,7 @@ import com.github.alexanderwe.bananaj.model.campaign.CampaignType;
 import com.github.alexanderwe.bananaj.model.filemanager.FileManager;
 import com.github.alexanderwe.bananaj.model.list.MailChimpList;
 import com.github.alexanderwe.bananaj.model.list.member.Member;
+import com.github.alexanderwe.bananaj.model.report.OpenReport;
 import com.github.alexanderwe.bananaj.model.report.Report;
 import com.github.alexanderwe.bananaj.model.template.Template;
 import com.github.alexanderwe.bananaj.model.template.TemplateFolder;
@@ -427,7 +428,6 @@ public class MailChimpConnection extends Connection{
 	 * @throws UnsupportedEncodingException 
 	 */
 	public List<Report> getCampaignReports(int count, int offset, CampaignType campaignType, ZonedDateTime beforeSendTime, ZonedDateTime sinceSendTime) throws JSONException, TransportException, URISyntaxException, MalformedURLException, UnsupportedEncodingException {
-		// TODO:
 		URL url = new URL(reportsendpoint + "?offset=" + offset + "&count=" + count +
 				(campaignType!=null ? "&type" + campaignType.toString() : "") +
 				(beforeSendTime!=null ? "&before_send_time=" + URLEncoder.encode(DateConverter.toISO8601UTC(beforeSendTime), "UTF-8") : "") +
@@ -444,6 +444,45 @@ public class MailChimpConnection extends Connection{
     	}
     	return reports;
 	}
+	
+	/**
+	 * Get a detailed report about any emails in a specific campaign that were opened by recipients.
+	 * @param count Number of reports to return. Maximum value is 1000.
+	 * @param offset Zero based offset
+	 * @param campaignId
+	 * @param since Optional, restrict results to campaign open events that occur after a specific time.
+	 * @return Detailed information about the campaigns emails that were opened by list members.
+	 * @throws JSONException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 * @throws MalformedURLException
+	 * @throws UnsupportedEncodingException
+	 */
+	public OpenReport getCampaignOpenReports(int count, int offset, String campaignId, ZonedDateTime since) throws JSONException, TransportException, URISyntaxException, MalformedURLException, UnsupportedEncodingException {
+		URL url = new URL(reportsendpoint + "/" + campaignId + "/open-details?offset=" + offset + "&count=" + count +
+				(since!=null ? "&since=" + URLEncoder.encode(DateConverter.toISO8601UTC(since), "UTF-8") : "") );
+		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
+		OpenReport report = new OpenReport(jsonReports);
+		return report;
+	}
+	
+	// TODO: Report - Campaign Abuse - Get abuse complaints for a campaign
+	// TODO: Report - Campaign Abuse - Get information about a specific abuse report
+	// TODO: Report - Campaign Advice - Get recent feedback based on a campaign's statistics.
+	// TODO: Report - Click Reports - Get detailed information about links clicked in campaigns.
+	// TODO: Report - Click Reports - Get detailed information about links clicked in campaigns for a specific link.
+	// TODO: Report - Click Reports Members - Get information about subscribers who clicked a link.
+	// TODO: Report - Click Reports Members - Get information about a specific subscriber who clicked a link
+	// TODO: Report - Domain Performance - Get statistics for the top-performing domains from a campaign.
+	// TODO: Report - Ecommerce Product Activity - Ecommerce product activity report for Campaign.
+	// TODO: Report - EepURL Reports - Get a summary of social activity for the campaign, tracked by EepURL.
+	// TODO: Report - Email Activity - Get list member activity for a specific campaign.
+	// TODO: Report - Email Activity - Get list member activity for a specific campaign and subscriber.
+	// TODO: Report - Location - Get top open locations for a specific campaign.
+	// TODO: Report - Sent To - Get information about campaign recipients.
+	// TODO: Report - Sent To - Get information about a specific campaign recipient.
+	// TODO: Report - Sub-Reports- A list of reports for child campaigns of a specific parent campaign. For example, use this endpoint to view Multivariate, RSS, and A/B Testing Campaign reports.
+	// TODO: Report - Unsubscribes - Get information about list members who unsubscribed from a specific campaign.
 	
     /**
      * Get template folders from MailChimp

@@ -264,8 +264,8 @@ public class CampaignSegmentOpts {
 		StringBuilder sb = new StringBuilder();
 		sb.append(
 				"    Segment opts:" + System.lineSeparator() +
-				"        Saved Segment ID: " + getSavedSegmentId() + System.lineSeparator() +
-				"        Match: " + getMatch().toString());
+				"        Saved Segment ID: " + getSavedSegmentId() + System.lineSeparator());
+		sb.append(getMatch() != null ? "        Match: " + getMatch().toString() : "");
 		if (conditions != null && conditions.size() > 0) {
 			sb.append(System.lineSeparator());
 			sb.append("        Conditions: ");
