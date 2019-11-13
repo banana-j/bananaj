@@ -141,6 +141,10 @@ To download a file from the MailChimp File Manager you have to specifiy the file
 fileManager.getFileManagerFile("fileID").download("./") //Download a file in the current directory
 ```
 
+## Example programs
+* [chimpexcel](https://github.com/gscriver/chimpexcel) A sample Java program to export Mailchimp audiences to file (XLS).
+
+
 ## Methods
 Every endpoint supports GET, POST, and DELETE requests. So it is possible to fully control your MailChimp objects with this wrapper. 
 
@@ -156,6 +160,7 @@ Every endpoint supports GET, POST, and DELETE requests. So it is possible to ful
 - **"https://"+server+".api.mailchimp.com/3.0/file-manager/folders"**
 - **"https://"+server+".api.mailchimp.com/3.0/file-manager/files"**
 - **"https://"+server+".api.mailchimp.com/3.0/file-manager/reports"**
+- **"https://"+server+".api.mailchimp.com/3.0/reports"**
 
 # To do 
 - Add missing edit function to the different endpoints 
@@ -164,6 +169,7 @@ Every endpoint supports GET, POST, and DELETE requests. So it is possible to ful
  
 Thanks a lot to all contributors:
 
+* [alexanderwe](https://github.com/alexanderwe)
 * [gscriver](https://github.com/gscriver)
 * [bphilipnyc](https://github.com/bphilipnyc)
 * [icu222much](https://github.com/icu222much)
@@ -171,7 +177,7 @@ Thanks a lot to all contributors:
 # License
 The MIT License (MIT)
 
-Copyright (c) 2015 - 2018 Alexander Weiß
+Copyright (c) 2015 - 2019 Alexander Weiß
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
