@@ -285,23 +285,43 @@ public class Report {
 	}
 
 	@Override
-	public String toString(){
-		return "Report of campaign: " + getId() + " " + this.getCampaignTitle() + System.lineSeparator() +
-				"    Total emails sent: " + getEmailsSent() + System.lineSeparator() +
-				"    Total abuse reports: " + getAbuseReport() +  System.lineSeparator() +
-				"    Total unsubscribed: " + getUnsubscribed() + System.lineSeparator() +
-				"    Send Time: " + (getSendTime()!=null ? DateConverter.toLocalString(getSendTime()) : "") + System.lineSeparator() +
-				(getRssLastSend() != null ? DateConverter.toLocalString(getRssLastSend()) + System.lineSeparator() : "") +
-				getForwards().toString() + System.lineSeparator() +
-				getOpens().toString() + System.lineSeparator() +
-				getBounces().toString() + System.lineSeparator() +
-				getClicks().toString() + System.lineSeparator() +
-				(getFacebookLikes() != null ? getFacebookLikes().toString() + System.lineSeparator() : "") +
-				(getIndustryStats() != null ? getIndustryStats().toString() + System.lineSeparator() : "") +
-				(getListStats() != null ? getListStats().toString() + System.lineSeparator() : "") +
-				(getShareReport() != null ? getShareReport().toString() : "") +
-				(getEcommerce() != null ? getEcommerce().toString() : "") +
-				(getDeliveryStatus() != null ? getDeliveryStatus().toString() : "");
+	public String toString() {
+		StringBuilder sb = new StringBuilder(5000);
+		sb.append("Report of campaign: " + getId() + " '" + this.getCampaignTitle() + "'" + System.lineSeparator());
+		sb.append("    Total emails sent: " + getEmailsSent() + System.lineSeparator());
+		sb.append("    Total abuse reports: " + getAbuseReport() +  System.lineSeparator());
+		sb.append("    Total unsubscribed: " + getUnsubscribed() + System.lineSeparator());
+		sb.append("    Send Time: " + (getSendTime()!=null ? DateConverter.toLocalString(getSendTime()) : "") + System.lineSeparator());
+		sb.append((getRssLastSend() != null ? DateConverter.toLocalString(getRssLastSend()) + System.lineSeparator() : ""));
+		sb.append(getForwards().toString() + System.lineSeparator());
+		sb.append(getOpens().toString() + System.lineSeparator());
+		sb.append(getBounces().toString() + System.lineSeparator());
+		sb.append(getClicks().toString() + System.lineSeparator());
+		sb.append((getFacebookLikes() != null ? getFacebookLikes().toString() + System.lineSeparator() : ""));
+		sb.append((getIndustryStats() != null ? getIndustryStats().toString() + System.lineSeparator() : ""));
+		sb.append((getListStats() != null ? getListStats().toString() + System.lineSeparator() : ""));
+		sb.append((getShareReport() != null ? getShareReport().toString() : ""));
+		sb.append((getEcommerce() != null ? getEcommerce().toString() : ""));
+		sb.append((getDeliveryStatus() != null ? getDeliveryStatus().toString() : ""));
+		if (getTimeseries() != null) {
+			sb.append(System.lineSeparator());
+			sb.append("Time Series (first 24 hours):");
+			for (TimeSeries ts : getTimeseries()) {
+				String s = ts.toString();
+				sb.append(System.lineSeparator());
+				sb.append(s.replaceAll("(?m)^", "    "));
+			}
+		}
+		if (getTimewarp() != null) {
+			sb.append(System.lineSeparator());
+			sb.append("Timewarp Series hourly breakdown:");
+			for (Timewarp tw : getTimewarp()) {
+				String s = tw.toString();
+				sb.append(System.lineSeparator());
+				sb.append(s.replaceAll("(?m)^", "    "));
+			}
+		}
+		return sb.toString();
 	}
 
 }

@@ -64,9 +64,7 @@ public class OpenReport {
 	 */
 	@Override
 	public String toString() {
-		return 
-				"    Total opens: " + getTotalOpens(); // + System.lineSeparator() +
-				//getMembers().toString();
+		return "    Total opens: " + getTotalOpens();
 	}
 
 }

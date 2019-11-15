@@ -138,8 +138,7 @@ public class OpenReportMember {
 	 */
 	@Override
 	public String toString() {
-		return 
-				"        " + getEmailId() + " " + getEmailAddress() + " Status: " + getContactStatus() + " VIP: " + isVip();
+		return getEmailId() + " " + getEmailAddress() + " Status: " + getContactStatus() + " VIP: " + isVip();
 	}
 
 }

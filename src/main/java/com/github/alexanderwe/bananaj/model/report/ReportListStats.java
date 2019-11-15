@@ -59,7 +59,7 @@ public class ReportListStats {
 	@Override
 	public String toString() {
 		return
-				"List Statistics:" + System.lineSeparator() +
+				"Audience Statistics:" + System.lineSeparator() +
 				"    Subscrib Rate: " + getSubRate() + System.lineSeparator() +
 				"    Unsubscrib Rate: " + getUnsubRate() + System.lineSeparator() +
 				"    Open Rate: " + getOpenRate() + System.lineSeparator() +
