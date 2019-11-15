@@ -43,7 +43,6 @@ public class Connection {
         httpclient = HttpClients.createDefault();
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
 
-
             int responseCode = response.getStatusLine().getStatusCode();
             logger.debug(response.getStatusLine().getReasonPhrase().toString());
             if (responseCode < 200 || responseCode > 299) {

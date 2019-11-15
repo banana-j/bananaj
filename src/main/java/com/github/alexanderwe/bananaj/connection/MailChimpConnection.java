@@ -36,7 +36,7 @@ import com.github.alexanderwe.bananaj.utils.DateConverter;
  * @author alexanderweiss
  *
  */
-public class MailChimpConnection extends Connection{
+public class MailChimpConnection extends Connection {
 
 	private String server;
 	private String authorization;
@@ -78,7 +78,7 @@ public class MailChimpConnection extends Connection{
 	}
 
 	/**
-	 * Get the lists in your account
+	 * Get the List/Audience in your account
 	 * @return List containing the first 100 lists
 	 * @throws Exception
 	 * @deprecated
@@ -88,7 +88,7 @@ public class MailChimpConnection extends Connection{
 	}
 
 	/**
-	 * Get lists in your account with pagination
+	 * Get List/Audience in your account with pagination
 	 * @param count Number of lists to return. Maximum value is 1000.
 	 * @param offset Zero based offset
 	 * @return List containing Mailchimp lists
@@ -109,7 +109,7 @@ public class MailChimpConnection extends Connection{
 	}
 	
 	/**
-	 * Get a specific mailchimp list
+	 * Get a specific mailchimp List/Audience
 	 * @return a Mailchimp list object
 	 * @throws URISyntaxException 
 	 * @throws TransportException 
@@ -134,14 +134,28 @@ public class MailChimpConnection extends Connection{
 	}
 
 	/**
-	 * Delete a list from your account
+	 * Delete a List/Audience from your account
 	 * @param listID
 	 * @throws Exception
 	 */
-	public void deleteList(String listID) throws Exception{
-		do_Delete(new URL(listendpoint +"/"+listID),getApikey());
+	public void deleteList(String listID) throws Exception {
+		do_Delete(new URL(listendpoint +"/"+listID), getApikey());
 	}
 
+	/**
+	 * A health check for the API.
+	 * @return true on successful API ping otherwise false
+	 */
+	public boolean ping() {
+		try {
+			JSONObject jsonObj = new JSONObject(do_Get(new URL(apiendpoint + "ping"), getApikey()));
+			if (jsonObj.has("health_status") && "Everything's Chimpy!".equals(jsonObj.getString("health_status"))) {
+				return true;
+			}
+		} catch (Exception ignored) { }
+		return false;
+	}
+	
     /**
      * Get campaign folders from MailChimp
      * @return List containing the first 100 campaign folders
