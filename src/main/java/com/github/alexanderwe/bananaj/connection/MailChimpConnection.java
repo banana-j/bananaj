@@ -25,6 +25,7 @@ import com.github.alexanderwe.bananaj.model.campaign.CampaignSettings;
 import com.github.alexanderwe.bananaj.model.campaign.CampaignType;
 import com.github.alexanderwe.bananaj.model.filemanager.FileManager;
 import com.github.alexanderwe.bananaj.model.list.MailChimpList;
+import com.github.alexanderwe.bananaj.model.report.AbuseReport;
 import com.github.alexanderwe.bananaj.model.report.OpenReport;
 import com.github.alexanderwe.bananaj.model.report.Report;
 import com.github.alexanderwe.bananaj.model.template.Template;
@@ -372,7 +373,49 @@ public class MailChimpConnection extends Connection {
 		return report;
 	}
 	
-	// TODO: Report - Campaign Abuse - Get abuse complaints for a campaign
+	/**
+	 * 
+	 * @param count Number of reports to return. Maximum value is 1000.
+	 * @param offset Zero based offset
+	 * @param campaignId The unique id for the campaign.
+	 * @return Abuse complaints for a campaign
+	 * @throws MalformedURLException 
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws JSONException 
+	 */
+	public List<AbuseReport>  getCampaignAbuseReports(int count, int offset, String campaignId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+		URL url = new URL(reportsendpoint + "/" + campaignId + "/abuse-reports?offset=" + offset + "&count=" + count);
+		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
+		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
+    	JSONArray reportsArray = jsonReports.getJSONArray("abuse_reports");
+    	List<AbuseReport> reports = new ArrayList<AbuseReport>(reportsArray.length());
+    	for( int i = 0; i< reportsArray.length();i++)
+    	{
+    		JSONObject reportDetail = reportsArray.getJSONObject(i);
+    		AbuseReport report = new AbuseReport(reportDetail);
+    		reports.add(report);
+    	}
+    	return reports;
+	}
+	
+	/**
+	 * Get information about a specific abuse report for a campaign.
+	 * @param campaignId The unique id for the campaign.
+	 * @param reportId The id for the abuse report.
+	 * @return Information about a specific abuse report
+	 * @throws MalformedURLException 
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws JSONException 
+	 */
+	public AbuseReport  getCampaignAbuseReport(String campaignId, int reportId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+		URL url = new URL(reportsendpoint + "/" + campaignId + "/abuse-reports/" + reportId);
+		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
+		AbuseReport report = new AbuseReport(jsonReport);
+		return report;
+	}
+	
 	// TODO: Report - Campaign Abuse - Get information about a specific abuse report
 	// TODO: Report - Campaign Advice - Get recent feedback based on a campaign's statistics.
 	// TODO: Report - Click Reports - Get detailed information about links clicked in campaigns.

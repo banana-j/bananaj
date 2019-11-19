@@ -16,6 +16,7 @@ public class AbuseReport {
 	private int id;
 	private String campaignId;
 	private String listId;
+	private Boolean listIsActive;
 	private String emailId;
 	private String emailAddress;
 	private Map<String, Object> mergeFields;
@@ -26,6 +27,7 @@ public class AbuseReport {
 		id = abuse.getInt("id");
 		campaignId = abuse.getString("campaign_id");
 		listId = abuse.getString("list_id");
+		listIsActive = abuse.has("list_is_active") ? abuse.getBoolean("list_is_active") : null;
 		emailId = abuse.getString("email_id");
 		emailAddress = abuse.getString("email_address");
 		mergeFields = new HashMap<String, Object>();
@@ -58,6 +60,13 @@ public class AbuseReport {
 	 */
 	public String getListId() {
 		return listId;
+	}
+
+	/**
+	 * @return The status of the list used, namely if it's deleted or disabled.
+	 */
+	public Boolean getListIsActive() {
+		return listIsActive;
 	}
 
 	/**
@@ -102,6 +111,7 @@ public class AbuseReport {
 	public String toString() {
 		return
 				"Abuse Report: " + DateConverter.toLocalString(date) + " ID: " + id + "Campaign ID: " + campaignId + " List ID: " + listId + System.lineSeparator() +
+				(listIsActive != null ? "    Active: " + listIsActive + System.lineSeparator() : "") + 
 				"    Email: " + emailAddress + " Email ID:" + emailId + " VIP: " + vip;
 	}
 	
