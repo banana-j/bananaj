@@ -48,6 +48,9 @@ public class DateConverter {
 	 *         (eg 1997-07-16T19:20:30+00:00).
 	 */
     public static String toISO8601UTC(ZonedDateTime zonedDateTime) {
+    	if (zonedDateTime == null) {
+    		return "";
+    	}
 		ZonedDateTime utc = ZonedDateTime.ofInstant(zonedDateTime.toInstant(), ZoneId.of("UTC"));
     	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ssxxxxx");
     	return utc.format(formatter);
