@@ -26,6 +26,7 @@ import com.github.alexanderwe.bananaj.model.campaign.CampaignType;
 import com.github.alexanderwe.bananaj.model.filemanager.FileManager;
 import com.github.alexanderwe.bananaj.model.list.MailChimpList;
 import com.github.alexanderwe.bananaj.model.report.AbuseReport;
+import com.github.alexanderwe.bananaj.model.report.AdviceReport;
 import com.github.alexanderwe.bananaj.model.report.OpenReport;
 import com.github.alexanderwe.bananaj.model.report.Report;
 import com.github.alexanderwe.bananaj.model.template.Template;
@@ -416,8 +417,33 @@ public class MailChimpConnection extends Connection {
 		return report;
 	}
 	
-	// TODO: Report - Campaign Abuse - Get information about a specific abuse report
-	// TODO: Report - Campaign Advice - Get recent feedback based on a campaign's statistics.
+	/**
+	 * Get recent feedback based on a campaign's statistics.
+	 * @param count Number of reports to return. Maximum value is 1000.
+	 * @param offset Zero based offset
+	 * @param campaignId The unique id for the campaign.
+	 * @return Recent feedback based on a campaign's statistics.
+	 * @throws JSONException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 * @throws MalformedURLException
+	 * @throws UnsupportedEncodingException
+	 */
+	public List<AdviceReport> getCampaignAdviceReports(int count, int offset, String campaignId) throws JSONException, TransportException, URISyntaxException, MalformedURLException, UnsupportedEncodingException {
+		URL url = new URL(reportsendpoint + "/" + campaignId + "/advice?offset=" + offset + "&count=" + count);
+		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
+		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
+    	JSONArray reportsArray = jsonReports.getJSONArray("advice");
+    	List<AdviceReport> reports = new ArrayList<AdviceReport>(reportsArray.length());
+    	for( int i = 0; i< reportsArray.length();i++)
+    	{
+    		JSONObject reportDetail = reportsArray.getJSONObject(i);
+    		AdviceReport report = new AdviceReport(reportDetail);
+    		reports.add(report);
+    	}
+    	return reports;
+	}
+	
 	// TODO: Report - Click Reports - Get detailed information about links clicked in campaigns.
 	// TODO: Report - Click Reports - Get detailed information about links clicked in campaigns for a specific link.
 	// TODO: Report - Click Reports Members - Get information about subscribers who clicked a link.

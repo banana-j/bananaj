@@ -81,4 +81,12 @@ public class ReportTest {
 		assertEquals(rpt.getOpens().size(), 1);
 	}
 	
+	@Test
+	public void testReport_advice_report() {
+		JSONObject jsonObj = new JSONObject("{\"type\":\"advice-neutralstat\",\"message\":\"Your open rate was <strong>32%</strong> higher than your industry average, but <strong>-43.3%</strong> lower than this list's average.\"}");
+		AdviceReport advice = new AdviceReport(jsonObj);
+		assertEquals(advice.getType(), "advice-neutralstat");
+		assertEquals(advice.getMessage(), "Your open rate was <strong>32%</strong> higher than your industry average, but <strong>-43.3%</strong> lower than this list's average.");
+	}
+
 }
