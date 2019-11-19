@@ -1,24 +1,11 @@
 package com.github.alexanderwe.bananaj.model.report;
 
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.github.alexanderwe.bananaj.utils.DateConverter;
-
-/**
- * a list member who opened a campaign email. Each members object will contain
- * information about the number of total opens by a single member, as well as
- * timestamps for each open event.
- *
- */
-public class OpenReportMember {
-	
+public class ClickReportMember {
 	private String campaignId;
 	private String listId;
 	private boolean listIsActive;
@@ -27,10 +14,10 @@ public class OpenReportMember {
 	private String emailAddress;
 	private Map<String, Object> mergeFields;
 	private boolean vip;
-	private int opensCount;
-	private List<ZonedDateTime> opens;
+	private int clicks;
+	private String urlId;
 
-	public OpenReportMember(JSONObject jsonObj) {
+	public ClickReportMember(JSONObject jsonObj) {
 		campaignId = jsonObj.getString("campaign_id");
 		listId = jsonObj.getString("list_id");
 		listIsActive = jsonObj.getBoolean("list_is_active");
@@ -47,25 +34,19 @@ public class OpenReportMember {
 		}
 		
 		vip = jsonObj.getBoolean("vip");
-		opensCount = jsonObj.getInt("opens_count");
-
-		final JSONArray openArray = jsonObj.getJSONArray("opens");
-		opens = new ArrayList<ZonedDateTime>(openArray.length());
-		for(int i=0; i<openArray.length(); i++) {
-			JSONObject ts = openArray.getJSONObject(i);
-			opens.add(DateConverter.fromISO8601(ts.getString("timestamp")));
-		}
+		clicks = jsonObj.getInt("clicks");
+		urlId = jsonObj.getString("url_id");
 	}
 
 	/**
-	 * @return The unique id for the campaign.
+	 * @return The campaign id.
 	 */
 	public String getCampaignId() {
 		return campaignId;
 	}
 
 	/**
-	 * @return The unique id for the list.
+	 * @return The list id.
 	 */
 	public String getListId() {
 		return listId;
@@ -79,9 +60,7 @@ public class OpenReportMember {
 	}
 
 	/**
-	 * @return The status of the member, namely if they are subscribed,
-	 *         unsubscribed, deleted, non-subscribed, transactional, pending, or
-	 *         need reconfirmation.
+	 * @return The status of the member, namely if they are subscribed, unsubscribed, deleted, non-subscribed, transactional, pending, or need reconfirmation.
 	 */
 	public String getContactStatus() {
 		return contactStatus;
@@ -102,7 +81,7 @@ public class OpenReportMember {
 	}
 
 	/**
-	 * @return a Map of all merge field name value pairs
+	 * @return An individual merge var and value for a member.
 	 */
 	public Map<String, Object> getMergeFields() {
 		return mergeFields;
@@ -116,19 +95,17 @@ public class OpenReportMember {
 	}
 
 	/**
-	 * @return The total number of times the this campaign was opened by the list member.
+	 * @return The total number of times the subscriber clicked on the link.
 	 */
-	public int getOpensCount() {
-		return opensCount;
+	public int getClicks() {
+		return clicks;
 	}
 
 	/**
-	 * @return An array of timestamps for each time a list member opened the
-	 *         campaign. If a list member opens an email multiple times, this will
-	 *         return a separate timestamp for each open event.
+	 * @return The id for the tracked URL in the campaign.
 	 */
-	public List<ZonedDateTime> getOpens() {
-		return opens;
+	public String getUrlId() {
+		return urlId;
 	}
 
 	/* (non-Javadoc)
@@ -136,7 +113,7 @@ public class OpenReportMember {
 	 */
 	@Override
 	public String toString() {
-		return getEmailId() + " " + getEmailAddress() + " Status: " + getContactStatus() + " VIP: " + isVip() + " Opens: " + getOpensCount();
+		return getEmailId() + " " + getEmailAddress() + " Status: " + getContactStatus() + " VIP: " + isVip() + " Clicks: " + getClicks();
 	}
 
 }

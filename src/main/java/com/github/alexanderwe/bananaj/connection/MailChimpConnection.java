@@ -27,6 +27,8 @@ import com.github.alexanderwe.bananaj.model.filemanager.FileManager;
 import com.github.alexanderwe.bananaj.model.list.MailChimpList;
 import com.github.alexanderwe.bananaj.model.report.AbuseReport;
 import com.github.alexanderwe.bananaj.model.report.AdviceReport;
+import com.github.alexanderwe.bananaj.model.report.ClickReport;
+import com.github.alexanderwe.bananaj.model.report.ClickReportMember;
 import com.github.alexanderwe.bananaj.model.report.OpenReport;
 import com.github.alexanderwe.bananaj.model.report.Report;
 import com.github.alexanderwe.bananaj.model.template.Template;
@@ -316,7 +318,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws MalformedURLException
 	 */
 	public Report getCampaignReport(String campaignId) throws JSONException, TransportException, URISyntaxException, MalformedURLException {
-		URL url = new URL(reportsendpoint + "/" + campaignId);
+		URL url = new URL(getReportsendpoint() + "/" + campaignId);
 		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
     	return new Report(jsonReport);
 	}
@@ -336,7 +338,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws UnsupportedEncodingException 
 	 */
 	public List<Report> getCampaignReports(int count, int offset, CampaignType campaignType, ZonedDateTime beforeSendTime, ZonedDateTime sinceSendTime) throws JSONException, TransportException, URISyntaxException, MalformedURLException, UnsupportedEncodingException {
-		URL url = new URL(reportsendpoint + "?offset=" + offset + "&count=" + count +
+		URL url = new URL(getReportsendpoint() + "?offset=" + offset + "&count=" + count +
 				(campaignType!=null ? "&type" + campaignType.toString() : "") +
 				(beforeSendTime!=null ? "&before_send_time=" + URLEncoder.encode(DateConverter.toISO8601UTC(beforeSendTime), "UTF-8") : "") +
 				(sinceSendTime!=null ? "&since_send_time=" + URLEncoder.encode(DateConverter.toISO8601UTC(sinceSendTime), "UTF-8") : "") );
@@ -367,7 +369,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws UnsupportedEncodingException
 	 */
 	public OpenReport getCampaignOpenReports(int count, int offset, String campaignId, ZonedDateTime since) throws JSONException, TransportException, URISyntaxException, MalformedURLException, UnsupportedEncodingException {
-		URL url = new URL(reportsendpoint + "/" + campaignId + "/open-details?offset=" + offset + "&count=" + count +
+		URL url = new URL(getReportsendpoint() + "/" + campaignId + "/open-details?offset=" + offset + "&count=" + count +
 				(since!=null ? "&since=" + URLEncoder.encode(DateConverter.toISO8601UTC(since), "UTF-8") : "") );
 		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
 		OpenReport report = new OpenReport(jsonReports);
@@ -386,7 +388,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws JSONException 
 	 */
 	public List<AbuseReport>  getCampaignAbuseReports(int count, int offset, String campaignId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
-		URL url = new URL(reportsendpoint + "/" + campaignId + "/abuse-reports?offset=" + offset + "&count=" + count);
+		URL url = new URL(getReportsendpoint() + "/" + campaignId + "/abuse-reports?offset=" + offset + "&count=" + count);
 		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
 		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
     	JSONArray reportsArray = jsonReports.getJSONArray("abuse_reports");
@@ -411,7 +413,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws JSONException 
 	 */
 	public AbuseReport  getCampaignAbuseReport(String campaignId, int reportId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
-		URL url = new URL(reportsendpoint + "/" + campaignId + "/abuse-reports/" + reportId);
+		URL url = new URL(getReportsendpoint() + "/" + campaignId + "/abuse-reports/" + reportId);
 		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
 		AbuseReport report = new AbuseReport(jsonReport);
 		return report;
@@ -430,7 +432,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws UnsupportedEncodingException
 	 */
 	public List<AdviceReport> getCampaignAdviceReports(int count, int offset, String campaignId) throws JSONException, TransportException, URISyntaxException, MalformedURLException, UnsupportedEncodingException {
-		URL url = new URL(reportsendpoint + "/" + campaignId + "/advice?offset=" + offset + "&count=" + count);
+		URL url = new URL(getReportsendpoint() + "/" + campaignId + "/advice?offset=" + offset + "&count=" + count);
 		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
 		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
     	JSONArray reportsArray = jsonReports.getJSONArray("advice");
@@ -444,10 +446,94 @@ public class MailChimpConnection extends Connection {
     	return reports;
 	}
 	
-	// TODO: Report - Click Reports - Get detailed information about links clicked in campaigns.
-	// TODO: Report - Click Reports - Get detailed information about links clicked in campaigns for a specific link.
-	// TODO: Report - Click Reports Members - Get information about subscribers who clicked a link.
-	// TODO: Report - Click Reports Members - Get information about a specific subscriber who clicked a link
+	/**
+	 * Get detailed information about links clicked in campaigns.
+	 * @param count Number of reports to return. Maximum value is 1000.
+	 * @param offset Zero based offset
+	 * @param campaignId The unique id for the campaign.
+	 * @return Campaign click details
+	 * @throws MalformedURLException
+	 * @throws JSONException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public List<ClickReport> getClickReports(int count, int offset, String campaignId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+		URL url = new URL(getReportsendpoint() + "/" + campaignId + "/click-details?offset=" + offset + "&count=" + count);
+		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
+		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
+    	JSONArray reportsArray = jsonReports.getJSONArray("urls_clicked");
+    	List<ClickReport> reports = new ArrayList<ClickReport>(reportsArray.length());
+    	for( int i = 0; i< reportsArray.length();i++)
+    	{
+    		JSONObject reportDetail = reportsArray.getJSONObject(i);
+    		ClickReport report = new ClickReport(reportDetail);
+    		reports.add(report);
+    	}
+    	return reports;
+	}
+	
+	/**
+	 * Get detailed information about links clicked in campaigns for a specific link.
+	 * @param campaignId The unique id for the campaign.
+	 * @param linkId The id for the link.
+	 * @return Click details for a specific link.
+	 * @throws MalformedURLException
+	 * @throws JSONException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public ClickReport getClickReport(String campaignId, String linkId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+		URL url = new URL(getReportsendpoint() + "/" + campaignId + "/click-details/" + linkId);
+		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
+		ClickReport report = new ClickReport(jsonReport);
+		return report;
+	}
+	
+	/**
+	 * Get information about subscribers who clicked a link.
+	 * @param count Number of reports to return. Maximum value is 1000.
+	 * @param offset Zero based offset
+	 * @param campaignId The unique id for the campaign.
+	 * @param linkId The id for the link.
+	 * @return
+	 * @throws MalformedURLException
+	 * @throws JSONException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public List<ClickReportMember> getClickReportMembers(int count, int offset, String campaignId, String linkId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+		URL url = new URL(getReportsendpoint() + "/" + campaignId + "/click-details/" + linkId + "/members?offset=" + offset + "&count=" + count);
+		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
+		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
+    	JSONArray reportsArray = jsonReports.getJSONArray("members");
+    	List<ClickReportMember> reports = new ArrayList<ClickReportMember>(reportsArray.length());
+    	for( int i = 0; i< reportsArray.length();i++)
+    	{
+    		JSONObject reportDetail = reportsArray.getJSONObject(i);
+    		ClickReportMember report = new ClickReportMember(reportDetail);
+    		reports.add(report);
+    	}
+    	return reports;
+	}
+	
+	/**
+	 * Get information about a specific subscriber who clicked a link
+	 * @param campaignId The unique id for the campaign.
+	 * @param linkId The id for the link.
+	 * @param subscriberHash
+	 * @return
+	 * @throws MalformedURLException
+	 * @throws JSONException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public ClickReportMember getClickReportMember(String campaignId, String linkId, String subscriberHash) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+		URL url = new URL(getReportsendpoint() + "/" + campaignId + "/click-details/" + linkId + "/members/" + subscriberHash);
+		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
+		ClickReportMember report = new ClickReportMember(jsonReport);
+		return report;
+	}
+	
 	// TODO: Report - Domain Performance - Get statistics for the top-performing domains from a campaign.
 	// TODO: Report - Ecommerce Product Activity - Ecommerce product activity report for Campaign.
 	// TODO: Report - EepURL Reports - Get a summary of social activity for the campaign, tracked by EepURL.
