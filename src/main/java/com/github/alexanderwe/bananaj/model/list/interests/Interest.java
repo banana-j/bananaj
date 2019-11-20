@@ -21,7 +21,7 @@ public class Interest {
     private String listId;
     private String id;
     private String name;
-    private String subscriberCount;
+    private int subscriberCount;
     private Integer displayOrder;
 
     /**
@@ -53,7 +53,7 @@ public class Interest {
 		listId = jsonObj.getString("list_id");
         id = jsonObj.getString("id");
         name = jsonObj.getString("name");
-        subscriberCount = jsonObj.getString("subscriber_count");
+        subscriberCount = Integer.parseInt(jsonObj.getString("subscriber_count")); // Mailchimp should report an int, not a string
         displayOrder = jsonObj.getInt("display_order");
         this.connection = connection;
 	}
@@ -98,7 +98,7 @@ public class Interest {
 	/**
 	 * @return The number of subscribers associated with this interest.
 	 */
-	public String getSubscriberCount() {
+	public int getSubscriberCount() {
 		return subscriberCount;
 	}
 
@@ -175,7 +175,7 @@ public class Interest {
 	    private String listId;
 	    private String id;
 	    private String name;
-	    private String subscriberCount;
+	    private int subscriberCount;
 	    private Integer displayOrder;
 		
         public Builder connection(MailChimpConnection connection) {
@@ -203,7 +203,7 @@ public class Interest {
             return this;
         }
         
-        public Builder subscriberCount(String s) {
+        public Builder subscriberCount(int s) {
             this.subscriberCount = s;
             return this;
         }
