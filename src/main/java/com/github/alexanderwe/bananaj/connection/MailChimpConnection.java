@@ -29,6 +29,7 @@ import com.github.alexanderwe.bananaj.model.report.AbuseReport;
 import com.github.alexanderwe.bananaj.model.report.AdviceReport;
 import com.github.alexanderwe.bananaj.model.report.ClickReport;
 import com.github.alexanderwe.bananaj.model.report.ClickReportMember;
+import com.github.alexanderwe.bananaj.model.report.DomainPerformance;
 import com.github.alexanderwe.bananaj.model.report.OpenReport;
 import com.github.alexanderwe.bananaj.model.report.Report;
 import com.github.alexanderwe.bananaj.model.template.Template;
@@ -495,7 +496,7 @@ public class MailChimpConnection extends Connection {
 	 * @param offset Zero based offset
 	 * @param campaignId The unique id for the campaign.
 	 * @param linkId The id for the link.
-	 * @return
+	 * @return Information about subscribers who clicked a link
 	 * @throws MalformedURLException
 	 * @throws JSONException
 	 * @throws TransportException
@@ -517,11 +518,11 @@ public class MailChimpConnection extends Connection {
 	}
 	
 	/**
-	 * Get information about a specific subscriber who clicked a link
+	 * Get information about a specific subscriber who clicked a link.
 	 * @param campaignId The unique id for the campaign.
 	 * @param linkId The id for the link.
 	 * @param subscriberHash
-	 * @return
+	 * @return Information about a specific subscriber who clicked a link
 	 * @throws MalformedURLException
 	 * @throws JSONException
 	 * @throws TransportException
@@ -534,7 +535,22 @@ public class MailChimpConnection extends Connection {
 		return report;
 	}
 	
-	// TODO: Report - Domain Performance - Get statistics for the top-performing domains from a campaign.
+	/**
+	 * Get statistics for the top-performing domains from a campaign.
+	 * @param campaignId The unique id for the campaign.
+	 * @return Statistics for the top-performing domains from a campaign.
+	 * @throws MalformedURLException
+	 * @throws JSONException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public DomainPerformance getDomainPerformance(String campaignId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+		URL url = new URL(getReportsendpoint() + "/" + campaignId + "/domain-performance");
+		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
+		DomainPerformance report = new DomainPerformance(jsonReport);
+		return report;
+	}
+	
 	// TODO: Report - Ecommerce Product Activity - Ecommerce product activity report for Campaign.
 	// TODO: Report - EepURL Reports - Get a summary of social activity for the campaign, tracked by EepURL.
 	// TODO: Report - Email Activity - Get list member activity for a specific campaign.
