@@ -483,15 +483,19 @@ public class MailChimpList {
 	
 	/**
 	 * Get a summary of the month-by-month growth activity for this list/audience.
-	 * 
-	 * @return a growth history
-	 * @throws URISyntaxException
-	 * @throws TransportException
-	 * @throws MalformedURLException
+	 * @param count Number of reports to return. Maximum value is 1000.
+	 * @param offset Zero based offset
+	 * @param dir Optional, determines the order direction for sorted results.
+	 * @return Summary of the month-by-month growth activity for this list/audience.
 	 * @throws JSONException
+	 * @throws MalformedURLException
+	 * @throws TransportException
+	 * @throws URISyntaxException
 	 */
 	public List<GrowthHistory> getGrowthHistory(int count, int offset, SortDirection dir) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		String response = connection.do_Get(new URL(connection.getListendpoint() + "/" + getId() + "/growth-history?count="+count+"&offset="+offset+"&sort_field=month&sort_dir="+dir.toString()), connection.getApikey());
+		String response = connection.do_Get(new URL(connection.getListendpoint() + "/" + getId() + 
+				"/growth-history?count="+count+"&offset="+offset+
+				"&sort_field=month&sort_dir="+(dir != null ? dir.toString() : SortDirection.DESC.toString())), connection.getApikey());
 		JSONObject jsonObj = new JSONObject(response);
 		
 		//int totalItems = jsonObj.getInt("total_items");	// The total number of items matching the query regardless of pagination
