@@ -85,6 +85,7 @@ public class FileManager {
 	 * Get files in your account
 	 * @return List containing the first 100 files
 	 * @throws Exception
+	 * @deprecated
 	 */
 	public List<FileManagerFile> getFileManagerFiles() throws Exception{
 		return getFileManagerFiles(100,0);
@@ -92,7 +93,7 @@ public class FileManager {
 
 	/**
 	 * Get files in your account with pagination
-	 * @param count Number of lists to return
+	 * @param count Number of lists to return. Maximum value is 1000.
 	 * @param offset Zero based offset
 	 * @throws Exception
 	 */

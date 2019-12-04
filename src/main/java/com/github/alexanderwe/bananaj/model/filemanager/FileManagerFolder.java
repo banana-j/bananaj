@@ -99,9 +99,9 @@ public class FileManagerFolder {
 	}
 
 	/**
-	 * Gets a list of all files stored in the mailchimp account. Mailchimp does not
-	 * allow querying for files that belong to a specific folder so the full list of
-	 * files is cached on first read.
+	 * Gets a list of all files belonging to this folder. Mailchimp does not allow
+	 * querying for files that belong to a specific folder so the full list of files
+	 * is iterated on first read and cached internally.
 	 * 
 	 * @return List of all file manager files
 	 * @throws Exception
@@ -126,7 +126,7 @@ public class FileManagerFolder {
 			formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
 
 			int offset = 0;
-			int count = 500;
+			int count = 1000;
 			List<FileManagerFile> filelist;
 
 			do {
