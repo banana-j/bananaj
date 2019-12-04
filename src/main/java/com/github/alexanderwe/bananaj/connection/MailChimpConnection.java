@@ -30,6 +30,8 @@ import com.github.alexanderwe.bananaj.model.report.AdviceReport;
 import com.github.alexanderwe.bananaj.model.report.ClickReport;
 import com.github.alexanderwe.bananaj.model.report.ClickReportMember;
 import com.github.alexanderwe.bananaj.model.report.DomainPerformance;
+import com.github.alexanderwe.bananaj.model.report.EcommerceProductActivity;
+import com.github.alexanderwe.bananaj.model.report.EcommerceSortField;
 import com.github.alexanderwe.bananaj.model.report.OpenReport;
 import com.github.alexanderwe.bananaj.model.report.Report;
 import com.github.alexanderwe.bananaj.model.template.Template;
@@ -551,8 +553,34 @@ public class MailChimpConnection extends Connection {
 		return report;
 	}
 	
-	// TODO: Report - Ecommerce Product Activity - Ecommerce product activity report for Campaign.
-	// TODO: Report - EepURL Reports - Get a summary of social activity for the campaign, tracked by EepURL.
+	/**
+	 * Ecommerce product activity report for Campaign
+	 * @param count Number of reports to return. Maximum value is 1000.
+	 * @param offset Zero based offset
+	 * @param campaignId The unique id for the campaign.
+	 * @param sortField Optional, sort products by this field.
+	 * @return Breakdown of product activity for a campaign.
+	 * @throws MalformedURLException
+	 * @throws JSONException
+	 * @throws TransportException
+	 * @throws URISyntaxException
+	 */
+	public List<EcommerceProductActivity> getEcommerceProductActivity(int count, int offset, String campaignId, EcommerceSortField sortField) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+		URL url = new URL(getReportsendpoint() + "/" + campaignId + "/ecommerce-product-activity?offset=" + offset + "&count=" + count + 
+				"&sort_field=" + (sortField != null ? sortField.toString() : EcommerceSortField.TITLE.toString()));
+		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
+		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
+    	JSONArray reportsArray = jsonReports.getJSONArray("products");
+    	List<EcommerceProductActivity> reports = new ArrayList<EcommerceProductActivity>(reportsArray.length());
+    	for( int i = 0; i< reportsArray.length();i++)
+    	{
+    		JSONObject reportDetail = reportsArray.getJSONObject(i);
+    		EcommerceProductActivity report = new EcommerceProductActivity(reportDetail);
+    		reports.add(report);
+    	}
+    	return reports;
+	}
+	
 	// TODO: Report - Email Activity - Get list member activity for a specific campaign.
 	// TODO: Report - Email Activity - Get list member activity for a specific campaign and subscriber.
 	// TODO: Report - Location - Get top open locations for a specific campaign.
@@ -560,6 +588,7 @@ public class MailChimpConnection extends Connection {
 	// TODO: Report - Sent To - Get information about a specific campaign recipient.
 	// TODO: Report - Sub-Reports- A list of reports for child campaigns of a specific parent campaign. For example, use this endpoint to view Multivariate, RSS, and A/B Testing Campaign reports.
 	// TODO: Report - Unsubscribes - Get information about list members who unsubscribed from a specific campaign.
+	// TODO: Report - EepURL Reports - Get a summary of social activity for the campaign, tracked by EepURL.
 	
     /**
      * Get template folders from MailChimp

@@ -107,4 +107,13 @@ public class ReportTest {
 		assertEquals(1,ds.getDelivered());
 	}
 
+	@Test
+	public void testReport_EcommerceProductActivity() {
+		JSONObject jsonObj = new JSONObject("{\"title\":\"Snacks\",\"sku\":\"030001\",\"image_url\":\"http://domain.com/image/030001.gif\",\"total_revenue\":10.29,\"total_purchased\":25.30,\"currency_code\":\"usd\",\"recommendation_total\":0,\"recommendation_purchased\":0,\"_links\":[]}");
+		EcommerceProductActivity prdActivity = new EcommerceProductActivity(jsonObj);
+		assertEquals("Snacks", prdActivity.getTitle());
+		assertEquals("030001", prdActivity.getSku());
+		assertEquals("http://domain.com/image/030001.gif", prdActivity.getImageUrl());
+	}
+
 }
