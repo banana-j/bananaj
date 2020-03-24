@@ -74,7 +74,9 @@ public class Campaign {
 		}
 		this.contentType = CampaignContentType.valueOf(jsonObj.getString("content_type").toUpperCase());
 		this.needsBlockRefresh = jsonObj.getBoolean("needs_block_refresh");
-		this.hasLogoMergeTag = jsonObj.getBoolean("has_logo_merge_tag");
+		if (jsonObj.has("has_logo_merge_tag")) {
+			this.hasLogoMergeTag = jsonObj.getBoolean("has_logo_merge_tag");
+		}
 		this.resendable = jsonObj.getBoolean("resendable");
 		
 		if (jsonObj.has("recipients")) {
