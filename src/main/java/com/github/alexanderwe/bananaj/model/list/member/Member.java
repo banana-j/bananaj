@@ -719,7 +719,9 @@ public class Member {
 		if (getEmailType() != null) {
 			json.put("email_type", getEmailType().toString());
 		}
-		json.put( "status", getStatus().toString());
+		if (getStatus() != null) {
+			json.put( "status", getStatus().toString());
+		}
 
 		{
 			JSONObject mergeFields = new JSONObject();
@@ -836,8 +838,8 @@ public class Member {
 				"    Id: " + getId() + System.lineSeparator() +
 				"    Email: " + getEmailAddress() + System.lineSeparator() +
 				"    Email Id: " + getUniqueEmailId() + System.lineSeparator() +
-				"    Email Type: " + getEmailType().toString() + System.lineSeparator() +
-				"    Status: " + getStatus().toString() + System.lineSeparator() +
+				(getEmailType() != null ? "    Email Type: " + getEmailType().toString() + System.lineSeparator() : "") +
+				(getStatus() != null ? "    Status: " + getStatus().toString() + System.lineSeparator() : "") +
 				"    List Id: " + getListId() + System.lineSeparator() +
 				"    Signup Timestamp: " + DateConverter.toLocalString(getTimestampSignup()) + System.lineSeparator() +
 				"    Signup IP: " + getIpSignup() + System.lineSeparator() +

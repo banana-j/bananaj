@@ -38,7 +38,6 @@ public class Campaign {
 	private ZonedDateTime sendTime;
 	private CampaignContentType contentType;
 	private boolean needsBlockRefresh;
-	private boolean hasLogoMergeTag;
 	private boolean resendable;
 	private CampaignRecipients recipients;
 	private CampaignSettings settings;
@@ -74,7 +73,6 @@ public class Campaign {
 		}
 		this.contentType = CampaignContentType.valueOf(jsonObj.getString("content_type").toUpperCase());
 		this.needsBlockRefresh = jsonObj.getBoolean("needs_block_refresh");
-		this.hasLogoMergeTag = jsonObj.getBoolean("has_logo_merge_tag");
 		this.resendable = jsonObj.getBoolean("resendable");
 		
 		if (jsonObj.has("recipients")) {
@@ -335,13 +333,6 @@ public class Campaign {
 	}
 
 	/**
-	 * Determines if the campaign contains the |BRAND:LOGO| merge tag
-	 */
-	public boolean isHasLogoMergeTag() {
-		return hasLogoMergeTag;
-	}
-
-	/**
 	 * Determines if the campaign qualifies to be resent to non-openers
 	 */
 	public boolean isResendable() {
@@ -380,8 +371,8 @@ public class Campaign {
 	public String toString() {
 		return "ID: " + getId() + " " + getSettings().getTitle() + System.lineSeparator() +
 				"    WebId: " + getWebId() + System.lineSeparator() +
-				"    Type: " + getType().toString() + System.lineSeparator() +
-				"    Status: " + getStatus().toString() + System.lineSeparator() +
+				(getType() != null ? "    Type: " + getType().toString() + System.lineSeparator() : "") +
+				(getStatus() != null ? "    Status: " + getStatus().toString() + System.lineSeparator() : "") +
 				"    Content Type: " + getContentType().toString() + System.lineSeparator() +
 				"    Created: " +  DateConverter.toLocalString(getCreateTime()) + System.lineSeparator() +
 				"    Sent: " + (getSendTime()!=null ? DateConverter.toLocalString(getSendTime()) : "") + System.lineSeparator() +
