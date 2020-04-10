@@ -35,14 +35,14 @@ dependencies {
 If you are not using Maven or Gradle you can download the latest `fat jar` from the [releases section](https://github.com/banana-j/bananaj/releases).
 
 ## MailChimpObject class
-Most of the com.github.alexanderwe.bananaj.model classes extend the MailChimpObject class.They are immutable, to prevent asynchronous data between the client and the MailChimp server. 
+Most of the com.github.bananaj.model classes extend the MailChimpObject class.They are immutable, to prevent asynchronous data between the client and the MailChimp server. 
 When you execute methods like `object.changeName("new Name")` the local and server data is updated simultaneously.
 
-Most of the com.github.alexanderwe.bananaj.model classes can also be exported to JSON.
+Most of the com.github.bananaj.model classes can also be exported to JSON.
 
-## Initial com.github.alexanderwe.bananaj.connection
+## Initial com.github.bananaj.connection
 With the MailChimpConnection object you start to connect to your account. 
-You can get all objects from this com.github.alexanderwe.bananaj.connection. First start with getting information about a list.
+You can get all objects from this com.github.bananaj.connection. First start with getting information about a list.
 
 ```
 MailChimpConnection con = new MailChimpConnection("yourAPIkey");
