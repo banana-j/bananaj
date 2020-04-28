@@ -4,16 +4,23 @@
  */
 package com.github.bananaj.model.campaign;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.exceptions.CampaignSettingsException;
+import com.github.bananaj.exceptions.TransportException;
 import com.github.bananaj.model.ReportSummary;
 import com.github.bananaj.model.Tracking;
+import com.github.bananaj.model.automation.Automation;
 import com.github.bananaj.model.report.Report;
 import com.github.bananaj.utils.DateConverter;
 
@@ -182,7 +189,13 @@ public class Campaign {
 		return new Campaign(getConnection(), new JSONObject(results));
 	}
 	
-	public CampaignSendChecklist getSendChecklist() throws Exception {
+	/**
+	 * Get the send checklist for campaign. Review the send checklist for your campaign, and resolve any issues before sending. 
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 */
+	public CampaignSendChecklist getSendChecklist() throws MalformedURLException, TransportException, URISyntaxException {
 		String results = getConnection().do_Get(new URL(getConnection().getCampaignendpoint()+"/"+getId()+"/send-checklist"), getConnection().getApikey());
 		return new CampaignSendChecklist(new JSONObject(results));
 	}
@@ -244,17 +257,86 @@ public class Campaign {
 
 	/**
 	 * Get the content of this campaign from mailchimp API
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 * @throws JSONException 
 	 */
-	private void getCampaignContent() throws Exception{
+	private void getCampaignContent() throws JSONException, MalformedURLException, TransportException, URISyntaxException {
 		JSONObject content = new JSONObject(getConnection().do_Get(new URL(connection.getCampaignendpoint()+"/"+this.getId()+"/content"),connection.getApikey()));
 		this.content = new CampaignContent(this, content);
 	}
 
-	// TODO:
-//	public CampaignFeedback getFeedback() throws Exception {
-//		
-//	}
+	/**
+	 * Get feedback about a campaign
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 * @throws JSONException 
+	 */
+	public List<CampaignFeedback> getFeedback() throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		List<CampaignFeedback> feedback = new ArrayList<CampaignFeedback>();
+		JSONObject campaignFeedback = new JSONObject(getConnection().do_Get(new URL(connection.getCampaignendpoint()+"/"+this.getId()+"/feedback"),connection.getApikey()));
+		
+		JSONArray feedbackArray = campaignFeedback.getJSONArray("feedback");
+		for( int i = 0; i< feedbackArray.length();i++)
+		{
+			JSONObject jsonObj = feedbackArray.getJSONObject(i);
+			CampaignFeedback f = new CampaignFeedback(connection, jsonObj);
+			feedback.add(f);
+		}
+		
+		return feedback;
+	}
+
+	/**
+	 * Get a specific feedback message
+	 * @param feedbackId
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 * @throws JSONException 
+	 */
+	public CampaignFeedback getFeedback(String feedbackId) throws JSONException, MalformedURLException, TransportException, URISyntaxException  {
+		JSONObject jsonObj = new JSONObject(getConnection().do_Get(new URL(connection.getCampaignendpoint()+"/"+getId()+"/feedback/"+feedbackId),connection.getApikey()));
+		CampaignFeedback feedback = new CampaignFeedback(connection, jsonObj);
+		return feedback;
+	}
+
+	/**
+	 * Add campaign feedback
+	 * @param message
+	 * @return
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 * @throws JSONException 
+	 * @throws Exception
+	 */
+	public CampaignFeedback createFeedback(String message) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		CampaignFeedback feedback = new CampaignFeedback.Builder()
+				.connection(connection)
+				.campaignId(getId())
+				.blockId(0)
+				.message(message)
+				.isComplete(true)
+				.build();
+		feedback.create();
+		return feedback;
+	}
 	
+	/**
+	 * Delete a campaign feedback message
+	 * @param feedbackId
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 * @throws Exception
+	 */
+	public void deleteFeedback(String feedbackId) throws MalformedURLException, TransportException, URISyntaxException {
+		getConnection().do_Delete(new URL(connection.getCampaignendpoint()+"/"+getId()+"/feedback/"+feedbackId),connection.getApikey());
+	}
+
 	/**
 	 * The ID used in the Mailchimp web application. View this campaign in your Mailchimp account at https://{dc}.admin.mailchimp.com/campaigns/show/?id={web_id}.
 	 */

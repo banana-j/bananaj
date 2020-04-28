@@ -19,7 +19,7 @@ public enum CampaignType {
 	
 	private String stringRepresentation;
 	
-	CampaignType(String stringRepresentation ) {
+	CampaignType(String stringRepresentation) {
 		setStringRepresentation(stringRepresentation);
 	}
 

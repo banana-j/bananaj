@@ -19,8 +19,10 @@ import com.github.bananaj.model.automation.AutomationRecipient;
 import com.github.bananaj.model.automation.AutomationSettings;
 import com.github.bananaj.model.automation.emails.AutomationEmail;
 import com.github.bananaj.model.campaign.Campaign;
+import com.github.bananaj.model.campaign.CampaignFeedback;
 import com.github.bananaj.model.campaign.CampaignFolder;
 import com.github.bananaj.model.campaign.CampaignRecipients;
+import com.github.bananaj.model.campaign.CampaignSendChecklist;
 import com.github.bananaj.model.campaign.CampaignSettings;
 import com.github.bananaj.model.campaign.CampaignType;
 import com.github.bananaj.model.filemanager.FileManager;
@@ -286,7 +288,7 @@ public class MailChimpConnection extends Connection {
 		return new Campaign(this, campaign);
 	}
 
-	public Campaign createCampaign(CampaignType type, CampaignRecipients mailRecipients, CampaignSettings settings) throws Exception{
+	public Campaign createCampaign(CampaignType type, CampaignRecipients mailRecipients, CampaignSettings settings) throws Exception {
 		
 		JSONObject campaign = new JSONObject();
 		JSONObject recipients = mailRecipients.getJsonRepresentation();
@@ -310,6 +312,79 @@ public class MailChimpConnection extends Connection {
 		do_Delete(new URL(campaignendpoint +"/"+campaignID),getApikey());
 	}
 
+	/**
+	 * Get feedback about a campaign
+	 * @param campaignID
+	 * @return
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 * @throws JSONException 
+	 * @throws Exception
+	 */
+	public List<CampaignFeedback> getCampaignFeedback(String campaignID) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		List<CampaignFeedback> feedback = new ArrayList<CampaignFeedback>();
+		JSONObject campaignFeedback = new JSONObject(do_Get(new URL(getCampaignendpoint()+"/"+campaignID+"/feedback"),getApikey()));
+		
+		JSONArray feedbackArray = campaignFeedback.getJSONArray("feedback");
+		for( int i = 0; i< feedbackArray.length();i++)
+		{
+			JSONObject jsonObj = feedbackArray.getJSONObject(i);
+			CampaignFeedback f = new CampaignFeedback(this, jsonObj);
+			feedback.add(f);
+		}
+		
+		return feedback;
+	}
+	
+	/**
+	 * Get a specific feedback about a campaign
+	 * @param campaignID
+	 * @param feedbackId
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 * @throws JSONException 
+	 */
+	public CampaignFeedback getCampaignFeedback(String campaignID, String feedbackId) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		JSONObject jsonObj = new JSONObject(do_Get(new URL(getCampaignendpoint()+"/"+campaignID+"/feedback/"+feedbackId),getApikey()));
+		CampaignFeedback feedback = new CampaignFeedback(this, jsonObj);
+		return feedback;
+	}
+	
+	/**
+	 * Add campaign feedback
+	 * @param campaignID
+	 * @param message
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 * @throws JSONException 
+	 */
+	CampaignFeedback createCampaignFeedback(String campaignID, String message) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		CampaignFeedback feedback = new CampaignFeedback.Builder()
+				.connection(this)
+				.campaignId(campaignID)
+				.blockId(0)
+				.message(message)
+				.isComplete(true)
+				.build();
+		feedback.create();
+		return feedback;
+	}
+
+	/**
+	 * Get the send checklist for a campaign. Review the send checklist for your campaign, and resolve any issues before sending.
+	 * @param campaignID
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 */
+	CampaignSendChecklist getCampaignSendChecklist(String campaignID) throws MalformedURLException, TransportException, URISyntaxException {
+		String results = do_Get(new URL(getCampaignendpoint()+"/"+campaignID+"/send-checklist"), getApikey());
+		return new CampaignSendChecklist(new JSONObject(results));
+	}
+	
 	/**
 	 * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
 	 * 
