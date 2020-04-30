@@ -554,28 +554,48 @@ public class MailChimpList extends MailchimpObject {
 			final JSONObject mergeFieldOptionsJSON = mergeFieldDetail.getJSONObject("options");
 			MergeFieldOptions mergeFieldOptions = new MergeFieldOptions();
 
-			switch(mergeFieldDetail.getString("type")){
-				case "address":mergeFieldOptions.setDefault_country(mergeFieldOptionsJSON.getInt("default_country"));break;
-				case "phone":mergeFieldOptions.setPhone_format(mergeFieldOptionsJSON.getString("phone_format"));break;
-				case "date":mergeFieldOptions.setDate_format(mergeFieldOptionsJSON.getString("date_format"));break;
-				case "birthday":mergeFieldOptions.setDate_format(mergeFieldOptionsJSON.getString("date_format"));break;
-				case "text":mergeFieldOptions.setSize(mergeFieldOptionsJSON.getInt("size"));break;
-				case "radio":
-					JSONArray mergeFieldOptionChoicesRadio = mergeFieldOptionsJSON.getJSONArray("choices");
-					ArrayList<String> choicesRadio = new ArrayList<String>();
-					for (int j = 0; j < mergeFieldOptionChoicesRadio.length(); j++){
-						choicesRadio.add((String )mergeFieldOptionChoicesRadio.get(j));
-					}
-					mergeFieldOptions.setChoices(choicesRadio);
-					break;
-				case "dropdown":
-					JSONArray mergeFieldOptionChoicesDropdown = mergeFieldOptionsJSON.getJSONArray("choices");
-					ArrayList<String> choicesDropdown = new ArrayList<String>();
-					for (int j = 0; j < mergeFieldOptionChoicesDropdown.length(); j++){
-						choicesDropdown.add((String )mergeFieldOptionChoicesDropdown.get(j));
-					}
-					mergeFieldOptions.setChoices(choicesDropdown);
-					break;
+			switch(mergeFieldDetail.getString("type")) {
+			case "address":
+				if (mergeFieldOptionsJSON.has("default_country")) {
+					mergeFieldOptions.setDefault_country(mergeFieldOptionsJSON.getInt("default_country"));
+				}
+				break;
+			case "phone":
+				if (mergeFieldOptionsJSON.has("phone_format")) {
+					mergeFieldOptions.setPhone_format(mergeFieldOptionsJSON.getString("phone_format"));
+				}
+				break;
+			case "date":
+				if (mergeFieldOptionsJSON.has("date_format")) {
+					mergeFieldOptions.setDate_format(mergeFieldOptionsJSON.getString("date_format"));
+				}
+				break;
+			case "birthday":
+				if (mergeFieldOptionsJSON.has("date_format")) {
+					mergeFieldOptions.setDate_format(mergeFieldOptionsJSON.getString("date_format"));
+				}
+				break;
+			case "text":
+				if (mergeFieldOptionsJSON.has("size")) {
+					mergeFieldOptions.setSize(mergeFieldOptionsJSON.getInt("size"));
+				}
+				break;
+			case "radio":
+				JSONArray mergeFieldOptionChoicesRadio = mergeFieldOptionsJSON.getJSONArray("choices");
+				ArrayList<String> choicesRadio = new ArrayList<String>();
+				for (int j = 0; j < mergeFieldOptionChoicesRadio.length(); j++){
+					choicesRadio.add((String )mergeFieldOptionChoicesRadio.get(j));
+				}
+				mergeFieldOptions.setChoices(choicesRadio);
+				break;
+			case "dropdown":
+				JSONArray mergeFieldOptionChoicesDropdown = mergeFieldOptionsJSON.getJSONArray("choices");
+				ArrayList<String> choicesDropdown = new ArrayList<String>();
+				for (int j = 0; j < mergeFieldOptionChoicesDropdown.length(); j++){
+					choicesDropdown.add((String )mergeFieldOptionChoicesDropdown.get(j));
+				}
+				mergeFieldOptions.setChoices(choicesDropdown);
+				break;
 			}
 
 
