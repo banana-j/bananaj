@@ -300,7 +300,9 @@ public class MailChimpList extends MailchimpObject {
 	/**
 	 * Add or update a list member via a PUT operation. When a new member is added
 	 * and no status_if_new has been specified SUBSCRIBED will be used. Member
-	 * fields will be freshened from mailchimp.
+	 * fields will be freshened from Mailchimp.
+	 * 
+	 * Note that if an existing member (previously archived or otherwise) is updated member tags will not be applied. 
 	 * 
 	 * @param member
 	 * @throws URISyntaxException 

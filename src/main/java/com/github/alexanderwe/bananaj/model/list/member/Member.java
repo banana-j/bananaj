@@ -773,7 +773,7 @@ public class Member {
 		if (tags != null && tags.size() > 0 ) {
 			JSONArray tagsArray = new JSONArray();
 			for(MemberTag t: tags) {
-				tagsArray.put(t.getJsonRepresentation());
+				tagsArray.put(t.getName());
 			}
 			json.put("tags", tagsArray);
 		}

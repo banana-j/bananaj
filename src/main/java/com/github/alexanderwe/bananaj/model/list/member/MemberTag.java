@@ -41,18 +41,18 @@ public class MemberTag {
 		return "Tag: " + getId() + " " + getName();
 	}
 
-	/**
-	 * Helper method to convert JSON for mailchimp PATCH/POST operations
-	 */
-	public JSONObject getJsonRepresentation() {
-		JSONObject jsonObj = new JSONObject();
-
-		jsonObj.put("name", name);
-
-		if (id != null) {
-			jsonObj.put("id", id.intValue());
-		}
-
-		return jsonObj;
-	}
+//	/**
+//	 * Helper method to convert JSON for mailchimp PATCH/POST operations
+//	 */
+//	public JSONObject getJsonRepresentation() {
+//		JSONObject jsonObj = new JSONObject();
+//
+//		jsonObj.put("name", name);
+//
+//		if (id != null) {
+//			jsonObj.put("id", id.intValue());
+//		}
+//
+//		return jsonObj;
+//	}
 }
