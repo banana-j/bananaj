@@ -343,7 +343,13 @@ public class MailChimpList {
 	/**
 	 * Add or update a list member via a PUT operation. When a new member is added
 	 * and no status_if_new has been specified SUBSCRIBED will be used. Member
-	 * fields will be freshened from mailchimp.
+	 * fields will be freshened from Milchimp.
+	 * 
+	 * Note that if an existing member (previously archived or otherwise) is updated
+	 * member tags will not be applied. Use
+	 * {@link com.github.bananaj.model.list.member.Member#applyTags(java.util.Map)}
+	 * or
+	 * {@link com.github.bananaj.model.list.member.Member#applyTag(String, com.github.bananaj.model.list.member.TagStatus)}
 	 * 
 	 * @param member
 	 * @return The member with fields freshened from mailchimp.
@@ -402,7 +408,7 @@ public class MailChimpList {
 	 * 
 	 * @param subscriberHash The MD5 hash of the lowercase version of the list
 	 *                       member’s email address.
-	 * @param count          Number of items to return
+	 * @param count          Number of tags to return
 	 * @param offset         Zero based offset
 	 * @throws URISyntaxException
 	 * @throws TransportException

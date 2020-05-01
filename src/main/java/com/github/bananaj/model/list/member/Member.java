@@ -673,12 +673,37 @@ public class Member {
 	}
 
 	/**
-	 * @return The tags applied to this member.
+	 * @return Returns up to 50 tags applied to this member. To retrieve all tags
+	 *         see {@link #getTags(int, int)} or
+	 *         {@link com.github.bananaj.model.list.MailChimpList#getMemberTags(String, int, int)}.
 	 */
 	public List<MemberTag> getTags() {
 		return tags;
 	}
 
+	/**
+	 * Get the tags for this list member.
+	 * @param count Number of tags to return
+	 * @param offset Zero based offset
+	 * @return The tags applied to this member.
+	 * @throws URISyntaxException 
+	 * @throws TransportException 
+	 * @throws MalformedURLException 
+	 * @throws JSONException 
+	 */
+	public List<MemberTag> getTags(int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		final JSONObject tagsObj = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint() + "/"
+				+ getId() + "/members/" + subscriberHash(getEmailAddress()) + "/tags" + "?offset=" + offset + "&count=" + count),
+				getConnection().getApikey()));
+		// int total_items = tagsObj.getInt("total_items");	// The total number of items matching the query regardless of pagination
+		// matching the query regardless of pagination
+		final JSONArray tagsArray = tagsObj.getJSONArray("tags");
+		List<MemberTag> tags = new ArrayList<MemberTag>(tagsArray.length());
+		for (int i = 0; i < tagsArray.length(); i++) {
+			tags.add(new MemberTag(tagsArray.getJSONObject(i)));
+		}
+		return tags;
+	}
 
 	/**
 	 * The list id
@@ -767,7 +792,7 @@ public class Member {
 		if (tags != null && tags.size() > 0 ) {
 			JSONArray tagsArray = new JSONArray();
 			for(MemberTag t: tags) {
-				tagsArray.put(t.getJsonRepresentation());
+				tagsArray.put(t.getName());
 			}
 			json.put("tags", tagsArray);
 		}
