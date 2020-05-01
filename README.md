@@ -17,7 +17,7 @@ Add this dependency to your pom.xml to use **bananaj** in your project.
 <dependency>
   <groupId>com.github.banana-j</groupId>
   <artifactId>bananaj</artifactId>
-  <version>0.6.2</version>
+  <version>0.7.0</version>
 </dependency>
 ```
 or with Gradle
@@ -28,7 +28,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'com.github.banana-j', name: 'bananaj', version: '0.6.2'
+    compile group: 'com.github.banana-j', name: 'bananaj', version: '0.7.0'
 }
 ```
 
@@ -82,7 +82,7 @@ interests.put("12345", true);
 
 Member member = new Member.Builder()
 		.emailAddress("myEmail@my.domain.com")
-		.list(yourList)
+		.listId(yourListId)
 		.emailType(EmailType.HTML)
 		.status(MemberStatus.SUBSCRIBED)
 		.mergeFields(mergeFields)
@@ -177,7 +177,7 @@ Thanks a lot to all contributors:
 # License
 The MIT License (MIT)
 
-Copyright (c) 2015 - 2019 Alexander Weiß
+Copyright (c) 2015 - 2020 Alexander Weiß
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
