@@ -118,13 +118,14 @@ public class CampaignSegmentOpts {
 					case DATE:
 					case GOAL_TIMESTAMP:
 					case ZIP_MERGE:
-						conditions.add( new StringCondition.Builder()
-								.conditionType(conditiontype)
-								.field(jsonCondition.getString("field"))
-								.operator(Operator.fromValue(jsonCondition.getString("op")))
-								.extra(jsonCondition.getString("extra"))
-								.value(jsonCondition.getString("value"))
-								.build());
+						StringCondition.Builder b = new StringCondition.Builder()
+							.conditionType(conditiontype)
+							.field(jsonCondition.getString("field"))
+							.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+							.value(jsonCondition.getString("value"));
+						if (jsonCondition.has("extra")) {
+							b.extra(jsonCondition.getString("extra"));
+						}
 						break;
 
 
