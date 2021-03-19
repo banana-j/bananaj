@@ -172,6 +172,20 @@ public class MailChimpConnection extends Connection{
 	}
 
 	/**
+	 * A health check for the API.
+	 * @return true on successful API ping otherwise false
+	 */
+	public boolean ping() {
+		try {
+			JSONObject jsonObj = new JSONObject(do_Get(new URL(apiendpoint + "ping"), getApikey()));
+			if (jsonObj.has("health_status") && "Everything's Chimpy!".equals(jsonObj.getString("health_status"))) {
+				return true;
+			}
+		} catch (Exception ignored) { }
+		return false;
+	}
+	
+	/**
 	 * Write all lists to an Excel file
 	 * @throws Exception
 	 */
