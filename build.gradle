@@ -16,13 +16,13 @@ tasks.withType(JavaCompile) {
 }
 
 repositories {
-    maven { url "http://repo.maven.apache.org/maven2" }
+    maven { url "https://repo.maven.apache.org/maven2" }
 }
 
 dependencies {
     compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
     compile group: 'net.sourceforge.jexcelapi', name: 'jxl', version: '2.6.12'
-    compile group: 'org.json', name: 'json', version: '20180130'
+    compile group: 'org.json', name: 'json', version: '20200518'
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.5'
 	
 	// testCompile 'junit:junit:4.12'
