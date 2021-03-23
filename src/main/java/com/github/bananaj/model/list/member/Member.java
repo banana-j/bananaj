@@ -22,8 +22,10 @@ import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.exceptions.TransportException;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.list.MailChimpList;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.EmailValidator;
 import com.github.bananaj.utils.MD5;
 
 
@@ -32,7 +34,7 @@ import com.github.bananaj.utils.MD5;
  * @author alexanderweiss
  *
  */
-public class Member {
+public class Member implements JSONParser {
 
 	private String id;
 	private String emailAddress;
@@ -92,8 +94,13 @@ public class Member {
 
 	}
 
+//	public static Member newInstance(MailChimpConnection connection, JSONObject member) {
+//		return new Member(connection, member);
+//	}
+	
 	/**
 	 * Parse a JSON representation of a member into this.
+	 * @param connection
 	 * @param member
 	 */
 	public void parse(MailChimpConnection connection, JSONObject member) {
@@ -383,7 +390,6 @@ public class Member {
 	 * @return The MD5 hash of the lowercase version of the list member’s email address.
 	 */
 	public String getId() {
-		// return subscriberHash(getEmailAddress())
 		return id;
 	}
 
@@ -882,12 +888,18 @@ public class Member {
 	}
 
 	/**
-	 * Generate mailchimp subscriber hash from email adddress.  
-	 * @param emailAddress
+	 * Convert an email address to a Mailchimp subscriber hash. Member uses an MD5
+	 * hash of the lowercase email address as an identifier. This will generate
+	 * mailchimp subscriber hash from email address. If a subscriber hash is
+	 * provided it will be returned unaltered.
+	 * 
+	 * @param emailAddress An email address or Mailchimp subscriber hash
 	 * @return The MD5 hash of the lowercase version of the email address.
 	 */
 	public static String subscriberHash(String emailAddress) {
-		return MD5.getMD5(emailAddress.toLowerCase());
+		return EmailValidator.getInstance().validate(emailAddress) ? 
+				MD5.getMD5(emailAddress.toLowerCase()) : 
+					emailAddress;
 	}
 
 	public static class Builder {
@@ -895,7 +907,7 @@ public class Member {
 		private String emailAddress;
 		private EmailType emailType;
 		private MemberStatus status;
-		private Map<String, Object> mergeFields = new HashMap<String, Object>();;
+		private Map<String, Object> mergeFields = new HashMap<String, Object>();
 		private Map<String, Boolean> interest = new HashMap<String, Boolean>();
 		private String language;
 		private boolean vip;

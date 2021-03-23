@@ -4,22 +4,24 @@ import java.time.ZonedDateTime;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
 
 /**
  * A tag that has been assigned to a contact.
  */
-public class MemberTag {
+public class MemberTag implements JSONParser {
 	private String name;
 	private Integer id;
 	private ZonedDateTime dateAdded;
 
+	public MemberTag() {
+		
+	}
+	
 	public MemberTag(JSONObject jsonObj) {
-		name = jsonObj.getString("name");
-		id = jsonObj.getInt("id");
-		if (jsonObj.has("date_added")) {
-			dateAdded = DateConverter.fromISO8601(jsonObj.getString("date_added"));
-		}
+		parse(null, jsonObj);
 	}
 
 	public MemberTag(String tagName) {
@@ -28,6 +30,19 @@ public class MemberTag {
 		dateAdded = null;
 	}
 
+	/**
+	 * Parse a JSON representation of member tag into this.
+	 * @param connection Not used
+	 * @param jsonObj
+	 */
+	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
+		name = jsonObj.getString("name");
+		id = jsonObj.getInt("id");
+		if (jsonObj.has("date_added")) {
+			dateAdded = DateConverter.fromISO8601(jsonObj.getString("date_added"));
+		}
+	}
+	
 	/**
 	 * @return The name of the tag.
 	 */

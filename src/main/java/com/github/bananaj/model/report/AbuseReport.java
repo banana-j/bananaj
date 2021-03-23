@@ -6,13 +6,15 @@ import java.util.Map;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
 
 /**
  * An abuse complaint occurs when your recipient reports an email as spam in their mail program.
  *
  */
-public class AbuseReport {
+public class AbuseReport implements JSONParser {
 	private int id;
 	private String campaignId;
 	private String listId;
@@ -23,7 +25,20 @@ public class AbuseReport {
 	private boolean vip;
 	private ZonedDateTime date;
 
+	public AbuseReport() {
+		
+	}
+
 	public AbuseReport(JSONObject abuse) {
+		parse(null, abuse);
+	}
+
+	/**
+	 * Parse a JSON representation of Abuse Report into this.
+	 * @param connection Not used
+	 * @param abuse
+	 */
+	public void parse(MailChimpConnection connection, JSONObject abuse) {
 		id = abuse.getInt("id");
 		campaignId = abuse.getString("campaign_id");
 		listId = abuse.getString("list_id");
@@ -40,7 +55,7 @@ public class AbuseReport {
 		vip = abuse.getBoolean("vip");
 		date = DateConverter.fromISO8601(abuse.getString("date"));
 	}
-
+	
 	/**
 	 * @return The id for the abuse report.
 	 */

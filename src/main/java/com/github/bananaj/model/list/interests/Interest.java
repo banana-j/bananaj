@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.exceptions.TransportException;
+import com.github.bananaj.model.JSONParser;
 
 /**
  * Manage interests for a specific Mailchimp audience list. Assign subscribers
@@ -15,7 +16,7 @@ import com.github.bananaj.exceptions.TransportException;
  * names’ in the Mailchimp application.
  *
  */
-public class Interest {
+public class Interest implements JSONParser {
 	private MailChimpConnection connection;
 	private String categoryId;
     private String listId;
@@ -24,7 +25,11 @@ public class Interest {
     private int subscriberCount;
     private Integer displayOrder;
 
-    /**
+	public Interest() {
+
+	}
+
+	/**
 	 * Construct class given a Mailchimp JSON object
      * 
      * @param jsonObj
@@ -48,6 +53,11 @@ public class Interest {
 		this.connection = b.connection;
     }
     
+    /**
+	 * Parse a JSON representation of interest into this.
+	 * @param connection 
+	 * @param jsonObj
+     */
 	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
 		categoryId = jsonObj.getString("category_id");
 		listId = jsonObj.getString("list_id");

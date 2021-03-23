@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.InvalidParameterException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,7 @@ import com.github.bananaj.model.report.Report;
 import com.github.bananaj.model.template.Template;
 import com.github.bananaj.model.template.TemplateFolder;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.ModelIterator;
 
 /**
  * Class for the com.github.bananaj.connection to mailchimp servers. Used to get lists from mailchimp account.
@@ -87,13 +89,16 @@ public class MailChimpConnection extends Connection {
 	}
 
 	/**
-	 * Get the List/Audience in your account
-	 * @return List containing the first 100 lists
-	 * @throws Exception
-	 * @deprecated
+	 * Get the List/Audience iterator for in your account
+	 * 
+	 * Checked exceptions, including TransportException and JSONException, are
+	 * warped in a RuntimeException to reduce the need for boilerplate code inside
+	 * of lambdas.
+	 * 
+	 * @return List/audience iterator
 	 */
-	public List<MailChimpList> getLists() throws Exception {
-		return getLists(100,0);
+	public Iterable<MailChimpList> getLists() {
+		return new ModelIterator<MailChimpList>(MailChimpList.class, listendpoint, this, 500);
 	}
 
 	/**
@@ -224,13 +229,16 @@ public class MailChimpConnection extends Connection {
     }
 
     /**
-     * Get campaigns from mailchimp account
-     * @return List containing the first 100 campaigns
-     * @throws Exception
-     * @deprecated
+     * Get campaigns iterator from mailchimp account
+	 * 
+	 * Checked exceptions, including TransportException and JSONException, are
+	 * warped in a RuntimeException to reduce the need for boilerplate code inside
+	 * of lambdas.
+	 * 
+     * @return Campaign iterator
      */
-    public List<Campaign> getCampaigns() throws Exception {
-    	return getCampaigns(100,0);
+    public Iterable<Campaign> getCampaigns() {
+		return new ModelIterator<Campaign>(Campaign.class, campaignendpoint, this, 500);
     }
 
     /**
@@ -241,6 +249,9 @@ public class MailChimpConnection extends Connection {
      * @throws Exception
      */
     public List<Campaign> getCampaigns(int count, int offset) throws Exception {
+		if (count < 1 || count > 1000) {
+			throw new InvalidParameterException("Page size must be 1-1000");
+		}
     	// parse response
     	JSONObject jsonCampaigns = new JSONObject(do_Get(new URL(campaignendpoint+ "?offset=" + offset + "&count=" + count),getApikey()));
     	JSONArray campaignsArray = jsonCampaigns.getJSONArray("campaigns");

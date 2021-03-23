@@ -18,9 +18,9 @@ import org.json.JSONObject;
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.exceptions.CampaignSettingsException;
 import com.github.bananaj.exceptions.TransportException;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.ReportSummary;
 import com.github.bananaj.model.Tracking;
-import com.github.bananaj.model.automation.Automation;
 import com.github.bananaj.model.report.Report;
 import com.github.bananaj.utils.DateConverter;
 
@@ -29,7 +29,7 @@ import com.github.bananaj.utils.DateConverter;
  * @author alexanderweiss
  *
  */
-public class Campaign {
+public class Campaign implements JSONParser {
 
 	private MailChimpConnection connection;
 	
@@ -58,6 +58,10 @@ public class Campaign {
 	
 	private CampaignContent content;
 
+	public Campaign() {
+		
+	}
+	
 	public Campaign(MailChimpConnection connection, JSONObject jsonObj) throws Exception {
 		parse(connection, jsonObj);
 	}

@@ -3,12 +3,18 @@ package com.github.bananaj.model.list.interests;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.exceptions.TransportException;
+import com.github.bananaj.model.JSONParser;
+import com.github.bananaj.utils.ModelIterator;
 
 /**
  * Manage interest categories for a specific list. Interest categories organize
@@ -16,13 +22,17 @@ import com.github.bananaj.exceptions.TransportException;
  * These correspond to 'group titles' in the Mailchimp application.
  * 
  */
-public class InterestCategory {
+public class InterestCategory implements JSONParser {
 	private MailChimpConnection connection;
 	private String id;
     private String listId;
     private String title;
     private Integer displayOrder;
     private InterestCategoryType type;
+
+	public InterestCategory() {
+
+	}
 
 	public InterestCategory(MailChimpConnection connection, JSONObject jsonObj) {
 		parse(connection, jsonObj);
@@ -42,7 +52,12 @@ public class InterestCategory {
 		this.connection = b.connection;
     }
     
-	private void parse(MailChimpConnection connection, JSONObject jsonObj) {
+    /**
+	 * Parse a JSON representation of interest category into this.
+	 * @param connection 
+	 * @param jsonObj
+     */
+	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
 		id = jsonObj.getString("id");
 		listId = jsonObj.getString("list_id");
 		title = jsonObj.getString("title");
@@ -150,6 +165,55 @@ public class InterestCategory {
 		parse(connection, new JSONObject(results));  // update this object with current data
 	}
 	
+	/**
+	 * Get interests for this list. Interests are referred to as ‘group names’ in
+	 * the MailChimp application.
+	 * 
+	 * @param interestCategoryId
+	 * @param count              Number of members to return. Maximum value is 1000.
+	 * @param offset             Zero based offset
+	 * @return List of interests for this list
+	 * @throws Exception
+	 */
+	public List<Interest> getInterests(String interestCategoryId, int count, int offset)
+			throws Exception {
+		if (count < 1 || count > 1000) {
+			throw new InvalidParameterException("Page size must be 1-1000");
+		}
+		ArrayList<Interest> interests = new ArrayList<Interest>();
+		JSONObject list = new JSONObject(
+				connection.do_Get(
+						new URL(connection.getListendpoint() + "/" + getListId() + "/interest-categories/"
+								+ getId() + "/interests?count=" + count + "&offset=" + offset),
+						connection.getApikey()));
+		JSONArray interestArray = list.getJSONArray("interests");
+
+		for (int i = 0; i < interestArray.length(); i++) {
+			final JSONObject jsonInterest = interestArray.getJSONObject(i);
+			Interest interest = new Interest(connection, jsonInterest);
+			interests.add(interest);
+
+		}
+		return interests;
+	}
+
+	/**
+	 * Get interests iterator for this interest category. Interests are referred to
+	 * as ‘group names’ in the MailChimp application.
+	 * 
+	 * Checked exceptions, including TransportException and JSONException, are
+	 * warped in a RuntimeException to reduce the need for boilerplate code inside
+	 * of lambdas.
+	 * 
+	 * @param interestCategoryId
+	 * @return Interest iterator
+	 */
+	public Iterable<Interest> getInterests() {
+		final String baseURL = connection.getListendpoint() + "/" + getListId() + "/interest-categories/"
+				+ getId() + "/interests";
+		return new ModelIterator<Interest>(Interest.class, baseURL, connection);
+	}
+
 	/**
 	 * Add an interest to this category.
 	 * @param interest
