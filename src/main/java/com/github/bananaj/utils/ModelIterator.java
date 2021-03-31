@@ -87,7 +87,7 @@ public class ModelIterator<T extends JSONParser> implements Iterable<T> {
 
 			@Override
 			public boolean hasNext() {
-				if (q.peek() != null || (totalItems != null && currentIndex < totalItems)) {
+				if (q.peek() != null) {
 					return true;
 				}
 				return false;
@@ -97,19 +97,17 @@ public class ModelIterator<T extends JSONParser> implements Iterable<T> {
 			public T next() {
 				currentIndex++;
 				T element = q.poll();
-				if (element == null || q.peek() == null) {
-					if (totalItems == null || currentIndex < totalItems) {
-						// query for next page of entities
-						try {
-							readPagedEntities();
-							element = q.poll();
-						} catch (Exception ex) {
-							throw new NoSuchElementException(ex.getMessage());
-						}
-					} 
+				
+				if (element == null ) {
+					throw new NoSuchElementException("the iteration has no more elements");
+				}
 
-					if (element == null ) {
-						throw new NoSuchElementException("the iteration has no more elements");
+				if (q.peek() == null && (totalItems == null || currentIndex < totalItems)) {
+					// cache next page of entities when queue is empty
+					try {
+						readPagedEntities();
+					} catch (Exception ex) {
+						throw new NoSuchElementException(ex.getMessage());
 					}
 				}
 				return element;
