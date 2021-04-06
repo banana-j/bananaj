@@ -39,6 +39,7 @@ import com.github.bananaj.model.report.AbuseReport;
 import com.github.bananaj.utils.DateConverter;
 import com.github.bananaj.utils.EmailValidator;
 import com.github.bananaj.utils.ModelIterator;
+import com.github.bananaj.utils.URLHelper;
 
 
 /**
@@ -135,7 +136,8 @@ public class MailChimpList implements JSONParser {
 		if (count < 1 || count > 1000) {
 			throw new InvalidParameterException("Page size must be 1-1000");
 		}
-		final JSONObject list = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/abuse-reports?count="+count+"&offset="+offset), connection.getApikey()));
+		final JSONObject list = new JSONObject(connection.do_Get(URLHelper.url(connection.getListendpoint(),"/",getId(),"/abuse-reports",
+				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)), connection.getApikey()));
 		final JSONArray rptArray = list.getJSONArray("abuse_reports");
 		ArrayList<AbuseReport> reports = new ArrayList<AbuseReport>(rptArray.length());
 		for (int i = 0 ; i < rptArray.length();i++)
@@ -158,7 +160,7 @@ public class MailChimpList implements JSONParser {
 	 * @return AbuseReport iterator
 	 */
 	public Iterable<AbuseReport> getAbuseReports() {
-		final String baseURL = getConnection().getListendpoint()+"/"+getId()+"/abuse-reports";
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/abuse-reports");
 		return new ModelIterator<AbuseReport>(AbuseReport.class, baseURL, getConnection());
 	}
 
@@ -173,14 +175,14 @@ public class MailChimpList implements JSONParser {
 	 * @throws MalformedURLException
 	 * @throws JSONException
 	 */
-	public AbuseReport getAbuseReports(int reportId) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		final JSONObject report = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/abuse-reports/"+reportId), connection.getApikey()));
+	public AbuseReport getAbuseReport(int reportId) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		final JSONObject report = new JSONObject(connection.do_Get(URLHelper.url(connection.getListendpoint(),"/",getId(),"/abuse-reports/",Integer.toString(reportId)), connection.getApikey()));
     	return new AbuseReport(report);
 	}
 	
 	// TODO: Add support for Activity -- Get recent daily, aggregated activity stats for your list. For example, view unsubscribes, signups, total emails sent, opens, clicks, and more, for up to 180 days.
 //	public List<ListActivity> getActivity() {
-//		final JSONObject list = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/activity"), connection.getApikey()));
+//		final JSONObject list = new JSONObject(connection.do_Get(URLHelper.url(connection.getListendpoint(),"/",getId(),"/activity"), connection.getApikey()));
 //		final JSONArray rptArray = list.getJSONArray("activity");
 //		ArrayList<ListActivity> reports = new ArrayList<ListActivity>(rptArray.length());
 //		for (int i = 0 ; i < rptArray.length();i++)
@@ -194,7 +196,7 @@ public class MailChimpList implements JSONParser {
 
 	// TODO: Add support for Clients -- Get information about the most popular email clients for subscribers in a specific Mailchimp list.
 //	public List<Clients> getActivity() {
-//		final JSONObject list = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/clients"), connection.getApikey()));
+//		final JSONObject list = new JSONObject(connection.do_Get(URLHelper.url(connection.getListendpoint(),"/",getId(),"/clients"), connection.getApikey()));
 //		final JSONArray rptArray = list.getJSONArray("clients");
 //		ArrayList<Clients> reports = new ArrayList<Clients>(rptArray.length());
 //		for (int i = 0 ; i < rptArray.length();i++)
@@ -208,7 +210,7 @@ public class MailChimpList implements JSONParser {
 
 	// TODO: Add support for Locations -- Get the locations (countries) that the list's subscribers have been tagged to based on geocoding their IP address.
 //	public List<Locations> getActivity() {
-//		final JSONObject list = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getId()+"/locations"), connection.getApikey()));
+//		final JSONObject list = new JSONObject(connection.do_Get(URLHelper.url(connection.getListendpoint(),"/",getId(),"/locations"), connection.getApikey()));
 //		final JSONArray rptArray = list.getJSONArray("locations");
 //		ArrayList<Locations> reports = new ArrayList<Locations>(rptArray.length());
 //		for (int i = 0 ; i < rptArray.length();i++)
@@ -243,7 +245,8 @@ public class MailChimpList implements JSONParser {
 			throw new InvalidParameterException("Page size must be 1-1000");
 		}
 		ArrayList<Member> members = new ArrayList<Member>();
-		final JSONObject list = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+getId()+"/members?count="+count+"&offset="+offset),connection.getApikey()));
+		final JSONObject list = new JSONObject(getConnection().do_Get(URLHelper.url(getConnection().getListendpoint(),"/"+getId(),"/members",
+				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)),connection.getApikey()));
 
 		final JSONArray membersArray = list.getJSONArray("members");
 
@@ -266,7 +269,7 @@ public class MailChimpList implements JSONParser {
 	 * @return Member iterator
 	 */
 	public Iterable<Member> getMembers() {
-		final String baseURL = getConnection().getListendpoint()+"/"+getId()+"/members";
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/members");
 		return new ModelIterator<Member>(Member.class, baseURL, getConnection());
 	}
 
@@ -281,8 +284,8 @@ public class MailChimpList implements JSONParser {
 	 * @throws JSONException 
 	 */
 	public Member getMember(String subscriber) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		final JSONObject member = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+
-				getId()+"/members/"+Member.subscriberHash(subscriber)),connection.getApikey()));
+		final JSONObject member = new JSONObject(getConnection().do_Get(URLHelper.url(getConnection().getListendpoint(),"/",
+				getId(),"/members/",Member.subscriberHash(subscriber)),connection.getApikey()));
 		return new Member(connection, member);
 	}
 	
@@ -302,7 +305,7 @@ public class MailChimpList implements JSONParser {
 		json.put("email_address", emailAddress);
 		json.put("status", status.toString());
 
-		String results = getConnection().do_Post(new URL(connection.getListendpoint() + "/" + getId() + "/members"),
+		String results = getConnection().do_Post(URLHelper.url(connection.getListendpoint(), "/", getId(), "/members"),
 				json.toString(), connection.getApikey());
 		Member member = new Member(connection, new JSONObject(results));
 		return member;
@@ -319,7 +322,7 @@ public class MailChimpList implements JSONParser {
 	 */
 	public Member addMember(Member member) throws MalformedURLException, TransportException, URISyntaxException {
 		JSONObject json = member.getJsonRepresentation();
-		String results = connection.do_Post(new URL(connection.getListendpoint()+"/"+getId()+"/members"), json.toString(), connection.getApikey());
+		String results = connection.do_Post(URLHelper.url(connection.getListendpoint(),"/",getId(),"/members"), json.toString(), connection.getApikey());
 		member.parse(connection, new JSONObject(results));
         return member;
 	}
@@ -337,7 +340,7 @@ public class MailChimpList implements JSONParser {
 	 */
 	public Member addMember(MemberStatus status, String emailAddress, HashMap<String, Object> merge_fields_values)
 			throws TransportException, URISyntaxException, MalformedURLException {
-		URL url = new URL(connection.getListendpoint() + "/" + getId() + "/members");
+		URL url = URLHelper.url(connection.getListendpoint(), "/", getId(), "/members");
 
 		JSONObject json = new JSONObject();
 		JSONObject merge_fields = new JSONObject();
@@ -371,7 +374,7 @@ public class MailChimpList implements JSONParser {
 		JSONObject json = member.getJsonRepresentation();
 
 		String results = getConnection().do_Patch(
-				new URL(connection.getListendpoint() + "/" + getId() + "/members/" + member.getId()), json.toString(),
+				URLHelper.url(connection.getListendpoint(), "/", getId(), "/members/", member.getId()), json.toString(),
 				connection.getApikey());
 		member.parse(connection, new JSONObject(results)); // update member object with current data
 		return member;
@@ -402,7 +405,7 @@ public class MailChimpList implements JSONParser {
 		}
 
 		String results = getConnection().do_Put(
-				new URL(connection.getListendpoint() + "/" + getId() + "/members/" + member.getId()), json.toString(),
+				URLHelper.url(connection.getListendpoint(), "/", getId(), "/members/", member.getId()), json.toString(),
 				connection.getApikey());
 		member.parse(getConnection(), new JSONObject(results)); // update member object with current data
 		return member;
@@ -418,7 +421,7 @@ public class MailChimpList implements JSONParser {
 	 */
 	public void deleteMember(String memberID)
 			throws MalformedURLException, TransportException, URISyntaxException {
-		getConnection().do_Delete(new URL(connection.getListendpoint() + "/" + getId() + "/members/" + memberID),
+		getConnection().do_Delete(URLHelper.url(connection.getListendpoint(), "/", getId(), "/members/", memberID),
 				connection.getApikey());
 	}
 
@@ -432,8 +435,8 @@ public class MailChimpList implements JSONParser {
 	 */
 	public void deleteMemberPermanent(String memberID)
 			throws MalformedURLException, TransportException, URISyntaxException {
-		getConnection().do_Post(new URL(getConnection().getListendpoint() + "/" + getId() + "/members/" + memberID
-				+ "/actions/delete-permanent"), getConnection().getApikey());
+		getConnection().do_Post(URLHelper.url(getConnection().getListendpoint(), "/", getId(), "/members/", memberID,
+				"/actions/delete-permanent"), getConnection().getApikey());
 	}
 
 	//
@@ -444,7 +447,7 @@ public class MailChimpList implements JSONParser {
 	 * Get paginated tags for the specified audience member.
 	 * 
 	 * @param subscriber     The member's email address or subscriber hash
-	 * @param count          Number of tags to return
+	 * @param count          Number of tags to return. Maximum value is 1000.
 	 * @param offset         Zero based offset
 	 * @throws Exception
 	 */
@@ -452,9 +455,9 @@ public class MailChimpList implements JSONParser {
 		if (count < 1 || count > 1000) {
 			throw new InvalidParameterException("Page size must be 1-1000");
 		}
-		final JSONObject tagsObj = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint() + "/"
-				+ getId() + "/members/" + Member.subscriberHash(subscriber) + 
-				"/tags" + "?offset=" + offset + "&count=" + count),
+		final JSONObject tagsObj = new JSONObject(getConnection().do_Get(URLHelper.url(getConnection().getListendpoint(), "/",
+				getId(), "/members/", Member.subscriberHash(subscriber), "/tags", 
+				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)),
 				getConnection().getApikey()));
 		// int total_items = tagsObj.getInt("total_items");	// The total number of items matching the query regardless of pagination
 		// matching the query regardless of pagination
@@ -476,8 +479,8 @@ public class MailChimpList implements JSONParser {
 	 * @return MemberTag iterator
 	 */
 	public Iterable<MemberTag> getMemberTags(String subscriber) {
-		final String baseURL = getConnection().getListendpoint()+"/"+getId()+"/members/" + 
-				Member.subscriberHash(subscriber) + "/tags";
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/members/", 
+				Member.subscriberHash(subscriber), "/tags");
 		return new ModelIterator<MemberTag>(MemberTag.class, baseURL, getConnection());
 	}
 
@@ -498,9 +501,9 @@ public class MailChimpList implements JSONParser {
 		if (count < 1 || count > 1000) {
 			throw new InvalidParameterException("Page size must be 1-1000");
 		}
-		final JSONObject noteObj = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+
-				getId()+"/members/"+Member.subscriberHash(subscriber)+
-				"/notes?count="+count+"&offset="+offset), getConnection().getApikey()));
+		final JSONObject noteObj = new JSONObject(getConnection().do_Get(URLHelper.url(getConnection().getListendpoint(),"/",
+				getId(),"/members/",Member.subscriberHash(subscriber),"/notes",
+				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)), getConnection().getApikey()));
 		//String email_id = noteObj.getString("email_id");
 		//String list_id = noteObj.getString("list_id");
 		//int total_items = noteObj.getInt("total_items");	// The total number of items matching the query regardless of pagination
@@ -526,8 +529,8 @@ public class MailChimpList implements JSONParser {
 	 * @return MemberNote iterator
 	 */
 	public Iterable<MemberNote> getMemberNotes(String subscriber) {
-		final String baseURL = getConnection().getListendpoint()+"/"+getId()+"/members/"+
-				Member.subscriberHash(subscriber)+"/notes";
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/members/",
+				Member.subscriberHash(subscriber),"/notes");
 		return new ModelIterator<MemberNote>(MemberNote.class, baseURL, getConnection());
 	}
 
@@ -543,9 +546,9 @@ public class MailChimpList implements JSONParser {
 	 */
 	public MemberNote getMemberNote(String subscriber, int noteId)
 			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		final JSONObject noteObj = new JSONObject(getConnection().do_Get(new URL(
-				getConnection().getListendpoint() + "/" + getId() + "/members/" + Member.subscriberHash(subscriber) + 
-				"/notes/" + noteId),
+		final JSONObject noteObj = new JSONObject(getConnection().do_Get(URLHelper.url(
+				getConnection().getListendpoint(), "/", getId(), "/members/", Member.subscriberHash(subscriber), 
+				"/notes/", Integer.toString(noteId)),
 				getConnection().getApikey()));
 		return new MemberNote(noteObj);
 
@@ -569,9 +572,12 @@ public class MailChimpList implements JSONParser {
 	 * @throws URISyntaxException
 	 */
 	public List<GrowthHistory> getGrowthHistory(int count, int offset, SortDirection dir) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		String response = connection.do_Get(new URL(connection.getListendpoint() + "/" + getId() + 
-				"/growth-history?count="+count+"&offset="+offset+
-				"&sort_field=month&sort_dir="+(dir != null ? dir.toString() : SortDirection.DESC.toString())), connection.getApikey());
+		if (count < 1 || count > 1000) {
+			throw new InvalidParameterException("Page size must be 1-1000");
+		}
+		String response = connection.do_Get(URLHelper.url(connection.getListendpoint(), "/", getId(), "/growth-history",
+				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count),
+				"&sort_field=month&sort_dir=",(dir != null ? dir.toString() : SortDirection.DESC.toString())), connection.getApikey());
 		JSONObject jsonObj = new JSONObject(response);
 		
 		//int totalItems = jsonObj.getInt("total_items");	// The total number of items matching the query regardless of pagination
@@ -608,8 +614,8 @@ public class MailChimpList implements JSONParser {
 			throw new InvalidParameterException("Page size must be 1-1000");
 		}
 		ArrayList<InterestCategory> categories = new ArrayList<InterestCategory>();
-		JSONObject list = new JSONObject(getConnection().do_Get(new URL(connection.getListendpoint() + "/" + getId()
-				+ "/interest-categories?count=" + count + "&offset=" + offset), connection.getApikey()));
+		JSONObject list = new JSONObject(getConnection().do_Get(URLHelper.url(connection.getListendpoint(), "/", getId(), "/interest-categories",
+				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)), connection.getApikey()));
 		JSONArray categoryArray = list.getJSONArray("categories");
 
 		for (int i = 0; i < categoryArray.length(); i++) {
@@ -633,7 +639,7 @@ public class MailChimpList implements JSONParser {
 	 * @throws Exception
 	 */
 	public Iterable<InterestCategory> getInterestCategories() {
-		final String baseURL = getConnection().getListendpoint()+"/"+getId()+"/interest-categories";
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/interest-categories");
 		return new ModelIterator<InterestCategory>(InterestCategory.class, baseURL, getConnection());
 	}
 
@@ -650,7 +656,7 @@ public class MailChimpList implements JSONParser {
 	public InterestCategory getInterestCategory(String interestCategoryId)
 			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
 		JSONObject jsonCategory = new JSONObject(connection.do_Get(
-				new URL(connection.getListendpoint() + "/" + getId() + "/interest-categories/" + interestCategoryId),
+				URLHelper.url(connection.getListendpoint(), "/", getId(), "/interest-categories/", interestCategoryId),
 				connection.getApikey()));
 		return new InterestCategory(connection, jsonCategory);
 	}
@@ -666,7 +672,7 @@ public class MailChimpList implements JSONParser {
 			throws MalformedURLException, TransportException, URISyntaxException {
 		JSONObject json = category.getJsonRepresentation();
 		String results = getConnection().do_Post(
-				new URL(getConnection().getListendpoint() + "/" + getId() + "/interest-categories"), json.toString(),
+				URLHelper.url(getConnection().getListendpoint(), "/", getId(), "/interest-categories"), json.toString(),
 				getConnection().getApikey());
 		return new InterestCategory(connection, new JSONObject(results));
 	}
@@ -681,7 +687,7 @@ public class MailChimpList implements JSONParser {
 	public void deleteInrestCategory(String categoryId)
 			throws MalformedURLException, TransportException, URISyntaxException {
 		getConnection().do_Delete(
-				new URL(getConnection().getListendpoint() + "/" + getId() + "/interest-categories/" + categoryId),
+				URLHelper.url(getConnection().getListendpoint(), "/", getId(), "/interest-categories/", categoryId),
 				getConnection().getApikey());
 	}
 
@@ -710,8 +716,8 @@ public class MailChimpList implements JSONParser {
 		ArrayList<Interest> interests = new ArrayList<Interest>();
 		JSONObject list = new JSONObject(
 				connection.do_Get(
-						new URL(connection.getListendpoint() + "/" + getId() + "/interest-categories/"
-								+ interestCategoryId + "/interests?count=" + count + "&offset=" + offset),
+						URLHelper.url(connection.getListendpoint(), "/", getId(), "/interest-categories/", interestCategoryId, "/interests",
+								"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)),
 						connection.getApikey()));
 		JSONArray interestArray = list.getJSONArray("interests");
 
@@ -736,8 +742,8 @@ public class MailChimpList implements JSONParser {
 	 * @return Interest iterator
 	 */
 	public Iterable<Interest> getInterests(String interestCategoryId) {
-		final String baseURL = getConnection().getListendpoint() + "/" + getId() + "/interest-categories/"
-				+ interestCategoryId + "/interests";
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(), "/", getId(), "/interest-categories/",
+				interestCategoryId, "/interests");
 		return new ModelIterator<Interest>(Interest.class, baseURL, getConnection());
 	}
 
@@ -755,8 +761,8 @@ public class MailChimpList implements JSONParser {
 	 */
 	public Interest getInterest(String interestCategoryId, String interestId)
 			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		JSONObject jsonInterests = new JSONObject(connection.do_Get(new URL(connection.getListendpoint() + "/" + getId()
-				+ "/interest-categories/" + interestCategoryId + "/interests/" + interestId), connection.getApikey()));
+		JSONObject jsonInterests = new JSONObject(connection.do_Get(URLHelper.url(connection.getListendpoint(), "/", getId(),
+				"/interest-categories/", interestCategoryId, "/interests/", interestId), connection.getApikey()));
 		return new Interest(connection, jsonInterests);
 	}
 
@@ -782,8 +788,9 @@ public class MailChimpList implements JSONParser {
 			throw new InvalidParameterException("Page size must be 1-1000");
 		}
 		ArrayList<Segment> segments = new ArrayList<Segment>();
-		JSONObject jsonSegments = new JSONObject(connection.do_Get(new URL(
-				connection.getListendpoint() + "/" + getId() + "/segments?offset=" + offset + "&count=" + count),
+		JSONObject jsonSegments = new JSONObject(connection.do_Get(URLHelper.url(
+				connection.getListendpoint(), "/", getId(), "/segments",
+				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)),
 				connection.getApikey()));
 
 		final JSONArray segmentsArray = jsonSegments.getJSONArray("segments");
@@ -808,7 +815,7 @@ public class MailChimpList implements JSONParser {
 	 * @return Segment iterator
 	 */
 	public Iterable<Segment> getSegments() {
-		final String baseURL = getConnection().getListendpoint()+"/"+getId()+"/segments";
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/segments");
 		return new ModelIterator<Segment>(Segment.class, baseURL, getConnection());
 	}
 
@@ -827,10 +834,14 @@ public class MailChimpList implements JSONParser {
 	 */
 	public List<Segment> getSegments(SegmentType type, int count, int offset)
 			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+		if (count < 1 || count > 1000) {
+			throw new InvalidParameterException("Page size must be 1-1000");
+		}
 		ArrayList<Segment> segments = new ArrayList<Segment>();
 		JSONObject jsonSegments = new JSONObject(
-				connection.do_Get(new URL(connection.getListendpoint() + "/" + getId() + "/segments?offset=" + offset
-						+ "&count=" + count + "&type" + type.toString()), connection.getApikey()));
+				connection.do_Get(URLHelper.url(connection.getListendpoint(), "/", getId(), "/segments",
+						"?offset=", Integer.toString(offset), "&count=", Integer.toString(count), 
+						"&type", type.toString()), connection.getApikey()));
 
 		final JSONArray segmentsArray = jsonSegments.getJSONArray("segments");
 
@@ -855,7 +866,7 @@ public class MailChimpList implements JSONParser {
 	public Segment getSegment(String segmentID)
 			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
 		String response = connection.do_Get(
-				new URL(connection.getListendpoint() + "/" + getId() + "/segments/" + segmentID),
+				URLHelper.url(connection.getListendpoint(), "/", getId(), "/segments/", segmentID),
 				connection.getApikey());
 		JSONObject jsonSegment = new JSONObject(response);
 		return new Segment(getConnection(), jsonSegment);
@@ -880,7 +891,7 @@ public class MailChimpList implements JSONParser {
 			segment.put("options", option.getJsonRepresentation());
 		}
 
-		String response = connection.do_Post(new URL(connection.getListendpoint() + "/" + getId() + "/segments"),
+		String response = connection.do_Post(URLHelper.url(connection.getListendpoint(), "/", getId(), "/segments"),
 				segment.toString(), connection.getApikey());
 		JSONObject jsonSegment = new JSONObject(response);
 		return new Segment(getConnection(), jsonSegment);
@@ -912,7 +923,7 @@ public class MailChimpList implements JSONParser {
 			}
 		}
 		segment.put("static_segment", emails);
-		String response = getConnection().do_Post(new URL(connection.getListendpoint() + "/" + getId() + "/segments"),
+		String response = getConnection().do_Post(URLHelper.url(connection.getListendpoint(), "/", getId(), "/segments"),
 				segment.toString(), connection.getApikey());
 		JSONObject jsonSegment = new JSONObject(response);
 		return new Segment(getConnection(), jsonSegment);
@@ -927,7 +938,7 @@ public class MailChimpList implements JSONParser {
 	 * @throws MalformedURLException
 	 */
 	public void deleteSegment(String segmentId) throws MalformedURLException, TransportException, URISyntaxException {
-		connection.do_Delete(new URL(connection.getListendpoint() + "/" + getId() + "/segments/" + segmentId),
+		connection.do_Delete(URLHelper.url(connection.getListendpoint(), "/", getId(), "/segments/", segmentId),
 				connection.getApikey());
 	}
 
@@ -947,7 +958,8 @@ public class MailChimpList implements JSONParser {
 			throw new InvalidParameterException("Page size must be 1-1000");
 		}
 		ArrayList<MergeField> mergeFields = new ArrayList<MergeField>();
-		URL url = new URL(connection.getListendpoint()+"/"+getId()+"/merge-fields?offset=" + offset + "&count=" + count); // Note: Mailchimp currently supports a maximim of 80 merge fields
+		URL url = URLHelper.url(connection.getListendpoint(),"/"+getId(),"/merge-fields",
+				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)); // Note: Mailchimp currently supports a maximum of 80 merge fields
 
 		JSONObject merge_fields = new JSONObject(connection.do_Get(url, connection.getApikey()));
 		final JSONArray mergeFieldsArray = merge_fields.getJSONArray("merge_fields");
@@ -970,7 +982,7 @@ public class MailChimpList implements JSONParser {
 	 * @return MergeField iterator
 	 */
 	public Iterable<MergeField> getMergeFields() {
-		final String baseURL = getConnection().getListendpoint()+"/"+getId()+"/merge-fields";
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/merge-fields");
 		return new ModelIterator<MergeField>(MergeField.class, baseURL, getConnection());
 	}
 
@@ -984,7 +996,7 @@ public class MailChimpList implements JSONParser {
 	 * @throws MalformedURLException
 	 */
 	public MergeField getMergeField(String mergeFieldID) throws JSONException, TransportException, URISyntaxException, MalformedURLException {
-		URL url = new URL(connection.getListendpoint()+"/"+getId()+"/merge-fields/"+mergeFieldID);
+		URL url = URLHelper.url(connection.getListendpoint(),"/",getId(),"/merge-fields","/",mergeFieldID);
 		JSONObject mergeFieldJSON = new JSONObject(connection.do_Get(url,connection.getApikey()));
 		return new MergeField(connection, mergeFieldJSON);
 	}
@@ -999,14 +1011,14 @@ public class MailChimpList implements JSONParser {
 	 * @throws MalformedURLException
 	 */
 	public MergeField addMergeField(MergeField mergeFieldtoAdd) throws JSONException, TransportException, URISyntaxException, MalformedURLException {
-		URL url = new URL(connection.getListendpoint()+"/"+getId()+"/merge-fields");
+		URL url = URLHelper.url(connection.getListendpoint(),"/",getId(),"/merge-fields");
 		JSONObject mergeFieldJSON = new JSONObject(connection.do_Post(url, mergeFieldtoAdd.getJsonRepresentation().toString(), connection.getApikey()));
 		return new MergeField(connection, mergeFieldJSON);
 	}
 
 
 	public void deleteMergeField(String mergeFieldID) throws MalformedURLException, TransportException, URISyntaxException {
-		connection.do_Delete(new URL(connection.getListendpoint()+"/"+getId()+"/merge-fields/"+mergeFieldID), connection.getApikey());
+		connection.do_Delete(URLHelper.url(connection.getListendpoint(),"/",getId(),"/merge-fields","/",mergeFieldID), connection.getApikey());
 	}
 
 	/**
@@ -1285,7 +1297,7 @@ public class MailChimpList implements JSONParser {
 	 * @throws URISyntaxException
 	 */
 	public void update() throws MalformedURLException, TransportException, URISyntaxException {
-		String results = connection.do_Patch(new URL(connection.getListendpoint()+"/"+getId()), getJSONRepresentation().toString(), connection.getApikey());
+		String results = connection.do_Patch(URLHelper.url(connection.getListendpoint(),"/",getId()), getJSONRepresentation().toString(), connection.getApikey());
 		parse(connection, new JSONObject(results));  // update this object with current data
 	}
 	
@@ -1297,7 +1309,7 @@ public class MailChimpList implements JSONParser {
 	 * @throws Exception
 	 */
 	public void delete() throws MalformedURLException, TransportException, URISyntaxException {
-		connection.do_Delete(new URL(connection.getListendpoint() +"/"+getId()), connection.getApikey());
+		connection.do_Delete(URLHelper.url(connection.getListendpoint(),"/",getId()), connection.getApikey());
 	}
 	
 	@Override

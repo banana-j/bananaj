@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.ReportSummary;
 import com.github.bananaj.model.Tracking;
 import com.github.bananaj.model.automation.AutomationDelay;
@@ -13,7 +14,7 @@ import com.github.bananaj.model.automation.AutomationStatus;
 import com.github.bananaj.model.campaign.CampaignRecipients;
 import com.github.bananaj.utils.DateConverter;
 
-public class AutomationEmail {
+public class AutomationEmail implements JSONParser {
 
 	private String id;
 	private int webId;
@@ -46,7 +47,7 @@ public class AutomationEmail {
 
 	}
 
-	private void parse(MailChimpConnection connection, JSONObject jsonObj) {
+	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
         id = jsonObj.getString("id");
 		webId = jsonObj.getInt("web_id");
 		workflowId = jsonObj.getString("workflow_id");

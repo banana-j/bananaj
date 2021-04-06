@@ -5,23 +5,28 @@ import java.net.URL;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.model.JSONParser;
 
 /**
  * Class for representing a template folder
  * Created by alexanderweiss on 10.08.2016.
  */
-public class TemplateFolder {
+public class TemplateFolder implements JSONParser {
 
 	private String id;
     private String name;
     private int count;
 	private MailChimpConnection connection;
 
+	public TemplateFolder() {
+		
+	}
+	
     public TemplateFolder(MailChimpConnection connection, JSONObject jsonObj) {
     	parse(connection, jsonObj);
     }
 
-    private void parse(MailChimpConnection connection, JSONObject jsonObj) {
+    public void parse(MailChimpConnection connection, JSONObject jsonObj) {
         id = jsonObj.getString("id");
         name = jsonObj.getString("name");
         count = jsonObj.getInt("count");

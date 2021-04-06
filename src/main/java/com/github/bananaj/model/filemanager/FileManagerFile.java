@@ -11,6 +11,7 @@ import java.time.ZonedDateTime;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
 
 /**
@@ -18,7 +19,7 @@ import com.github.bananaj.utils.DateConverter;
  * Created by alexanderweiss on 22.01.16.
  * TODO change methods are not working
  */
-public class FileManagerFile {
+public class FileManagerFile implements JSONParser {
 
 	private int id;
 	private int folderId;
@@ -35,6 +36,10 @@ public class FileManagerFile {
 
 	private static final int BUFFER_SIZE = 4096;
 
+	public FileManagerFile() {
+		
+	}
+	
 	public FileManagerFile(MailChimpConnection connection, JSONObject jsonObj) {
 		parse(connection, jsonObj);
 	}
@@ -239,14 +244,17 @@ public class FileManagerFile {
 	@Override
 	public String toString(){
 		return 
-				"ID: " + getId() +
-				" Name: " + getName() + 
-				" Type: " + getType().toString() + 
-				(getType() == FileType.IMAGE ?  
+				"Name: " + getName() + System.lineSeparator() +
+				"    ID: " + getId() + System.lineSeparator() +
+				"    Size: " + getSize() + System.lineSeparator() +
+				"    Type: " + getType().toString() +  (getType() == FileType.IMAGE ?  
 					" Width: " + getWidth()+"px " + 
-					" Height: "+ getHeight()+"px" : "" ) +
-				" Folder-Id: " + getId() +
-				" Created: " + DateConverter.toLocalString(getCreatedAt());
+					" Height: "+ getHeight()+"px" : "" ) + System.lineSeparator() +
+				"    Folder-Id: " + getId() + System.lineSeparator() +
+				"    Created: " + DateConverter.toLocalString(getCreatedAt()) + System.lineSeparator() +
+				"    Created by: " + getCreatedBy() + System.lineSeparator() +
+				"    URL: " + getFullSizeUrl() + System.lineSeparator() +
+				"    Thumbnail: " + getThumbnailUrl();
 	}
 
 
