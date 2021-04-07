@@ -11,6 +11,8 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.campaign.Bounce;
 import com.github.bananaj.model.campaign.CampaignType;
 import com.github.bananaj.utils.DateConverter;
@@ -21,7 +23,7 @@ import com.github.bananaj.utils.DateConverter;
  * @author alexanderweiss
  *
  */
-public class Report {
+public class Report implements JSONParser {
 
 	private String id;
 	private String campaignTitle;
@@ -50,48 +52,57 @@ public class Report {
 	private Ecommerce ecommerce;
 	private DeliveryStatus deliveryStatus;
 
+	public Report() {
+
+	}
+
 	public Report(JSONObject jsonObj) {
-		id = jsonObj.getString("id");
-		campaignTitle = jsonObj.getString("campaign_title");
-		type = CampaignType.valueOf(jsonObj.getString("type").toUpperCase());
-		listId = jsonObj.getString("list_id");
-		listIsActive = jsonObj.getBoolean("list_is_active");
-		listName = jsonObj.getString("list_name");
-		subjectLine = jsonObj.getString("subject_line");
-		previewText = jsonObj.getString("preview_text");
-		emailsSent = jsonObj.getInt("emails_sent");
-		abuseReport = jsonObj.getInt("abuse_reports");
-		unsubscribed = jsonObj.getInt("unsubscribed");
-		sendtime = DateConverter.fromISO8601(jsonObj.getString("send_time"));
-		rssLastSend = jsonObj.has("rss_last_send") ? DateConverter.fromISO8601(jsonObj.getString("rss_last_send")) : null;
-		bounces = new Bounce(jsonObj.getJSONObject("bounces"));
-		forwards = new Forward(jsonObj.getJSONObject("forwards"));
-		clicks = new Click(jsonObj.getJSONObject("clicks"));
-		opens = new Open(jsonObj.getJSONObject("opens"));
-		facebookLikes = jsonObj.has("facebook_likes") ? new FacebookLikes(jsonObj.getJSONObject("facebook_likes")) : null;
-		industryStats = jsonObj.has("industry_stats") ? new IndustryStats(jsonObj.getJSONObject("industry_stats")) : null;
-		listStats = jsonObj.has("list_stats") ? new ReportListStats(jsonObj.getJSONObject("list_stats")) : null;
-		abSplit = jsonObj.has("ab_split") ? new ABSplit(jsonObj.getJSONObject("ab_split")) : null;
+		parse(null, jsonObj);
+	}
+
+	@Override
+	public void parse(MailChimpConnection connection, JSONObject entity) {
+		id = entity.getString("id");
+		campaignTitle = entity.getString("campaign_title");
+		type = CampaignType.valueOf(entity.getString("type").toUpperCase());
+		listId = entity.getString("list_id");
+		listIsActive = entity.getBoolean("list_is_active");
+		listName = entity.getString("list_name");
+		subjectLine = entity.getString("subject_line");
+		previewText = entity.getString("preview_text");
+		emailsSent = entity.getInt("emails_sent");
+		abuseReport = entity.getInt("abuse_reports");
+		unsubscribed = entity.getInt("unsubscribed");
+		sendtime = DateConverter.fromISO8601(entity.getString("send_time"));
+		rssLastSend = entity.has("rss_last_send") ? DateConverter.fromISO8601(entity.getString("rss_last_send")) : null;
+		bounces = new Bounce(entity.getJSONObject("bounces"));
+		forwards = new Forward(entity.getJSONObject("forwards"));
+		clicks = new Click(entity.getJSONObject("clicks"));
+		opens = new Open(entity.getJSONObject("opens"));
+		facebookLikes = entity.has("facebook_likes") ? new FacebookLikes(entity.getJSONObject("facebook_likes")) : null;
+		industryStats = entity.has("industry_stats") ? new IndustryStats(entity.getJSONObject("industry_stats")) : null;
+		listStats = entity.has("list_stats") ? new ReportListStats(entity.getJSONObject("list_stats")) : null;
+		abSplit = entity.has("ab_split") ? new ABSplit(entity.getJSONObject("ab_split")) : null;
 		
-		if (jsonObj.has("timewarp")) {
-			final JSONArray series = jsonObj.getJSONArray("timewarp");
+		if (entity.has("timewarp")) {
+			final JSONArray series = entity.getJSONArray("timewarp");
 			timewarp = new ArrayList<Timewarp>(series.length());
 			for(int i=0; i<series.length(); i++) {
 				timewarp.add(new Timewarp(series.getJSONObject(i)));
 			}
 		}
 		
-		if (jsonObj.has("timeseries")) {
-			final JSONArray series = jsonObj.getJSONArray("timeseries");
+		if (entity.has("timeseries")) {
+			final JSONArray series = entity.getJSONArray("timeseries");
 			timeseries = new ArrayList<TimeSeries>(series.length());
 			for(int i=0; i<series.length(); i++) {
 				timeseries.add(new TimeSeries(series.getJSONObject(i)));
 			}
 		}
 		
-		shareReport = jsonObj.has("share_report") ? new ShareReport(jsonObj.getJSONObject("share_report")) : null;
-		ecommerce = jsonObj.has("ecommerce") ? new Ecommerce(jsonObj.getJSONObject("ecommerce")) : null;
-		deliveryStatus = jsonObj.has("delivery_status") ? new DeliveryStatus(jsonObj.getJSONObject("delivery_status")) : null;
+		shareReport = entity.has("share_report") ? new ShareReport(entity.getJSONObject("share_report")) : null;
+		ecommerce = entity.has("ecommerce") ? new Ecommerce(entity.getJSONObject("ecommerce")) : null;
+		deliveryStatus = entity.has("delivery_status") ? new DeliveryStatus(entity.getJSONObject("delivery_status")) : null;
 	}
 
 	/**

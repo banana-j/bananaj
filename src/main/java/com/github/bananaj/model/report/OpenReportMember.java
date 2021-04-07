@@ -9,6 +9,8 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
 
 /**
@@ -17,7 +19,7 @@ import com.github.bananaj.utils.DateConverter;
  * timestamps for each open event.
  *
  */
-public class OpenReportMember {
+public class OpenReportMember implements JSONParser {
 	
 	private String campaignId;
 	private String listId;
@@ -30,33 +32,42 @@ public class OpenReportMember {
 	private int opensCount;
 	private List<ZonedDateTime> opens;
 
+	public OpenReportMember() {
+		
+	}
+	
 	public OpenReportMember(JSONObject jsonObj) {
-		campaignId = jsonObj.getString("campaign_id");
-		listId = jsonObj.getString("list_id");
-		listIsActive = jsonObj.getBoolean("list_is_active");
-		contactStatus = jsonObj.getString("contact_status");
-		emailId = jsonObj.getString("email_id");
-		emailAddress = jsonObj.getString("email_address");
+		parse(null, jsonObj);
+	}
+
+	@Override
+	public void parse(MailChimpConnection connection, JSONObject entity) {
+		campaignId = entity.getString("campaign_id");
+		listId = entity.getString("list_id");
+		listIsActive = entity.getBoolean("list_is_active");
+		contactStatus = entity.getString("contact_status");
+		emailId = entity.getString("email_id");
+		emailAddress = entity.getString("email_address");
 		
 		mergeFields = new HashMap<String, Object>();
-		if (jsonObj.has("merge_fields")) {
-			final JSONObject mergeFieldsObj = jsonObj.getJSONObject("merge_fields");
+		if (entity.has("merge_fields")) {
+			final JSONObject mergeFieldsObj = entity.getJSONObject("merge_fields");
 			for(String key : mergeFieldsObj.keySet()) {
 				mergeFields.put(key, mergeFieldsObj.get(key));
 			}
 		}
 		
-		vip = jsonObj.getBoolean("vip");
-		opensCount = jsonObj.getInt("opens_count");
+		vip = entity.getBoolean("vip");
+		opensCount = entity.getInt("opens_count");
 
-		final JSONArray openArray = jsonObj.getJSONArray("opens");
+		final JSONArray openArray = entity.getJSONArray("opens");
 		opens = new ArrayList<ZonedDateTime>(openArray.length());
 		for(int i=0; i<openArray.length(); i++) {
 			JSONObject ts = openArray.getJSONObject(i);
 			opens.add(DateConverter.fromISO8601(ts.getString("timestamp")));
 		}
 	}
-
+	
 	/**
 	 * @return The unique id for the campaign.
 	 */
@@ -138,5 +149,6 @@ public class OpenReportMember {
 	public String toString() {
 		return getEmailId() + " " + getEmailAddress() + " Status: " + getContactStatus() + " VIP: " + isVip() + " Opens: " + getOpensCount();
 	}
+
 
 }

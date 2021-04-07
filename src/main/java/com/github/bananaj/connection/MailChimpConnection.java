@@ -420,7 +420,7 @@ public class MailChimpConnection extends Connection {
 	 * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
 	 * @param count Number of reports to return. Maximum value is 1000.
 	 * @param offset Zero based offset
-	 * @param campaignType Optional, restrict the response by campaign type
+	 * @param campaignType Optional, restrict the response by campaign type. Possible values: regular, plaintext, absplit, rss, or variate.
 	 * @param beforeSendTime Optional, restrict the response to campaigns sent before the set time.
 	 * @param sinceSendTime Optional, restrict the response to campaigns sent after the set time.
 	 * @return Campaign reports meeting the specified criteria.
@@ -433,9 +433,9 @@ public class MailChimpConnection extends Connection {
 	public List<Report> getCampaignReports(int count, int offset, CampaignType campaignType, ZonedDateTime beforeSendTime, ZonedDateTime sinceSendTime) throws JSONException, TransportException, URISyntaxException, MalformedURLException, UnsupportedEncodingException {
 		URL url = URLHelper.url(getReportsendpoint(), 
 				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count),
-				(campaignType!=null ? "&type" + campaignType.toString() : ""),
-				(beforeSendTime!=null ? "&before_send_time=" + URLEncoder.encode(DateConverter.toISO8601UTC(beforeSendTime), "UTF-8") : ""),
-				(sinceSendTime!=null ? "&since_send_time=" + URLEncoder.encode(DateConverter.toISO8601UTC(sinceSendTime), "UTF-8") : "") );
+				(campaignType!=null ? "&type=" + campaignType.toString() : ""),
+				(beforeSendTime!=null ? "&"+"before_send_time=" + URLEncoder.encode(DateConverter.toISO8601UTC(beforeSendTime), "UTF-8") : ""),
+				(sinceSendTime!=null ? "&"+"since_send_time=" + URLEncoder.encode(DateConverter.toISO8601UTC(sinceSendTime), "UTF-8") : "") );
 		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
 		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
     	JSONArray reportsArray = jsonReports.getJSONArray("reports");
@@ -450,27 +450,43 @@ public class MailChimpConnection extends Connection {
 	}
 	
 	/**
+	 * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
+	 * @param campaignType Optional, restrict the response by campaign type. Possible values: regular, plaintext, absplit, rss, or variate.
+	 * @param beforeSendTime Optional, restrict the response to campaigns sent before the set time.
+	 * @param sinceSendTime Optional, restrict the response to campaigns sent after the set time.
+	 * @return Campaign reports meeting the specified criteria.
+	 * @throws Exception
+	 */
+	public Iterable<Report> getCampaignReports(CampaignType campaignType, ZonedDateTime beforeSendTime, ZonedDateTime sinceSendTime) throws Exception {
+		boolean firstSep = true;
+		StringBuilder baseURL = new StringBuilder(getReportsendpoint());
+		if (campaignType!=null) {
+			baseURL.append("?type=").append(campaignType.toString());
+			firstSep = false;
+		}
+		if (beforeSendTime!=null) {
+			baseURL.append(firstSep ? "?" :"&").append("before_send_time=").append(URLEncoder.encode(DateConverter.toISO8601UTC(beforeSendTime), "UTF-8"));
+			firstSep = false;
+		}
+		if (sinceSendTime!=null) { 
+			baseURL.append(firstSep ? "?" :"&").append("since_send_time=").append(URLEncoder.encode(DateConverter.toISO8601UTC(sinceSendTime), "UTF-8"));
+			firstSep = false;
+		}
+		return new ModelIterator<Report>(Report.class, baseURL.toString(), this);
+	}
+
+	/**
 	 * Get a detailed report about any emails in a specific campaign that were opened by recipients.
-	 * @param count Number of reports to return. Maximum value is 1000.
-	 * @param offset Zero based offset
 	 * @param campaignId
 	 * @param since Optional, restrict results to campaign open events that occur after a specific time.
 	 * @return Detailed information about the campaigns emails that were opened by list members.
-	 * @throws JSONException
-	 * @throws TransportException
-	 * @throws URISyntaxException
-	 * @throws MalformedURLException
-	 * @throws UnsupportedEncodingException
+	 * @throws Exception
 	 */
-	public OpenReport getCampaignOpenReports(int count, int offset, String campaignId, ZonedDateTime since) throws JSONException, TransportException, URISyntaxException, MalformedURLException, UnsupportedEncodingException {
-		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/open-details",
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count),
-				(since!=null ? "&since=" + URLEncoder.encode(DateConverter.toISO8601UTC(since), "UTF-8") : "") );
-		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
-		OpenReport report = new OpenReport(jsonReports);
-		return report;
+	public OpenReport getCampaignOpenReports(String campaignId, ZonedDateTime since) throws Exception {
+		return OpenReport.getOpenReport(this, campaignId, since);
 	}
 	
+
 	/**
 	 * 
 	 * @param count Number of reports to return. Maximum value is 1000.
