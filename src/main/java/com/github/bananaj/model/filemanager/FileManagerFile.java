@@ -44,9 +44,12 @@ public class FileManagerFile implements JSONParser {
 		parse(connection, jsonObj);
 	}
 
-	public FileManagerFile (Builder b){
+	public FileManagerFile (Builder b) {
+		id = b.id;
 		name = b.name;
 		id = b.folderId;
+		fullSizeUrl = b.fullSizeUrl;
+		thumbnailUrl = b.thumbnailUrl;
 	}
 
 	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
@@ -259,8 +262,16 @@ public class FileManagerFile implements JSONParser {
 
 
 	public static class Builder {
+		private int id;
 		private String name;
 		private int folderId;
+		private String fullSizeUrl;
+		private String thumbnailUrl;
+
+		public FileManagerFile.Builder id(int id) {
+			this.id = id;
+			return this;
+		}
 
 		public FileManagerFile.Builder name(String name) {
 			this.name = name;
@@ -269,6 +280,16 @@ public class FileManagerFile implements JSONParser {
 
 		public FileManagerFile.Builder folder(int folderId) {
 			this.folderId = folderId;
+			return this;
+		}
+
+		public FileManagerFile.Builder fullSizeUrl(String fullSizeUrl) {
+			this.fullSizeUrl = fullSizeUrl;
+			return this;
+		}
+
+		public FileManagerFile.Builder thumbnailUrl(String thumbnailUrl) {
+			this.thumbnailUrl = thumbnailUrl;
 			return this;
 		}
 
