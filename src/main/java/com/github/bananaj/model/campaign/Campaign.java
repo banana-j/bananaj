@@ -461,7 +461,7 @@ public class Campaign implements JSONParser {
 				(getStatus() != null ? "    Status: " + getStatus().toString() + System.lineSeparator() : "") +
 				"    Content Type: " + getContentType().toString() + System.lineSeparator() +
 				"    Created: " +  DateConverter.toLocalString(getCreateTime()) + System.lineSeparator() +
-				"    Sent: " + (getSendTime()!=null ? DateConverter.toLocalString(getSendTime()) : "") + System.lineSeparator() +
+				"    Sent: " + (getSendTime()!=null ? DateConverter.toLocalString(getSendTime()) : "Draft") + System.lineSeparator() +
 				"    Archive URL: " + getArchiveUrl() + System.lineSeparator() +
 				"    Emails Sent: " + getEmailsSent() + System.lineSeparator() +
 				getSettings().toString() + System.lineSeparator() +
