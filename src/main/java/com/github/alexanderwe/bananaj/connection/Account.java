@@ -54,7 +54,10 @@ public class Account extends MailchimpObject{
 		this.lastLogin = DateConverter.getInstance().createDateFromISO8601(jsonObj.getString("last_login"));
 		this.totalSubscribers = jsonObj.getInt("total_subscribers");
 		contact = new Contact(jsonObj.getJSONObject("contact"));
-		industryStats = new IndustryStats(jsonObj.getJSONObject("industry_stats"));
+
+		if (jsonObj.has("industry_stats")) {
+			industryStats = new IndustryStats(jsonObj.getJSONObject("industry_stats"));
+		}
 	}
 
 	/**
