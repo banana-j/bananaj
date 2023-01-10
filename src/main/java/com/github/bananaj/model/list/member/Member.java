@@ -27,6 +27,8 @@ import com.github.bananaj.model.list.MailChimpList;
 import com.github.bananaj.utils.DateConverter;
 import com.github.bananaj.utils.EmailValidator;
 import com.github.bananaj.utils.MD5;
+import com.github.bananaj.utils.ModelIterator;
+import com.github.bananaj.utils.URLHelper;
 
 
 /**
@@ -681,13 +683,26 @@ public class Member implements JSONParser {
 
 	/**
 	 * @return Returns up to 50 tags applied to this member. To retrieve all tags
-	 *         see {@link #getTags(int, int)} or
+	 *         see {@link #getAllTags()} or
 	 *         {@link com.github.bananaj.model.list.MailChimpList#getMemberTags(String, int, int)}.
 	 */
 	public List<MemberTag> getTags() {
 		return tags;
 	}
 
+	/**
+	 * @return Returns an iterator for all tags applied to this member.
+	 */
+	public Iterable<MemberTag> getAllTags() {
+		if (tags != null && tags.size() < 50) {
+			return tags;	// already have full list so simply return it
+		}
+		
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getListId(),"/members/", 
+				getId(), "/tags");
+		return new ModelIterator<MemberTag>(MemberTag.class, baseURL, getConnection());
+	}
+	
 	/**
 	 * Get the tags for this list member.
 	 * @param count Number of tags to return

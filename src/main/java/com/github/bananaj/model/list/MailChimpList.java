@@ -476,6 +476,7 @@ public class MailChimpList implements JSONParser {
 	 * warped in a RuntimeException to reduce the need for boilerplate code inside
 	 * of lambdas.
 	 * 
+	 * @param subscriber The member's email address or subscriber hash
 	 * @return MemberTag iterator
 	 */
 	public Iterable<MemberTag> getMemberTags(String subscriber) {

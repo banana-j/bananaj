@@ -5,12 +5,12 @@ Simple api for accessing Mailchimp - Work in progess
 
 # Introduction
 
-bananaj provides an Java wrapper for the MailChimp API 3.0. It is possible access your MailChimp data through Java. 
+bananaj provides a Java wrapper for the MailChimp API 3.0. It is possible programmatically access most MailChimp features such as managing audiences, generate campaigns, and get report data.
 
 # How to use
 
 ## Add to your project 
-This is still in alpha. If you encounter some bugs or issues, please feel free to report them to the [Issues section](https://github.com/banana-j/bananaj/issues).
+This is still in alpha. Some of the methods and models are subject to change in future builds. If you encounter some bugs or issues, please feel free to report them to the [Issues section](https://github.com/banana-j/bananaj/issues).
 
 Add this dependency to your pom.xml to use **bananaj** in your project.
 ```
@@ -34,111 +34,117 @@ dependencies {
 
 If you are not using Maven or Gradle you can download the latest `fat jar` from the [releases section](https://github.com/banana-j/bananaj/releases).
 
-## MailChimpObject class
-Most of the com.github.bananaj.model classes extend the MailChimpObject class.They are immutable, to prevent asynchronous data between the client and the MailChimp server. 
-When you execute methods like `object.changeName("new Name")` the local and server data is updated simultaneously.
+## Obtain an API key
+Login to your Mailchimp account and access you account information. Navigate to API keys located under extras and create a key.
 
-Most of the com.github.bananaj.model classes can also be exported to JSON.
-
-## Initial com.github.bananaj.connection
-With the MailChimpConnection object you start to connect to your account. 
-You can get all objects from this com.github.bananaj.connection. First start with getting information about a list.
+## Connect to Mailchimp
+First establish a connection with the Mailchimp server.
 
 ```
 MailChimpConnection con = new MailChimpConnection("yourAPIkey");
-```
-## Get a list 
-```
-//Get all lists
-List<MailChimpList> allLists = con.getLists();
-```
-```
-//Get a single list
-MailChimpList yourList = con.getList("ListID");
+
+// Test connection
+boolean ping = con.ping();
+System.out.println("API Ping: " + (ping ? "succeed" : "failed"));
 ```
 
-## Create a list
+## Access your campaigns
+
+```
+// Print info for all campaigns with report and feedback
+    System.out.println("Mailchimp Campaigns:");
+    con.getCampaigns().forEach(campaign -> {
+        System.out.println(campaign.toString());
+
+        Report report = campaign.getReport();
+        System.out.println(report.toString());
+
+        List<CampaignFeedback> feedback = campaign.getFeedback().forEach(feedback -> {
+            System.out.println(feedback.toString());
+        });;
+        
+        System.out.println("");
+    });
+    System.out.println("");
+```
+
+## Access your audiences
+```
+// Print info for all audiences. Note that in the API an audience is called a list.
+    System.out.println("Mailchimp audiences:");
+    con.getLists().forEach(audiance -> {
+        System.out.println(audiance.toString());
+        System.out.println("");
+    });
+    System.out.println("");
+
+// Get a single audience
+    MailChimpList yourList = con.getList("ListID");
+
+// Add a member to an audience
+
+```
 
 ## Get Members
 ```
-/*Get all members from a specific mailChimpList*/
- List<Member> membersOfList = yourList.getMembers(0,0); // Get all members, skip none
- List<Member> partOfMembers = yourList.getMembers(5,2); // Get first 5 members, but skip 2 members 
-```
-```
-/*You can also get a specific member by specifying it's id*/
-Member memberOfList = yourList.getMember("MemberID");
+// Get all members from a specific mailChimpList
+    yourList.getMembers().forEach(member -> {
+        System.out.println(member.toString());
+    });
+
+// You can also get a specific member by specifying their email address or subscriber hash
+    Member memberOfList = yourList.getMember("name@domain.com");
 ```
 
 ## Add/Update list subscriber
 ```
-Map<String, String> mergeFields = new HashMap<String, String>();
-mergeFields.put("FNAME", "First");
-mergeFields.put("LNAME", "Last");
-String ipAddress = "127.0.0.1";
-LocalDateTime timeStamp = LocalDateTime.now();
-Map<String, Boolean> interests  = new HashMap<String, Boolean>();
-interests.put("12345", true);
-
-Member member = new Member.Builder()
-		.emailAddress("myEmail@my.domain.com")
-		.listId(yourListId)
-		.emailType(EmailType.HTML)
-		.status(MemberStatus.SUBSCRIBED)
-		.mergeFields(mergeFields)
-		.statusIfNew(MemberStatus.SUBSCRIBED)
-		.ipSignup(ipAddress)
-		.timestampSignup(timeStamp)
-		.ipOpt(ipAddress)
-		.timestampOpt(timeStamp)
-		.memberInterest(interests)
-		.build();
-yourList.addOrUpdateMember(member);
-```
-
-
-## Create template
-To create an email template simply specify a template name and the upload the pure html code to MailChimp
-```
-con.createTemplate("templateName", "htmlCode");
+    Member member = new Member.Builder()
+            .connection(con)
+            .listId(yourList.getId())
+            .emailAddress("name@domain.com")
+            .emailType(EmailType.HTML)
+            .status(MemberStatus.SUBSCRIBED)
+            .mergeField("FNAME", "John")
+            .mergeField("LNAME", "Smith")
+            .language("en")
+            .vip(false)
+            .build();
+    member.addOrUpdate();
 ```
 
 
 ## Create campaign
 To create an email template simply specify a template name and the upload the pure html code to MailChimp
 ```
-MailChimpList myList = con.getList("myListId");
-CampaignSettings settings = new CampaignSettings.Builder()
-		.title("myTitle")
-		.subjectLine("mySubject")
-		.toName("*|FNAME|*")
-		.fromName("myRobot")
-		.replyTo("myEmail@my.domain.com")
-		.templateId(12345)
-		.folderId("12345")
-		.build();
-Campaign campaign = con.createCampaign(CampaignType.REGULAR, myList, settings);
+    CampaignRecipients mailRecipients = new CampaignRecipients.Builder()
+        .listId(yourList.getId())
+        .build();
+    // -or- use new CampaignRecipients(Segment) to target by tag or interest group
+    CampaignSettings settings = new CampaignSettings.Builder()
+            .title("myTitle")
+            .subjectLine("mySubject")
+            .toName("*|FNAME|*")
+            .fromName("myRobot")
+            .replyTo("myEmail@my.domain.com")
+            .templateId(12345)
+            .folderId("12345")
+            .build();
+    Campaign campaign = con.createCampaign(CampaignType.REGULAR, myList, settings);
+    // campaign.getContent().changeHTMLContent(htmlContent);  // if we don't use a template specify our own HTML content
+    campaign.send();
+    
+    // TODO: show how to create campaign targeted to a tag segment.
 ```
 
 
 ## Upload a file to FileManager
 MailChimp offers the opportunity to insert images and other files to your emails. To upload a file to MailChimp create a FileManager and specify the file you want to upload.
 ```
-FileManager fileManager = new FileManager(mailchimpconnection);
-
-File myFile = new File("pathToYourFile");
+// Upload a file
+    FileManagerFile myFile = con.getFileManager().upload("filename", myFile);
   
-//Upload a file
-fileManager.upload("filename", myFile);
-  
-//Upload a file to a folder
-fileManager.upload("folder_id","filename", myFile);
-```
-
-## Download a file
-To download a file from the MailChimp File Manager you have to specifiy the file you want to download and the directory in which it should be saved after download. The file extension is set automatically.
-```
-fileManager.getFileManagerFile("fileID").download("./") //Download a file in the current directory
+// Upload a file to a folder
+    FileManagerFile myFile = con.getFileManager().upload("folder_id", "filename", myFile);
 ```
 
 ## Example programs
