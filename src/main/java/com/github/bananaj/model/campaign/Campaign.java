@@ -231,7 +231,7 @@ public class Campaign implements JSONParser {
 	 */
 	public Report getReport() throws Exception {
 		final JSONObject report = new JSONObject(connection.do_Get(new URL(connection.getReportsendpoint()+"/"+getId()), connection.getApikey()));
-		return new Report(report);
+		return new Report(connection, report);
 	}
 
 	/**

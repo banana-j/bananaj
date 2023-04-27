@@ -4,18 +4,25 @@
  */
 package com.github.bananaj.model.report;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.exceptions.TransportException;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.campaign.Bounce;
 import com.github.bananaj.model.campaign.CampaignType;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.ModelIterator;
+import com.github.bananaj.utils.URLHelper;
 
 /**
  * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
@@ -24,6 +31,8 @@ import com.github.bananaj.utils.DateConverter;
  *
  */
 public class Report implements JSONParser {
+
+	private MailChimpConnection connection;
 
 	private String id;
 	private String campaignTitle;
@@ -56,13 +65,14 @@ public class Report implements JSONParser {
 
 	}
 
-	public Report(JSONObject jsonObj) {
-		parse(null, jsonObj);
+	public Report(MailChimpConnection connection, JSONObject jsonObj) {
+		parse(connection, jsonObj);
 	}
 
 	@Override
 	public void parse(MailChimpConnection connection, JSONObject entity) {
 		id = entity.getString("id");
+		this.connection = connection;
 		campaignTitle = entity.getString("campaign_title");
 		type = CampaignType.valueOf(entity.getString("type").toUpperCase());
 		listId = entity.getString("list_id");
@@ -295,6 +305,35 @@ public class Report implements JSONParser {
 		return sendtime;
 	}
 
+	/**
+	 * Get Abuse sub-reports
+	 */
+	public Iterable<AbuseReport>  getAbuseReports() throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+		String query = connection.getReportsendpoint()+"/"+getId()+"/abuse-reports";
+		return new ModelIterator<AbuseReport>(AbuseReport.class, query, connection);
+	}
+	
+	// TODO:
+	/**
+	 * Get the Location sub report
+	 * @throws Exception
+	 */
+//	public Iterable<ReportLocation> getLocations() throws Exception {
+//		String query = connection.getReportsendpoint()+"/"+getId()+"/locations";
+//		return new ModelIterator<ReportLocation>(ReportSendTo.class, query, connection);
+//	}
+	
+	/**
+	 * Get the Sent To sub reports
+	 * @throws Exception
+	 */
+	public Iterable<ReportSentTo> getSentToReports() throws Exception {
+		String query = connection.getReportsendpoint()+"/"+getId()+"/sent-to";
+		return new ModelIterator<ReportSentTo>(ReportSentTo.class, query, connection);
+	}
+
+	// TODO:  add all sub-reports
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(5000);

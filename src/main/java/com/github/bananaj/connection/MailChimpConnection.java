@@ -413,7 +413,7 @@ public class MailChimpConnection extends Connection {
 	public Report getCampaignReport(String campaignId) throws JSONException, TransportException, URISyntaxException, MalformedURLException {
 		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId);
 		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
-    	return new Report(jsonReport);
+    	return new Report(this, jsonReport);
 	}
 	
 	/**
@@ -443,7 +443,7 @@ public class MailChimpConnection extends Connection {
     	for( int i = 0; i< reportsArray.length();i++)
     	{
     		JSONObject reportDetail = reportsArray.getJSONObject(i);
-    		Report report = new Report(reportDetail);
+    		Report report = new Report(this, reportDetail);
     		reports.add(report);
     	}
     	return reports;
@@ -532,9 +532,16 @@ public class MailChimpConnection extends Connection {
 	}
 	
 	/**
+	 * 
+	 * @return Abuse complaints for a campaign
+	 */
+	public Iterable<AbuseReport>  getCampaignAbuseReports(String campaignId) {
+		String query = getReportsendpoint()+"/"+campaignId+"/abuse-reports";
+		return new ModelIterator<AbuseReport>(AbuseReport.class, query, this);
+	}
+
+	/**
 	 * Get recent feedback based on a campaign's statistics.
-	 * @param count Number of reports to return. Maximum value is 1000.
-	 * @param offset Zero based offset
 	 * @param campaignId The unique id for the campaign.
 	 * @return Recent feedback based on a campaign's statistics.
 	 * @throws JSONException
@@ -557,6 +564,16 @@ public class MailChimpConnection extends Connection {
     		reports.add(report);
     	}
     	return reports;
+	}
+	
+	/**
+	 * Get recent feedback based on a campaign's statistics.
+	 * @param campaignId The unique id for the campaign.
+	 * @return Recent feedback based on a campaign's statistics.
+	 */
+	public Iterable<AdviceReport> getCampaignAdviceReports(String campaignId) {
+		String query = getReportsendpoint()+"/"+campaignId+"/advice";
+		return new ModelIterator<AdviceReport>(AdviceReport.class, query, this);
 	}
 	
 	/**
