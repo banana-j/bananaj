@@ -1,5 +1,6 @@
 package com.github.bananaj.connection;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -38,6 +39,7 @@ import com.github.bananaj.model.report.EcommerceProductActivity;
 import com.github.bananaj.model.report.EcommerceSortField;
 import com.github.bananaj.model.report.OpenReport;
 import com.github.bananaj.model.report.Report;
+import com.github.bananaj.model.report.ReportSentTo;
 import com.github.bananaj.model.template.Template;
 import com.github.bananaj.model.template.TemplateFolder;
 import com.github.bananaj.utils.DateConverter;
@@ -587,7 +589,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws TransportException
 	 * @throws URISyntaxException
 	 */
-	public List<ClickReport> getClickReports(int count, int offset, String campaignId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+	public List<ClickReport> getCampaignClickReports(int count, int offset, String campaignId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
 		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/click-details",
 				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count));
 		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
@@ -604,6 +606,17 @@ public class MailChimpConnection extends Connection {
 	}
 	
 	/**
+	 * Get detailed information about links clicked in campaigns.
+	 * @param campaignId The unique id for the campaign.
+	 * @return Campaign click details
+	 * @throws Exception
+	 */
+	public Iterable<ClickReport> getCampaignClickReports(String campaignId) throws Exception {
+		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details");
+		return new ModelIterator<ClickReport>(ClickReport.class, baseURL, this);
+	}
+	
+	/**
 	 * Get detailed information about links clicked in campaigns for a specific link.
 	 * @param campaignId The unique id for the campaign.
 	 * @param linkId The id for the link.
@@ -613,7 +626,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws TransportException
 	 * @throws URISyntaxException
 	 */
-	public ClickReport getClickReport(String campaignId, String linkId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+	public ClickReport getCampaignClickReport(String campaignId, String linkId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
 		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/click-details/", linkId);
 		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
 		ClickReport report = new ClickReport(jsonReport);
@@ -632,7 +645,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws TransportException
 	 * @throws URISyntaxException
 	 */
-	public List<ClickReportMember> getClickReportMembers(int count, int offset, String campaignId, String linkId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+	public List<ClickReportMember> getCampaignClickReportMembers(int count, int offset, String campaignId, String linkId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
 		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/click-details/", linkId, "/members",
 				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count));
 		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
@@ -649,6 +662,18 @@ public class MailChimpConnection extends Connection {
 	}
 	
 	/**
+	 * Get information about subscribers who clicked a link.
+	 * @param campaignId The unique id for the campaign.
+	 * @param linkId The id for the link.
+	 * @return Information about subscribers who clicked a link
+	 * @throws Exception
+	 */
+	public Iterable<ClickReportMember> getCampaignClickReportMembers(String campaignId, String linkId) throws Exception {
+		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details/", linkId, "/members");
+		return new ModelIterator<ClickReportMember>(ClickReportMember.class, baseURL, this);
+	}
+	
+	/**
 	 * Get information about a specific subscriber who clicked a link.
 	 * @param campaignId The unique id for the campaign.
 	 * @param linkId The id for the link.
@@ -659,7 +684,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws TransportException
 	 * @throws URISyntaxException
 	 */
-	public ClickReportMember getClickReportMember(String campaignId, String linkId, String subscriber) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+	public ClickReportMember getCampaignClickReportMember(String campaignId, String linkId, String subscriber) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
 		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/click-details/", linkId, "/members/", Member.subscriberHash(subscriber));
 		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
 		ClickReportMember report = new ClickReportMember(jsonReport);
@@ -675,7 +700,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws TransportException
 	 * @throws URISyntaxException
 	 */
-	public DomainPerformance getDomainPerformance(String campaignId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+	public DomainPerformance getDomainPerformanceReport(String campaignId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
 		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/domain-performance");
 		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
 		DomainPerformance report = new DomainPerformance(jsonReport);
@@ -694,7 +719,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws TransportException
 	 * @throws URISyntaxException
 	 */
-	public List<EcommerceProductActivity> getEcommerceProductActivity(int count, int offset, String campaignId, EcommerceSortField sortField) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+	public List<EcommerceProductActivity> getEcommerceProductActivityReports(int count, int offset, String campaignId, EcommerceSortField sortField) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
 		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/ecommerce-product-activity",
 				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count), 
 				"&sort_field=", (sortField != null ? sortField.toString() : EcommerceSortField.TITLE.toString()));
@@ -711,11 +736,45 @@ public class MailChimpConnection extends Connection {
     	return reports;
 	}
 	
+	/**
+	 * Ecommerce product activity report for Campaign
+	 * @param campaignId The unique id for the campaign.
+	 * @param sortField Optional, sort products by this field.
+	 * @return Breakdown of product activity for a campaign.
+	 * @throws Exception
+	 */
+	public Iterable<EcommerceProductActivity> getEcommerceProductActivityReports(String campaignId, EcommerceSortField sortField) throws Exception {
+		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/ecommerce-product-activity",
+				"?sort_field=", (sortField != null ? sortField.toString() : EcommerceSortField.TITLE.toString()));
+		return new ModelIterator<EcommerceProductActivity>(EcommerceProductActivity.class, baseURL, this);
+	}
+
+	/**
+	 * Sent To report - Get information about campaign recipients.
+	 * @param campaignId The unique id for the campaign.
+	 * @return Information about campaign recipients.
+	 */
+	public Iterable<ReportSentTo> getCampaignSentToReports(String campaignId) {
+		String query = getReportsendpoint()+"/"+campaignId+"/sent-to";
+		return new ModelIterator<ReportSentTo>(ReportSentTo.class, query, this);
+	}
+	
+	/**
+	 * Sent To Recipient report - Get information about a specific campaign recipient.
+	 * @param campaignId The unique id for the campaign.
+	 * @return Information about a specific campaign recipients.
+	 * @throws Exception 
+	 */
+	public ReportSentTo getCampaignSentToRecipientReport(String campaignId, String subscriberHash) throws Exception {
+		URL url = URLHelper.url(getReportsendpoint()+"/"+campaignId+"/sent-to/" + subscriberHash);
+		JSONObject jsonRpt = new JSONObject(do_Get(url, getApikey()));
+		ReportSentTo rpt = new ReportSentTo(jsonRpt);
+		return rpt;
+	}
+
 	// TODO: Report - Email Activity - Get list member activity for a specific campaign.
 	// TODO: Report - Email Activity - Get list member activity for a specific campaign and subscriber.
 	// TODO: Report - Location - Get top open locations for a specific campaign.
-	// TODO: Report - Sent To - Get information about campaign recipients.
-	// TODO: Report - Sent To - Get information about a specific campaign recipient.
 	// TODO: Report - Sub-Reports- A list of reports for child campaigns of a specific parent campaign. For example, use this endpoint to view Multivariate, RSS, and A/B Testing Campaign reports.
 	// TODO: Report - Unsubscribes - Get information about list members who unsubscribed from a specific campaign.
 	// TODO: Report - EepURL Reports - Get a summary of social activity for the campaign, tracked by EepURL.

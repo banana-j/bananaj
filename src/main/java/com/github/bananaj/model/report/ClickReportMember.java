@@ -5,7 +5,10 @@ import java.util.Map;
 
 import org.json.JSONObject;
 
-public class ClickReportMember {
+import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.model.JSONParser;
+
+public class ClickReportMember implements JSONParser {
 	private String campaignId;
 	private String listId;
 	private boolean listIsActive;
@@ -17,25 +20,34 @@ public class ClickReportMember {
 	private int clicks;
 	private String urlId;
 
+	public ClickReportMember() {
+
+	}
+
 	public ClickReportMember(JSONObject jsonObj) {
-		campaignId = jsonObj.getString("campaign_id");
-		listId = jsonObj.getString("list_id");
-		listIsActive = jsonObj.getBoolean("list_is_active");
-		contactStatus = jsonObj.getString("contact_status");
-		emailId = jsonObj.getString("email_id");
-		emailAddress = jsonObj.getString("email_address");
+		parse(null, jsonObj);
+	}
+
+	@Override
+	public void parse(MailChimpConnection connection, JSONObject entity) {
+		campaignId = entity.getString("campaign_id");
+		listId = entity.getString("list_id");
+		listIsActive = entity.getBoolean("list_is_active");
+		contactStatus = entity.getString("contact_status");
+		emailId = entity.getString("email_id");
+		emailAddress = entity.getString("email_address");
 		
 		mergeFields = new HashMap<String, Object>();
-		if (jsonObj.has("merge_fields")) {
-			final JSONObject mergeFieldsObj = jsonObj.getJSONObject("merge_fields");
+		if (entity.has("merge_fields")) {
+			final JSONObject mergeFieldsObj = entity.getJSONObject("merge_fields");
 			for(String key : mergeFieldsObj.keySet()) {
 				mergeFields.put(key, mergeFieldsObj.get(key));
 			}
 		}
 		
-		vip = jsonObj.getBoolean("vip");
-		clicks = jsonObj.getInt("clicks");
-		urlId = jsonObj.getString("url_id");
+		vip = entity.getBoolean("vip");
+		clicks = entity.getInt("clicks");
+		urlId = entity.getString("url_id");
 	}
 
 	/**

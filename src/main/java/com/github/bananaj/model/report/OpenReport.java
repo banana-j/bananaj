@@ -24,6 +24,7 @@ public class OpenReport extends ModelIterator<OpenReportMember> {
 	
 	private String campaignId;
 	private Integer totalOpens;
+	private Integer totalItems;
 
 	protected OpenReport(String query, MailChimpConnection connection) {
 		super(OpenReportMember.class, query, connection);
@@ -51,6 +52,9 @@ public class OpenReport extends ModelIterator<OpenReportMember> {
 		campaignId = list.getString("campaign_id");
 		if (list.has("total_opens")) {
 			totalOpens = list.getInt("total_opens");
+		}
+		if (list.has("total_items")) {
+			totalItems = list.getInt("total_items");
 		}
 	}
 
@@ -89,7 +93,12 @@ public class OpenReport extends ModelIterator<OpenReportMember> {
 	 */
 	@Override
 	public String toString() {
-		return "Total opens: " + getTotalOpens();
+		StringBuilder sb = new StringBuilder(100);
+		sb.append("Campaign Open Report: " + System.lineSeparator());
+		sb.append("    Campaign: " + getCampaignId() + System.lineSeparator());
+		sb.append("    Total opens: " + getTotalOpens() + System.lineSeparator());
+		sb.append("    Total items: " + getTotalItems() + System.lineSeparator());
+		return sb.toString();
 	}
 
 }

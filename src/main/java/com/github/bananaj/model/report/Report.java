@@ -20,6 +20,7 @@ import com.github.bananaj.exceptions.TransportException;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.campaign.Bounce;
 import com.github.bananaj.model.campaign.CampaignType;
+import com.github.bananaj.model.list.member.Member;
 import com.github.bananaj.utils.DateConverter;
 import com.github.bananaj.utils.ModelIterator;
 import com.github.bananaj.utils.URLHelper;
@@ -308,30 +309,106 @@ public class Report implements JSONParser {
 	/**
 	 * Get Abuse sub-reports
 	 */
-	public Iterable<AbuseReport>  getAbuseReports() throws MalformedURLException, JSONException, TransportException, URISyntaxException {
-		String query = connection.getReportsendpoint()+"/"+getId()+"/abuse-reports";
-		return new ModelIterator<AbuseReport>(AbuseReport.class, query, connection);
+	public Iterable<AbuseReport>  getAbuseReports() throws Exception {
+		return connection.getCampaignAbuseReports(getId());
 	}
 	
-	// TODO:
 	/**
-	 * Get the Location sub report
-	 * @throws Exception
+	 * Get recent feedback based on a campaign's statistics.
+	 * @return Recent feedback based on a campaign's statistics.
 	 */
-//	public Iterable<ReportLocation> getLocations() throws Exception {
-//		String query = connection.getReportsendpoint()+"/"+getId()+"/locations";
-//		return new ModelIterator<ReportLocation>(ReportSendTo.class, query, connection);
-//	}
+	public Iterable<AdviceReport> getAdviceReports(String campaignId) throws Exception {
+		return connection.getCampaignAdviceReports(getId());
+	}
 	
 	/**
-	 * Get the Sent To sub reports
+	 * Get a detailed report about any emails in a specific campaign that were opened by recipients.
+	 * @param since Optional, restrict results to campaign open events that occur after a specific time.
+	 * @return Detailed information about the campaigns emails that were opened by list members.
+	 * @throws Exception
+	 */
+	public OpenReport getOpenReports(ZonedDateTime since) throws Exception {
+		return connection.getCampaignOpenReports(getId(), since);
+	}
+	
+	/**
+	 * Get detailed information about links clicked in campaigns.
+	 * @return Campaign click details
+	 * @throws Exception
+	 */
+	public Iterable<ClickReport> getClickReports() throws Exception {
+		return connection.getCampaignClickReports(getId());
+	}
+	
+	/**
+	 * Get detailed information about links clicked in campaigns for a specific link.
+	 * @param linkId The id for the link.
+	 * @return Click details for a specific link.
+	 * @throws Exception
+	 */
+	public ClickReport getClickReport(String linkId) throws Exception {
+		return connection.getCampaignClickReport(getId(), linkId);
+	}
+	
+	/**
+	 * Get information about subscribers who clicked a link.
+	 * @param linkId The id for the link.
+	 * @return Information about subscribers who clicked a link
+	 * @throws Exception
+	 */
+	public Iterable<ClickReportMember> getCampaignClickReportMembers(String linkId) throws Exception {
+		return connection.getCampaignClickReportMembers(getId(), linkId);
+	}
+	
+	/**
+	 * Get information about a specific subscriber who clicked a link.
+	 * @param campaignId The unique id for the campaign.
+	 * @param linkId The id for the link.
+	 * @param subscriber The member's email address or subscriber hash
+	 * @return Information about a specific subscriber who clicked a link
+	 * @throws Exception
+	 */
+	public ClickReportMember getClickReportMember(String campaignId, String linkId, String subscriber) throws Exception {
+		return connection.getCampaignClickReportMember(getId(), linkId, subscriber);
+	}
+	
+	/**
+	 * Get statistics for the top-performing domains from a campaign.
+	 * @return Statistics for the top-performing domains from a campaign.
+	 * @throws Exception
+	 */
+	public DomainPerformance getDomainPerformanceReport() throws Exception {
+		return connection.getDomainPerformanceReport(getId());
+	}
+	
+	/**
+	 * Ecommerce product activity report for Campaign
+	 * @param sortField Optional, sort products by this field.
+	 * @return Breakdown of product activity for a campaign.
+	 * @throws Exception
+	 */
+	public Iterable<EcommerceProductActivity> getEcommerceProductActivityReports(EcommerceSortField sortField) throws Exception {
+		return connection.getEcommerceProductActivityReports(getId(), sortField);
+	}
+
+	/**
+	 * Sub report - Sent To - Get information about campaign recipients.
+	 * @return Information about campaign recipients.
 	 * @throws Exception
 	 */
 	public Iterable<ReportSentTo> getSentToReports() throws Exception {
-		String query = connection.getReportsendpoint()+"/"+getId()+"/sent-to";
-		return new ModelIterator<ReportSentTo>(ReportSentTo.class, query, connection);
+		return connection.getCampaignSentToReports(getId());
 	}
 
+	/**
+	 * Sent To Recipient report - Get information about a specific campaign recipient.
+	 * @return Information about a specific campaign recipients.
+	 * @throws Exception 
+	 */
+	public ReportSentTo getSentToRecipientReport(String subscriberHash) throws Exception {
+		return connection.getCampaignSentToRecipientReport(getId(), subscriberHash);
+	}
+	
 	// TODO:  add all sub-reports
 	
 	@Override

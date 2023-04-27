@@ -4,9 +4,11 @@ import java.time.ZonedDateTime;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
 
-public class ClickReport {
+public class ClickReport implements JSONParser {
 	private String id;
 	private String url;
 	private Integer totalClicks;
@@ -17,21 +19,31 @@ public class ClickReport {
 	private ClickABSplit abSplit_a;
 	private ClickABSplit abSplit_b;
 
-	public ClickReport(JSONObject jsonObj) {
-		id = jsonObj.getString("id");
-		url = jsonObj.getString("url");
-		totalClicks = jsonObj.getInt("total_clicks");
-		clickPercentage = jsonObj.getDouble("click_percentage");
-		uniqueClicks = jsonObj.getInt("unique_clicks");
-		uniqueClickPercentage = jsonObj.getDouble("unique_click_percentage");
-		lastClick = DateConverter.fromISO8601(jsonObj.getString("last_click"));
+	public ClickReport() {
 
-		if(jsonObj.has("ab_split")) {
-			JSONObject split = jsonObj.getJSONObject("ab_split");
+	}
+
+	public ClickReport(JSONObject jsonObj) {
+		parse(null, jsonObj);
+	}
+
+	@Override
+	public void parse(MailChimpConnection connection, JSONObject entity) {
+		id = entity.getString("id");
+		url = entity.getString("url");
+		totalClicks = entity.getInt("total_clicks");
+		clickPercentage = entity.getDouble("click_percentage");
+		uniqueClicks = entity.getInt("unique_clicks");
+		uniqueClickPercentage = entity.getDouble("unique_click_percentage");
+		lastClick = DateConverter.fromISO8601(entity.getString("last_click"));
+
+		if(entity.has("ab_split")) {
+			JSONObject split = entity.getJSONObject("ab_split");
 			abSplit_a = new ClickABSplit("a", split.getJSONObject("a"));
 			abSplit_b = new ClickABSplit("b", split.getJSONObject("b"));
 		}
 	}
+
 
 	/**
 	 * @return The unique id for the link.
