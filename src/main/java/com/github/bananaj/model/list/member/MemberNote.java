@@ -4,12 +4,14 @@ import java.time.ZonedDateTime;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
 
 /**
  * Member Notes
  */
-public class MemberNote {
+public class MemberNote implements JSONParser {
 
 	private int id;
 	private ZonedDateTime createdAt;
@@ -19,14 +21,12 @@ public class MemberNote {
 	private String listId;
 	private String emailId;
 
+	public MemberNote() {
+
+	}
+	
 	public MemberNote(JSONObject jsonObj) {
-		id = jsonObj.getInt("id");
-		createdAt = DateConverter.fromISO8601(jsonObj.getString("created_at"));
-		createdBy = jsonObj.getString("created_by");
-		updatedAt = DateConverter.fromISO8601(jsonObj.getString("updated_at"));
-		note = jsonObj.getString("note");
-		listId = jsonObj.getString("list_id");
-		emailId = jsonObj.getString("email_id");
+		parse(null, jsonObj);
 	}
 
 	/**
@@ -35,6 +35,21 @@ public class MemberNote {
 	 */
 	public MemberNote(String note) {
 		this.note = note;
+	}
+	
+	/**
+	 * Parse a JSON representation of member note into this.
+	 * @param connection Not used
+	 * @param jsonObj
+	 */
+	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
+		id = jsonObj.getInt("id");
+		createdAt = DateConverter.fromISO8601(jsonObj.getString("created_at"));
+		createdBy = jsonObj.getString("created_by");
+		updatedAt = DateConverter.fromISO8601(jsonObj.getString("updated_at"));
+		note = jsonObj.getString("note");
+		listId = jsonObj.getString("list_id");
+		emailId = jsonObj.getString("email_id");
 	}
 	
 	/**

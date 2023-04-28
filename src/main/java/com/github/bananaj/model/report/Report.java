@@ -4,16 +4,26 @@
  */
 package com.github.bananaj.model.report;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.exceptions.TransportException;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.campaign.Bounce;
 import com.github.bananaj.model.campaign.CampaignType;
+import com.github.bananaj.model.list.member.Member;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.ModelIterator;
+import com.github.bananaj.utils.URLHelper;
 
 /**
  * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
@@ -21,7 +31,9 @@ import com.github.bananaj.utils.DateConverter;
  * @author alexanderweiss
  *
  */
-public class Report {
+public class Report implements JSONParser {
+
+	private MailChimpConnection connection;
 
 	private String id;
 	private String campaignTitle;
@@ -50,48 +62,58 @@ public class Report {
 	private Ecommerce ecommerce;
 	private DeliveryStatus deliveryStatus;
 
-	public Report(JSONObject jsonObj) {
-		id = jsonObj.getString("id");
-		campaignTitle = jsonObj.getString("campaign_title");
-		type = CampaignType.valueOf(jsonObj.getString("type").toUpperCase());
-		listId = jsonObj.getString("list_id");
-		listIsActive = jsonObj.getBoolean("list_is_active");
-		listName = jsonObj.getString("list_name");
-		subjectLine = jsonObj.getString("subject_line");
-		previewText = jsonObj.getString("preview_text");
-		emailsSent = jsonObj.getInt("emails_sent");
-		abuseReport = jsonObj.getInt("abuse_reports");
-		unsubscribed = jsonObj.getInt("unsubscribed");
-		sendtime = DateConverter.fromISO8601(jsonObj.getString("send_time"));
-		rssLastSend = jsonObj.has("rss_last_send") ? DateConverter.fromISO8601(jsonObj.getString("rss_last_send")) : null;
-		bounces = new Bounce(jsonObj.getJSONObject("bounces"));
-		forwards = new Forward(jsonObj.getJSONObject("forwards"));
-		clicks = new Click(jsonObj.getJSONObject("clicks"));
-		opens = new Open(jsonObj.getJSONObject("opens"));
-		facebookLikes = jsonObj.has("facebook_likes") ? new FacebookLikes(jsonObj.getJSONObject("facebook_likes")) : null;
-		industryStats = jsonObj.has("industry_stats") ? new IndustryStats(jsonObj.getJSONObject("industry_stats")) : null;
-		listStats = jsonObj.has("list_stats") ? new ReportListStats(jsonObj.getJSONObject("list_stats")) : null;
-		abSplit = jsonObj.has("ab_split") ? new ABSplit(jsonObj.getJSONObject("ab_split")) : null;
+	public Report() {
+
+	}
+
+	public Report(MailChimpConnection connection, JSONObject jsonObj) {
+		parse(connection, jsonObj);
+	}
+
+	@Override
+	public void parse(MailChimpConnection connection, JSONObject entity) {
+		id = entity.getString("id");
+		this.connection = connection;
+		campaignTitle = entity.getString("campaign_title");
+		type = CampaignType.valueOf(entity.getString("type").toUpperCase());
+		listId = entity.getString("list_id");
+		listIsActive = entity.getBoolean("list_is_active");
+		listName = entity.getString("list_name");
+		subjectLine = entity.getString("subject_line");
+		previewText = entity.getString("preview_text");
+		emailsSent = entity.getInt("emails_sent");
+		abuseReport = entity.getInt("abuse_reports");
+		unsubscribed = entity.getInt("unsubscribed");
+		sendtime = DateConverter.fromISO8601(entity.getString("send_time"));
+		rssLastSend = entity.has("rss_last_send") ? DateConverter.fromISO8601(entity.getString("rss_last_send")) : null;
+		bounces = new Bounce(entity.getJSONObject("bounces"));
+		forwards = new Forward(entity.getJSONObject("forwards"));
+		clicks = new Click(entity.getJSONObject("clicks"));
+		opens = new Open(entity.getJSONObject("opens"));
+		facebookLikes = entity.has("facebook_likes") ? new FacebookLikes(entity.getJSONObject("facebook_likes")) : null;
+		industryStats = entity.has("industry_stats") ? new IndustryStats(entity.getJSONObject("industry_stats")) : null;
+		listStats = entity.has("list_stats") ? new ReportListStats(entity.getJSONObject("list_stats")) : null;
+		abSplit = entity.has("ab_split") ? new ABSplit(entity.getJSONObject("ab_split")) : null;
 		
-		if (jsonObj.has("timewarp")) {
-			final JSONArray series = jsonObj.getJSONArray("timewarp");
+		if (entity.has("timewarp")) {
+			final JSONArray series = entity.getJSONArray("timewarp");
 			timewarp = new ArrayList<Timewarp>(series.length());
 			for(int i=0; i<series.length(); i++) {
 				timewarp.add(new Timewarp(series.getJSONObject(i)));
 			}
 		}
 		
-		if (jsonObj.has("timeseries")) {
-			final JSONArray series = jsonObj.getJSONArray("timeseries");
+		if (entity.has("timeseries")) {
+			final JSONArray series = entity.getJSONArray("timeseries");
 			timeseries = new ArrayList<TimeSeries>(series.length());
 			for(int i=0; i<series.length(); i++) {
 				timeseries.add(new TimeSeries(series.getJSONObject(i)));
 			}
 		}
 		
-		shareReport = jsonObj.has("share_report") ? new ShareReport(jsonObj.getJSONObject("share_report")) : null;
-		ecommerce = jsonObj.has("ecommerce") ? new Ecommerce(jsonObj.getJSONObject("ecommerce")) : null;
-		deliveryStatus = jsonObj.has("delivery_status") ? new DeliveryStatus(jsonObj.getJSONObject("delivery_status")) : null;
+		shareReport = entity.has("share_report") ? new ShareReport(entity.getJSONObject("share_report")) : null;
+		ecommerce = entity.has("ecommerce") ? new Ecommerce(entity.getJSONObject("ecommerce")) : null;
+		deliveryStatus = entity.has("delivery_status") ? new DeliveryStatus(entity.getJSONObject("delivery_status")) : null;
 	}
 
 	/**
@@ -284,6 +306,127 @@ public class Report {
 		return sendtime;
 	}
 
+	/**
+	 * Get Abuse sub-reports
+	 */
+	public Iterable<AbuseReport>  getAbuseReports() throws Exception {
+		return connection.getCampaignAbuseReports(getId());
+	}
+	
+	/**
+	 * Get recent feedback based on a campaign's statistics.
+	 * @return Recent feedback based on a campaign's statistics.
+	 */
+	public Iterable<AdviceReport> getAdviceReports(String campaignId) throws Exception {
+		return connection.getCampaignAdviceReports(getId());
+	}
+	
+	/**
+	 * Get a detailed report about any emails in a specific campaign that were opened by recipients.
+	 * @param since Optional, restrict results to campaign open events that occur after a specific time.
+	 * @return Detailed information about the campaigns emails that were opened by list members.
+	 * @throws Exception
+	 */
+	public OpenReport getOpenReports(ZonedDateTime since) throws Exception {
+		return connection.getCampaignOpenReports(getId(), since);
+	}
+	
+	/**
+	 * Get detailed information about links clicked in campaigns.
+	 * @return Campaign click details
+	 * @throws Exception
+	 */
+	public Iterable<ClickReport> getClickReports() throws Exception {
+		return connection.getCampaignClickReports(getId());
+	}
+	
+	/**
+	 * Get detailed information about links clicked in campaigns for a specific link.
+	 * @param linkId The id for the link.
+	 * @return Click details for a specific link.
+	 * @throws Exception
+	 */
+	public ClickReport getClickReport(String linkId) throws Exception {
+		return connection.getCampaignClickReport(getId(), linkId);
+	}
+	
+	/**
+	 * Get information about subscribers who clicked a link.
+	 * @param linkId The id for the link.
+	 * @return Information about subscribers who clicked a link
+	 * @throws Exception
+	 */
+	public Iterable<ClickReportMember> getClickDetailsReports(String linkId) throws Exception {
+		return connection.getCampaignClickDetailsReports(getId(), linkId);
+	}
+	
+	/**
+	 * Get information about a specific subscriber who clicked a link.
+	 * @param campaignId The unique id for the campaign.
+	 * @param linkId The id for the link.
+	 * @param subscriber The member's email address or subscriber hash
+	 * @return Information about a specific subscriber who clicked a link
+	 * @throws Exception
+	 */
+	public ClickReportMember getClickDetailsMemberReport(String campaignId, String linkId, String subscriber) throws Exception {
+		return connection.getCampaignClickDetailsMemberReport(getId(), linkId, subscriber);
+	}
+	
+	/**
+	 * Get statistics for the top-performing domains from a campaign.
+	 * @return Statistics for the top-performing domains from a campaign.
+	 * @throws Exception
+	 */
+	public DomainPerformance getDomainPerformanceReport() throws Exception {
+		return connection.getDomainPerformanceReport(getId());
+	}
+	
+	/**
+	 * Ecommerce product activity report for Campaign
+	 * @param sortField Optional, sort products by this field.
+	 * @return Breakdown of product activity for a campaign.
+	 * @throws Exception
+	 */
+	public Iterable<EcommerceProductActivity> getEcommerceProductActivityReports(EcommerceSortField sortField) throws Exception {
+		return connection.getEcommerceProductActivityReports(getId(), sortField);
+	}
+
+	/**
+	 * Sub report - Sent To - Get information about campaign recipients.
+	 * @return Information about campaign recipients.
+	 * @throws Exception
+	 */
+	public Iterable<ReportSentTo> getSentToReports() throws Exception {
+		return connection.getCampaignSentToReports(getId());
+	}
+
+	/**
+	 * Sent To Recipient report - Get information about a specific campaign recipient.
+	 * @return Information about a specific campaign recipients.
+	 * @throws Exception 
+	 */
+	public ReportSentTo getSentToRecipientReport(String subscriberHash) throws Exception {
+		return connection.getCampaignSentToRecipientReport(getId(), subscriberHash);
+	}
+	
+	/**
+	 * Email Activity report - Get list member activity.
+	 * @return Member activity for a campaign.
+	 */
+	public Iterable<EmailActivity> getEmailActivityReports() {
+		return connection.getCampaignEmailActivityReports(getId());
+	}
+	
+	/**
+	 * Email Activity report - Get member activity.
+	 * @param campaignId The unique id for the campaign.
+	 * @return Member activity for a campaign.
+	 * @throws Exception 
+	 */
+	public EmailActivity getEmailActivityReport(String subscriber) throws Exception {
+		return connection.getCampaignEmailActivityReport(getId(), subscriber);
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(5000);

@@ -2,7 +2,10 @@ package com.github.bananaj.model.report;
 
 import org.json.JSONObject;
 
-public class EcommerceProductActivity {
+import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.model.JSONParser;
+
+public class EcommerceProductActivity implements JSONParser {
 	private String title;
 	private String sku;
 	private String imageUrl;
@@ -12,15 +15,24 @@ public class EcommerceProductActivity {
 	private Integer recommendationTotal;
 	private Integer recommendationPurchased;
 
+	public EcommerceProductActivity() {
+
+	}
+
 	public EcommerceProductActivity(JSONObject jsonObj) {
-		title = jsonObj.getString("title");
-		sku = jsonObj.getString("sku");
-		imageUrl = jsonObj.getString("image_url");
-		totalRevenue = jsonObj.getDouble("total_revenue");
-		totalPurchased = jsonObj.getDouble("total_purchased");
-		currencyCode = jsonObj.getString("currency_code");
-		recommendationTotal = jsonObj.getInt("recommendation_total");
-		recommendationPurchased = jsonObj.getInt("recommendation_purchased");
+		parse(null, jsonObj);
+	}
+
+	@Override
+	public void parse(MailChimpConnection connection, JSONObject entity) {
+		title = entity.getString("title");
+		sku = entity.getString("sku");
+		imageUrl = entity.getString("image_url");
+		totalRevenue = entity.getDouble("total_revenue");
+		totalPurchased = entity.getDouble("total_purchased");
+		currencyCode = entity.getString("currency_code");
+		recommendationTotal = entity.getInt("recommendation_total");
+		recommendationPurchased = entity.getInt("recommendation_purchased");
 	}
 
 	/**

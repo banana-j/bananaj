@@ -22,9 +22,13 @@ import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.exceptions.TransportException;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.list.MailChimpList;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.EmailValidator;
 import com.github.bananaj.utils.MD5;
+import com.github.bananaj.utils.ModelIterator;
+import com.github.bananaj.utils.URLHelper;
 
 
 /**
@@ -32,7 +36,7 @@ import com.github.bananaj.utils.MD5;
  * @author alexanderweiss
  *
  */
-public class Member {
+public class Member implements JSONParser {
 
 	private String id;
 	private String emailAddress;
@@ -92,8 +96,13 @@ public class Member {
 
 	}
 
+//	public static Member newInstance(MailChimpConnection connection, JSONObject member) {
+//		return new Member(connection, member);
+//	}
+	
 	/**
 	 * Parse a JSON representation of a member into this.
+	 * @param connection
 	 * @param member
 	 */
 	public void parse(MailChimpConnection connection, JSONObject member) {
@@ -193,7 +202,7 @@ public class Member {
 		}
 
 		String results = getConnection().do_Put(
-				new URL(connection.getListendpoint() + "/" + getId() + "/members/" + getId()), json.toString(),
+				new URL(connection.getListendpoint() + "/" + getListId() + "/members/" + getId()), json.toString(),
 				connection.getApikey());
 		parse(getConnection(), new JSONObject(results)); // update member object with current data
 	}
@@ -674,13 +683,26 @@ public class Member {
 
 	/**
 	 * @return Returns up to 50 tags applied to this member. To retrieve all tags
-	 *         see {@link #getTags(int, int)} or
+	 *         see {@link #getAllTags()} or
 	 *         {@link com.github.bananaj.model.list.MailChimpList#getMemberTags(String, int, int)}.
 	 */
 	public List<MemberTag> getTags() {
 		return tags;
 	}
 
+	/**
+	 * @return Returns an iterator for all tags applied to this member.
+	 */
+	public Iterable<MemberTag> getAllTags() {
+		if (tags != null && tags.size() < 50) {
+			return tags;	// already have full list so simply return it
+		}
+		
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getListId(),"/members/", 
+				getId(), "/tags");
+		return new ModelIterator<MemberTag>(MemberTag.class, baseURL, getConnection());
+	}
+	
 	/**
 	 * Get the tags for this list member.
 	 * @param count Number of tags to return
@@ -693,7 +715,7 @@ public class Member {
 	 */
 	public List<MemberTag> getTags(int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
 		final JSONObject tagsObj = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint() + "/"
-				+ getId() + "/members/" + subscriberHash(getEmailAddress()) + "/tags" + "?offset=" + offset + "&count=" + count),
+				+ getListId() + "/members/" + getId() + "/tags" + "?offset=" + offset + "&count=" + count),
 				getConnection().getApikey()));
 		// int total_items = tagsObj.getInt("total_items");	// The total number of items matching the query regardless of pagination
 		// matching the query regardless of pagination
@@ -812,7 +834,7 @@ public class Member {
 		JSONObject json = getJsonRepresentation();
 
 		String results = getConnection().do_Patch(
-				new URL(getConnection().getListendpoint() + "/" + getId() + "/members/" + getId()), json.toString(),
+				new URL(getConnection().getListendpoint() + "/" + getListId() + "/members/" + getId()), json.toString(),
 				connection.getApikey());
 		parse(getConnection(), new JSONObject(results)); // update member object with current data
 	}
@@ -881,12 +903,18 @@ public class Member {
 	}
 
 	/**
-	 * Generate mailchimp subscriber hash from email adddress.  
-	 * @param emailAddress
+	 * Convert an email address to a Mailchimp subscriber hash. Member uses an MD5
+	 * hash of the lowercase email address as an identifier. This will generate
+	 * mailchimp subscriber hash from email address. If a subscriber hash is
+	 * provided it will be returned unaltered.
+	 * 
+	 * @param emailAddress An email address or Mailchimp subscriber hash
 	 * @return The MD5 hash of the lowercase version of the email address.
 	 */
 	public static String subscriberHash(String emailAddress) {
-		return MD5.getMD5(emailAddress.toLowerCase());
+		return EmailValidator.getInstance().validate(emailAddress) ? 
+				MD5.getMD5(emailAddress.toLowerCase()) : 
+					emailAddress;
 	}
 
 	public static class Builder {
@@ -894,7 +922,7 @@ public class Member {
 		private String emailAddress;
 		private EmailType emailType;
 		private MemberStatus status;
-		private Map<String, Object> mergeFields = new HashMap<String, Object>();;
+		private Map<String, Object> mergeFields = new HashMap<String, Object>();
 		private Map<String, Boolean> interest = new HashMap<String, Boolean>();
 		private String language;
 		private boolean vip;

@@ -18,9 +18,9 @@ import org.json.JSONObject;
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.exceptions.CampaignSettingsException;
 import com.github.bananaj.exceptions.TransportException;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.ReportSummary;
 import com.github.bananaj.model.Tracking;
-import com.github.bananaj.model.automation.Automation;
 import com.github.bananaj.model.report.Report;
 import com.github.bananaj.utils.DateConverter;
 
@@ -29,7 +29,7 @@ import com.github.bananaj.utils.DateConverter;
  * @author alexanderweiss
  *
  */
-public class Campaign {
+public class Campaign implements JSONParser {
 
 	private MailChimpConnection connection;
 	
@@ -58,6 +58,10 @@ public class Campaign {
 	
 	private CampaignContent content;
 
+	public Campaign() {
+		
+	}
+	
 	public Campaign(MailChimpConnection connection, JSONObject jsonObj) throws Exception {
 		parse(connection, jsonObj);
 	}
@@ -227,7 +231,7 @@ public class Campaign {
 	 */
 	public Report getReport() throws Exception {
 		final JSONObject report = new JSONObject(connection.do_Get(new URL(connection.getReportsendpoint()+"/"+getId()), connection.getApikey()));
-		return new Report(report);
+		return new Report(connection, report);
 	}
 
 	/**
@@ -457,7 +461,7 @@ public class Campaign {
 				(getStatus() != null ? "    Status: " + getStatus().toString() + System.lineSeparator() : "") +
 				"    Content Type: " + getContentType().toString() + System.lineSeparator() +
 				"    Created: " +  DateConverter.toLocalString(getCreateTime()) + System.lineSeparator() +
-				"    Sent: " + (getSendTime()!=null ? DateConverter.toLocalString(getSendTime()) : "") + System.lineSeparator() +
+				"    Sent: " + (getSendTime()!=null ? DateConverter.toLocalString(getSendTime()) : "Draft") + System.lineSeparator() +
 				"    Archive URL: " + getArchiveUrl() + System.lineSeparator() +
 				"    Emails Sent: " + getEmailsSent() + System.lineSeparator() +
 				getSettings().toString() + System.lineSeparator() +

@@ -18,8 +18,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,6 +44,22 @@ public class Connection {
         HttpGet httpget = new HttpGet(url.toURI());
         httpget.addHeader("Authorization", authorization);
         httpclient = HttpClients.createDefault();
+        
+        /*// TODO: Add option to ignore certificate issues for testing (i.e. like curl -k) 
+        try {
+        	// ignore certificate issues
+        	httpclient = HttpClients
+        			.custom()
+        			.setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, TrustAllStrategy.INSTANCE).build())
+        			.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+        			.build();
+        } catch (Exception e) {
+        	logger.error("GET " + url.toString() + " : " + e.getMessage(), e);
+        	System.exit(1);
+        	httpclient = null;
+        }
+        */
+        
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
 
             int responseCode = response.getStatusLine().getStatusCode();

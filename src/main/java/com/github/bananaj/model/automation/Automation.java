@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.Tracking;
 import com.github.bananaj.model.automation.emails.AutomationEmail;
 import com.github.bananaj.utils.DateConverter;
@@ -25,7 +26,7 @@ import com.github.bananaj.utils.DateConverter;
  * @author alexanderweiss
  *
  */
-public class Automation {
+public class Automation implements JSONParser {
 
 	private String id;
 	private ZonedDateTime createTime;
@@ -47,7 +48,7 @@ public class Automation {
 
 	}
 
-	private void parse(MailChimpConnection connection, JSONObject jsonObj) {
+	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
 		id = jsonObj.getString("id");
 		this.connection = connection;
 		createTime = DateConverter.fromISO8601(jsonObj.getString("create_time"));

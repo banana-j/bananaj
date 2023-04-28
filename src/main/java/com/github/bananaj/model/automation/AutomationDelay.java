@@ -127,13 +127,13 @@ public class AutomationDelay {
 	@Override
 	public String toString() {
 		return
-		"Delay:" + System.lineSeparator() +
-		"    Type: " + getType().toString() + System.lineSeparator() +
-		"    Action: " + getAction().toString() + System.lineSeparator() +
-		(getAmount() != null ? "    amount: " + getAmount() + System.lineSeparator() : "") +
-		(getDirection() != null ? "    Direction: " + getDirection().toString() + System.lineSeparator() : "") +
-		(getActionDescription() != null ? "    Action Description: " + getActionDescription() + System.lineSeparator() : "") +
-		(getFullDescription() != null ? "    Full Description: " + getFullDescription() : ""); 
+				"Delay:" + System.lineSeparator() +
+				"    Type: " + getType().toString() + System.lineSeparator() +
+				"    Action: " + getAction().toString() + System.lineSeparator() +
+				(getAmount() != null ? "    amount: " + getAmount() + System.lineSeparator() : "") +
+				(getDirection() != null ? "    Direction: " + getDirection().toString() + System.lineSeparator() : "") +
+				(getActionDescription() != null ? "    Action Description: " + getActionDescription() + System.lineSeparator() : "") +
+				(getFullDescription() != null ? "    Full Description: " + getFullDescription() : ""); 
 	}
 	
 	

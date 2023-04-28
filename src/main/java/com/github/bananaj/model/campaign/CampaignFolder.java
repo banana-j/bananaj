@@ -5,22 +5,27 @@ import java.net.URL;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.model.JSONParser;
 
 /**
  * Created by alexanderweiss on 10.08.2016.
  */
-public class CampaignFolder {
+public class CampaignFolder implements JSONParser {
 
 	private String id;
     private String name;
     private int count;
     private MailChimpConnection connection;
 
+    public CampaignFolder() {
+    	
+    }
+    
     public CampaignFolder(MailChimpConnection connection, JSONObject jsonCampaignFolder) {
         parse(connection, jsonCampaignFolder);
     }
     
-    private void parse(MailChimpConnection connection, JSONObject jsonObj) {
+    public void parse(MailChimpConnection connection, JSONObject jsonObj) {
         id = jsonObj.getString("id");
         this.name = jsonObj.getString("name");
         this.count = jsonObj.getInt("count");

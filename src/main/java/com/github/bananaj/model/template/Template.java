@@ -10,12 +10,13 @@ import java.time.ZonedDateTime;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
 
 /**
  * Mailchimp template.
  */
-public class Template {
+public class Template implements JSONParser {
 
 	private int id;
 	private TemplateType type;
@@ -34,6 +35,10 @@ public class Template {
 	private MailChimpConnection connection;
 	private String html;
 
+	public Template() {
+		
+	}
+	
 	public Template(MailChimpConnection connection, JSONObject jsonTemplate) {
 		parse(connection, jsonTemplate);
 	}

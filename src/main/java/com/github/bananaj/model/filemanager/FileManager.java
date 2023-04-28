@@ -3,6 +3,7 @@ package com.github.bananaj.model.filemanager;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +13,8 @@ import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.utils.FileInspector;
+import com.github.bananaj.utils.ModelIterator;
+import com.github.bananaj.utils.URLHelper;
 
 /**
  * Manage folders and files in the Mailchimp File Manager. The File Manager is a
@@ -30,25 +33,29 @@ public class FileManager {
 	}
 
 	/**
-	 * Get file manager folders in mailchimp account account
-	 * @return List containing the first 100 folders
+	 * Get a iterator of all folders in the File Manager.
+	 * @return folders iterator
 	 * @throws Exception
 	 */
-	public List<FileManagerFolder> getFileManagerFolders() throws Exception {
-		return getFileManagerFolders(100,0);
+	public Iterable<FileManagerFolder> getFolders() throws Exception {
+		return new ModelIterator<FileManagerFolder>(FileManagerFolder.class, getConnection().getFilemanagerfolderendpoint(), getConnection());
 	}
 
 	/**
-	 * Get file manager folders in mailchimp account account with pagination
+	 * Get a paginated list of folders in the File Manager.
 	 * @param count Number of folders to return
 	 * @param offset Zero based offset
 	 * @throws Exception
 	 */
-	public List<FileManagerFolder> getFileManagerFolders(int count, int offset) throws Exception {
+	public List<FileManagerFolder> getFolders(int count, int offset) throws Exception {
+		if (count < 1 || count > 1000) {
+			throw new InvalidParameterException("Page size must be 1-1000");
+		}
+		
 		List<FileManagerFolder> fileManagerFolders = new ArrayList<FileManagerFolder>();
 
-		JSONObject jsonFileManagerFolders = new JSONObject(getConnection().do_Get(new URL(getConnection().getFilemanagerfolderendpoint() 
-				+ "?offset=" + offset + "&count=" + count), connection.getApikey()));
+		JSONObject jsonFileManagerFolders = new JSONObject(getConnection().do_Get(URLHelper.url(getConnection().getFilemanagerfolderendpoint(),
+				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)), connection.getApikey()));
 		JSONArray folderArray = jsonFileManagerFolders.getJSONArray("folders");
 		//int total_items = jsonFileManagerFolders.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
 		for( int i = 0; i< folderArray.length();i++)
@@ -64,8 +71,8 @@ public class FileManager {
 	 * Get a specific file manager folder in mailchimp account account
 	 * @throws Exception
 	 */
-	public FileManagerFolder getFileManagerFolder(int id) throws Exception {
-		JSONObject jsonFileManagerFolder = new JSONObject(getConnection().do_Get(new URL(getConnection().getFilemanagerfolderendpoint()+"/"+id),connection.getApikey()));
+	public FileManagerFolder getFolder(int id) throws Exception {
+		JSONObject jsonFileManagerFolder = new JSONObject(getConnection().do_Get(URLHelper.url(getConnection().getFilemanagerfolderendpoint(),"/",Integer.toString(id)),connection.getApikey()));
 		return new FileManagerFolder(getConnection(), jsonFileManagerFolder);
 	}
 
@@ -74,7 +81,7 @@ public class FileManager {
 	 * @param name The name of the folder
 	 * @throws Exception
 	 */
-	public FileManagerFolder createFileManagerFolder(String name) throws Exception {
+	public FileManagerFolder createFolder(String name) throws Exception {
 		JSONObject newFolder  = new JSONObject();
 		newFolder.put("name", name);
 		JSONObject jsonFileManagerFolder = new JSONObject(getConnection().do_Post(new URL(getConnection().getFilemanagerfolderendpoint()), newFolder.toString(), getConnection().getApikey()));
@@ -82,27 +89,30 @@ public class FileManager {
 	}
 
 	/**
-	 * Get files in your account
-	 * @return List containing the first 100 files
+	 * Get a iterator of available images and files stored in the File Manager for the account.
+	 * @return file manager file iterator
 	 * @throws Exception
-	 * @deprecated
 	 */
-	public List<FileManagerFile> getFileManagerFiles() throws Exception{
-		return getFileManagerFiles(100,0);
+	public Iterable<FileManagerFile> getFiles() throws Exception{
+		return new ModelIterator<FileManagerFile>(FileManagerFile.class, getConnection().getFilesendpoint(), getConnection());
 	}
 
 	/**
-	 * Get files in your account with pagination
+	 * Get a paginated list of available images and files stored in the File Manager for the account.
 	 * @param count Number of lists to return. Maximum value is 1000.
 	 * @param offset Zero based offset
 	 * @throws Exception
 	 */
-	public List<FileManagerFile> getFileManagerFiles(int count, int offset) throws Exception{
+	public List<FileManagerFile> getFiles(int count, int offset) throws Exception{
+		if (count < 1 || count > 1000) {
+			throw new InvalidParameterException("Page size must be 1-1000");
+		}
+
 		List<FileManagerFile> files = new ArrayList<FileManagerFile>();
 
 		// parse response
-		JSONObject jsonFileManagerFiles = new JSONObject(getConnection().do_Get(new URL(getConnection().getFilesendpoint() 
-				+ "?offset=" + offset + "&count=" + count),getConnection().getApikey()));
+		JSONObject jsonFileManagerFiles = new JSONObject(getConnection().do_Get(URLHelper.url(getConnection().getFilesendpoint(),
+				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)),getConnection().getApikey()));
 		JSONArray filesArray = jsonFileManagerFiles.getJSONArray("files");
 		//double total_file_size = jsonFileManagerFiles.getDouble("total_file_size"); 	// The total size of all File Manager files in bytes.
 		//int total_items = jsonFileManagerFiles.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
@@ -119,9 +129,9 @@ public class FileManager {
 	 * Get all files in your account
 	 * @throws Exception
 	 */
-	public FileManagerFile getFileManagerFile(int id) throws Exception {
+	public FileManagerFile getFile(int id) throws Exception {
 		// parse response
-		JSONObject jsonFileManagerFile = new JSONObject(getConnection().do_Get(new URL(getConnection().getFilesendpoint()+"/"+id), getConnection().getApikey()));
+		JSONObject jsonFileManagerFile = new JSONObject(getConnection().do_Get(URLHelper.url(getConnection().getFilesendpoint(),"/",Integer.toString(id)), getConnection().getApikey()));
 		return new FileManagerFile(getConnection(), jsonFileManagerFile);
 	}
 
@@ -169,7 +179,7 @@ public class FileManager {
 	 * @throws Exception
 	 */
 	public void deleteFile(String fileID) throws Exception{
-		connection.do_Delete(new URL(connection.getFilesendpoint()+"/"+fileID),connection.getApikey());
+		connection.do_Delete(URLHelper.url(connection.getFilesendpoint(),"/",fileID),connection.getApikey());
 	}
 
 	/**
@@ -178,7 +188,7 @@ public class FileManager {
 	 * @throws Exception
 	 */
 	public void deleteFolder(String folderID) throws Exception{
-		getConnection().do_Delete(new URL(getConnection().getFilemanagerfolderendpoint()+"/"+folderID), getConnection().getApikey());
+		getConnection().do_Delete(URLHelper.url(getConnection().getFilemanagerfolderendpoint(),"/",folderID), getConnection().getApikey());
 	}
 
 	public MailChimpConnection getConnection() {

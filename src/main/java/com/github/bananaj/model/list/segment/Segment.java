@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.exceptions.SegmentException;
 import com.github.bananaj.exceptions.TransportException;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.list.member.Member;
 import com.github.bananaj.utils.DateConverter;
 
@@ -22,7 +23,7 @@ import com.github.bananaj.utils.DateConverter;
  * 
  * Created by alexanderweiss on 04.02.16.
  */
-public class Segment {
+public class Segment implements JSONParser {
 
 	private int id;
     private String name;
@@ -34,6 +35,10 @@ public class Segment {
     private String listId;
     private MailChimpConnection connection;
 
+    public Segment() {
+    	
+    }
+    
 	/**
 	 * Construct class given a Mailchimp JSON object
 	 * @param connection
@@ -54,7 +59,12 @@ public class Segment {
         this.connection = b.connection;
     }
 
-	private void parse(MailChimpConnection connection, JSONObject jsonObj) {
+    /**
+	 * Parse a JSON representation of segment into this.
+	 * @param connection 
+	 * @param jsonObj
+     */
+	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
         this.connection = connection;
 		
         id = jsonObj.getInt("id");

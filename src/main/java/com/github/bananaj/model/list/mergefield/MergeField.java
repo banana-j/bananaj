@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.exceptions.TransportException;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.list.interests.Interest;
 
 /**
@@ -15,7 +16,7 @@ import com.github.bananaj.model.list.interests.Interest;
  * 
  * Created by Alexander on 09.08.2016.
  */
-public class MergeField {
+public class MergeField implements JSONParser {
 
 	private MailChimpConnection connection;
 	private Integer id;
@@ -30,6 +31,10 @@ public class MergeField {
 	private String helpText;
 	private String listId;
 
+	public MergeField() {
+		
+	}
+	
 	public MergeField(MailChimpConnection connection, JSONObject jsonObj) {
 		parse(connection, jsonObj);
 	}

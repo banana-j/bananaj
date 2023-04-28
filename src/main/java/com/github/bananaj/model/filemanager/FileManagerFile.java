@@ -11,6 +11,7 @@ import java.time.ZonedDateTime;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
 
 /**
@@ -18,7 +19,7 @@ import com.github.bananaj.utils.DateConverter;
  * Created by alexanderweiss on 22.01.16.
  * TODO change methods are not working
  */
-public class FileManagerFile {
+public class FileManagerFile implements JSONParser {
 
 	private int id;
 	private int folderId;
@@ -35,13 +36,20 @@ public class FileManagerFile {
 
 	private static final int BUFFER_SIZE = 4096;
 
+	public FileManagerFile() {
+		
+	}
+	
 	public FileManagerFile(MailChimpConnection connection, JSONObject jsonObj) {
 		parse(connection, jsonObj);
 	}
 
-	public FileManagerFile (Builder b){
+	public FileManagerFile (Builder b) {
+		id = b.id;
 		name = b.name;
 		id = b.folderId;
+		fullSizeUrl = b.fullSizeUrl;
+		thumbnailUrl = b.thumbnailUrl;
 	}
 
 	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
@@ -239,20 +247,31 @@ public class FileManagerFile {
 	@Override
 	public String toString(){
 		return 
-				"ID: " + getId() +
-				" Name: " + getName() + 
-				" Type: " + getType().toString() + 
-				(getType() == FileType.IMAGE ?  
+				"Name: " + getName() + System.lineSeparator() +
+				"    ID: " + getId() + System.lineSeparator() +
+				"    Size: " + getSize() + System.lineSeparator() +
+				"    Type: " + getType().toString() +  (getType() == FileType.IMAGE ?  
 					" Width: " + getWidth()+"px " + 
-					" Height: "+ getHeight()+"px" : "" ) +
-				" Folder-Id: " + getId() +
-				" Created: " + DateConverter.toLocalString(getCreatedAt());
+					" Height: "+ getHeight()+"px" : "" ) + System.lineSeparator() +
+				"    Folder-Id: " + getId() + System.lineSeparator() +
+				"    Created: " + DateConverter.toLocalString(getCreatedAt()) + System.lineSeparator() +
+				"    Created by: " + getCreatedBy() + System.lineSeparator() +
+				"    URL: " + getFullSizeUrl() + System.lineSeparator() +
+				"    Thumbnail: " + getThumbnailUrl();
 	}
 
 
 	public static class Builder {
+		private int id;
 		private String name;
 		private int folderId;
+		private String fullSizeUrl;
+		private String thumbnailUrl;
+
+		public FileManagerFile.Builder id(int id) {
+			this.id = id;
+			return this;
+		}
 
 		public FileManagerFile.Builder name(String name) {
 			this.name = name;
@@ -261,6 +280,16 @@ public class FileManagerFile {
 
 		public FileManagerFile.Builder folder(int folderId) {
 			this.folderId = folderId;
+			return this;
+		}
+
+		public FileManagerFile.Builder fullSizeUrl(String fullSizeUrl) {
+			this.fullSizeUrl = fullSizeUrl;
+			return this;
+		}
+
+		public FileManagerFile.Builder thumbnailUrl(String thumbnailUrl) {
+			this.thumbnailUrl = thumbnailUrl;
 			return this;
 		}
 
