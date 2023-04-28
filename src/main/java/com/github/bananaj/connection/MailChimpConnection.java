@@ -37,6 +37,7 @@ import com.github.bananaj.model.report.ClickReportMember;
 import com.github.bananaj.model.report.DomainPerformance;
 import com.github.bananaj.model.report.EcommerceProductActivity;
 import com.github.bananaj.model.report.EcommerceSortField;
+import com.github.bananaj.model.report.EmailActivity;
 import com.github.bananaj.model.report.OpenReport;
 import com.github.bananaj.model.report.Report;
 import com.github.bananaj.model.report.ReportSentTo;
@@ -538,8 +539,8 @@ public class MailChimpConnection extends Connection {
 	 * @return Abuse complaints for a campaign
 	 */
 	public Iterable<AbuseReport>  getCampaignAbuseReports(String campaignId) {
-		String query = getReportsendpoint()+"/"+campaignId+"/abuse-reports";
-		return new ModelIterator<AbuseReport>(AbuseReport.class, query, this);
+		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/abuse-reports");
+		return new ModelIterator<AbuseReport>(AbuseReport.class, baseURL, this);
 	}
 
 	/**
@@ -574,8 +575,8 @@ public class MailChimpConnection extends Connection {
 	 * @return Recent feedback based on a campaign's statistics.
 	 */
 	public Iterable<AdviceReport> getCampaignAdviceReports(String campaignId) {
-		String query = getReportsendpoint()+"/"+campaignId+"/advice";
-		return new ModelIterator<AdviceReport>(AdviceReport.class, query, this);
+		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/advice");
+		return new ModelIterator<AdviceReport>(AdviceReport.class, baseURL, this);
 	}
 	
 	/**
@@ -668,7 +669,7 @@ public class MailChimpConnection extends Connection {
 	 * @return Information about subscribers who clicked a link
 	 * @throws Exception
 	 */
-	public Iterable<ClickReportMember> getCampaignClickReportMembers(String campaignId, String linkId) throws Exception {
+	public Iterable<ClickReportMember> getCampaignClickDetailsReports(String campaignId, String linkId) throws Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details/", linkId, "/members");
 		return new ModelIterator<ClickReportMember>(ClickReportMember.class, baseURL, this);
 	}
@@ -684,7 +685,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws TransportException
 	 * @throws URISyntaxException
 	 */
-	public ClickReportMember getCampaignClickReportMember(String campaignId, String linkId, String subscriber) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+	public ClickReportMember getCampaignClickDetailsMemberReport(String campaignId, String linkId, String subscriber) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
 		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/click-details/", linkId, "/members/", Member.subscriberHash(subscriber));
 		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
 		ClickReportMember report = new ClickReportMember(jsonReport);
@@ -755,8 +756,8 @@ public class MailChimpConnection extends Connection {
 	 * @return Information about campaign recipients.
 	 */
 	public Iterable<ReportSentTo> getCampaignSentToReports(String campaignId) {
-		String query = getReportsendpoint()+"/"+campaignId+"/sent-to";
-		return new ModelIterator<ReportSentTo>(ReportSentTo.class, query, this);
+		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/sent-to");
+		return new ModelIterator<ReportSentTo>(ReportSentTo.class, baseURL, this);
 	}
 	
 	/**
@@ -765,15 +766,36 @@ public class MailChimpConnection extends Connection {
 	 * @return Information about a specific campaign recipients.
 	 * @throws Exception 
 	 */
-	public ReportSentTo getCampaignSentToRecipientReport(String campaignId, String subscriberHash) throws Exception {
-		URL url = URLHelper.url(getReportsendpoint()+"/"+campaignId+"/sent-to/" + subscriberHash);
+	public ReportSentTo getCampaignSentToRecipientReport(String campaignId, String subscriber) throws Exception {
+		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/sent-to/", Member.subscriberHash(subscriber));
 		JSONObject jsonRpt = new JSONObject(do_Get(url, getApikey()));
 		ReportSentTo rpt = new ReportSentTo(jsonRpt);
 		return rpt;
 	}
 
-	// TODO: Report - Email Activity - Get list member activity for a specific campaign.
-	// TODO: Report - Email Activity - Get list member activity for a specific campaign and subscriber.
+	/**
+	 * Email Activity report - Get list member activity for a campaign.
+	 * @param campaignId The unique id for the campaign.
+	 * @return Member activity for a campaign.
+	 */
+	public Iterable<EmailActivity> getCampaignEmailActivityReports(String campaignId) {
+		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/email-activity");
+		return new ModelIterator<EmailActivity>(EmailActivity.class, baseURL, this);
+	}
+	
+	/**
+	 * Email Activity report - Get member activity for a campaign.
+	 * @param campaignId The unique id for the campaign.
+	 * @return Member activity for a campaign.
+	 * @throws Exception 
+	 */
+	public EmailActivity getCampaignEmailActivityReport(String campaignId, String subscriber) throws Exception {
+		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/email-activity/", Member.subscriberHash(subscriber));
+		JSONObject jsonRpt = new JSONObject(do_Get(url, getApikey()));
+		EmailActivity rpt = new EmailActivity(jsonRpt);
+		return rpt;
+	}
+	
 	// TODO: Report - Location - Get top open locations for a specific campaign.
 	// TODO: Report - Sub-Reports- A list of reports for child campaigns of a specific parent campaign. For example, use this endpoint to view Multivariate, RSS, and A/B Testing Campaign reports.
 	// TODO: Report - Unsubscribes - Get information about list members who unsubscribed from a specific campaign.

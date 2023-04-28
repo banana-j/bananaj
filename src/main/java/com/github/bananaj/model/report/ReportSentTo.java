@@ -21,19 +21,18 @@ import com.github.bananaj.utils.DateConverter;
  */
 public class ReportSentTo implements JSONParser {
 
+    private String campaignId;
+    private String listId;
+    private boolean listIsActive;
 	private String emailId;
 	private String emailAddress;
 	private Map<String, Object> mergeFields;
 	private boolean vip;
-    // private MemberStatus status;
     private String status;
     private int openCount;
     private ZonedDateTime lastOpen;
     private String abSplitGroup;
     private int gmtOffset;
-    private String campaignId;
-    private String listId;
-    private boolean listIsActive;
 	
 	public ReportSentTo() {
 
@@ -45,6 +44,9 @@ public class ReportSentTo implements JSONParser {
 
 	@Override
 	public void parse(MailChimpConnection connection, JSONObject entity) {
+		campaignId = entity.getString("campaign_id");
+		listId = entity.getString("list_id");
+		listIsActive = entity.getBoolean("list_is_active");
 		emailId = entity.getString("email_id");
 		emailAddress = entity.getString("email_address");
 		
@@ -57,7 +59,6 @@ public class ReportSentTo implements JSONParser {
 		}
 		
 		vip = entity.getBoolean("vip");
-		//status = MemberStatus.valueOf(entity.getString("status").toUpperCase());
 		status = entity.getString("status");
 		openCount = entity.getInt("open_count");
 		if (entity.has("last_open")) {
@@ -65,9 +66,6 @@ public class ReportSentTo implements JSONParser {
 		}
 		abSplitGroup = entity.getString("absplit_group");
 		gmtOffset = entity.getInt("gmt_offset");
-		campaignId = entity.getString("campaign_id");
-		listId = entity.getString("list_id");
-		listIsActive = entity.getBoolean("list_is_active");
 	}
 
 	public String getEmailId() {

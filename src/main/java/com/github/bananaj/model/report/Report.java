@@ -356,8 +356,8 @@ public class Report implements JSONParser {
 	 * @return Information about subscribers who clicked a link
 	 * @throws Exception
 	 */
-	public Iterable<ClickReportMember> getCampaignClickReportMembers(String linkId) throws Exception {
-		return connection.getCampaignClickReportMembers(getId(), linkId);
+	public Iterable<ClickReportMember> getClickDetailsReports(String linkId) throws Exception {
+		return connection.getCampaignClickDetailsReports(getId(), linkId);
 	}
 	
 	/**
@@ -368,8 +368,8 @@ public class Report implements JSONParser {
 	 * @return Information about a specific subscriber who clicked a link
 	 * @throws Exception
 	 */
-	public ClickReportMember getClickReportMember(String campaignId, String linkId, String subscriber) throws Exception {
-		return connection.getCampaignClickReportMember(getId(), linkId, subscriber);
+	public ClickReportMember getClickDetailsMemberReport(String campaignId, String linkId, String subscriber) throws Exception {
+		return connection.getCampaignClickDetailsMemberReport(getId(), linkId, subscriber);
 	}
 	
 	/**
@@ -409,7 +409,23 @@ public class Report implements JSONParser {
 		return connection.getCampaignSentToRecipientReport(getId(), subscriberHash);
 	}
 	
-	// TODO:  add all sub-reports
+	/**
+	 * Email Activity report - Get list member activity.
+	 * @return Member activity for a campaign.
+	 */
+	public Iterable<EmailActivity> getEmailActivityReports() {
+		return connection.getCampaignEmailActivityReports(getId());
+	}
+	
+	/**
+	 * Email Activity report - Get member activity.
+	 * @param campaignId The unique id for the campaign.
+	 * @return Member activity for a campaign.
+	 * @throws Exception 
+	 */
+	public EmailActivity getEmailActivityReport(String subscriber) throws Exception {
+		return connection.getCampaignEmailActivityReport(getId(), subscriber);
+	}
 	
 	@Override
 	public String toString() {
