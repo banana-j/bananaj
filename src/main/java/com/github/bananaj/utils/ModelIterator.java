@@ -44,6 +44,15 @@ public class ModelIterator<T extends JSONParser> implements Iterable<T> {
 		readPagedEntities();
 	}
 
+	public ModelIterator(Class<T> typeClasse, String query, MailChimpConnection connection, int pageSize, int pageNumber) {
+		this.typeClasse = typeClasse;
+		this.connection = connection;
+		this.query = query;
+		this.pagesize = pagesize > 1000 ? 1000 : (pagesize < 1 ? 1 : pagesize);
+		this.offset = pageSize * pageNumber;
+		readPagedEntities();
+	}
+
 	private void readPagedEntities() {
 		try {
 			URL url = new URL(query + (query.contains("?") ? "&" : "?") + "count="+pagesize + "&offset="+offset);

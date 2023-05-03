@@ -362,13 +362,12 @@ public class Report implements JSONParser {
 	
 	/**
 	 * Get information about a specific subscriber who clicked a link.
-	 * @param campaignId The unique id for the campaign.
 	 * @param linkId The id for the link.
 	 * @param subscriber The member's email address or subscriber hash
 	 * @return Information about a specific subscriber who clicked a link
 	 * @throws Exception
 	 */
-	public ClickReportMember getClickDetailsMemberReport(String campaignId, String linkId, String subscriber) throws Exception {
+	public ClickReportMember getClickDetailsMemberReport(String linkId, String subscriber) throws Exception {
 		return connection.getCampaignClickDetailsMemberReport(getId(), linkId, subscriber);
 	}
 	
@@ -418,7 +417,7 @@ public class Report implements JSONParser {
 	}
 	
 	/**
-	 * Email Activity report - Get member activity.
+	 * Email Activity report - Get a specific list member's activity in a campaign including opens, clicks, and bounces.
 	 * @param campaignId The unique id for the campaign.
 	 * @return Member activity for a campaign.
 	 * @throws Exception 
