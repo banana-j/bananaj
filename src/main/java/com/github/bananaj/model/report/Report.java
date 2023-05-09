@@ -356,8 +356,8 @@ public class Report implements JSONParser {
 	 * @return Information about subscribers who clicked a link
 	 * @throws Exception
 	 */
-	public Iterable<ClickReportMember> getClickDetailsReports(String linkId) throws Exception {
-		return connection.getCampaignClickDetailsReports(getId(), linkId);
+	public Iterable<ClickReportMember> getMembersClickReports(String linkId) throws Exception {
+		return connection.getCampaignMembersClickReports(getId(), linkId);
 	}
 	
 	/**
@@ -367,8 +367,8 @@ public class Report implements JSONParser {
 	 * @return Information about a specific subscriber who clicked a link
 	 * @throws Exception
 	 */
-	public ClickReportMember getClickDetailsMemberReport(String linkId, String subscriber) throws Exception {
-		return connection.getCampaignClickDetailsMemberReport(getId(), linkId, subscriber);
+	public ClickReportMember getMembersClickReport(String linkId, String subscriber) throws Exception {
+		return connection.getCampaignMembersClickReport(getId(), linkId, subscriber);
 	}
 	
 	/**

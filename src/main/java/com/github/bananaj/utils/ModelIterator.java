@@ -22,11 +22,17 @@ public class ModelIterator<T extends JSONParser> implements Iterable<T> {
 	protected Queue<T> q = new LinkedList<T>();
 	private String query;
 	private int offset = 0;
-	private int pagesize = 1000;
+	private int pagesize = 100;
 	private Class<T> typeClasse;
 	protected Integer totalItems;
 	private int currentIndex = 0;
 	
+	/**
+	 * 
+	 * @param typeClasse
+	 * @param query
+	 * @param connection
+	 */
 	public ModelIterator(Class<T> typeClasse, String query, MailChimpConnection connection) {
 		this.typeClasse = typeClasse;
 		this.connection = connection;
@@ -36,6 +42,13 @@ public class ModelIterator<T extends JSONParser> implements Iterable<T> {
 		}
 	}
 
+	/**
+	 * Create iterator with a specified fetch or page size
+	 * @param typeClasse
+	 * @param query
+	 * @param connection
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 */
 	public ModelIterator(Class<T> typeClasse, String query, MailChimpConnection connection, int pageSize) {
 		this.typeClasse = typeClasse;
 		this.connection = connection;
@@ -44,6 +57,14 @@ public class ModelIterator<T extends JSONParser> implements Iterable<T> {
 		readPagedEntities();
 	}
 
+	/**
+	 * Create iterator with a specified page size and starting page number
+	 * @param typeClasse
+	 * @param query
+	 * @param connection
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
+	 */
 	public ModelIterator(Class<T> typeClasse, String query, MailChimpConnection connection, int pageSize, int pageNumber) {
 		this.typeClasse = typeClasse;
 		this.connection = connection;

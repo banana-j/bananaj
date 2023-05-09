@@ -1,12 +1,10 @@
 package com.github.bananaj.connection;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.security.InvalidParameterException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +47,6 @@ import com.github.bananaj.utils.URLHelper;
 
 /**
  * Class for the com.github.bananaj.connection to mailchimp servers. Used to get lists from mailchimp account.
- * @author alexanderweiss
  *
  */
 public class MailChimpConnection extends Connection {
@@ -103,41 +100,27 @@ public class MailChimpConnection extends Connection {
 	 * @return List/audience iterator
 	 */
 	public Iterable<MailChimpList> getLists() {
-		return new ModelIterator<MailChimpList>(MailChimpList.class, listendpoint, this, 500);
+		return new ModelIterator<MailChimpList>(MailChimpList.class, listendpoint, this);
 	}
 
 	/**
 	 * Get List/Audience in your account with pagination
-	 * @param count Number of lists to return. Maximum value is 1000.
-	 * @param offset Zero based offset
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
 	 * @return List containing Mailchimp lists
+	 * @throws TransportException
 	 * @throws Exception
 	 */
-	public List<MailChimpList> getLists(int count, int offset) throws Exception{
-		List<MailChimpList> mailChimpLists = new ArrayList<MailChimpList>();
-		// parse response
-		JSONObject jsonLists = new JSONObject(do_Get(URLHelper.url(listendpoint, 
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)),getApikey()));
-		JSONArray listsArray = jsonLists.getJSONArray("lists");
-		for( int i = 0; i< listsArray.length();i++)
-		{
-			JSONObject jsonList = listsArray.getJSONObject(i);
-			MailChimpList mailChimpList = new MailChimpList(this,jsonList);
-			mailChimpLists.add(mailChimpList);
-		}
-		return mailChimpLists;
+	public Iterable<MailChimpList> getLists(int pageSize, int pageNumber) throws TransportException, Exception {
+		return new ModelIterator<MailChimpList>(MailChimpList.class, listendpoint, this, pageSize, pageNumber);
 	}
 	
 	/**
 	 * Get a specific mailchimp List/Audience
 	 * @return a Mailchimp list object
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
 	 * @throws Exception
 	 */
-	public MailChimpList getList(String listID) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	public MailChimpList getList(String listID) throws Exception {
 		JSONObject jsonList = new JSONObject(do_Get(URLHelper.url(listendpoint,"/",listID),getApikey()));
 		return new MailChimpList(this, jsonList);
 	}
@@ -180,29 +163,18 @@ public class MailChimpConnection extends Connection {
      * Get campaign folders iterator from MailChimp
      * @return campaign folder iterator
      */
-    public Iterable<CampaignFolder> getCampaignFolders() throws Exception{
+    public Iterable<CampaignFolder> getCampaignFolders() throws Exception {
 		return new ModelIterator<CampaignFolder>(CampaignFolder.class, campaignfolderendpoint, this);
     }
 
     /**
      * Get campaign folders from MailChimp with pagination
-     * @param count Number of campaign folders to return. Maximum value is 1000.
-     * @param offset Zero based offset
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
      * @return List containing the campaign folders
      */
-    public List<CampaignFolder> getCampaignFolders(int count, int offset) throws Exception{
-    	List<CampaignFolder> campaignFolders = new ArrayList<>();
-    	JSONObject campaignFoldersResponse = new JSONObject(do_Get(URLHelper.url(campaignfolderendpoint, 
-    			"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)), getApikey()));
-
-    	JSONArray campaignFoldersJSON = campaignFoldersResponse.getJSONArray("folders");
-
-    	for(int i = 0 ; i < campaignFoldersJSON.length(); i++){
-    		JSONObject campaignFolderJSON = campaignFoldersJSON.getJSONObject(i);
-    		CampaignFolder campaignFolder = new CampaignFolder(this, campaignFolderJSON);
-    		campaignFolders.add(campaignFolder);
-    	}
-    	return campaignFolders;
+    public Iterable<CampaignFolder> getCampaignFolders(int pageSize, int pageNumber) throws Exception {
+		return new ModelIterator<CampaignFolder>(CampaignFolder.class, campaignfolderendpoint, this, pageSize, pageNumber);
     }
 
     /**
@@ -249,27 +221,13 @@ public class MailChimpConnection extends Connection {
 
     /**
      * Get campaigns from mailchimp account with pagination
-     * @param count Number of campaigns to return. Maximum value is 1000.
-     * @param offset Zero based offset
+     * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+     * @param pageNumber First page number to fetch starting from 0.
      * @return List containing campaigns
      * @throws Exception
      */
-    public List<Campaign> getCampaigns(int count, int offset) throws Exception {
-		if (count < 1 || count > 1000) {
-			throw new InvalidParameterException("Page size must be 1-1000");
-		}
-    	// parse response
-    	JSONObject jsonCampaigns = new JSONObject(do_Get(URLHelper.url(campaignendpoint, 
-    			"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)),getApikey()));
-    	JSONArray campaignsArray = jsonCampaigns.getJSONArray("campaigns");
-    	List<Campaign> campaigns = new ArrayList<Campaign>(campaignsArray.length());
-    	for( int i = 0; i< campaignsArray.length();i++)
-    	{
-    		JSONObject campaignDetail = campaignsArray.getJSONObject(i);
-    		Campaign campaign = new Campaign(this, campaignDetail);
-    		campaigns.add(campaign);
-    	}
-    	return campaigns;
+    public Iterable<Campaign> getCampaigns(int pageSize, int pageNumber) throws Exception {
+		return new ModelIterator<Campaign>(Campaign.class, campaignendpoint, this, pageSize, pageNumber);
     }
 
 	/**
@@ -289,7 +247,7 @@ public class MailChimpConnection extends Connection {
 	 * @param mailChimpList
 	 * @param settings
 	 */
-	public Campaign createCampaign(CampaignType type, MailChimpList mailChimpList, CampaignSettings settings) throws Exception{
+	public Campaign createCampaign(CampaignType type, MailChimpList mailChimpList, CampaignSettings settings) throws Exception {
 		
 		JSONObject campaign = new JSONObject();
 		
@@ -326,26 +284,22 @@ public class MailChimpConnection extends Connection {
 	 * @param campaignID
 	 * @throws Exception
 	 */
-	public void deleteCampaign(String campaignID) throws Exception{
+	public void deleteCampaign(String campaignID) throws Exception {
 		do_Delete(URLHelper.url(campaignendpoint,"/",campaignID),getApikey());
 	}
 
 	/**
-	 * Get feedback about a campaign
+	 * Get Post comments, reply to team feedback, and send test emails while you're working together on a Mailchimp campaign.
 	 * @param campaignID
 	 * @return
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
 	 * @throws Exception
 	 */
-	public List<CampaignFeedback> getCampaignFeedback(String campaignID) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		List<CampaignFeedback> feedback = new ArrayList<CampaignFeedback>();
+	public List<CampaignFeedback> getCampaignFeedback(String campaignID) throws Exception {
 		JSONObject campaignFeedback = new JSONObject(do_Get(URLHelper.url(getCampaignendpoint(),"/",campaignID,"/feedback"),getApikey()));
-		
 		JSONArray feedbackArray = campaignFeedback.getJSONArray("feedback");
-		for( int i = 0; i< feedbackArray.length();i++)
+		List<CampaignFeedback> feedback = new ArrayList<CampaignFeedback>(feedbackArray.length());
+		
+		for( int i = 0; i< feedbackArray.length(); i++)
 		{
 			JSONObject jsonObj = feedbackArray.getJSONObject(i);
 			CampaignFeedback f = new CampaignFeedback(this, jsonObj);
@@ -359,12 +313,9 @@ public class MailChimpConnection extends Connection {
 	 * Get a specific feedback about a campaign
 	 * @param campaignID
 	 * @param feedbackId
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
+	 * @throws Exception 
 	 */
-	public CampaignFeedback getCampaignFeedback(String campaignID, String feedbackId) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	public CampaignFeedback getCampaignFeedback(String campaignID, String feedbackId) throws Exception {
 		JSONObject jsonObj = new JSONObject(do_Get(URLHelper.url(getCampaignendpoint(),"/",campaignID,"/feedback/",feedbackId),getApikey()));
 		CampaignFeedback feedback = new CampaignFeedback(this, jsonObj);
 		return feedback;
@@ -374,12 +325,9 @@ public class MailChimpConnection extends Connection {
 	 * Add campaign feedback
 	 * @param campaignID
 	 * @param message
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
+	 * @throws Exception 
 	 */
-	CampaignFeedback createCampaignFeedback(String campaignID, String message) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	CampaignFeedback createCampaignFeedback(String campaignID, String message) throws Exception {
 		CampaignFeedback feedback = new CampaignFeedback.Builder()
 				.connection(this)
 				.campaignId(campaignID)
@@ -394,11 +342,9 @@ public class MailChimpConnection extends Connection {
 	/**
 	 * Get the send checklist for a campaign. Review the send checklist for your campaign, and resolve any issues before sending.
 	 * @param campaignID
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws Exception 
 	 */
-	CampaignSendChecklist getCampaignSendChecklist(String campaignID) throws MalformedURLException, TransportException, URISyntaxException {
+	CampaignSendChecklist getCampaignSendChecklist(String campaignID) throws Exception {
 		String results = do_Get(URLHelper.url(getCampaignendpoint(),"/",campaignID,"/send-checklist"), getApikey());
 		return new CampaignSendChecklist(new JSONObject(results));
 	}
@@ -408,12 +354,9 @@ public class MailChimpConnection extends Connection {
 	 * 
 	 * @param campaignId
 	 * @return Report for the specified campaign. 
-	 * @throws JSONException
-	 * @throws TransportException
-	 * @throws URISyntaxException
-	 * @throws MalformedURLException
+	 * @throws Exception
 	 */
-	public Report getCampaignReport(String campaignId) throws JSONException, TransportException, URISyntaxException, MalformedURLException {
+	public Report getCampaignReport(String campaignId) throws Exception {
 		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId);
 		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
     	return new Report(this, jsonReport);
@@ -421,35 +364,30 @@ public class MailChimpConnection extends Connection {
 	
 	/**
 	 * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
-	 * @param count Number of reports to return. Maximum value is 1000.
-	 * @param offset Zero based offset
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param campaignType Optional, restrict the response by campaign type. Possible values: regular, plaintext, absplit, rss, or variate.
 	 * @param beforeSendTime Optional, restrict the response to campaigns sent before the set time.
 	 * @param sinceSendTime Optional, restrict the response to campaigns sent after the set time.
 	 * @return Campaign reports meeting the specified criteria.
-	 * @throws JSONException
-	 * @throws TransportException
-	 * @throws URISyntaxException
-	 * @throws MalformedURLException
-	 * @throws UnsupportedEncodingException 
+	 * @throws Exception
 	 */
-	public List<Report> getCampaignReports(int count, int offset, CampaignType campaignType, ZonedDateTime beforeSendTime, ZonedDateTime sinceSendTime) throws JSONException, TransportException, URISyntaxException, MalformedURLException, UnsupportedEncodingException {
-		URL url = URLHelper.url(getReportsendpoint(), 
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count),
-				(campaignType!=null ? "&type=" + campaignType.toString() : ""),
-				(beforeSendTime!=null ? "&"+"before_send_time=" + URLEncoder.encode(DateConverter.toISO8601UTC(beforeSendTime), "UTF-8") : ""),
-				(sinceSendTime!=null ? "&"+"since_send_time=" + URLEncoder.encode(DateConverter.toISO8601UTC(sinceSendTime), "UTF-8") : "") );
-		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
-		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
-    	JSONArray reportsArray = jsonReports.getJSONArray("reports");
-    	List<Report> reports = new ArrayList<Report>(reportsArray.length());
-    	for( int i = 0; i< reportsArray.length();i++)
-    	{
-    		JSONObject reportDetail = reportsArray.getJSONObject(i);
-    		Report report = new Report(this, reportDetail);
-    		reports.add(report);
-    	}
-    	return reports;
+	public Iterable<Report> getCampaignReports(int pageSize, int pageNumber, CampaignType campaignType, ZonedDateTime beforeSendTime, ZonedDateTime sinceSendTime) throws Exception {
+		boolean firstSep = true;
+		StringBuilder baseURL = new StringBuilder(getReportsendpoint());
+		if (campaignType!=null) {
+			baseURL.append("?type=").append(campaignType.toString());
+			firstSep = false;
+		}
+		if (beforeSendTime!=null) {
+			baseURL.append(firstSep ? "?" :"&").append("before_send_time=").append(URLEncoder.encode(DateConverter.toISO8601UTC(beforeSendTime), "UTF-8"));
+			firstSep = false;
+		}
+		if (sinceSendTime!=null) { 
+			baseURL.append(firstSep ? "?" :"&").append("since_send_time=").append(URLEncoder.encode(DateConverter.toISO8601UTC(sinceSendTime), "UTF-8"));
+			firstSep = false;
+		}
+		return new ModelIterator<Report>(Report.class, baseURL.toString(), this, pageSize, pageNumber);
 	}
 	
 	/**
@@ -491,43 +429,36 @@ public class MailChimpConnection extends Connection {
 	
 
 	/**
-	 * 
-	 * @param count Number of reports to return. Maximum value is 1000.
-	 * @param offset Zero based offset
+	 * Get information about campaign abuse complaints.
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param campaignId The unique id for the campaign.
 	 * @return Abuse complaints for a campaign
-	 * @throws MalformedURLException 
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws JSONException 
+	 * @throws Exception 
 	 */
-	public List<AbuseReport>  getCampaignAbuseReports(int count, int offset, String campaignId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
-		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/abuse-reports",
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count));
-		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
-		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
-    	JSONArray reportsArray = jsonReports.getJSONArray("abuse_reports");
-    	List<AbuseReport> reports = new ArrayList<AbuseReport>(reportsArray.length());
-    	for( int i = 0; i< reportsArray.length();i++)
-    	{
-    		JSONObject reportDetail = reportsArray.getJSONObject(i);
-    		AbuseReport report = new AbuseReport(reportDetail);
-    		reports.add(report);
-    	}
-    	return reports;
+	public Iterable<AbuseReport>  getCampaignAbuseReports(int pageSize, int pageNumber, String campaignId) throws Exception {
+		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/abuse-reports");
+		return new ModelIterator<AbuseReport>(AbuseReport.class, baseURL, this, pageSize, pageNumber);
 	}
-	
+
+	/**
+	 * Get information about campaign abuse complaints.
+	 * @return Abuse complaints for a campaign
+	 * @throws Exception 
+	 */
+	public Iterable<AbuseReport>  getCampaignAbuseReports(String campaignId) throws Exception {
+		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/abuse-reports");
+		return new ModelIterator<AbuseReport>(AbuseReport.class, baseURL, this);
+	}
+
 	/**
 	 * Get information about a specific abuse report for a campaign.
 	 * @param campaignId The unique id for the campaign.
 	 * @param reportId The id for the abuse report.
 	 * @return Information about a specific abuse report
-	 * @throws MalformedURLException 
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws JSONException 
+	 * @throws Exception 
 	 */
-	public AbuseReport  getCampaignAbuseReport(String campaignId, int reportId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+	public AbuseReport  getCampaignAbuseReport(String campaignId, int reportId) throws Exception {
 		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/abuse-reports/", Integer.toString(reportId));
 		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
 		AbuseReport report = new AbuseReport(jsonReport);
@@ -535,27 +466,13 @@ public class MailChimpConnection extends Connection {
 	}
 	
 	/**
-	 * 
-	 * @return Abuse complaints for a campaign
-	 */
-	public Iterable<AbuseReport>  getCampaignAbuseReports(String campaignId) {
-		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/abuse-reports");
-		return new ModelIterator<AbuseReport>(AbuseReport.class, baseURL, this);
-	}
-
-	/**
 	 * Get recent feedback based on a campaign's statistics.
 	 * @param campaignId The unique id for the campaign.
 	 * @return Recent feedback based on a campaign's statistics.
-	 * @throws JSONException
-	 * @throws TransportException
-	 * @throws URISyntaxException
-	 * @throws MalformedURLException
-	 * @throws UnsupportedEncodingException
+	 * @throws Exception
 	 */
-	public List<AdviceReport> getCampaignAdviceReports(int count, int offset, String campaignId) throws JSONException, TransportException, URISyntaxException, MalformedURLException, UnsupportedEncodingException {
-		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/advice",
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count));
+	public List<AdviceReport> getCampaignAdviceReports(String campaignId) throws Exception {
+		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/advice");
 		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
 		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
     	JSONArray reportsArray = jsonReports.getJSONArray("advice");
@@ -570,40 +487,16 @@ public class MailChimpConnection extends Connection {
 	}
 	
 	/**
-	 * Get recent feedback based on a campaign's statistics.
-	 * @param campaignId The unique id for the campaign.
-	 * @return Recent feedback based on a campaign's statistics.
-	 */
-	public Iterable<AdviceReport> getCampaignAdviceReports(String campaignId) {
-		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/advice");
-		return new ModelIterator<AdviceReport>(AdviceReport.class, baseURL, this);
-	}
-	
-	/**
 	 * Get detailed information about links clicked in campaigns.
-	 * @param count Number of reports to return. Maximum value is 1000.
-	 * @param offset Zero based offset
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param campaignId The unique id for the campaign.
 	 * @return Campaign click details
-	 * @throws MalformedURLException
-	 * @throws JSONException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws Exception
 	 */
-	public List<ClickReport> getCampaignClickReports(int count, int offset, String campaignId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
-		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/click-details",
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count));
-		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
-		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
-    	JSONArray reportsArray = jsonReports.getJSONArray("urls_clicked");
-    	List<ClickReport> reports = new ArrayList<ClickReport>(reportsArray.length());
-    	for( int i = 0; i< reportsArray.length();i++)
-    	{
-    		JSONObject reportDetail = reportsArray.getJSONObject(i);
-    		ClickReport report = new ClickReport(reportDetail);
-    		reports.add(report);
-    	}
-    	return reports;
+	public Iterable<ClickReport> getCampaignClickReports(int pageSize, int pageNumber, String campaignId) throws Exception {
+		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details");
+		return new ModelIterator<ClickReport>(ClickReport.class, baseURL, this, pageSize, pageNumber);
 	}
 	
 	/**
@@ -614,7 +507,7 @@ public class MailChimpConnection extends Connection {
 	 */
 	public Iterable<ClickReport> getCampaignClickReports(String campaignId) throws Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details");
-		return new ModelIterator<ClickReport>(ClickReport.class, baseURL, this);
+		return new ModelIterator<ClickReport>(ClickReport.class, baseURL, this,500);
 	}
 	
 	/**
@@ -622,12 +515,9 @@ public class MailChimpConnection extends Connection {
 	 * @param campaignId The unique id for the campaign.
 	 * @param linkId The id for the link.
 	 * @return Click details for a specific link.
-	 * @throws MalformedURLException
-	 * @throws JSONException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws Exception
 	 */
-	public ClickReport getCampaignClickReport(String campaignId, String linkId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+	public ClickReport getCampaignClickReport(String campaignId, String linkId) throws Exception {
 		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/click-details/", linkId);
 		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
 		ClickReport report = new ClickReport(jsonReport);
@@ -636,30 +526,16 @@ public class MailChimpConnection extends Connection {
 	
 	/**
 	 * Get information about subscribers who clicked a link.
-	 * @param count Number of reports to return. Maximum value is 1000.
-	 * @param offset Zero based offset
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param campaignId The unique id for the campaign.
 	 * @param linkId The id for the link.
 	 * @return Information about subscribers who clicked a link
-	 * @throws MalformedURLException
-	 * @throws JSONException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws Exception
 	 */
-	public List<ClickReportMember> getCampaignClickReportMembers(int count, int offset, String campaignId, String linkId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
-		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/click-details/", linkId, "/members",
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count));
-		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
-		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
-    	JSONArray reportsArray = jsonReports.getJSONArray("members");
-    	List<ClickReportMember> reports = new ArrayList<ClickReportMember>(reportsArray.length());
-    	for( int i = 0; i< reportsArray.length();i++)
-    	{
-    		JSONObject reportDetail = reportsArray.getJSONObject(i);
-    		ClickReportMember report = new ClickReportMember(reportDetail);
-    		reports.add(report);
-    	}
-    	return reports;
+	public Iterable<ClickReportMember> getCampaignMembersClickReports(int pageSize, int pageNumber, String campaignId, String linkId) throws Exception {
+		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details/", linkId, "/members");
+		return new ModelIterator<ClickReportMember>(ClickReportMember.class, baseURL, this, pageSize, pageNumber);
 	}
 	
 	/**
@@ -669,9 +545,9 @@ public class MailChimpConnection extends Connection {
 	 * @return Information about subscribers who clicked a link
 	 * @throws Exception
 	 */
-	public Iterable<ClickReportMember> getCampaignClickDetailsReports(String campaignId, String linkId) throws Exception {
+	public Iterable<ClickReportMember> getCampaignMembersClickReports(String campaignId, String linkId) throws Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details/", linkId, "/members");
-		return new ModelIterator<ClickReportMember>(ClickReportMember.class, baseURL, this);
+		return new ModelIterator<ClickReportMember>(ClickReportMember.class, baseURL, this,500);
 	}
 	
 	/**
@@ -680,12 +556,9 @@ public class MailChimpConnection extends Connection {
 	 * @param linkId The id for the link.
 	 * @param subscriber The member's email address or subscriber hash
 	 * @return Information about a specific subscriber who clicked a link
-	 * @throws MalformedURLException
-	 * @throws JSONException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws Exception
 	 */
-	public ClickReportMember getCampaignClickDetailsMemberReport(String campaignId, String linkId, String subscriber) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+	public ClickReportMember getCampaignMembersClickReport(String campaignId, String linkId, String subscriber) throws Exception {
 		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/click-details/", linkId, "/members/", Member.subscriberHash(subscriber));
 		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
 		ClickReportMember report = new ClickReportMember(jsonReport);
@@ -696,12 +569,9 @@ public class MailChimpConnection extends Connection {
 	 * Get statistics for the top-performing domains from a campaign.
 	 * @param campaignId The unique id for the campaign.
 	 * @return Statistics for the top-performing domains from a campaign.
-	 * @throws MalformedURLException
-	 * @throws JSONException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws Exception
 	 */
-	public DomainPerformance getDomainPerformanceReport(String campaignId) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
+	public DomainPerformance getDomainPerformanceReport(String campaignId) throws Exception {
 		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/domain-performance");
 		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
 		DomainPerformance report = new DomainPerformance(jsonReport);
@@ -710,31 +580,17 @@ public class MailChimpConnection extends Connection {
 	
 	/**
 	 * Ecommerce product activity report for Campaign
-	 * @param count Number of reports to return. Maximum value is 1000.
-	 * @param offset Zero based offset
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param campaignId The unique id for the campaign.
 	 * @param sortField Optional, sort products by this field.
 	 * @return Breakdown of product activity for a campaign.
-	 * @throws MalformedURLException
-	 * @throws JSONException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws Exception
 	 */
-	public List<EcommerceProductActivity> getEcommerceProductActivityReports(int count, int offset, String campaignId, EcommerceSortField sortField) throws MalformedURLException, JSONException, TransportException, URISyntaxException {
-		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/ecommerce-product-activity",
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count), 
-				"&sort_field=", (sortField != null ? sortField.toString() : EcommerceSortField.TITLE.toString()));
-		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
-		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
-    	JSONArray reportsArray = jsonReports.getJSONArray("products");
-    	List<EcommerceProductActivity> reports = new ArrayList<EcommerceProductActivity>(reportsArray.length());
-    	for( int i = 0; i< reportsArray.length();i++)
-    	{
-    		JSONObject reportDetail = reportsArray.getJSONObject(i);
-    		EcommerceProductActivity report = new EcommerceProductActivity(reportDetail);
-    		reports.add(report);
-    	}
-    	return reports;
+	public Iterable<EcommerceProductActivity> getEcommerceProductActivityReports(int pageSize, int pageNumber, String campaignId, EcommerceSortField sortField) throws Exception {
+		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/ecommerce-product-activity",
+				"?sort_field=", (sortField != null ? sortField.toString() : EcommerceSortField.TITLE.toString()));
+		return new ModelIterator<EcommerceProductActivity>(EcommerceProductActivity.class, baseURL, this, pageSize, pageNumber);
 	}
 	
 	/**
@@ -750,6 +606,18 @@ public class MailChimpConnection extends Connection {
 		return new ModelIterator<EcommerceProductActivity>(EcommerceProductActivity.class, baseURL, this);
 	}
 
+	/**
+	 * Sent To report - Get information about campaign recipients.
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
+	 * @param campaignId The unique id for the campaign.
+	 * @return Information about campaign recipients.
+	 */
+	public Iterable<ReportSentTo> getCampaignSentToReports(int pageSize, int pageNumber, String campaignId) {
+		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/sent-to");
+		return new ModelIterator<ReportSentTo>(ReportSentTo.class, baseURL, this, pageSize, pageNumber);
+	}
+	
 	/**
 	 * Sent To report - Get information about campaign recipients.
 	 * @param campaignId The unique id for the campaign.
@@ -775,6 +643,18 @@ public class MailChimpConnection extends Connection {
 
 	/**
 	 * Email Activity report - Get list member activity for a campaign.
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
+	 * @param campaignId The unique id for the campaign.
+	 * @return Member activity for a campaign.
+	 */
+	public Iterable<EmailActivity> getCampaignEmailActivityReports(int pageSize, int pageNumber, String campaignId) {
+		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/email-activity");
+		return new ModelIterator<EmailActivity>(EmailActivity.class, baseURL, this, pageSize, pageNumber);
+	}
+	
+	/**
+	 * Email Activity report - Get list member activity for a campaign.
 	 * @param campaignId The unique id for the campaign.
 	 * @return Member activity for a campaign.
 	 */
@@ -784,7 +664,7 @@ public class MailChimpConnection extends Connection {
 	}
 	
 	/**
-	 * Email Activity report - Get member activity for a campaign.
+	 * Email Activity report - Get a specific list member's activity in a campaign including opens, clicks, and bounces.
 	 * @param campaignId The unique id for the campaign.
 	 * @return Member activity for a campaign.
 	 * @throws Exception 
@@ -806,34 +686,24 @@ public class MailChimpConnection extends Connection {
      * @return template folder iterator
      */
 	public Iterable<TemplateFolder> getTemplateFolders() throws Exception {
-		return new ModelIterator<TemplateFolder>(TemplateFolder.class, templatefolderendpoint, this, 500);
+		return new ModelIterator<TemplateFolder>(TemplateFolder.class, templatefolderendpoint, this);
 	}
 
     /**
      * Get template folders from MailChimp with pagination
-	 * @param count Number of templates to return. Maximum value is 1000.
-	 * @param offset Zero based offset
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
      * @return List of template folders
      */
-	public List<TemplateFolder> getTemplateFolders(int count, int offset) throws Exception{
-        List<TemplateFolder> templateFolders = new ArrayList<>();
-        JSONObject templateFoldersResponse = new JSONObject(do_Get(URLHelper.url(templatefolderendpoint, 
-        		"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)), getApikey()));
-		//int total_items = templateFoldersResponse.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
-        JSONArray templateFoldersJSON = templateFoldersResponse.getJSONArray("folders");
-
-        for(int i = 0 ; i < templateFoldersJSON.length(); i++){
-            TemplateFolder templateFolder = new TemplateFolder(this, templateFoldersJSON.getJSONObject(i));
-            templateFolders.add(templateFolder);
-        }
-        return templateFolders;
+	public Iterable<TemplateFolder> getTemplateFolders(int pageSize, int pageNumber) throws Exception {
+		return new ModelIterator<TemplateFolder>(TemplateFolder.class, templatefolderendpoint, this, pageSize, pageNumber);
 	}
 
     /**
      * Get a specific template folder
      * @param folder_id
      */
-    public TemplateFolder getTemplateFolder(String folder_id) throws Exception{
+    public TemplateFolder getTemplateFolder(String folder_id) throws Exception {
 
         JSONObject jsonTemplateFolder = new JSONObject(do_Get(URLHelper.url(templatefolderendpoint,"/",folder_id), getApikey()));
         return new TemplateFolder(this, jsonTemplateFolder);
@@ -843,7 +713,7 @@ public class MailChimpConnection extends Connection {
      * Add a template folder with a specific name
      * @param name
      */
-    public TemplateFolder createTemplateFolder(String name) throws Exception{
+    public TemplateFolder createTemplateFolder(String name) throws Exception {
         JSONObject templateFolder = new JSONObject();
         templateFolder.put("name", name);
         JSONObject jsonTemplateFolder = new JSONObject(do_Post(new URL(templatefolderendpoint), templateFolder.toString(), getApikey()));
@@ -854,7 +724,7 @@ public class MailChimpConnection extends Connection {
      * Delete a specific template folder
      * @param folder_id
      */
-    public void deleteTemplateFolder(String folder_id) throws Exception{
+    public void deleteTemplateFolder(String folder_id) throws Exception {
         do_Delete(URLHelper.url(templatefolderendpoint,"/",folder_id), getApikey());
     }
 
@@ -863,29 +733,19 @@ public class MailChimpConnection extends Connection {
 	 * @return templates iterator
 	 * @throws Exception
 	 */
-	public Iterable<Template> getTemplates() throws Exception{
+	public Iterable<Template> getTemplates() throws Exception {
 		return new ModelIterator<Template>(Template.class, templateendpoint, this, 500);
 	}
 
 	/**
 	 * Get templates from mailchimp account with pagination
-	 * @param count Number of templates to return. Maximum value is 1000.
-	 * @param offset Zero based offset
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
 	 * @return list of templates
 	 * @throws Exception
 	 */
-	public List<Template> getTemplates(int count, int offset) throws Exception{
-		List<Template> templates = new ArrayList<Template>();
-
-		JSONObject jsonTemplates = new JSONObject(do_Get(URLHelper.url(templateendpoint, 
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)),getApikey()));
-		JSONArray templatesArray = jsonTemplates.getJSONArray("templates");
-		for( int i = 0; i< templatesArray.length();i++)
-		{
-			Template template = new Template(this, templatesArray.getJSONObject(i));
-			templates.add(template);
-		}
-		return templates;
+	public Iterable<Template> getTemplates(int pageSize, int pageNumber) throws Exception {
+		return new ModelIterator<Template>(Template.class, templateendpoint, this, pageSize, pageNumber);
 	}
 
 	/**
@@ -894,7 +754,7 @@ public class MailChimpConnection extends Connection {
 	 * @return a template object
 	 * @throws Exception
 	 */
-	public Template getTemplate(String id) throws Exception{
+	public Template getTemplate(String id) throws Exception {
 		JSONObject jsonTemplate = new JSONObject(do_Get(URLHelper.url(templateendpoint,"/",id),getApikey()));
 		return new Template(this, jsonTemplate);
 	}
@@ -951,39 +811,40 @@ public class MailChimpConnection extends Connection {
 	}
 
 	/**
-	 * Get an Automations iterator
+	 * Get a summary of an account's classic automations.
+	 * Mailchimp's classic automations feature lets you build a series of emails that 
+	 * send to subscribers when triggered by a specific date, activity, or event. Use 
+	 * the API to manage Automation workflows, emails, and queues. Does not include 
+	 * Customer Journeys.
+	 * 
 	 * @return automations iterator
 	 * @throws Exception
 	 */
-	public Iterable<Automation> getAutomations() throws Exception{
+	public Iterable<Automation> getAutomations() throws Exception {
 		return new ModelIterator<Automation>(Automation.class, automationendpoint, this);
 	}
 	
 	/**
-	 * Get a list of Automations with pagination
-	 * @param count Number of templates to return. Maximum value is 1000.
-	 * @param offset Zero based offset
-	 * @return List containing automations
+	 * Get a summary of an account's classic automations with pagination
+	 * Mailchimp's classic automations feature lets you build a series of emails that 
+	 * send to subscribers when triggered by a specific date, activity, or event. Use 
+	 * the API to manage Automation workflows, emails, and queues. Does not include 
+	 * Customer Journeys.
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
+	 * @return automations iterator starting at the given page number
 	 * @throws Exception
 	 */
-	public List<Automation> getAutomations(int count, int offset) throws Exception {
-		List<Automation> automations = new ArrayList<Automation>();
-
-		JSONObject jsonAutomations = new JSONObject(do_Get(URLHelper.url(automationendpoint, 
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)),getApikey()));
-		//int total_items = jsonAutomations.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
-		JSONArray automationsArray = jsonAutomations.getJSONArray("automations");
-		for( int i = 0; i< automationsArray.length();i++)
-		{
-			JSONObject automationDetail = automationsArray.getJSONObject(i);
-			Automation automation = new Automation(this, automationDetail);
-			automations.add(automation);
-		}
-		return automations;
+	public Iterable<Automation> getAutomations(int pageSize, int pageNumber) throws Exception {
+		return new ModelIterator<Automation>(Automation.class, automationendpoint, this, pageSize, pageNumber);
 	}
 	
 	/**
-	 * Get information about a specific Automation workflow
+	 * Get information about a specific Automation workflow.
+	 * Mailchimp's classic automations feature lets you build a series of emails that 
+	 * send to subscribers when triggered by a specific date, activity, or event. Use 
+	 * the API to manage Automation workflows, emails, and queues. Does not include 
+	 * Customer Journeys.
 	 * @param workflowId The unique id for the Automation workflow
 	 * @return an Automation object
 	 * @throws Exception
@@ -1050,25 +911,15 @@ public class MailChimpConnection extends Connection {
 	
 	/**
 	 * Get a list of automated emails in a workflow with pagination
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param workflowId The unique id for the Automation workflow
-	 * @param count Number of emails to return. Maximum value is 1000.
-	 * @param offset Zero based offset
 	 * @return List containing automation emails
 	 * @throws Exception
 	 */
-	public List<AutomationEmail> getAutomationEmails(String workflowId, int count, int offset) throws Exception {
-		List<AutomationEmail> emails = new ArrayList<AutomationEmail>();
-		JSONObject jsonObj = new JSONObject(do_Get(URLHelper.url(automationendpoint, "/", workflowId, "/emails", 
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)), getApikey()));
-		//int total_items = jsonAutomations.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
-		JSONArray emailsArray = jsonObj.getJSONArray("emails");
-		for( int i = 0; i< emailsArray.length();i++)
-		{
-			JSONObject emailDetail = emailsArray.getJSONObject(i);
-			AutomationEmail autoEmail = new AutomationEmail(this, emailDetail);
-			emails.add(autoEmail);
-		}
-		return emails;
+	public Iterable<AutomationEmail> getAutomationEmails(int pageSize, int pageNumber, String workflowId) throws Exception {
+		final String baseURL = URLHelper.join(automationendpoint, "/", workflowId, "/emails");
+		return new ModelIterator<AutomationEmail>(AutomationEmail.class, baseURL, this, pageSize, pageNumber);
 	}
 	
 	/**
