@@ -1,20 +1,18 @@
 package com.github.bananaj.model.list.segment;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
+import java.io.IOException;
 import java.net.URL;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.exceptions.SegmentException;
-import com.github.bananaj.exceptions.TransportException;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.list.member.Member;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.ModelIterator;
+import com.github.bananaj.utils.URLHelper;
 
 /**
  * Manage segments and tags for a Mailchimp list. A segment is a section of your
@@ -85,9 +83,10 @@ public class Segment implements JSONParser {
     /**
      * Add a member to this segment, only STATIC segments allowed
      * @param member
-     * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
      */
-    public void addMember(Member member) throws Exception {
+    public void addMember(Member member) throws IOException, Exception {
         if (!this.getType().equals(SegmentType.STATIC)){
             throw new SegmentException();
         }
@@ -97,39 +96,34 @@ public class Segment implements JSONParser {
     }
 
     /**
-     * Get all members in this list
-     * @param count x first members
-     * @param offset skip x first members
-     * @throws Exception
+     * Get members in this list
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
+	 * @throws IOException
+	 * @throws Exception 
      */
-    public ArrayList<Member> getMembers(int count, int offset) throws Exception {
+    public Iterable<Member> getMembers(int pageSize, int pageNumber) throws IOException, Exception {
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(), "/", this.getListId(), "/segments/", Integer.toString(this.getId()), "/members");
+		return new ModelIterator<Member>(Member.class, baseURL, getConnection(), pageSize, pageNumber);
+    }
 
-        ArrayList<Member> members = new ArrayList<Member>();
-        final JSONObject list;
-        if(count != 0){
-            list = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+this.getListId()+"/segments/"+this.getId()+"/members?count="+count+"&offset="+offset),connection.getApikey()));
-        } else {
-            list = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+this.getListId()+"/segments/"+this.getId()+"/members?count="+this.getMemberCount()+"&offset="+offset),connection.getApikey()));
-        }
-
-        final JSONArray membersArray = list.getJSONArray("members");
-
-
-        for (int i = 0 ; i < membersArray.length();i++)
-        {
-            final JSONObject memberDetail = membersArray.getJSONObject(i);
-            Member member = new Member(connection, memberDetail);
-            members.add(member);
-        }
-        return members;
+    /**
+     * Get members in this list
+	 * @throws IOException
+	 * @throws Exception 
+     */
+    public Iterable<Member> getMembers() throws IOException, Exception {
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(), "/", this.getListId(), "/segments/", Integer.toString(this.getId()), "/members");
+		return new ModelIterator<Member>(Member.class, baseURL, getConnection());
     }
 
     /**
      * Remove a member from this segment, only STATIC segments allowed
      * @param member
-     * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
      */
-    public void removeMember(Member member) throws Exception {
+    public void removeMember(Member member) throws IOException, Exception {
         if (!this.getType().equals(SegmentType.STATIC)) {
             throw new SegmentException();
         }
@@ -139,9 +133,10 @@ public class Segment implements JSONParser {
     /**
      * Update a segment with a local segment
      * @param updatedSegment
-     * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
      */
-    public void update(Segment updatedSegment) throws Exception {
+    public void update(Segment updatedSegment) throws IOException, Exception {
     	connection.do_Patch(new URL(connection.getListendpoint()+"/"+this.getListId()+"/segments/"+this.getId()),updatedSegment.getJSONRepresentation().toString(),connection.getApikey());
     }
 
@@ -247,11 +242,10 @@ public class Segment implements JSONParser {
 	 *                        emails to be used for a static segment. Any emails
 	 *                        provided that are not present on the list will be
 	 *                        ignored.
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void updateMembers(String [] membersToAdd, String [] membersToRemove) throws MalformedURLException, TransportException, URISyntaxException {
+	public void updateMembers(String [] membersToAdd, String [] membersToRemove) throws IOException, Exception {
 		JSONObject json = new JSONObject();
 		if (membersToAdd != null) {
 			json.put("members_to_add", membersToAdd);
@@ -266,11 +260,10 @@ public class Segment implements JSONParser {
 	/**
 	 * Update segment via a PATCH operation. Member fields will be freshened.
 	 * @param emails An array of emails to be used for a static segment. Any emails provided that are not present on the list will be ignored. Passing an empty array for an existing static segment will reset that segment and remove all members. This field cannot be provided with the options field.
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void updateMembers(String [] emails) throws MalformedURLException, TransportException, URISyntaxException {
+	public void updateMembers(String [] emails) throws IOException, Exception {
 		JSONObject json = new JSONObject();
 		json.put("name", getName());
 		json.put("static_segment", emails);
@@ -280,21 +273,19 @@ public class Segment implements JSONParser {
 	
 	/**
 	 * Delete the segment
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void delete() throws MalformedURLException, TransportException, URISyntaxException {
+	public void delete() throws IOException, Exception {
 		connection.do_Delete(new URL(connection.getListendpoint()+"/"+getListId()+"/segments/"+getId()), connection.getApikey());
 	}
 	
 	/**
 	 * Update segment via a PATCH operation. Member fields will be freshened.
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void update() throws MalformedURLException, TransportException, URISyntaxException {
+	public void update() throws IOException, Exception {
 		String results = connection.do_Patch(new URL(connection.getListendpoint()+"/"+getListId()+"/segments/"+getId()), getJSONRepresentation().toString(), connection.getApikey());
 		parse(connection, new JSONObject(results));  // update this object with current data
 	}

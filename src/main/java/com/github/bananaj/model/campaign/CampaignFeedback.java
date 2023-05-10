@@ -1,5 +1,6 @@
 package com.github.bananaj.model.campaign;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -9,7 +10,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
-import com.github.bananaj.exceptions.TransportException;
 import com.github.bananaj.utils.DateConverter;
 
 /**
@@ -67,12 +67,10 @@ public class CampaignFeedback {
 	
 	/**
 	 * Add campaign feedback
-	 * @throws JSONException
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void create() throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	public void create() throws IOException, Exception {
 		JSONObject jsonFeedback = getJsonRepresentation();
 		JSONObject jsonObj = new JSONObject(connection.do_Post(new URL(connection.getCampaignendpoint()+"/"+getCampaignId()+"/feedback"), jsonFeedback.toString(), connection.getApikey()));
 		parse(connection, jsonObj);
@@ -80,12 +78,10 @@ public class CampaignFeedback {
 	
 	/**
 	 * Update a campaign feedback message
-	 * @throws JSONException
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void update() throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	public void update() throws IOException, Exception {
 		JSONObject jsonFeedback = getJsonRepresentation();
 		JSONObject jsonObj = new JSONObject(connection.do_Patch(new URL(connection.getCampaignendpoint()+"/"+getCampaignId()+"/feedback/"+getFeedbackId()), jsonFeedback.toString(), connection.getApikey()));
 		parse(connection, jsonObj);
@@ -93,11 +89,10 @@ public class CampaignFeedback {
 	
 	/**
 	 * Delete a campaign feedback message
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void delete() throws MalformedURLException, TransportException, URISyntaxException {
+	public void delete() throws IOException, Exception {
 		connection.do_Delete(new URL(connection.getCampaignendpoint()+"/"+getCampaignId()+"/feedback/"+getFeedbackId()),connection.getApikey());
 	}
 	

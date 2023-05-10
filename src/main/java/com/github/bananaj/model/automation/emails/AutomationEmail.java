@@ -1,5 +1,6 @@
 package com.github.bananaj.model.automation.emails;
 
+import java.io.IOException;
 import java.net.URL;
 import java.time.ZonedDateTime;
 
@@ -70,19 +71,14 @@ public class AutomationEmail implements JSONParser {
 	}
 
 	/**
-	 * 
-	 * @deprecated
+	 * List automated email subscribers
 	 */
-	public AutomationSubscriberQueue getSubscriberQueue() throws Exception {
-		return getSubscriberQueue(100, 0);
-	}
-	
-	public AutomationSubscriberQueue getSubscriberQueue(int count, int offset) throws Exception {
-		JSONObject jsonObj = new JSONObject(connection.do_Get(new URL(connection.getAutomationendpoint() + "/" + workflowId + "/emails/" + getId() + "/queue" + "?offset=" + offset + "&count=" + count), connection.getApikey()));
+	public AutomationSubscriberQueue getSubscriberQueue() throws IOException, Exception {
+		JSONObject jsonObj = new JSONObject(connection.do_Get(new URL(connection.getAutomationendpoint() + "/" + workflowId + "/emails/" + getId() + "/queue"), connection.getApikey()));
 		return new AutomationSubscriberQueue(connection, jsonObj);
 	}
 	
-	public AutomationSubscriber getSubscriber(String subscriberHash) throws Exception {
+	public AutomationSubscriber getSubscriber(String subscriberHash) throws IOException, Exception {
 		JSONObject jsonObj = new JSONObject(connection.do_Get(new URL(connection.getAutomationendpoint() + "/" + workflowId + "/emails/" + getId() + "/queue/" + subscriberHash), connection.getApikey()));
 		return new AutomationSubscriber(jsonObj);
 	}
@@ -96,20 +92,20 @@ public class AutomationEmail implements JSONParser {
 	 * @param emailAddress The list member’s email address
 	 * @throws Exception
 	 */
-	public void addSubscriber(String emailAddress) throws Exception {
+	public void addSubscriber(String emailAddress) throws IOException, Exception {
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("email_address", emailAddress);
 		connection.do_Post(new URL(connection.getAutomationendpoint() + "/" + workflowId + "/emails/" + getId() + "/queue"), jsonObj.toString(), connection.getApikey());
 		// Note: MailChimp documents this as returning an AutomationSubscriber but in practice it returns nothing
 	}
 	
-	public void update() throws Exception {
+	public void update() throws IOException, Exception {
 		JSONObject json = getJsonRepresentation();
 		String results = connection.do_Patch(new URL(connection.getAutomationendpoint() + "/" + workflowId + "/emails/" + getId()), json.toString(), connection.getApikey());
 		parse(connection, new JSONObject(results));
 	}
 	
-	public void delete() throws Exception {
+	public void delete() throws IOException, Exception {
 		connection.do_Delete(new URL(connection.getAutomationendpoint() + "/" + workflowId + "/emails/" + getId()), connection.getApikey());
 	}
 	

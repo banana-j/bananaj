@@ -4,12 +4,10 @@
  */
 package com.github.bananaj.model.automation;
 
+import java.io.IOException;
 import java.net.URL;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
@@ -17,6 +15,8 @@ import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.Tracking;
 import com.github.bananaj.model.automation.emails.AutomationEmail;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.ModelIterator;
+import com.github.bananaj.utils.URLHelper;
 
 /**
  * Mailchimp’s Automation feature lets you build a series of emails that
@@ -68,65 +68,61 @@ public class Automation implements JSONParser {
 
 	/**
 	 * 	Pause all emails in an Automation workflow
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void pauseAllEmails() throws Exception {
+	public void pauseAllEmails() throws IOException, Exception {
 		getConnection().do_Post(new URL(connection.getAutomationendpoint() +"/"+getId()+"/actions/pause-all-emails"), connection.getApikey());
 	}
 
 	/**
 	 * Start all emails in an Automation workflow
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void startAllEmails() throws Exception {
+	public void startAllEmails() throws IOException, Exception {
 		getConnection().do_Post(new URL(connection.getAutomationendpoint() +"/"+getId()+"/actions/start-all-emails"), connection.getApikey());
 	}
 
 	/**
-	 * Get a list of automated emails in a workflow
-	 * @return List containing the first 100 emails
+	 * Get a summary of the emails in a classic automation workflow.
+	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public List<AutomationEmail> getEmails() throws Exception {
-		return getEmails(100, 0);
+	public Iterable<AutomationEmail> getEmails() throws IOException, Exception {
+		final String baseURL = URLHelper.join(connection.getAutomationendpoint(), "/", getId(), "/emails");
+		return new ModelIterator<AutomationEmail>(AutomationEmail.class, baseURL, connection);
 	}
 
 	/**
-	 * Get a list of automated emails in a workflow with pagination
-	 * @param count Number of emails to return
-	 * @param offset Zero based offset
-	 * @return List containing automation emails
-	 * @throws Exception
+	 * Get a summary of the emails in a classic automation workflow.
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public List<AutomationEmail> getEmails(int count, int offset) throws Exception {
-		List<AutomationEmail> emails = new ArrayList<AutomationEmail>();
-		JSONObject jsonObj = new JSONObject(connection.do_Get(new URL(connection.getAutomationendpoint() + "/" + getId() + "/emails" + "?offset=" + offset + "&count=" + count), connection.getApikey()));
-		//int total_items = jsonAutomations.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
-		JSONArray emailsArray = jsonObj.getJSONArray("emails");
-		for( int i = 0; i< emailsArray.length();i++)
-		{
-			JSONObject emailDetail = emailsArray.getJSONObject(i);
-			AutomationEmail autoEmail = new AutomationEmail(connection, emailDetail);
-			emails.add(autoEmail);
-		}
-		return emails;
+	public Iterable<AutomationEmail> getEmails(int pageSize, int pageNumber) throws IOException, Exception {
+		final String baseURL = URLHelper.join(connection.getAutomationendpoint(), "/", getId(), "/emails");
+		return new ModelIterator<AutomationEmail>(AutomationEmail.class, baseURL, connection, pageSize, pageNumber);
 	}
 
 	/**
 	 * Get information about a specific workflow email
 	 * @param workflowEmailId
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public AutomationEmail getEmail(String workflowEmailId) throws Exception {
+	public AutomationEmail getEmail(String workflowEmailId) throws IOException, Exception {
 		JSONObject jsonObj = new JSONObject(connection.do_Get(new URL(connection.getAutomationendpoint() + "/" + getId() + "/emails/" + workflowEmailId), connection.getApikey()));
 		return new AutomationEmail(connection, jsonObj);
 	}
 
 	/**
 	 * Update Automation
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void update(AutomationDelay delay) throws Exception {
+	public void update(AutomationDelay delay) throws IOException, Exception {
 		JSONObject json = getJsonRepresentation();
 		if (delay != null) {
 			json.put("delay", delay.getJsonRepresentation());

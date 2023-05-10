@@ -1,5 +1,6 @@
 package com.github.bananaj.model.list.interests;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -7,7 +8,6 @@ import java.net.URL;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
-import com.github.bananaj.exceptions.TransportException;
 import com.github.bananaj.model.JSONParser;
 
 /**
@@ -143,10 +143,10 @@ public class Interest implements JSONParser {
 	/**
 	 * Remove this interest
 	 * @throws URISyntaxException 
-	 * @throws TransportException 
+	 * @throws IOException 
 	 * @throws MalformedURLException 
 	 */
-	public void delete() throws MalformedURLException, TransportException, URISyntaxException {
+	public void delete() throws MalformedURLException, IOException, URISyntaxException {
 		connection.do_Delete(new URL(connection.getListendpoint()+"/"+getListId()+"/interest-categories/"+getCategoryId()+"/interests/"+getId()), connection.getApikey());
 	}
 	
@@ -154,10 +154,10 @@ public class Interest implements JSONParser {
 	 * Update this interest via a PATCH operation. Fields will be freshened
 	 * from MailChimp.
 	 * @throws URISyntaxException 
-	 * @throws TransportException 
+	 * @throws IOException 
 	 * @throws MalformedURLException 
 	 */
-	public void update() throws MalformedURLException, TransportException, URISyntaxException {
+	public void update() throws MalformedURLException, IOException, URISyntaxException {
 		JSONObject json = getJsonRepresentation();
 
 		String results = connection.do_Patch(new URL(connection.getListendpoint()+"/"+getListId()+"/interest-categories/"+getCategoryId()+"/interests/"+getId()), json.toString(),connection.getApikey());

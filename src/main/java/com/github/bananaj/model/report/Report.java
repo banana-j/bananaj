@@ -4,32 +4,23 @@
  */
 package com.github.bananaj.model.report;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
-import com.github.bananaj.exceptions.TransportException;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.campaign.Bounce;
 import com.github.bananaj.model.campaign.CampaignType;
-import com.github.bananaj.model.list.member.Member;
 import com.github.bananaj.utils.DateConverter;
-import com.github.bananaj.utils.ModelIterator;
-import com.github.bananaj.utils.URLHelper;
 
 /**
  * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
  * 
- * @author alexanderweiss
- *
  */
 public class Report implements JSONParser {
 
@@ -308,16 +299,20 @@ public class Report implements JSONParser {
 
 	/**
 	 * Get Abuse sub-reports
+	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public Iterable<AbuseReport>  getAbuseReports() throws Exception {
+	public Iterable<AbuseReport>  getAbuseReports() throws IOException, Exception {
 		return connection.getCampaignAbuseReports(getId());
 	}
 	
 	/**
 	 * Get recent feedback based on a campaign's statistics.
 	 * @return Recent feedback based on a campaign's statistics.
+	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public Iterable<AdviceReport> getAdviceReports(String campaignId) throws Exception {
+	public Iterable<AdviceReport> getAdviceReports(String campaignId) throws IOException, Exception {
 		return connection.getCampaignAdviceReports(getId());
 	}
 	
@@ -325,18 +320,20 @@ public class Report implements JSONParser {
 	 * Get a detailed report about any emails in a specific campaign that were opened by recipients.
 	 * @param since Optional, restrict results to campaign open events that occur after a specific time.
 	 * @return Detailed information about the campaigns emails that were opened by list members.
-	 * @throws Exception
+	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public OpenReport getOpenReports(ZonedDateTime since) throws Exception {
+	public OpenReport getOpenReports(ZonedDateTime since) throws IOException, Exception {
 		return connection.getCampaignOpenReports(getId(), since);
 	}
 	
 	/**
 	 * Get detailed information about links clicked in campaigns.
 	 * @return Campaign click details
-	 * @throws Exception
+	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public Iterable<ClickReport> getClickReports() throws Exception {
+	public Iterable<ClickReport> getClickReports() throws IOException, Exception {
 		return connection.getCampaignClickReports(getId());
 	}
 	
@@ -344,9 +341,10 @@ public class Report implements JSONParser {
 	 * Get detailed information about links clicked in campaigns for a specific link.
 	 * @param linkId The id for the link.
 	 * @return Click details for a specific link.
-	 * @throws Exception
+	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public ClickReport getClickReport(String linkId) throws Exception {
+	public ClickReport getClickReport(String linkId) throws IOException, Exception {
 		return connection.getCampaignClickReport(getId(), linkId);
 	}
 	
@@ -354,9 +352,10 @@ public class Report implements JSONParser {
 	 * Get information about subscribers who clicked a link.
 	 * @param linkId The id for the link.
 	 * @return Information about subscribers who clicked a link
-	 * @throws Exception
+	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public Iterable<ClickReportMember> getMembersClickReports(String linkId) throws Exception {
+	public Iterable<ClickReportMember> getMembersClickReports(String linkId) throws IOException, Exception {
 		return connection.getCampaignMembersClickReports(getId(), linkId);
 	}
 	
@@ -365,18 +364,20 @@ public class Report implements JSONParser {
 	 * @param linkId The id for the link.
 	 * @param subscriber The member's email address or subscriber hash
 	 * @return Information about a specific subscriber who clicked a link
-	 * @throws Exception
+	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public ClickReportMember getMembersClickReport(String linkId, String subscriber) throws Exception {
+	public ClickReportMember getMembersClickReport(String linkId, String subscriber) throws IOException, Exception {
 		return connection.getCampaignMembersClickReport(getId(), linkId, subscriber);
 	}
 	
 	/**
 	 * Get statistics for the top-performing domains from a campaign.
 	 * @return Statistics for the top-performing domains from a campaign.
-	 * @throws Exception
+	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public DomainPerformance getDomainPerformanceReport() throws Exception {
+	public DomainPerformance getDomainPerformanceReport() throws IOException, Exception {
 		return connection.getDomainPerformanceReport(getId());
 	}
 	
@@ -384,35 +385,40 @@ public class Report implements JSONParser {
 	 * Ecommerce product activity report for Campaign
 	 * @param sortField Optional, sort products by this field.
 	 * @return Breakdown of product activity for a campaign.
-	 * @throws Exception
+	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public Iterable<EcommerceProductActivity> getEcommerceProductActivityReports(EcommerceSortField sortField) throws Exception {
+	public Iterable<EcommerceProductActivity> getEcommerceProductActivityReports(EcommerceSortField sortField) throws IOException, Exception {
 		return connection.getEcommerceProductActivityReports(getId(), sortField);
 	}
 
 	/**
 	 * Sub report - Sent To - Get information about campaign recipients.
 	 * @return Information about campaign recipients.
-	 * @throws Exception
+	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public Iterable<ReportSentTo> getSentToReports() throws Exception {
+	public Iterable<ReportSentTo> getSentToReports() throws IOException, Exception {
 		return connection.getCampaignSentToReports(getId());
 	}
 
 	/**
 	 * Sent To Recipient report - Get information about a specific campaign recipient.
 	 * @return Information about a specific campaign recipients.
+	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public ReportSentTo getSentToRecipientReport(String subscriberHash) throws Exception {
+	public ReportSentTo getSentToRecipientReport(String subscriberHash) throws IOException, Exception {
 		return connection.getCampaignSentToRecipientReport(getId(), subscriberHash);
 	}
 	
 	/**
 	 * Email Activity report - Get list member activity.
 	 * @return Member activity for a campaign.
+	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public Iterable<EmailActivity> getEmailActivityReports() {
+	public Iterable<EmailActivity> getEmailActivityReports() throws IOException, Exception {
 		return connection.getCampaignEmailActivityReports(getId());
 	}
 	
@@ -420,9 +426,10 @@ public class Report implements JSONParser {
 	 * Email Activity report - Get a specific list member's activity in a campaign including opens, clicks, and bounces.
 	 * @param campaignId The unique id for the campaign.
 	 * @return Member activity for a campaign.
+	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public EmailActivity getEmailActivityReport(String subscriber) throws Exception {
+	public EmailActivity getEmailActivityReport(String subscriber) throws IOException, Exception {
 		return connection.getCampaignEmailActivityReport(getId(), subscriber);
 	}
 	

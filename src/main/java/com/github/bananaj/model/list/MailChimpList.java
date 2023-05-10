@@ -4,9 +4,11 @@
  */
 package com.github.bananaj.model.list;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -22,7 +24,6 @@ import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.exceptions.EmailException;
-import com.github.bananaj.exceptions.TransportException;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.SortDirection;
 import com.github.bananaj.model.list.interests.Interest;
@@ -34,8 +35,8 @@ import com.github.bananaj.model.list.member.MemberTag;
 import com.github.bananaj.model.list.mergefield.MergeField;
 import com.github.bananaj.model.list.segment.Segment;
 import com.github.bananaj.model.list.segment.SegmentOptions;
-import com.github.bananaj.model.list.segment.SegmentType;
 import com.github.bananaj.model.report.AbuseReport;
+import com.github.bananaj.model.report.Report;
 import com.github.bananaj.utils.DateConverter;
 import com.github.bananaj.utils.EmailValidator;
 import com.github.bananaj.utils.ModelIterator;
@@ -127,39 +128,28 @@ public class MailChimpList implements JSONParser {
 	 * Get information about abuse reports. An abuse complaint occurs when your
 	 * recipient reports an email as spam in their mail program.
 	 * 
-	 * @param count Number of abuse reports to return. Maximum value is 1000.
-	 * @param offset Zero based offset
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
 	 * @return List of abuse reports
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public List<AbuseReport> getAbuseReports(int count, int offset) throws Exception {
-		if (count < 1 || count > 1000) {
-			throw new InvalidParameterException("Page size must be 1-1000");
-		}
-		final JSONObject list = new JSONObject(connection.do_Get(URLHelper.url(connection.getListendpoint(),"/",getId(),"/abuse-reports",
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)), connection.getApikey()));
-		final JSONArray rptArray = list.getJSONArray("abuse_reports");
-		ArrayList<AbuseReport> reports = new ArrayList<AbuseReport>(rptArray.length());
-		for (int i = 0 ; i < rptArray.length();i++)
-		{
-			final JSONObject rptDetail = rptArray.getJSONObject(i);
-			AbuseReport report = new AbuseReport(rptDetail);
-			reports.add(report);
-		}
-		return reports;
+	public Iterable<AbuseReport> getAbuseReports(int pageSize, int pageNumber) throws IOException, Exception {
+		Objects.requireNonNull(getConnection(), "MailChimpConnection");
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/abuse-reports");
+		return new ModelIterator<AbuseReport>(AbuseReport.class, baseURL, getConnection(), pageSize, pageNumber);
 	}
 	
 	/**
-	 * Get abuse reports iterator. An abuse complaint occurs when your recipient
-	 * reports an email as spam in their mail program.
+	 * Get information about abuse reports. An abuse complaint occurs when your
+	 * recipient reports an email as spam in their mail program.
 	 * 
-	 * Checked exceptions, including TransportException and JSONException, are
-	 * warped in a RuntimeException to reduce the need for boilerplate code inside
-	 * of lambdas.
-	 * 
-	 * @return AbuseReport iterator
+	 * @return List of abuse reports
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Iterable<AbuseReport> getAbuseReports() {
+	public Iterable<AbuseReport> getAbuseReports() throws IOException, Exception {
+		Objects.requireNonNull(getConnection(), "MailChimpConnection");
 		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/abuse-reports");
 		return new ModelIterator<AbuseReport>(AbuseReport.class, baseURL, getConnection());
 	}
@@ -170,12 +160,10 @@ public class MailChimpList implements JSONParser {
 	 * 
 	 * @param reportId
 	 * @return Details about a specific abuse report
-	 * @throws URISyntaxException
-	 * @throws TransportException
-	 * @throws MalformedURLException
-	 * @throws JSONException
+	 * @throws IOException
+	 * @throws Exception
 	 */
-	public AbuseReport getAbuseReport(int reportId) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	public AbuseReport getAbuseReport(int reportId) throws IOException, Exception {
 		final JSONObject report = new JSONObject(connection.do_Get(URLHelper.url(connection.getListendpoint(),"/",getId(),"/abuse-reports/",Integer.toString(reportId)), connection.getApikey()));
     	return new AbuseReport(report);
 	}
@@ -235,40 +223,31 @@ public class MailChimpList implements JSONParser {
 	
 	/**
 	 * Get information about members in this list with pagination
-	 * @param count Number of members to return. Maximum value is 1000.
-	 * @param offset Zero based offset
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
 	 * @return List of members
+	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public List<Member> getMembers(int count, int offset) throws Exception {
-		if (count < 1 || count > 1000) {
-			throw new InvalidParameterException("Page size must be 1-1000");
-		}
-		ArrayList<Member> members = new ArrayList<Member>();
-		final JSONObject list = new JSONObject(getConnection().do_Get(URLHelper.url(getConnection().getListendpoint(),"/"+getId(),"/members",
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)),connection.getApikey()));
-
-		final JSONArray membersArray = list.getJSONArray("members");
-
-		for (int i = 0 ; i < membersArray.length();i++)
-		{
-			final JSONObject memberDetail = membersArray.getJSONObject(i);
-	    	Member member = new Member(connection, memberDetail);
-			members.add(member);
-		}
-		return members;
+	public Iterable<Member> getMembers(int pageSize, int pageNumber) throws IOException, Exception {
+		Objects.requireNonNull(getConnection(), "MailChimpConnection");
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/members");
+		return new ModelIterator<Member>(Member.class, baseURL, getConnection(), pageSize, pageNumber);
 	}
 
 	/**
 	 * Get members iterator
 	 * 
-	 * Checked exceptions, including TransportException and JSONException, are
+	 * Checked exceptions, including IOException and JSONException, are
 	 * warped in a RuntimeException to reduce the need for boilerplate code inside
 	 * of lambdas.
 	 * 
 	 * @return Member iterator
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Iterable<Member> getMembers() {
+	public Iterable<Member> getMembers() throws IOException, Exception {
+		Objects.requireNonNull(getConnection(), "MailChimpConnection");
 		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/members");
 		return new ModelIterator<Member>(Member.class, baseURL, getConnection());
 	}
@@ -278,12 +257,10 @@ public class MailChimpList implements JSONParser {
 	 * subscribed, unsubscribed, or bounced member.
 	 * 
 	 * @param subscriber The member's email address or subscriber hash
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Member getMember(String subscriber) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	public Member getMember(String subscriber) throws IOException, Exception {
 		final JSONObject member = new JSONObject(getConnection().do_Get(URLHelper.url(getConnection().getListendpoint(),"/",
 				getId(),"/members/",Member.subscriberHash(subscriber)),connection.getApikey()));
 		return new Member(connection, member);
@@ -295,12 +272,10 @@ public class MailChimpList implements JSONParser {
 	 * @param status       Subscriber’s current status
 	 * @param emailAddress Email address for a subscriber
 	 * @return The newly created member
-	 * @throws URISyntaxException
-	 * @throws TransportException
-	 * @throws MalformedURLException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Member addMember(MemberStatus status, String emailAddress)
-			throws MalformedURLException, TransportException, URISyntaxException {
+	public Member addMember(MemberStatus status, String emailAddress) throws IOException, Exception {
 		JSONObject json = new JSONObject();
 		json.put("email_address", emailAddress);
 		json.put("status", status.toString());
@@ -316,11 +291,10 @@ public class MailChimpList implements JSONParser {
 	 * 
 	 * @param member
 	 * @return The member with fields freshened from mailchimp.
-	 * @throws URISyntaxException
-	 * @throws TransportException
-	 * @throws MalformedURLException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Member addMember(Member member) throws MalformedURLException, TransportException, URISyntaxException {
+	public Member addMember(Member member) throws IOException, Exception {
 		JSONObject json = member.getJsonRepresentation();
 		String results = connection.do_Post(URLHelper.url(connection.getListendpoint(),"/",getId(),"/members"), json.toString(), connection.getApikey());
 		member.parse(connection, new JSONObject(results));
@@ -334,12 +308,11 @@ public class MailChimpList implements JSONParser {
 	 * @param emailAddress        Email address for a subscriber
 	 * @param merge_fields_values
 	 * @return The newly added member
-	 * @throws URISyntaxException
-	 * @throws TransportException
-	 * @throws MalformedURLException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
 	public Member addMember(MemberStatus status, String emailAddress, HashMap<String, Object> merge_fields_values)
-			throws TransportException, URISyntaxException, MalformedURLException {
+			throws IOException, Exception {
 		URL url = URLHelper.url(connection.getListendpoint(), "/", getId(), "/members");
 
 		JSONObject json = new JSONObject();
@@ -366,11 +339,10 @@ public class MailChimpList implements JSONParser {
 	 * 
 	 * @param member
 	 * @return The member with fields freshened from mailchimp.
-	 * @throws URISyntaxException
-	 * @throws TransportException
-	 * @throws MalformedURLException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Member updateMember(Member member) throws MalformedURLException, TransportException, URISyntaxException {
+	public Member updateMember(Member member) throws IOException, Exception {
 		JSONObject json = member.getJsonRepresentation();
 
 		String results = getConnection().do_Patch(
@@ -393,11 +365,10 @@ public class MailChimpList implements JSONParser {
 	 * 
 	 * @param member
 	 * @return The member with fields freshened from mailchimp.
-	 * @throws URISyntaxException
-	 * @throws TransportException
-	 * @throws MalformedURLException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Member addOrUpdateMember(Member member) throws MalformedURLException, TransportException, URISyntaxException {
+	public Member addOrUpdateMember(Member member) throws IOException, Exception {
 		JSONObject json = member.getJsonRepresentation();
 
 		if (member.getStatusIfNew() == null) {
@@ -415,12 +386,10 @@ public class MailChimpList implements JSONParser {
 	 * Delete a member from list.
 	 * 
 	 * @param memberID
-	 * @throws URISyntaxException
-	 * @throws TransportException
-	 * @throws MalformedURLException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void deleteMember(String memberID)
-			throws MalformedURLException, TransportException, URISyntaxException {
+	public void deleteMember(String memberID) throws IOException, Exception {
 		getConnection().do_Delete(URLHelper.url(connection.getListendpoint(), "/", getId(), "/members/", memberID),
 				connection.getApikey());
 	}
@@ -429,12 +398,10 @@ public class MailChimpList implements JSONParser {
 	 * Permanently delete a member for list.
 	 * 
 	 * @param memberID
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void deleteMemberPermanent(String memberID)
-			throws MalformedURLException, TransportException, URISyntaxException {
+	public void deleteMemberPermanent(String memberID) throws IOException, Exception {
 		getConnection().do_Post(URLHelper.url(getConnection().getListendpoint(), "/", getId(), "/members/", memberID,
 				"/actions/delete-permanent"), getConnection().getApikey());
 	}
@@ -446,40 +413,31 @@ public class MailChimpList implements JSONParser {
 	/**
 	 * Get paginated tags for the specified audience member.
 	 * 
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param subscriber     The member's email address or subscriber hash
-	 * @param count          Number of tags to return. Maximum value is 1000.
-	 * @param offset         Zero based offset
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public List<MemberTag> getMemberTags(String subscriber, int count, int offset) throws Exception {
-		if (count < 1 || count > 1000) {
-			throw new InvalidParameterException("Page size must be 1-1000");
-		}
-		final JSONObject tagsObj = new JSONObject(getConnection().do_Get(URLHelper.url(getConnection().getListendpoint(), "/",
-				getId(), "/members/", Member.subscriberHash(subscriber), "/tags", 
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)),
-				getConnection().getApikey()));
-		// int total_items = tagsObj.getInt("total_items");	// The total number of items matching the query regardless of pagination
-		// matching the query regardless of pagination
-		final JSONArray tagsArray = tagsObj.getJSONArray("tags");
-		List<MemberTag> tags = new ArrayList<MemberTag>(tagsArray.length());
-		for (int i = 0; i < tagsArray.length(); i++) {
-			tags.add(new MemberTag(tagsArray.getJSONObject(i)));
-		}
-		return tags;
+	public Iterable<MemberTag> getMemberTags(int pageSize, int pageNumber, String subscriber) throws IOException, Exception {
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/members/", 
+				Member.subscriberHash(subscriber), "/tags");
+		return new ModelIterator<MemberTag>(MemberTag.class, baseURL, getConnection(), pageSize, pageNumber);
 	}
 
 	/**
 	 * Get tags iterator for the specified audience member.
 	 * 
-	 * Checked exceptions, including TransportException and JSONException, are
+	 * Checked exceptions, including IOException and JSONException, are
 	 * warped in a RuntimeException to reduce the need for boilerplate code inside
 	 * of lambdas.
 	 * 
 	 * @param subscriber The member's email address or subscriber hash
 	 * @return MemberTag iterator
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Iterable<MemberTag> getMemberTags(String subscriber) {
+	public Iterable<MemberTag> getMemberTags(String subscriber) throws IOException, Exception{
 		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/members/", 
 				Member.subscriberHash(subscriber), "/tags");
 		return new ModelIterator<MemberTag>(MemberTag.class, baseURL, getConnection());
@@ -492,44 +450,31 @@ public class MailChimpList implements JSONParser {
 	/**
 	 * Get recent notes for this list member.
 	 * 
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param subscriber     The member's email address or subscriber hash
-	 * @param count          Number of items to return
-	 * @param offset         Zero based offset
-	 * @throws JSONException
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public List<MemberNote> getMemberNotes(String subscriber, int count, int offset) throws Exception {
-		if (count < 1 || count > 1000) {
-			throw new InvalidParameterException("Page size must be 1-1000");
-		}
-		final JSONObject noteObj = new JSONObject(getConnection().do_Get(URLHelper.url(getConnection().getListendpoint(),"/",
-				getId(),"/members/",Member.subscriberHash(subscriber),"/notes",
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)), getConnection().getApikey()));
-		//String email_id = noteObj.getString("email_id");
-		//String list_id = noteObj.getString("list_id");
-		//int total_items = noteObj.getInt("total_items");	// The total number of items matching the query regardless of pagination
-		final JSONArray noteArray = noteObj.getJSONArray("notes");
-		List<MemberNote> notes = new ArrayList<MemberNote>(noteArray.length());
-
-		for (int i = 0 ; i < noteArray.length();i++)
-		{
-			notes.add(new MemberNote(noteArray.getJSONObject(i)));
-		}
-
-		return notes;
+	public Iterable<MemberNote> getMemberNotes(int pageSize, int pageNumber, String subscriber) throws IOException, Exception {
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/members/",
+				Member.subscriberHash(subscriber),"/notes");
+		return new ModelIterator<MemberNote>(MemberNote.class, baseURL, getConnection(), pageSize, pageNumber);
 	}
 	
 	/**
 	 * Get iterator for recent notes for the specified member.
 	 * 
-	 * Checked exceptions, including TransportException and JSONException, are
+	 * Checked exceptions, including IOException and JSONException, are
 	 * warped in a RuntimeException to reduce the need for boilerplate code inside
 	 * of lambdas.
 	 * 
 	 * @param subscriber     The member's email address or subscriber hash
 	 * @return MemberNote iterator
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Iterable<MemberNote> getMemberNotes(String subscriber) {
+	public Iterable<MemberNote> getMemberNotes(String subscriber) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/members/",
 				Member.subscriberHash(subscriber),"/notes");
 		return new ModelIterator<MemberNote>(MemberNote.class, baseURL, getConnection());
@@ -540,13 +485,10 @@ public class MailChimpList implements JSONParser {
 	 * 
 	 * @param subscriber The member's email address or subscriber hash
 	 * @param noteId         The id for the note.
-	 * @throws JSONException
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public MemberNote getMemberNote(String subscriber, int noteId)
-			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	public MemberNote getMemberNote(String subscriber, int noteId) throws IOException, Exception {
 		final JSONObject noteObj = new JSONObject(getConnection().do_Get(URLHelper.url(
 				getConnection().getListendpoint(), "/", getId(), "/members/", Member.subscriberHash(subscriber), 
 				"/notes/", Integer.toString(noteId)),
@@ -563,36 +505,46 @@ public class MailChimpList implements JSONParser {
 	
 	/**
 	 * Get a summary of the month-by-month growth activity for this list/audience.
-	 * @param count Number of reports to return. Maximum value is 1000.
-	 * @param offset Zero based offset
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param dir Optional, determines the order direction for sorted results.
 	 * @return Summary of the month-by-month growth activity for this list/audience.
-	 * @throws JSONException
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public List<GrowthHistory> getGrowthHistory(int count, int offset, SortDirection dir) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		if (count < 1 || count > 1000) {
-			throw new InvalidParameterException("Page size must be 1-1000");
-		}
-		String response = connection.do_Get(URLHelper.url(connection.getListendpoint(), "/", getId(), "/growth-history",
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count),
-				"&sort_field=month&sort_dir=",(dir != null ? dir.toString() : SortDirection.DESC.toString())), connection.getApikey());
-		JSONObject jsonObj = new JSONObject(response);
-		
-		//int totalItems = jsonObj.getInt("total_items");	// The total number of items matching the query regardless of pagination
-        //String listId = jsonObj.getString("list_id");
-        JSONArray history = jsonObj.getJSONArray("history");
-        
-        ArrayList<GrowthHistory> growthHistory = new ArrayList<GrowthHistory>(history.length());
-        for (int i = 0; i<history.length(); i++) {
-        	JSONObject gh = (JSONObject)history.get(i);
-        	growthHistory.add(new GrowthHistory(gh));
-        }
-        
-        return growthHistory;
+	public Iterable<GrowthHistory> getGrowthHistory(int pageSize, int pageNumber, SortDirection dir) throws IOException, Exception {
+		final String baseURL = URLHelper.join(connection.getListendpoint(), "/", getId(), "/growth-history",
+				"?sort_field=month&sort_dir=",(dir != null ? dir.toString() : SortDirection.DESC.toString()));
+		return new ModelIterator<GrowthHistory>(GrowthHistory.class, baseURL, connection, pageSize, pageNumber);
 	}
+
+	/**
+	 * Get a summary of the month-by-month growth activity for this list/audience.
+	 * @param dir Optional, determines the order direction for sorted results.
+	 * @return Summary of the month-by-month growth activity for this list/audience.
+	 * @throws IOException
+	 * @throws Exception 
+	 */
+	public Iterable<GrowthHistory> getGrowthHistory(SortDirection dir) throws IOException, Exception {
+		final String baseURL = URLHelper.join(connection.getListendpoint(), "/", getId(), "/growth-history",
+				"?sort_field=month&sort_dir=",(dir != null ? dir.toString() : SortDirection.DESC.toString()));
+		return new ModelIterator<GrowthHistory>(GrowthHistory.class, baseURL, connection);
+	}
+
+	/**
+	 * Get a summary of a specific list's growth activity for a specific month and year.
+	 * @param month Optional, determines the order direction for sorted results.
+	 * @return Summary of the month-by-month growth activity for this list/audience.
+	 * @throws IOException
+	 * @throws Exception 
+	 */
+	public GrowthHistory getGrowthHistoryByMonth(String month) throws IOException, Exception {
+		URL url = URLHelper.url(connection.getListendpoint(), "/", getId(), "/growth-history", "/", month);
+		JSONObject jsonReport = new JSONObject(connection.do_Get(url, connection.getApikey()));
+		GrowthHistory report = new GrowthHistory(jsonReport);
+		return report;
+}
+
 
 	//
 	// Interest Categories -- Manage interest categories for a specific list. Interest categories 
@@ -604,42 +556,30 @@ public class MailChimpList implements JSONParser {
 	 * Get interest categories for list. These correspond to ‘group titles’ in the
 	 * MailChimp application.
 	 * 
-	 * @param count  Number of items to return
-	 * @param offset Zero based offset
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
 	 * @return List of interest categories
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public List<InterestCategory> getInterestCategories(int count, int offset)
-			throws Exception {
-		if (count < 1 || count > 1000) {
-			throw new InvalidParameterException("Page size must be 1-1000");
-		}
-		ArrayList<InterestCategory> categories = new ArrayList<InterestCategory>();
-		JSONObject list = new JSONObject(getConnection().do_Get(URLHelper.url(connection.getListendpoint(), "/", getId(), "/interest-categories",
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)), connection.getApikey()));
-		JSONArray categoryArray = list.getJSONArray("categories");
-
-		for (int i = 0; i < categoryArray.length(); i++) {
-			final JSONObject jsonCategory = categoryArray.getJSONObject(i);
-			InterestCategory category = new InterestCategory(connection, jsonCategory);
-			categories.add(category);
-
-		}
-		return categories;
+	public Iterable<InterestCategory> getInterestCategories(int pageSize, int pageNumber) throws IOException, Exception {
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/interest-categories");
+		return new ModelIterator<InterestCategory>(InterestCategory.class, baseURL, getConnection(), pageSize, pageNumber);
 	}
 
 	/**
 	 * Get interest categories iterator for list. These correspond to ‘group titles’ in the
 	 * MailChimp application.
 	 * 
-	 * Checked exceptions, including TransportException and JSONException, are
+	 * Checked exceptions, including IOException and JSONException, are
 	 * warped in a RuntimeException to reduce the need for boilerplate code inside
 	 * of lambdas.
 	 * 
 	 * @return InterestCategory iterator
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Iterable<InterestCategory> getInterestCategories() {
+	public Iterable<InterestCategory> getInterestCategories() throws IOException, Exception {
 		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/interest-categories");
 		return new ModelIterator<InterestCategory>(InterestCategory.class, baseURL, getConnection());
 	}
@@ -649,13 +589,10 @@ public class MailChimpList implements JSONParser {
 	 * 
 	 * @param interestCategoryId
 	 * @return
-	 * @throws JSONException
-	 * @throws MalformedURLException
-	 * @throws TransportException
+	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public InterestCategory getInterestCategory(String interestCategoryId)
-			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	public InterestCategory getInterestCategory(String interestCategoryId) throws IOException, Exception {
 		JSONObject jsonCategory = new JSONObject(connection.do_Get(
 				URLHelper.url(connection.getListendpoint(), "/", getId(), "/interest-categories/", interestCategoryId),
 				connection.getApikey()));
@@ -665,12 +602,10 @@ public class MailChimpList implements JSONParser {
 	/**
 	 * Remove an interest category from list.
 	 * 
-	 * @throws URISyntaxException
-	 * @throws TransportException
-	 * @throws MalformedURLException
+	 * @throws IOException
+	 * @throws Exception
 	 */
-	public InterestCategory addInrestCategory(InterestCategory category)
-			throws MalformedURLException, TransportException, URISyntaxException {
+	public InterestCategory addInrestCategory(InterestCategory category) throws IOException, Exception {
 		JSONObject json = category.getJsonRepresentation();
 		String results = getConnection().do_Post(
 				URLHelper.url(getConnection().getListendpoint(), "/", getId(), "/interest-categories"), json.toString(),
@@ -681,12 +616,10 @@ public class MailChimpList implements JSONParser {
 	/**
 	 * Remove an interest category from list.
 	 * 
-	 * @throws URISyntaxException
-	 * @throws TransportException
-	 * @throws MalformedURLException
+	 * @throws IOException
+	 * @throws Exception
 	 */
-	public void deleteInrestCategory(String categoryId)
-			throws MalformedURLException, TransportException, URISyntaxException {
+	public void deleteInrestCategory(String categoryId) throws IOException, Exception {
 		getConnection().do_Delete(
 				URLHelper.url(getConnection().getListendpoint(), "/", getId(), "/interest-categories/", categoryId),
 				getConnection().getApikey());
@@ -703,46 +636,33 @@ public class MailChimpList implements JSONParser {
 	 * Get interests for this list. Interests are referred to as ‘group names’ in
 	 * the MailChimp application.
 	 * 
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param interestCategoryId
-	 * @param count              Number of members to return. Maximum value is 1000.
-	 * @param offset             Zero based offset
 	 * @return List of interests for this list
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public List<Interest> getInterests(String interestCategoryId, int count, int offset)
-			throws Exception {
-		if (count < 1 || count > 1000) {
-			throw new InvalidParameterException("Page size must be 1-1000");
-		}
-		ArrayList<Interest> interests = new ArrayList<Interest>();
-		JSONObject list = new JSONObject(
-				connection.do_Get(
-						URLHelper.url(connection.getListendpoint(), "/", getId(), "/interest-categories/", interestCategoryId, "/interests",
-								"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)),
-						connection.getApikey()));
-		JSONArray interestArray = list.getJSONArray("interests");
-
-		for (int i = 0; i < interestArray.length(); i++) {
-			final JSONObject jsonInterest = interestArray.getJSONObject(i);
-			Interest interest = new Interest(connection, jsonInterest);
-			interests.add(interest);
-
-		}
-		return interests;
+	public Iterable<Interest> getInterests(int pageSize, int pageNumber, String interestCategoryId) throws IOException, Exception {
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(), "/", getId(), "/interest-categories/",
+				interestCategoryId, "/interests");
+		return new ModelIterator<Interest>(Interest.class, baseURL, getConnection(), pageSize, pageNumber);
 	}
 
 	/**
 	 * Get interests iterator for this list. Interests are referred to as ‘group
 	 * names’ in the MailChimp application.
 	 * 
-	 * Checked exceptions, including TransportException and JSONException, are
+	 * Checked exceptions, including IOException and JSONException, are
 	 * warped in a RuntimeException to reduce the need for boilerplate code inside
 	 * of lambdas.
 	 * 
 	 * @param interestCategoryId
 	 * @return Interest iterator
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Iterable<Interest> getInterests(String interestCategoryId) {
+	public Iterable<Interest> getInterests(String interestCategoryId) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getConnection().getListendpoint(), "/", getId(), "/interest-categories/",
 				interestCategoryId, "/interests");
 		return new ModelIterator<Interest>(Interest.class, baseURL, getConnection());
@@ -755,13 +675,11 @@ public class MailChimpList implements JSONParser {
 	 * @param interestCategoryId
 	 * @param interestId
 	 * @return The requested interest
-	 * @throws JSONException
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws Exception
 	 */
 	public Interest getInterest(String interestCategoryId, String interestId)
-			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+			throws IOException, Exception {
 		JSONObject jsonInterests = new JSONObject(connection.do_Get(URLHelper.url(connection.getListendpoint(), "/", getId(),
 				"/interest-categories/", interestCategoryId, "/interests/", interestId), connection.getApikey()));
 		return new Interest(connection, jsonInterests);
@@ -778,81 +696,32 @@ public class MailChimpList implements JSONParser {
 	 * Get all segments of this list. A segment is a section of your list that
 	 * includes only those subscribers who share specific common field information.
 	 * 
-	 * @param count  Number of templates to return
-	 * @param offset Zero based offset
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
 	 * @return List containing segments
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public List<Segment> getSegments(int count, int offset)
-			throws Exception {
-		if (count < 1 || count > 1000) {
-			throw new InvalidParameterException("Page size must be 1-1000");
-		}
-		ArrayList<Segment> segments = new ArrayList<Segment>();
-		JSONObject jsonSegments = new JSONObject(connection.do_Get(URLHelper.url(
-				connection.getListendpoint(), "/", getId(), "/segments",
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)),
-				connection.getApikey()));
-
-		final JSONArray segmentsArray = jsonSegments.getJSONArray("segments");
-
-		for (int i = 0; i < segmentsArray.length(); i++) {
-			final JSONObject segmentDetail = segmentsArray.getJSONObject(i);
-			Segment segment = new Segment(getConnection(), segmentDetail);
-			segments.add(segment);
-		}
-
-		return segments;
+	public Iterable<Segment> getSegments(int pageSize, int pageNumber) throws IOException, Exception {
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/segments");
+		return new ModelIterator<Segment>(Segment.class, baseURL, getConnection(), pageSize, pageNumber);
 	}
 
 	/**
 	 * Get segments iterator for this list. A segment is a section of your list that
 	 * includes only those subscribers who share specific common field information.
 	 * 
-	 * Checked exceptions, including TransportException and JSONException, are
+	 * Checked exceptions, including IOException and JSONException, are
 	 * warped in a RuntimeException to reduce the need for boilerplate code inside
 	 * of lambdas.
 	 * 
 	 * @return Segment iterator
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Iterable<Segment> getSegments() {
+	public Iterable<Segment> getSegments() throws IOException, Exception {
 		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/segments");
 		return new ModelIterator<Segment>(Segment.class, baseURL, getConnection());
-	}
-
-	/**
-	 * Get all segments of this list. A segment is a section of your list that
-	 * includes only those subscribers who share specific common field information.
-	 * 
-	 * @param type   Limit results based on segment type
-	 * @param count  Number of templates to return
-	 * @param offset Zero based offset
-	 * @return List containing segments of the specified type
-	 * @throws JSONException
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
-	 */
-	public List<Segment> getSegments(SegmentType type, int count, int offset)
-			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		if (count < 1 || count > 1000) {
-			throw new InvalidParameterException("Page size must be 1-1000");
-		}
-		ArrayList<Segment> segments = new ArrayList<Segment>();
-		JSONObject jsonSegments = new JSONObject(
-				connection.do_Get(URLHelper.url(connection.getListendpoint(), "/", getId(), "/segments",
-						"?offset=", Integer.toString(offset), "&count=", Integer.toString(count), 
-						"&type", type.toString()), connection.getApikey()));
-
-		final JSONArray segmentsArray = jsonSegments.getJSONArray("segments");
-
-		for (int i = 0; i < segmentsArray.length(); i++) {
-			final JSONObject segmentDetail = segmentsArray.getJSONObject(i);
-			Segment segment = new Segment(getConnection(), segmentDetail);
-			segments.add(segment);
-		}
-
-		return segments;
 	}
 
 	/**
@@ -860,12 +729,12 @@ public class MailChimpList implements JSONParser {
 	 * 
 	 * @param segmentID
 	 * @throws URISyntaxException
-	 * @throws TransportException
+	 * @throws IOException
 	 * @throws MalformedURLException
 	 * @throws JSONException
 	 */
 	public Segment getSegment(String segmentID)
-			throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+			throws JSONException, IOException, Exception {
 		String response = connection.do_Get(
 				URLHelper.url(connection.getListendpoint(), "/", getId(), "/segments/", segmentID),
 				connection.getApikey());
@@ -880,12 +749,10 @@ public class MailChimpList implements JSONParser {
 	 * @param option The conditions of the segment. Static and fuzzy segments don't
 	 *               have conditions.
 	 * @return The newly created segment
-	 * @throws URISyntaxException
-	 * @throws TransportException
-	 * @throws MalformedURLException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Segment addSegment(String name, SegmentOptions option)
-			throws MalformedURLException, TransportException, URISyntaxException {
+	public Segment addSegment(String name, SegmentOptions option) throws IOException, Exception {
 		JSONObject segment = new JSONObject();
 		segment.put("name", name);
 		if (option != null) {
@@ -909,13 +776,10 @@ public class MailChimpList implements JSONParser {
 	 *               Passing an empty array will create a static segment without any
 	 *               subscribers.
 	 * @return The newly created segment
-	 * @throws URISyntaxException
-	 * @throws TransportException
-	 * @throws MalformedURLException
-	 * @throws EmailException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Segment addStaticSegment(String name, String[] emails)
-			throws MalformedURLException, TransportException, URISyntaxException, EmailException {
+	public Segment addStaticSegment(String name, String[] emails) throws IOException, Exception {
 		JSONObject segment = new JSONObject();
 		segment.put("name", name);
 		for (String email : emails) {
@@ -934,11 +798,10 @@ public class MailChimpList implements JSONParser {
 	 * Delete a specific segment.
 	 * 
 	 * @param segmentId
-	 * @throws URISyntaxException
-	 * @throws TransportException
-	 * @throws MalformedURLException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void deleteSegment(String segmentId) throws MalformedURLException, TransportException, URISyntaxException {
+	public void deleteSegment(String segmentId) throws IOException, Exception {
 		connection.do_Delete(URLHelper.url(connection.getListendpoint(), "/", getId(), "/segments/", segmentId),
 				connection.getApikey());
 	}
@@ -948,37 +811,30 @@ public class MailChimpList implements JSONParser {
 	//
 	
 	/**
-	 * Get a merge fields for this list.
+	 * Get merge fields for this audience.
+	 * Merge fields let you save custom information about contacts, which can then 
+	 * be used to personalize campaigns. Each merge field has a corresponding merge 
+	 * tag, a string of text like *|FNAME|*. When you send a campaign, Mailchimp 
+	 * replaces merge tags with the values stored in the corresponding merge fields 
+	 * for each recipient.
 	 * 
-	 * @param count The number of records to return. Maximum value is 1000.
-	 * @param offset Zero based offset
-	 * @throws Exception
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public List<MergeField> getMergeFields(int count, int offset) throws Exception {
-		if (count < 1 || count > 1000) {
-			throw new InvalidParameterException("Page size must be 1-1000");
-		}
-		ArrayList<MergeField> mergeFields = new ArrayList<MergeField>();
-		URL url = URLHelper.url(connection.getListendpoint(),"/"+getId(),"/merge-fields",
-				"?offset=", Integer.toString(offset), "&count=", Integer.toString(count)); // Note: Mailchimp currently supports a maximum of 80 merge fields
-
-		JSONObject merge_fields = new JSONObject(connection.do_Get(url, connection.getApikey()));
-		final JSONArray mergeFieldsArray = merge_fields.getJSONArray("merge_fields");
-
-		for (int i = 0 ; i < mergeFieldsArray.length(); i++) {
-			final JSONObject mergeFieldDetail = mergeFieldsArray.getJSONObject(i);
-			MergeField mergeField = new MergeField(getConnection(), mergeFieldDetail);
-			mergeFields.add(mergeField);
-		}
-		return mergeFields;
+	public Iterable<MergeField> getMergeFields(int pageSize, int pageNumber) throws IOException, Exception {
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/merge-fields");
+		return new ModelIterator<MergeField>(MergeField.class, baseURL, getConnection(), pageSize, pageNumber);
 	}
 
 	/**
-	 * Get iterator of merge fields for this list.
-	 * 
-	 * Checked exceptions, including TransportException and JSONException, are
-	 * warped in a RuntimeException to reduce the need for boilerplate code inside
-	 * of lambdas.
+	 * Get merge fields for this audience.
+	 * Merge fields let you save custom information about contacts, which can then 
+	 * be used to personalize campaigns. Each merge field has a corresponding merge 
+	 * tag, a string of text like *|FNAME|*. When you send a campaign, Mailchimp 
+	 * replaces merge tags with the values stored in the corresponding merge fields 
+	 * for each recipient.
 	 * 
 	 * @return MergeField iterator
 	 */
@@ -988,15 +844,20 @@ public class MailChimpList implements JSONParser {
 	}
 
 	/**
-	 * Get a specific merge field of this list/audience.
+	 * Get a specific merge field of this audience.
+	 * Merge fields let you save custom information about contacts, which can then 
+	 * be used to personalize campaigns. Each merge field has a corresponding merge 
+	 * tag, a string of text like *|FNAME|*. When you send a campaign, Mailchimp 
+	 * replaces merge tags with the values stored in the corresponding merge fields 
+	 * for each recipient.
 	 * 
 	 * @param mergeFieldID
 	 * @throws URISyntaxException
-	 * @throws TransportException
+	 * @throws IOException
 	 * @throws JSONException
 	 * @throws MalformedURLException
 	 */
-	public MergeField getMergeField(String mergeFieldID) throws JSONException, TransportException, URISyntaxException, MalformedURLException {
+	public MergeField getMergeField(String mergeFieldID) throws JSONException, IOException, URISyntaxException, MalformedURLException {
 		URL url = URLHelper.url(connection.getListendpoint(),"/",getId(),"/merge-fields","/",mergeFieldID);
 		JSONObject mergeFieldJSON = new JSONObject(connection.do_Get(url,connection.getApikey()));
 		return new MergeField(connection, mergeFieldJSON);
@@ -1007,18 +868,18 @@ public class MailChimpList implements JSONParser {
 	 * @param mergeFieldtoAdd
 	 * @return The new Mailchimp merge field that was added.
 	 * @throws JSONException
-	 * @throws TransportException
+	 * @throws IOException
 	 * @throws URISyntaxException
 	 * @throws MalformedURLException
 	 */
-	public MergeField addMergeField(MergeField mergeFieldtoAdd) throws JSONException, TransportException, URISyntaxException, MalformedURLException {
+	public MergeField addMergeField(MergeField mergeFieldtoAdd) throws JSONException, IOException, URISyntaxException, MalformedURLException {
 		URL url = URLHelper.url(connection.getListendpoint(),"/",getId(),"/merge-fields");
 		JSONObject mergeFieldJSON = new JSONObject(connection.do_Post(url, mergeFieldtoAdd.getJsonRepresentation().toString(), connection.getApikey()));
 		return new MergeField(connection, mergeFieldJSON);
 	}
 
 
-	public void deleteMergeField(String mergeFieldID) throws MalformedURLException, TransportException, URISyntaxException {
+	public void deleteMergeField(String mergeFieldID) throws IOException, Exception {
 		connection.do_Delete(URLHelper.url(connection.getListendpoint(),"/",getId(),"/merge-fields","/",mergeFieldID), connection.getApikey());
 	}
 
@@ -1294,10 +1155,10 @@ public class MailChimpList implements JSONParser {
 	/**
 	 * Update list/audience via a PATCH operation. Member fields will be freshened.
 	 * @throws MalformedURLException
-	 * @throws TransportException
+	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public void update() throws MalformedURLException, TransportException, URISyntaxException {
+	public void update() throws IOException, Exception {
 		String results = connection.do_Patch(URLHelper.url(connection.getListendpoint(),"/",getId()), getJSONRepresentation().toString(), connection.getApikey());
 		parse(connection, new JSONObject(results));  // update this object with current data
 	}
@@ -1305,11 +1166,12 @@ public class MailChimpList implements JSONParser {
 	/**
 	 * Delete this list/audience from your account
 	 * @throws URISyntaxException 
-	 * @throws TransportException 
+	 * @throws IOException 
 	 * @throws MalformedURLException 
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void delete() throws MalformedURLException, TransportException, URISyntaxException {
+	public void delete() throws IOException, Exception {
 		connection.do_Delete(URLHelper.url(connection.getListendpoint(),"/",getId()), connection.getApikey());
 	}
 	

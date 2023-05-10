@@ -1,13 +1,11 @@
 package com.github.bananaj.model.list.mergefield;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
+import java.io.IOException;
 import java.net.URL;
 
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
-import com.github.bananaj.exceptions.TransportException;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.list.interests.Interest;
 
@@ -250,22 +248,20 @@ public class MergeField implements JSONParser {
 
 	/**
 	 * Remove this merge field
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws Exception
 	 */
-	public void deleteMergeField() throws MalformedURLException, TransportException, URISyntaxException {
+	public void deleteMergeField() throws IOException, Exception {
 		connection.do_Delete(new URL(connection.getListendpoint()+"/"+getListId()+"/merge-fields/"+getId()),connection.getApikey());
 	}
 	
 	/**
 	 * Update this merge field via a PATCH operation. Fields will be freshened
 	 * from MailChimp.
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void update() throws MalformedURLException, TransportException, URISyntaxException {
+	public void update() throws IOException, Exception {
 		JSONObject json = getJsonRepresentation();
 
 		String results = connection.do_Patch(new URL(connection.getListendpoint()+"/"+getListId()+"/merge-fields/"+getId()), json.toString(), connection.getApikey());

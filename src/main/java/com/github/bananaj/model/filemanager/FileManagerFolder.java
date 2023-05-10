@@ -1,5 +1,6 @@
 package com.github.bananaj.model.filemanager;
 
+import java.io.IOException;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.util.Iterator;
@@ -48,9 +49,10 @@ public class FileManagerFolder implements JSONParser {
 	 * Rename folder
 	 * 
 	 * @param name the new folder name
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void rename(String name) throws Exception {
+	public void rename(String name) throws IOException, Exception {
 		JSONObject jsonObj = getJsonRepresentation();
 		String results = getConnection().do_Patch(
 				new URL(getConnection().getFilemanagerfolderendpoint() + "/" + getId()), jsonObj.toString(),
@@ -61,9 +63,10 @@ public class FileManagerFolder implements JSONParser {
 	/**
 	 * Remove a folder from File Manager
 	 * 
-	 * @throws Exception
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void delete() throws Exception {
+	public void delete() throws IOException, Exception {
 		getConnection().do_Delete(new URL(getConnection().getFilemanagerfolderendpoint() + "/" + getId()),
 				getConnection().getApikey());
 	}

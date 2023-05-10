@@ -1,6 +1,6 @@
 package com.github.bananaj.utils;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Iterator;
@@ -13,7 +13,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
-import com.github.bananaj.exceptions.TransportException;
 import com.github.bananaj.model.JSONParser;
 
 public class ModelIterator<T extends JSONParser> implements Iterable<T> {
@@ -80,8 +79,7 @@ public class ModelIterator<T extends JSONParser> implements Iterable<T> {
 			offset += pagesize;
 			final JSONObject list = new JSONObject(connection.do_Get(url,connection.getApikey()));
 			parseEntities(list);
-		} catch (TransportException | JSONException | 
-				MalformedURLException | URISyntaxException e) {
+		} catch (IOException | JSONException | URISyntaxException e) {
 			// Wrap checked exceptions in a RuntimeException.
 			// Checked exceptions are warped in a RuntimeException to reduce the need for
 			// boilerplate code inside of lambdas.

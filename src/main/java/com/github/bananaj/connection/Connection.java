@@ -18,26 +18,21 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.github.bananaj.exceptions.TransportException;
-
 /**
- * Created by Alexander on 10.08.2016.
+ * HTTP/HTTPS protocol handler
  */
 public class Connection {
 
 	final static Logger logger = Logger.getLogger(Connection.class);
 	
-    public String do_Get(URL url, String authorization) throws TransportException, URISyntaxException {
+    public String do_Get(URL url, String authorization) throws IOException, URISyntaxException {
     	log("GET", url, null);
         CloseableHttpClient httpclient;
 
@@ -69,16 +64,16 @@ public class Connection {
             }
 
             return createResponseFromEntity(response.getEntity());
-        } catch (TransportException e) {
+        } catch (IOException e) {
         	logger.error("GET " + url.toString() + " : " + e.getMessage(), e);
         	throw e;
         } catch (Exception e) {
         	logger.error("GET " + url.toString() + " : " + e.getMessage(), e);
-            throw new TransportException("GET " + url.toExternalForm() + " failed", e);
+            throw new IOException("GET " + url.toExternalForm() + " failed", e);
         }
     }
 
-    public String do_Post(URL url, String post_string, String authorization) throws TransportException, URISyntaxException {
+    public String do_Post(URL url, String post_string, String authorization) throws IOException, URISyntaxException {
     	log("POST", url, post_string);
         CloseableHttpClient httpclient;
 
@@ -98,16 +93,16 @@ public class Connection {
 
 
             return createResponseFromEntity(response.getEntity());
-        } catch (TransportException e) {
+        } catch (IOException e) {
         	logger.error("POST " + url.toString() + " : " + e.getMessage(), e);
         	throw e;
         } catch (Exception e) {
         	logger.error("POST " + url.toString() + " : " + e.getMessage(), e);
-            throw new TransportException("POST " + post_string.length() + " bytes to " + url.toExternalForm() + " failed", e);
+            throw new IOException("POST " + post_string.length() + " bytes to " + url.toExternalForm() + " failed", e);
         }
     }
 
-    public String do_Patch(URL url, String patch_string, String authorization) throws TransportException, URISyntaxException {
+    public String do_Patch(URL url, String patch_string, String authorization) throws IOException, URISyntaxException {
     	log("PATCH", url, patch_string);
         CloseableHttpClient httpclient;
 
@@ -126,17 +121,17 @@ public class Connection {
             }
 
             return createResponseFromEntity(response.getEntity());
-        } catch (TransportException e) {
+        } catch (IOException e) {
         	logger.error("PATCH " + url.toString() + " : " + e.getMessage(), e);
         	throw e;
         } catch (Exception e) {
         	logger.error("PATCH " + url.toString() + " : " + e.getMessage(), e);
-            throw new TransportException("PATCH " + patch_string.length() + " bytes to " + url.toExternalForm() + " failed", e);
+            throw new IOException("PATCH " + patch_string.length() + " bytes to " + url.toExternalForm() + " failed", e);
         }
     }
 
 
-    public String do_Put(URL url, String put_string, String authorization) throws TransportException, URISyntaxException {
+    public String do_Put(URL url, String put_string, String authorization) throws IOException, URISyntaxException {
     	log("PUT", url, put_string);
         CloseableHttpClient httpclient;
 
@@ -156,16 +151,16 @@ public class Connection {
             }
 
             return createResponseFromEntity(response.getEntity());
-        } catch (TransportException e) {
+        } catch (IOException e) {
         	logger.error("PUT " + url.toString() + " : " + e.getMessage(), e);
         	throw e;
         } catch (Exception e) {
         	logger.error("PUT " + url.toString() + " : " + e.getMessage(), e);
-            throw new TransportException("PUT " + put_string.length() + " bytes to " + url.toExternalForm() + " failed", e);
+            throw new IOException("PUT " + put_string.length() + " bytes to " + url.toExternalForm() + " failed", e);
         }
     }
 
-    public String do_Post(URL url, String authorization) throws TransportException, URISyntaxException {
+    public String do_Post(URL url, String authorization) throws IOException, URISyntaxException {
     	log("POST", url, null);
         CloseableHttpClient httpclient = null;
 
@@ -183,16 +178,16 @@ public class Connection {
             }
 
             return createResponseFromEntity(response.getEntity());
-        } catch (TransportException e) {
+        } catch (IOException e) {
         	logger.error("POST " + url.toString() + " : " + e.getMessage(), e);
         	throw e;
         } catch (Exception e) {
         	logger.error("POST " + url.toString() + " : " + e.getMessage(), e);
-            throw new TransportException("POST " + url.toExternalForm() + " failed", e);
+            throw new IOException("POST " + url.toExternalForm() + " failed", e);
         }
     }
 
-    public String do_Delete(URL url, String authorization) throws TransportException, URISyntaxException {
+    public String do_Delete(URL url, String authorization) throws IOException, URISyntaxException {
     	log("DELETE", url, null);
         CloseableHttpClient httpclient;
 
@@ -210,12 +205,12 @@ public class Connection {
             }
 
             return createResponseFromEntity(response.getEntity());
-        } catch (TransportException e) {
+        } catch (IOException e) {
         	logger.error("DELETE " + url.toString() + " : " + e.getMessage(), e);
         	throw e;
         } catch (Exception e) {
         	logger.error("DELETE " + url.toString() + " : " + e.getMessage(), e);
-            throw new TransportException("DELETE " + url.toExternalForm() + " failed", e);
+            throw new IOException("DELETE " + url.toExternalForm() + " failed", e);
         }
     }
 
@@ -239,7 +234,7 @@ public class Connection {
         return null;
     }
 
-    private TransportException buildTransportError(String verb, String url, CloseableHttpResponse response) {
+    private IOException buildTransportError(String verb, String url, CloseableHttpResponse response) {
         int responseCode = response.getStatusLine().getStatusCode();
         JSONObject errObj;
         try {
@@ -260,12 +255,12 @@ public class Connection {
             		}
             	}
             }
-            return new TransportException("Status: " + Integer.toString(responseCode) + " " + verb + ": " + url + " Reason: " + response.getStatusLine().getReasonPhrase()
+            return new IOException("Status: " + Integer.toString(responseCode) + " " + verb + ": " + url + " Reason: " + response.getStatusLine().getReasonPhrase()
                     + " - " + errTitle + " Details: " + errDetail + " Instance: " + errInstance + " Type: " + errType + errors);
         } catch (IOException | JSONException e) {
         	logger.error(e.getMessage(), e);
         }
-        return new TransportException("Status: " + Integer.toString(responseCode) + " " + verb + ": " + url + " Reason: " + response.getStatusLine().getReasonPhrase());
+        return new IOException("Status: " + Integer.toString(responseCode) + " " + verb + ": " + url + " Reason: " + response.getStatusLine().getReasonPhrase());
     }
 
 

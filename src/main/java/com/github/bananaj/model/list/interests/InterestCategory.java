@@ -1,18 +1,11 @@
 package com.github.bananaj.model.list.interests;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
+import java.io.IOException;
 import java.net.URL;
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
-import com.github.bananaj.exceptions.TransportException;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.ModelIterator;
 
@@ -143,22 +136,20 @@ public class InterestCategory implements JSONParser {
 	
 	/**
 	 * Remove this interest category
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void delete() throws MalformedURLException, TransportException, URISyntaxException {
+	public void delete() throws IOException, Exception {
 		connection.do_Delete(new URL(connection.getListendpoint()+"/"+getListId()+"/interest-categories/"+getId()), connection.getApikey());
 	}
 	
 	/**
 	 * Update this interest category via a PATCH operation. Fields will be freshened
 	 * from MailChimp.
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void update() throws MalformedURLException, TransportException, URISyntaxException {
+	public void update() throws IOException, Exception {
 		JSONObject json = getJsonRepresentation();
 
 		String results = connection.do_Patch(new URL(connection.getListendpoint()+"/"+getListId()+"/interest-categories/"+getId()), json.toString(), connection.getApikey());
@@ -166,49 +157,29 @@ public class InterestCategory implements JSONParser {
 	}
 	
 	/**
-	 * Get interests for this list. Interests are referred to as ‘group names’ in
+	 * Get a list of this category's interests. Interests are referred to as ‘group names’ in
 	 * the MailChimp application.
 	 * 
-	 * @param interestCategoryId
-	 * @param count              Number of members to return. Maximum value is 1000.
-	 * @param offset             Zero based offset
-	 * @return List of interests for this list
-	 * @throws Exception
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public List<Interest> getInterests(String interestCategoryId, int count, int offset)
-			throws Exception {
-		if (count < 1 || count > 1000) {
-			throw new InvalidParameterException("Page size must be 1-1000");
-		}
-		ArrayList<Interest> interests = new ArrayList<Interest>();
-		JSONObject list = new JSONObject(
-				connection.do_Get(
-						new URL(connection.getListendpoint() + "/" + getListId() + "/interest-categories/"
-								+ getId() + "/interests?count=" + count + "&offset=" + offset),
-						connection.getApikey()));
-		JSONArray interestArray = list.getJSONArray("interests");
-
-		for (int i = 0; i < interestArray.length(); i++) {
-			final JSONObject jsonInterest = interestArray.getJSONObject(i);
-			Interest interest = new Interest(connection, jsonInterest);
-			interests.add(interest);
-
-		}
-		return interests;
+	public Iterable<Interest> getInterests(int pageSize, int pageNumber) throws IOException, Exception {
+		final String baseURL = connection.getListendpoint() + "/" + getListId() + "/interest-categories/"
+				+ getId() + "/interests";
+		return new ModelIterator<Interest>(Interest.class, baseURL, connection, pageSize, pageNumber);
 	}
 
 	/**
-	 * Get interests iterator for this interest category. Interests are referred to
+	 * Get a list of this category's interests. Interests are referred to
 	 * as ‘group names’ in the MailChimp application.
 	 * 
-	 * Checked exceptions, including TransportException and JSONException, are
-	 * warped in a RuntimeException to reduce the need for boilerplate code inside
-	 * of lambdas.
-	 * 
 	 * @param interestCategoryId
-	 * @return Interest iterator
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Iterable<Interest> getInterests() {
+	public Iterable<Interest> getInterests() throws IOException, Exception {
 		final String baseURL = connection.getListendpoint() + "/" + getListId() + "/interest-categories/"
 				+ getId() + "/interests";
 		return new ModelIterator<Interest>(Interest.class, baseURL, connection);
@@ -217,11 +188,10 @@ public class InterestCategory implements JSONParser {
 	/**
 	 * Add an interest to this category.
 	 * @param interest
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Interest addInterest(Interest interest) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	public Interest addInterest(Interest interest) throws IOException, Exception {
 		JSONObject json = interest.getJsonRepresentation();
 		String results = connection.do_Post(new URL(connection.getListendpoint()+"/"+getListId()+"/interest-categories/"+getId()+"/interests"), json.toString(), connection.getApikey());
 		return new Interest(connection, new JSONObject(results));
@@ -230,11 +200,10 @@ public class InterestCategory implements JSONParser {
 	/**
 	 * Remove an interest from this category.
 	 * @param interestId
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void deleteInrest(String interestId) throws MalformedURLException, TransportException, URISyntaxException {
+	public void deleteInrest(String interestId) throws IOException, Exception {
 		connection.do_Delete(new URL(connection.getListendpoint()+"/"+getListId()+"/interest-categories/"+getId()+"/interests/"+interestId), connection.getApikey());
 	}
 	

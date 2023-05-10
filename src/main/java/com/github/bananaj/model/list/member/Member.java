@@ -4,8 +4,7 @@
  */
 package com.github.bananaj.model.list.member;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
+import java.io.IOException;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -17,11 +16,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
-import com.github.bananaj.exceptions.TransportException;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.list.MailChimpList;
 import com.github.bananaj.utils.DateConverter;
@@ -157,11 +154,10 @@ public class Member implements JSONParser {
 	/**
 	 * Change this subscribers email address.
 	 * @param emailAddress
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void changeEmailAddress(String emailAddress) throws MalformedURLException, TransportException, URISyntaxException {
+	public void changeEmailAddress(String emailAddress) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		JSONObject updateMember = new JSONObject();
 		updateMember.put("email_address", emailAddress);
@@ -172,11 +168,10 @@ public class Member implements JSONParser {
 	/**
 	 * Change the status of the subscriber.
 	 * @param status
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void changeStatus(MemberStatus status) throws MalformedURLException, TransportException, URISyntaxException {
+	public void changeStatus(MemberStatus status) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		JSONObject updateMember = new JSONObject();
 		updateMember.put("status", status.toString());
@@ -188,12 +183,11 @@ public class Member implements JSONParser {
 	 * Add or update a list member via a PUT operation. When a new member is added
 	 * and no status_if_new has been specified SUBSCRIBED will be used. Member
 	 * fields will be freshened from mailchimp.
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws IOException
+	 * @throws Exception 
 	 * 
 	 */
-	public void addOrUpdate() throws MalformedURLException, TransportException, URISyntaxException {
+	public void addOrUpdate() throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		JSONObject json = getJsonRepresentation();
 
@@ -212,11 +206,10 @@ public class Member implements JSONParser {
 	 * 
 	 * @param tagName The name of the tag.
 	 * @param status The status for the tag on the member, pass in active to add a tag or inactive to remove it.
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void applyTag(String tagName, TagStatus status) throws MalformedURLException, TransportException, URISyntaxException {
+	public void applyTag(String tagName, TagStatus status) throws IOException, Exception {
 		Map<String, TagStatus> tagsMap = new HashMap<String, TagStatus>(1);
 		tagsMap.put(tagName, status);
 		applyTags(tagsMap);
@@ -225,11 +218,10 @@ public class Member implements JSONParser {
 	/**
 	 * Add or remove tags in bulk from this list member. If a tag that does not exist is passed in and set as ‘active’, a new tag will be created.
 	 * @param tagsMap
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void applyTags(Map<String, TagStatus> tagsMap) throws MalformedURLException, TransportException, URISyntaxException {
+	public void applyTags(Map<String, TagStatus> tagsMap) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		JSONObject tagObj = new JSONObject();
 		JSONArray tagsArray = new JSONArray();
@@ -271,12 +263,10 @@ public class Member implements JSONParser {
 	 * Get details about subscribers' recent activity.
 	 * 
 	 * @return The last 50 events of a member's activity, including opens, clicks, and unsubscribes.
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public List<MemberActivity> getActivities() throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	public List<MemberActivity> getActivities() throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		final JSONObject activity = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+getListId()+"/members/"+getId()+"/activity"), getConnection().getApikey()));
 		//String email_id = activity.getString("email_id");
@@ -303,39 +293,35 @@ public class Member implements JSONParser {
 	
 	/**
 	 * Get recent notes for this list member.
-	 * @param count Number of items to return
-	 * @param offset Zero based offset
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public List<MemberNote> getNotes(int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		Objects.requireNonNull(connection, "MailChimpConnection");
-		final JSONObject noteObj = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+getListId()+"/members/"+getId()+"/notes?count="+count+"&offset="+offset), getConnection().getApikey()));
-		//String email_id = noteObj.getString("email_id");
-		//String list_id = noteObj.getString("list_id");
-		//int total_items = noteObj.getInt("total_items");	// The total number of items matching the query regardless of pagination
-		List<MemberNote> notes = new ArrayList<MemberNote>();
-		final JSONArray noteArray = noteObj.getJSONArray("notes");
-
-		for (int i = 0 ; i < noteArray.length();i++)
-		{
-			notes.add(new MemberNote(noteArray.getJSONObject(i)));
-		}
-
-		return notes;
+	public Iterable<MemberNote> getNotes(int pageSize, int pageNumber) throws IOException, Exception {
+		Objects.requireNonNull(getConnection(), "MailChimpConnection");
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(), "/", getListId(), "/members/", getId(), "/notes");
+		return new ModelIterator<MemberNote>(MemberNote.class, baseURL, getConnection(), pageSize, pageNumber);
+	}
+	
+	/**
+	 * Get recent notes for this list member.
+	 * @throws IOException
+	 * @throws Exception 
+	 */
+	public Iterable<MemberNote> getNotes() throws IOException, Exception {
+		Objects.requireNonNull(getConnection(), "MailChimpConnection");
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(), "/", getListId(), "/members/", getId(), "/notes");
+		return new ModelIterator<MemberNote>(MemberNote.class, baseURL, getConnection());
 	}
 	
 	/**
 	 * Get a specific note for the member
 	 * @param noteId The id for the note.
-	 * @throws JSONException
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public MemberNote getNote(int noteId) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	public MemberNote getNote(int noteId) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		final JSONObject noteObj = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+getListId()+"/members/"+getId()+"/notes/"+noteId), getConnection().getApikey()));
 		return new MemberNote(noteObj);
@@ -344,11 +330,10 @@ public class Member implements JSONParser {
 	/**
 	 * Delete a note
 	 * @param noteId The id for the note to delete.
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void deleteNote(int noteId) throws MalformedURLException, TransportException, URISyntaxException {
+	public void deleteNote(int noteId) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		getConnection().do_Delete(new URL(getConnection().getListendpoint()+"/"+getListId()+"/members/"+getId()+"/notes/"+noteId), getConnection().getApikey());
 	}
@@ -356,12 +341,10 @@ public class Member implements JSONParser {
 	/**
 	 * Add a new note to this subscriber.
 	 * @param note The content of the note. Note length is limited to 1,000 characters.
-	 * @throws JSONException
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public MemberNote createNote(String note) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	public MemberNote createNote(String note) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("note", note);
@@ -373,12 +356,10 @@ public class Member implements JSONParser {
 	 * Update a specific note for this list member.
 	 * @param noteId The id for the note to update.
 	 * @param note The new content for the note. Note length is limited to 1,000 characters.
-	 * @throws JSONException
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public MemberNote updateNote(int noteId, String note) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	public MemberNote updateNote(int noteId, String note) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("note", note);
@@ -692,39 +673,28 @@ public class Member implements JSONParser {
 
 	/**
 	 * @return Returns an iterator for all tags applied to this member.
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Iterable<MemberTag> getAllTags() {
+	public Iterable<MemberTag> getAllTags() throws IOException, Exception {
 		if (tags != null && tags.size() < 50) {
 			return tags;	// already have full list so simply return it
 		}
 		
-		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getListId(),"/members/", 
-				getId(), "/tags");
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getListId(),"/members/", getId(), "/tags");
 		return new ModelIterator<MemberTag>(MemberTag.class, baseURL, getConnection());
 	}
 	
 	/**
 	 * Get the tags for this list member.
-	 * @param count Number of tags to return
-	 * @param offset Zero based offset
-	 * @return The tags applied to this member.
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
+	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param pageNumber First page number to fetch starting from 0.
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public List<MemberTag> getTags(int count, int offset) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
-		final JSONObject tagsObj = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint() + "/"
-				+ getListId() + "/members/" + getId() + "/tags" + "?offset=" + offset + "&count=" + count),
-				getConnection().getApikey()));
-		// int total_items = tagsObj.getInt("total_items");	// The total number of items matching the query regardless of pagination
-		// matching the query regardless of pagination
-		final JSONArray tagsArray = tagsObj.getJSONArray("tags");
-		List<MemberTag> tags = new ArrayList<MemberTag>(tagsArray.length());
-		for (int i = 0; i < tagsArray.length(); i++) {
-			tags.add(new MemberTag(tagsArray.getJSONObject(i)));
-		}
-		return tags;
+	public Iterable<MemberTag> getTags(int pageSize, int pageNumber) throws IOException, Exception {
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getListId(),"/members/", getId(), "/tags");
+		return new ModelIterator<MemberTag>(MemberTag.class, baseURL, getConnection(), pageSize, pageNumber);
 	}
 
 	/**
@@ -825,11 +795,10 @@ public class Member implements JSONParser {
 	/**
 	 * Update subscriber via a PATCH operation. Member fields will be freshened
 	 * from MailChimp.
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void update() throws MalformedURLException, TransportException, URISyntaxException {
+	public void update() throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		JSONObject json = getJsonRepresentation();
 
@@ -841,22 +810,20 @@ public class Member implements JSONParser {
 	
 	/**
 	 * Remove this list member
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void delete() throws MalformedURLException, TransportException, URISyntaxException {
+	public void delete() throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		getConnection().do_Delete(new URL(getConnection().getListendpoint()+"/"+getListId()+"/members/"+getId()), getConnection().getApikey());
 	}
 	
 	/**
 	 * Permanently delete this list member
-	 * @throws MalformedURLException
-	 * @throws TransportException
-	 * @throws URISyntaxException
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void deletePermanent() throws MalformedURLException, TransportException, URISyntaxException {
+	public void deletePermanent() throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		getConnection().do_Post(new URL(getConnection().getListendpoint()+"/"+getListId()+"/members/"+getId()+"/actions/delete-permanent"), getConnection().getApikey());
 	}

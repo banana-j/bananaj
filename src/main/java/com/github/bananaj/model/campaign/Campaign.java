@@ -4,6 +4,7 @@
  */
 package com.github.bananaj.model.campaign;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -17,7 +18,6 @@ import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.exceptions.CampaignSettingsException;
-import com.github.bananaj.exceptions.TransportException;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.ReportSummary;
 import com.github.bananaj.model.Tracking;
@@ -103,14 +103,14 @@ public class Campaign implements JSONParser {
 	 * Update the campaign settings given specified CampaignSettings.
 	 * @param campaignSettings
 	 */
-	public void updateSettings(CampaignSettings campaignSettings) throws CampaignSettingsException, Exception {
+	public void updateSettings(CampaignSettings campaignSettings) throws CampaignSettingsException, IOException, Exception {
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("settings", campaignSettings.getJsonRepresentation());
 		String response = getConnection().do_Patch(new URL(getConnection().getCampaignendpoint()+"/"+getId()), jsonObj.toString(), getConnection().getApikey());
 		parse(connection, new JSONObject(response));
 	}
 
-	public void update() throws Exception {
+	public void update() throws IOException, Exception {
 		JSONObject jsonObj = new JSONObject();
 		//jsonObj.put("recipients", recipients.getJsonRepresentation());
 		jsonObj.put("settings", settings.getJsonRepresentation());
@@ -122,21 +122,21 @@ public class Campaign implements JSONParser {
 		parse(connection, new JSONObject(response));
 	}
 	
-	public void delete() throws Exception {
+	public void delete() throws IOException, Exception {
 		getConnection().do_Delete(new URL(getConnection().getCampaignendpoint() +"/"+getId()), getConnection().getApikey());
 	}
 	
 	/**
 	 * Send the campaign to the mailChimpList members
 	 */
-	public void send() throws Exception{
+	public void send() throws IOException, Exception{
 		getConnection().do_Post(new URL(connection.getCampaignendpoint()+"/"+this.getId()+"/actions/send"),connection.getApikey());
 	}
 	
 	/**
 	 * Send the campaign to the mailChimpList members
 	 */
-	public void sendTestEmail(String[] emails, CampaignSendType type) throws Exception {
+	public void sendTestEmail(String[] emails, CampaignSendType type) throws IOException, Exception {
 		JSONObject data = new JSONObject();
 		JSONArray testEmails = new JSONArray();
 		for (String email : emails) {
@@ -153,7 +153,7 @@ public class Campaign implements JSONParser {
 	 * 
 	 * @throws Exception
 	 */
-	public void cancel() throws Exception {
+	public void cancel() throws IOException, Exception {
 		getConnection().do_Post(new URL(getConnection().getCampaignendpoint()+"/"+getId()+"/actions/cancel-send"), getConnection().getApikey());
 	}
 	
@@ -163,7 +163,7 @@ public class Campaign implements JSONParser {
 	 * 
 	 * @throws Exception
 	 */
-	public Campaign resend() throws Exception {
+	public Campaign resend() throws IOException, Exception {
 		String results = getConnection().do_Post(new URL(getConnection().getCampaignendpoint()+"/"+getId()+"/actions/create-resend"), getConnection().getApikey());
 		return new Campaign(getConnection(), new JSONObject(results));
 	}
@@ -172,7 +172,7 @@ public class Campaign implements JSONParser {
 	 * Pause an RSS-Driven campaign
 	 * @throws Exception
 	 */
-	public void pause() throws Exception {
+	public void pause() throws IOException, Exception {
 		getConnection().do_Post(new URL(getConnection().getCampaignendpoint()+"/"+getId()+"/actions/pause"), getConnection().getApikey());
 	}
 
@@ -180,7 +180,7 @@ public class Campaign implements JSONParser {
 	 * Resume an RSS-Driven campaign.
 	 * @throws Exception
 	 */
-	public void resume() throws Exception {
+	public void resume() throws IOException, Exception {
 		getConnection().do_Post(new URL(getConnection().getCampaignendpoint()+"/"+getId()+"/actions/resume"), getConnection().getApikey());
 	}
 
@@ -188,18 +188,17 @@ public class Campaign implements JSONParser {
 	 * Replicate a campaign in saved or send status
 	 * @throws Exception
 	 */
-	public Campaign replicate() throws Exception {
+	public Campaign replicate() throws IOException, Exception {
 		String results = getConnection().do_Post(new URL(getConnection().getCampaignendpoint()+"/"+getId()+"/actions/replicate"), getConnection().getApikey());
 		return new Campaign(getConnection(), new JSONObject(results));
 	}
 	
 	/**
 	 * Get the send checklist for campaign. Review the send checklist for your campaign, and resolve any issues before sending. 
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public CampaignSendChecklist getSendChecklist() throws MalformedURLException, TransportException, URISyntaxException {
+	public CampaignSendChecklist getSendChecklist() throws IOException, Exception {
 		String results = getConnection().do_Get(new URL(getConnection().getCampaignendpoint()+"/"+getId()+"/send-checklist"), getConnection().getApikey());
 		return new CampaignSendChecklist(new JSONObject(results));
 	}
@@ -221,7 +220,7 @@ public class Campaign implements JSONParser {
 	 * Stops the sending of your campaign
 	 * (!Only included in mailchimp pro)
 	 */
-	public void cancelSend() throws Exception {
+	public void cancelSend() throws IOException, Exception {
 		getConnection().do_Post(new URL(getConnection().getCampaignendpoint()+"/"+getId()+"/actions/cancel-send"), getConnection().getApikey());
 	}
 
@@ -229,7 +228,7 @@ public class Campaign implements JSONParser {
 	 * Get the report of this campaign
 	 * @throws Exception
 	 */
-	public Report getReport() throws Exception {
+	public Report getReport() throws IOException, Exception {
 		final JSONObject report = new JSONObject(connection.do_Get(new URL(connection.getReportsendpoint()+"/"+getId()), connection.getApikey()));
 		return new Report(connection, report);
 	}
@@ -261,24 +260,20 @@ public class Campaign implements JSONParser {
 
 	/**
 	 * Get the content of this campaign from mailchimp API
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
+	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	private void getCampaignContent() throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	private void getCampaignContent() throws IOException, Exception {
 		JSONObject content = new JSONObject(getConnection().do_Get(new URL(connection.getCampaignendpoint()+"/"+this.getId()+"/content"),connection.getApikey()));
 		this.content = new CampaignContent(this, content);
 	}
 
 	/**
 	 * Get feedback about a campaign
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
+	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public List<CampaignFeedback> getFeedback() throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	public List<CampaignFeedback> getFeedback() throws IOException, Exception {
 		List<CampaignFeedback> feedback = new ArrayList<CampaignFeedback>();
 		JSONObject campaignFeedback = new JSONObject(getConnection().do_Get(new URL(connection.getCampaignendpoint()+"/"+this.getId()+"/feedback"),connection.getApikey()));
 		
@@ -296,12 +291,10 @@ public class Campaign implements JSONParser {
 	/**
 	 * Get a specific feedback message
 	 * @param feedbackId
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
+	 * @throws IOException 
+	 * @throws Exception 
 	 */
-	public CampaignFeedback getFeedback(String feedbackId) throws JSONException, MalformedURLException, TransportException, URISyntaxException  {
+	public CampaignFeedback getFeedback(String feedbackId) throws IOException, Exception  {
 		JSONObject jsonObj = new JSONObject(getConnection().do_Get(new URL(connection.getCampaignendpoint()+"/"+getId()+"/feedback/"+feedbackId),connection.getApikey()));
 		CampaignFeedback feedback = new CampaignFeedback(connection, jsonObj);
 		return feedback;
@@ -311,13 +304,10 @@ public class Campaign implements JSONParser {
 	 * Add campaign feedback
 	 * @param message
 	 * @return
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
-	 * @throws JSONException 
+	 * @throws IOException 
 	 * @throws Exception
 	 */
-	public CampaignFeedback createFeedback(String message) throws JSONException, MalformedURLException, TransportException, URISyntaxException {
+	public CampaignFeedback createFeedback(String message) throws IOException, Exception {
 		CampaignFeedback feedback = new CampaignFeedback.Builder()
 				.connection(connection)
 				.campaignId(getId())
@@ -332,12 +322,10 @@ public class Campaign implements JSONParser {
 	/**
 	 * Delete a campaign feedback message
 	 * @param feedbackId
-	 * @throws URISyntaxException 
-	 * @throws TransportException 
-	 * @throws MalformedURLException 
+	 * @throws IOException 
 	 * @throws Exception
 	 */
-	public void deleteFeedback(String feedbackId) throws MalformedURLException, TransportException, URISyntaxException {
+	public void deleteFeedback(String feedbackId) throws IOException, Exception {
 		getConnection().do_Delete(new URL(connection.getCampaignendpoint()+"/"+getId()+"/feedback/"+feedbackId),connection.getApikey());
 	}
 

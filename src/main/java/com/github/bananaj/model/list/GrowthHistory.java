@@ -6,12 +6,15 @@ package com.github.bananaj.model.list;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.model.JSONParser;
+
 /**
  * Class for representing a growth history of a mailChimpList
  * @author alexanderweiss
  *
  */
-public class GrowthHistory {
+public class GrowthHistory implements JSONParser {
 
 	//	private MailChimpList mailChimpList;
 	private String id;
@@ -28,18 +31,23 @@ public class GrowthHistory {
 	private int transactional;
 
 	public GrowthHistory(JSONObject jsonObj) {
-		id = jsonObj.getString("list_id");
-		month = jsonObj.getString("month");
-		existing = jsonObj.has("existing") ? jsonObj.getInt("existing") : null;
-		imports = jsonObj.has("imports") ? jsonObj.getInt("imports") : null;
-		optins = jsonObj.has("optins") ? jsonObj.getInt("optins") : null;
-		subscribed = jsonObj.getInt("subscribed");
-		unsubscribed = jsonObj.getInt("unsubscribed");
-		reconfirm = jsonObj.getInt("reconfirm");
-		cleaned = jsonObj.getInt("cleaned");
-		pending = jsonObj.getInt("pending");
-		deleted = jsonObj.getInt("deleted");
-		transactional = jsonObj.getInt("transactional");
+		parse(null, jsonObj);
+	}
+
+	@Override
+	public void parse(MailChimpConnection connection, JSONObject entity) {
+		id = entity.getString("list_id");
+		month = entity.getString("month");
+		existing = entity.has("existing") ? entity.getInt("existing") : null;
+		imports = entity.has("imports") ? entity.getInt("imports") : null;
+		optins = entity.has("optins") ? entity.getInt("optins") : null;
+		subscribed = entity.getInt("subscribed");
+		unsubscribed = entity.getInt("unsubscribed");
+		reconfirm = entity.getInt("reconfirm");
+		cleaned = entity.getInt("cleaned");
+		pending = entity.getInt("pending");
+		deleted = entity.getInt("deleted");
+		transactional = entity.getInt("transactional");
 	}
 
 	/**
