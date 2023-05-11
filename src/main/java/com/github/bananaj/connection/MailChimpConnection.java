@@ -34,6 +34,7 @@ import com.github.bananaj.model.report.EcommerceProductActivity;
 import com.github.bananaj.model.report.EcommerceSortField;
 import com.github.bananaj.model.report.EmailActivity;
 import com.github.bananaj.model.report.OpenReport;
+import com.github.bananaj.model.report.OpenReportMember;
 import com.github.bananaj.model.report.Report;
 import com.github.bananaj.model.report.ReportSentTo;
 import com.github.bananaj.model.template.Template;
@@ -468,14 +469,30 @@ public class MailChimpConnection extends Connection {
 	
 
 	/**
+	 * Get information about a specific subscriber who opened a campaign.
+	 * @param campaignId
+	 * @param subscriber The member's email address or subscriber hash
+	 * @return Detailed information about the campaigns emails that were opened by list members.
+	 * @throws IOException
+	 * @throws Exception 
+	 */
+	public OpenReportMember getCampaignOpenReport(String campaignId, String subscriber) throws IOException, Exception {
+		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/open-details","/", Member.subscriberHash(subscriber));
+		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
+		return new OpenReportMember(jsonReport);
+	}
+	
+
+	/**
 	 * Get information about campaign abuse complaints.
 	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
 	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param campaignId The unique id for the campaign.
 	 * @return Abuse complaints for a campaign
-	 * @throws IOException 
+	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public Iterable<AbuseReport>  getCampaignAbuseReports(int pageSize, int pageNumber, String campaignId) throws IOException {
+	public Iterable<AbuseReport>  getCampaignAbuseReports(int pageSize, int pageNumber, String campaignId) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/abuse-reports");
 		return new ModelIterator<AbuseReport>(AbuseReport.class, baseURL, this, pageSize, pageNumber);
 	}

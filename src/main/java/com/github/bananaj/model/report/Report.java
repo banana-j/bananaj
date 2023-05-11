@@ -5,6 +5,7 @@
 package com.github.bananaj.model.report;
 
 import java.io.IOException;
+import java.net.URL;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,9 @@ import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.campaign.Bounce;
 import com.github.bananaj.model.campaign.CampaignType;
+import com.github.bananaj.model.list.member.Member;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.URLHelper;
 
 /**
  * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
@@ -327,6 +330,18 @@ public class Report implements JSONParser {
 		return connection.getCampaignOpenReports(getId(), since);
 	}
 	
+	/**
+	 * Get information about a specific subscriber who opened a campaign.
+	 * @param campaignId
+	 * @param subscriber The member's email address or subscriber hash
+	 * @return Detailed information about the campaigns emails that were opened by list members.
+	 * @throws IOException
+	 * @throws Exception 
+	 */
+	public OpenReportMember getCampaignOpenReport(String subscriber) throws IOException, Exception {
+		return connection.getCampaignOpenReport(getId(), subscriber);
+	}
+
 	/**
 	 * Get detailed information about links clicked in campaigns.
 	 * @return Campaign click details
