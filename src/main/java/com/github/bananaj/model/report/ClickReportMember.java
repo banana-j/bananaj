@@ -125,7 +125,23 @@ public class ClickReportMember implements JSONParser {
 	 */
 	@Override
 	public String toString() {
-		return getEmailId() + " " + getEmailAddress() + " Status: " + getContactStatus() + " VIP: " + isVip() + " Clicks: " + getClicks();
+		StringBuilder sb = new StringBuilder(500);
+		sb.append("Click Report Member: " + getEmailId() + " " + getEmailAddress() + System.lineSeparator());
+		sb.append("    Url Id: " + getUrlId() + System.lineSeparator());
+		sb.append("    Clicks: " + getClicks() + System.lineSeparator());
+		sb.append("    Status: " + getContactStatus() + System.lineSeparator());
+		sb.append("    VIP: " + isVip() + System.lineSeparator());
+		sb.append("    List Id: " + getListId() + System.lineSeparator());
+		sb.append("    List Active: " + isListIsActive());
+
+		if (mergeFields.size() > 0) {
+			sb.append(System.lineSeparator() + "    Merge fields: " );
+			for (String key : mergeFields.keySet()) {
+				sb.append(System.lineSeparator() + "         " + key + ": " + mergeFields.get(key));
+			}
+		}
+
+		return sb.toString();
 	}
 
 }

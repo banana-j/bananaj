@@ -9,6 +9,7 @@ import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
 
 public class ClickReport implements JSONParser {
+	private String campaignId;
 	private String id;
 	private String url;
 	private Integer totalClicks;
@@ -29,6 +30,7 @@ public class ClickReport implements JSONParser {
 
 	@Override
 	public void parse(MailChimpConnection connection, JSONObject entity) {
+		campaignId = entity.getString("campaign_id");
 		id = entity.getString("id");
 		url = entity.getString("url");
 		totalClicks = entity.getInt("total_clicks");
@@ -44,6 +46,13 @@ public class ClickReport implements JSONParser {
 		}
 	}
 
+
+	/**
+	 * @return The campaign id.
+	 */
+	public String getCampaignId() {
+		return campaignId;
+	}
 
 	/**
 	 * @return The unique id for the link.
@@ -113,14 +122,16 @@ public class ClickReport implements JSONParser {
 	 */
 	@Override
 	public String toString() {
-		return
-				"Click Report: " + getId() + " " + getUrl() + System.lineSeparator() +
-				"    Total Clicks: " + getTotalClicks() + System.lineSeparator() +
-				"    Click Percentage: " + getClickPercentage() + System.lineSeparator() +
-				"    Unique Clicks: " + getUniqueClicks() + System.lineSeparator() +
-				"    Unique Click Percentage: " + getUniqueClickPercentage() + 
-				(getAbSplit_a() != null ? System.lineSeparator() + getAbSplit_a().toString() : "") +
-				(getAbSplit_b() != null ? System.lineSeparator() + getAbSplit_b().toString() : "");
+		StringBuilder sb = new StringBuilder(200);
+		sb.append("Click Report: " + getId() + " " + getUrl() + System.lineSeparator());
+		sb.append("    Total Clicks: " + getTotalClicks() + System.lineSeparator());
+		sb.append("    Click Percentage: " + getClickPercentage() + System.lineSeparator());
+		sb.append("    Unique Clicks: " + getUniqueClicks() + System.lineSeparator());
+		sb.append("    Unique Click Percentage: " + getUniqueClickPercentage()+ System.lineSeparator());
+		sb.append("    Campaign Id: " + getCampaignId());
+		if (getAbSplit_a() != null) {sb.append(System.lineSeparator() + getAbSplit_a().toString());}
+		if (getAbSplit_b() != null) {sb.append(System.lineSeparator() + getAbSplit_b().toString());}
+		return sb.toString();
 	}
 
 }

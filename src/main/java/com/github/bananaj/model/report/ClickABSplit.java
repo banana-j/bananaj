@@ -50,12 +50,13 @@ public class ClickABSplit {
 	 */
 	@Override
 	public String toString() {
-		return
-				"Group "+ group +": " + System.lineSeparator() +
-				"    Total Clicks: " + getTotalClicks() + System.lineSeparator() +
-				"    Click Percentage: " + getClickPercentage() + System.lineSeparator() +
-				"    Unique Clicks: " + getUniqueClicks() + System.lineSeparator() +
-				"    Unique Click Percentage: " + getUniqueClickPercentage();
+		StringBuilder sb = new StringBuilder(200);
+		sb.append("Group "+ group +": " + System.lineSeparator());
+		sb.append("    Total Clicks: " + getTotalClicks() + System.lineSeparator());
+		sb.append("    Click Percentage: " + getClickPercentage() + System.lineSeparator());
+		sb.append("    Unique Clicks: " + getUniqueClicks() + System.lineSeparator());
+		sb.append("    Unique Click Percentage: " + getUniqueClickPercentage());
+		return sb.toString();
 	}
 
 }

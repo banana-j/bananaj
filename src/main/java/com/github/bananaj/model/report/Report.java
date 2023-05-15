@@ -5,7 +5,6 @@
 package com.github.bananaj.model.report;
 
 import java.io.IOException;
-import java.net.URL;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +16,8 @@ import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.campaign.Bounce;
 import com.github.bananaj.model.campaign.CampaignType;
-import com.github.bananaj.model.list.member.Member;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.ModelIterator;
 import com.github.bananaj.utils.URLHelper;
 
 /**
@@ -338,7 +337,7 @@ public class Report implements JSONParser {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public OpenReportMember getCampaignOpenReport(String subscriber) throws IOException, Exception {
+	public OpenReportMember getOpenReport(String subscriber) throws IOException, Exception {
 		return connection.getCampaignOpenReport(getId(), subscriber);
 	}
 
@@ -423,8 +422,8 @@ public class Report implements JSONParser {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public ReportSentTo getSentToRecipientReport(String subscriberHash) throws IOException, Exception {
-		return connection.getCampaignSentToRecipientReport(getId(), subscriberHash);
+	public ReportSentTo getSentToReport(String subscriberHash) throws IOException, Exception {
+		return connection.getCampaignSentToReport(getId(), subscriberHash);
 	}
 	
 	/**
@@ -446,6 +445,15 @@ public class Report implements JSONParser {
 	 */
 	public EmailActivity getEmailActivityReport(String subscriber) throws IOException, Exception {
 		return connection.getCampaignEmailActivityReport(getId(), subscriber);
+	}
+	
+	/**
+	 * Top open locations for a specific campaign.
+	 * @throws IOException 
+	 * @throws Exception 
+	 */
+	public Iterable<ReportLocation> getLocationsReports() throws IOException, Exception {
+		return connection.getCampaignLocationsReports(getId());
 	}
 	
 	@Override
