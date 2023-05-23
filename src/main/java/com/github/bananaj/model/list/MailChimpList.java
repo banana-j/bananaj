@@ -35,6 +35,7 @@ import com.github.bananaj.model.list.member.MemberTag;
 import com.github.bananaj.model.list.mergefield.MergeField;
 import com.github.bananaj.model.list.segment.Segment;
 import com.github.bananaj.model.list.segment.SegmentOptions;
+import com.github.bananaj.model.list.segment.SegmentType;
 import com.github.bananaj.model.report.AbuseReport;
 import com.github.bananaj.model.report.Report;
 import com.github.bananaj.utils.DateConverter;
@@ -721,6 +722,24 @@ public class MailChimpList implements JSONParser {
 	 */
 	public Iterable<Segment> getSegments() throws IOException, Exception {
 		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/segments");
+		return new ModelIterator<Segment>(Segment.class, baseURL, getConnection());
+	}
+
+	/**
+	 * Get segments iterator for this list. A segment is a section of your list that
+	 * includes only those subscribers who share specific common field information.
+	 * 
+	 * Checked exceptions, including IOException and JSONException, are
+	 * warped in a RuntimeException to reduce the need for boilerplate code inside
+	 * of lambdas.
+	 *
+	 * @param type   Limit results based on segment type
+	 * @return Segment iterator
+	 * @throws IOException
+	 * @throws Exception 
+	 */
+	public Iterable<Segment> getSegments(SegmentType type) throws IOException, Exception {
+		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getId(),"/segments","?","type=",type.toString());
 		return new ModelIterator<Segment>(Segment.class, baseURL, getConnection());
 	}
 
