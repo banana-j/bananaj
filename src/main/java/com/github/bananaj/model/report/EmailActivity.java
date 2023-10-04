@@ -121,14 +121,18 @@ public class EmailActivity implements JSONParser {
 
 		@Override
 		public void parse(MailChimpConnection connection, JSONObject entity) {
-			action = entity.getString("action");
+			if (entity.has("action")) {
+				action = entity.getString("action");
+			}
 			if (entity.has("type")) {
 				type = entity.getString("type");
 			}
 			if (entity.has("url")) {
 				url = entity.getString("url");
 			}
-			ip = entity.getString("ip");
+			if (entity.has("ip")) {
+				ip = entity.getString("ip");
+			}
 			if (entity.has("timestamp")) {
 				timestamp = DateConverter.fromISO8601(entity.getString("timestamp"));
 			}
