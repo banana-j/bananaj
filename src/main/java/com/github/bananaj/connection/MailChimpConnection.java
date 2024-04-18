@@ -811,12 +811,25 @@ public class MailChimpConnection extends Connection {
 	 * @param pageNumber First page number to fetch starting from 0.
      * @return List of template folders
 	 * @throws IOException
-	 * @throws Exception 
+	 * @throws Exception
+	 * @deprecated 
      */
 	public Iterable<TemplateFolder> getTemplateFolders(int pageSize, int pageNumber) throws IOException, Exception {
 		return new ModelIterator<TemplateFolder>(TemplateFolder.class, templatefolderendpoint, this, pageSize, pageNumber);
 	}
 
+	/**
+	 * Get template folders iterator
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/template-folders/">Template Folders</a> GET /template-folders
+	 * @return
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public Iterable<TemplateFolder> getTemplateFolders(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return new ModelIterator<TemplateFolder>(TemplateFolder.class, templatefolderendpoint, this, queryParameters);
+	}
+	
     /**
      * Get a specific template folder
      * @param folder_id
@@ -853,7 +866,7 @@ public class MailChimpConnection extends Connection {
     }
 
 	/**
-	 * Get templates iterator from mailchimp account
+	 * Get templates iterator
 	 * @return templates iterator
 	 * @throws IOException
 	 * @throws Exception 
@@ -869,11 +882,24 @@ public class MailChimpConnection extends Connection {
 	 * @return list of templates
 	 * @throws IOException
 	 * @throws Exception 
+	 * @deprecated
 	 */
 	public Iterable<Template> getTemplates(int pageSize, int pageNumber) throws IOException, Exception {
 		return new ModelIterator<Template>(Template.class, templateendpoint, this, pageSize, pageNumber);
 	}
 
+	/**
+	 * Get templates iterator
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/templates/">Templates</a> GET /templates
+	 * @return
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public Iterable<Template> getTemplates(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return new ModelIterator<Template>(Template.class, templateendpoint, this, queryParameters);
+	}
+	
 	/**
 	 * Get a template from mailchimp account
 	 * @param id
