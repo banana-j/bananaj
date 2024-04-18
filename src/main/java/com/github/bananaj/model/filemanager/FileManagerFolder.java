@@ -11,8 +11,10 @@ import java.util.Queue;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.connection.MailChimpQueryParameters;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Manage specific folders in the File Manager for your Mailchimp account. The
@@ -20,12 +22,11 @@ import com.github.bananaj.utils.DateConverter;
  * include or link to in your campaigns, templates, or signup forms.
  */
 public class FileManagerFolder implements JSONParser {
-	private int id;
+	private Integer id;
 	private String name;
-	private int fileCount;
+	private Integer fileCount;
 	private ZonedDateTime createdAt;
 	private String createdBy;
-//	private ArrayList<FileManagerFile> files;
 	private MailChimpConnection connection;
 
 	public FileManagerFolder() {
@@ -37,12 +38,13 @@ public class FileManagerFolder implements JSONParser {
 	}
 
 	public void parse(MailChimpConnection connection, JSONObject jsonFileManagerFolder) {
-		id = jsonFileManagerFolder.getInt("id");
-		name = jsonFileManagerFolder.getString("name");
-		fileCount = jsonFileManagerFolder.getInt("file_count");
-		createdAt = DateConverter.fromISO8601(jsonFileManagerFolder.getString("created_at"));
-		createdBy = jsonFileManagerFolder.getString("created_by");
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonFileManagerFolder);
 		this.connection = connection;
+		id = jObj.getInt("id");
+		name = jObj.getString("name");
+		fileCount = jObj.getInt("file_count");
+		createdAt = jObj.getISO8601Date("created_at");
+		createdBy = jObj.getString("created_by");
 	}
 
 	/**
@@ -74,7 +76,7 @@ public class FileManagerFolder implements JSONParser {
 	/**
 	 * @return The unique id for the folder.
 	 */
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
@@ -88,7 +90,7 @@ public class FileManagerFolder implements JSONParser {
 	/**
 	 * @return The number of files in the folder.
 	 */
-	public int getFileCount() {
+	public Integer getFileCount() {
 		return fileCount;
 	}
 
@@ -106,20 +108,6 @@ public class FileManagerFolder implements JSONParser {
 		return createdBy;
 	}
 
-//	/**
-//	 * Gets a list of all files belonging to this folder. Mailchimp does not allow
-//	 * querying for files that belong to a specific folder so the full list of files
-//	 * is iterated on first read and cached internally.
-//	 * 
-//	 * @return List of all file manager files
-//	 * @throws Exception
-//	 */
-//	public List<FileManagerFile> getFiles() throws Exception {
-//		if (files == null) { // defer loading files list until requested.
-//			cacheFoldersFiles();
-//		}
-//		return files;
-//	}
 	/**
 	 * Gets a list iterator of all files belonging to this folder. Mailchimp does
 	 * not allow querying for files that belong to a specific folder so the full
@@ -133,56 +121,21 @@ public class FileManagerFolder implements JSONParser {
 		return new FolderFileIterator();
 	}
 	
-//	/**
-//	 * Mailchimp API does not allow querying for files by folder Id so we have to
-//	 * request all files and filter them by the desired folder.
-//	 * 
-//	 * @throws Exception
-//	 */
-//	private void cacheFoldersFiles() throws Exception {
-//		ArrayList<FileManagerFile> files = new ArrayList<FileManagerFile>();
-//		if (fileCount > 0) {
-//			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-//			formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
-//
-//			int offset = 0;
-//			int count = 1000;
-//			List<FileManagerFile> filelist;
-//
-//			do {
-//				filelist = connection.getFileManager().getFileManagerFiles(count, offset);
-//				offset += count;
-//				for (FileManagerFile file : filelist) {
-//					if (file.getFolderId() == id) {
-//						files.add(file);
-//					}
-//				}
-//			} while (filelist.size() > 0 && files.size() < fileCount);
-//		}
-//		this.files = files;
-//	}
-
-//	/**
-//	 * Searches the list of all files stored in the mailchimp account for the
-//	 * specified file. Mailchimp does not allow querying for files that belong to a
-//	 * specific folder so the full list of files is cached on first read.
-//	 * 
-//	 * @param id
-//	 * @return The matching file by ID or null
-//	 * @throws Exception
-//	 */
-//	public FileManagerFile getFile(int id) throws Exception {
-//		if (files == null) { // defer loading files list until requested.
-//			cacheFoldersFiles();
-//		}
-//		for (FileManagerFile file : files) {
-//			if (file.getId() == id) {
-//				return file;
-//			}
-//		}
-//		return null;
-//	}
-
+	/**
+	 * Gets a list iterator of all files belonging to this folder. Mailchimp does
+	 * not allow querying for files that belong to a specific folder so the full
+	 * list of files is scanned and filtered.
+	 * 
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/file-manager/">File Manager</a> GET /file-manager/files
+	 * @return
+	 * @throws Exception
+	 */
+	public Iterable<FileManagerFile> getFiles(MailChimpQueryParameters queryParameters) throws Exception {
+		// TODO: Contact Mailchimp about shortcoming and look for undocumented filter on folder_id
+		return new FolderFileIterator(queryParameters);
+	}
+	
 	public MailChimpConnection getConnection() {
 		return connection;
 	}
@@ -221,11 +174,16 @@ public class FileManagerFolder implements JSONParser {
 			scanFiles();
 		}
 
+		public FolderFileIterator(MailChimpQueryParameters queryParameters) throws Exception {
+			it = connection.getFileManager().getFiles(queryParameters).iterator();
+			scanFiles();
+		}
+
 		private void scanFiles() {
 			int numfound = 0;
 			while(it.hasNext() && numfound < 10) {
 				FileManagerFile file = it.next();
-				if (file.getFolderId() == id) {
+				if (id.equals(file.getFolderId())) {
 					q.offer(file);
 					numfound++;
 					totfound++;

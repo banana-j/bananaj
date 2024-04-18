@@ -6,7 +6,7 @@ import com.github.bananaj.connection.MailChimpConnection;
 
 /**
  * Implementing this interface allows an object to be the target of
- * the "ModelIterator." See {@link com.github.bananaj.utils.ModelIterator} 
+ * the "ModelIterator." See {@link com.github.bananaj.model.ModelIterator} 
  *
  */
 public interface JSONParser {

@@ -7,7 +7,7 @@ import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
-import com.github.bananaj.utils.ModelIterator;
+import com.github.bananaj.model.ModelIterator;
 
 /**
  * Manage interest categories for a specific list. Interest categories organize

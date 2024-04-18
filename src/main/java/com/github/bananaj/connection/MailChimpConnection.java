@@ -10,6 +10,7 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.github.bananaj.model.ModelIterator;
 import com.github.bananaj.model.automation.Automation;
 import com.github.bananaj.model.automation.AutomationRecipient;
 import com.github.bananaj.model.automation.AutomationSettings;
@@ -40,11 +41,12 @@ import com.github.bananaj.model.report.ReportSentTo;
 import com.github.bananaj.model.template.Template;
 import com.github.bananaj.model.template.TemplateFolder;
 import com.github.bananaj.utils.DateConverter;
-import com.github.bananaj.utils.ModelIterator;
 import com.github.bananaj.utils.URLHelper;
 
 /**
  * Class for the com.github.bananaj.connection to mailchimp servers. Used to get lists from mailchimp account.
+ * 
+ * @see <a href="https://mailchimp.com/developer/marketing/api/">MAILCHIMP MARKETING API</a>
  *
  */
 public class MailChimpConnection extends Connection {
@@ -89,7 +91,7 @@ public class MailChimpConnection extends Connection {
 	}
 
 	/**
-	 * Get the List/Audience iterator for in your account
+	 * Get information about all lists/audiences in the account.
 	 * 
 	 * @return List/audience iterator
 	 * @throws IOException
@@ -105,14 +107,29 @@ public class MailChimpConnection extends Connection {
 	 * @param pageNumber First page number to fetch starting from 0.
 	 * @return List containing Mailchimp lists
 	 * @throws IOException
-	 * @throws Exception 
+	 * @throws Exception
+	 * @deprecated
 	 */
 	public Iterable<MailChimpList> getLists(int pageSize, int pageNumber) throws IOException, Exception {
 		return new ModelIterator<MailChimpList>(MailChimpList.class, listendpoint, this, pageSize, pageNumber);
 	}
 	
 	/**
-	 * Get a specific mailchimp List/Audience
+	 * Get information about all lists/audiences in the account.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/lists/">Lists/Audiences</a> GET /lists
+	 * @return
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public Iterable<MailChimpList> getLists(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return new ModelIterator<MailChimpList>(MailChimpList.class, listendpoint, this, queryParameters);
+	}
+
+	/**
+	 * Get information about a specific list in your Mailchimp account. Results include list 
+	 * members who have signed up but haven't confirmed their subscription yet and unsubscribed 
+	 * or cleaned.
 	 * @return a Mailchimp list object
 	 * @throws IOException
 	 * @throws Exception 
@@ -236,11 +253,26 @@ public class MailChimpConnection extends Connection {
      * @return List containing campaigns
 	 * @throws IOException
 	 * @throws Exception 
+	 * @deprecated
      */
     public Iterable<Campaign> getCampaigns(int pageSize, int pageNumber) throws IOException, Exception {
 		return new ModelIterator<Campaign>(Campaign.class, campaignendpoint, this, pageSize, pageNumber);
     }
 
+    /**
+     * Get all campaigns in an account.<br>
+     * Campaigns are how you send emails to your Mailchimp list. Use the Campaigns API calls 
+     * to manage campaigns in your Mailchimp account.
+     * @param queryParameters Optional query parameters to send to the MailChimp API. 
+     *   @see <a href="https://mailchimp.com/developer/marketing/api/campaigns/">Campaigns</a> GET /campaigns
+     * @return
+     * @throws IOException
+     * @throws Exception
+     */
+    public Iterable<Campaign> getCampaigns(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return new ModelIterator<Campaign>(Campaign.class, campaignendpoint, this, queryParameters);
+    }
+    
 	/**
 	 * Get a campaign from mailchimp account
 	 * @param campaignID

@@ -4,17 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.connection.MailChimpQueryParameters;
+import com.github.bananaj.model.ModelIterator;
 import com.github.bananaj.utils.FileInspector;
-import com.github.bananaj.utils.ModelIterator;
 import com.github.bananaj.utils.URLHelper;
 
 /**
@@ -22,7 +19,7 @@ import com.github.bananaj.utils.URLHelper;
  * place to store images, documents, and other files you include or link to in
  * your campaigns, templates, or signup forms.
  * 
- * Created by alexanderweiss on 06.02.16.
+ * @see <a href="https://mailchimp.com/developer/marketing/api/file-manager/">File Manager</a> 
  */
 
 public class FileManager {
@@ -34,7 +31,7 @@ public class FileManager {
 	}
 
 	/**
-	 * Get a iterator of all folders in the File Manager.
+	 * Get an iterator of all folders in the File Manager.
 	 * @return folders iterator
 	 * @throws IOException
 	 * @throws Exception 
@@ -49,15 +46,30 @@ public class FileManager {
 	 * @param pageNumber First page number to fetch starting from 0.
 	 * @throws IOException
 	 * @throws Exception 
+	 * @deprecated
 	 */
 	public Iterable<FileManagerFolder> getFolders(int pageSize, int pageNumber) throws IOException, Exception {
 		return new ModelIterator<FileManagerFolder>(FileManagerFolder.class, getConnection().getFilemanagerfolderendpoint(), getConnection(), pageSize, pageNumber);
 	}
 
 	/**
-	 * Get a specific file manager folder in mailchimp account account
+	 * Get an iterator of all folders in the File Manager.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/file-manager-folders/">File Manager</a> GET /file-manager/folders
+	 * @return
 	 * @throws IOException
-	 * @throws Exception 
+	 * @throws Exception
+	 */
+	public Iterable<FileManagerFolder> getFolders(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return new ModelIterator<FileManagerFolder>(FileManagerFolder.class, getConnection().getFilemanagerfolderendpoint(), getConnection(), queryParameters);
+	}
+
+	/**
+	 * Get information about a specific folder in the File Manager.
+	 * @param id The unique id for the File Manager folder.
+	 * @return
+	 * @throws IOException
+	 * @throws Exception
 	 */
 	public FileManagerFolder getFolder(int id) throws IOException, Exception {
 		JSONObject jsonFileManagerFolder = new JSONObject(getConnection().do_Get(URLHelper.url(getConnection().getFilemanagerfolderendpoint(),"/",Integer.toString(id)),connection.getApikey()));
@@ -65,7 +77,7 @@ public class FileManager {
 	}
 
 	/**
-	 * Create a new folder
+	 * Create a new folder in the File Manager.
 	 * @param name The name of the folder
 	 * @throws IOException
 	 * @throws Exception 
@@ -78,13 +90,13 @@ public class FileManager {
 	}
 
 	/**
-	 * Get a iterator of available images and files stored in the File Manager for the account.
-	 * @return file manager file iterator
+	 * Get an iterator of available images and files stored in the File Manager for the account.
+	 * @return File manager file iterator
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<FileManagerFile> getFiles() throws IOException, Exception {
-		return new ModelIterator<FileManagerFile>(FileManagerFile.class, getConnection().getFilesendpoint(), getConnection());
+	public FileManagerFileIterator getFiles() throws IOException, Exception {
+		return new FileManagerFileIterator(getConnection(),1000);
 	}
 
 	/**
@@ -93,15 +105,56 @@ public class FileManager {
 	 * @param pageNumber First page number to fetch starting from 0.
 	 * @throws IOException
 	 * @throws Exception 
+	 * @deprecated
 	 */
-	public Iterable<FileManagerFile> getFiles(int pageSize, int pageNumber) throws IOException, Exception {
-		return new ModelIterator<FileManagerFile>(FileManagerFile.class, getConnection().getFilesendpoint(), getConnection(), pageSize, pageNumber);
+	public FileManagerFileIterator getFiles(int pageSize, int pageNumber) throws IOException, Exception {
+		return new FileManagerFileIterator(getConnection(), pageSize, pageNumber);
 	}
 
 	/**
-	 * Get all files in your account
+	 * Get an iterator of available images and files stored in the File Manager for the account.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/file-manager/">File Manager</a> GET /file-manager/files
+	 * @return File manager file iterator
 	 * @throws IOException
-	 * @throws Exception 
+	 * @throws Exception
+	 */
+	public FileManagerFileIterator getFiles(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return new FileManagerFileIterator(getConnection(), queryParameters);
+	}
+	
+	/**
+	 * Get the total size of all files in the File Manager.
+	 * @return The total size of all File Manager files in bytes.
+	 */
+	public Long getTotalFileSize() {
+		MailChimpQueryParameters p = new MailChimpQueryParameters()
+				.count(1)
+				.offset(0)
+				.excludeFields("files,total_items,_links");
+		FileManagerFileIterator fi = new FileManagerFileIterator(getConnection(), p);
+		return fi.getTotalFileSize();
+	}
+	
+	/**
+	 * Get the total number of files in the File Manager.
+	 * @return The total number of files.
+	 */
+	public Integer getTotalFilesCount() {
+		MailChimpQueryParameters p = new MailChimpQueryParameters()
+				.count(1)
+				.offset(0)
+				.excludeFields("files,total_file_size,_links,");
+		FileManagerFileIterator fi = new FileManagerFileIterator(getConnection(), p);
+		return fi.getTotalItems();
+	}
+	
+	/** 
+	 * Get information about a specific file in the File Manager.
+	 * @param id The unique id for the File Manager file.
+	 * @return
+	 * @throws IOException
+	 * @throws Exception
 	 */
 	public FileManagerFile getFile(int id) throws IOException, Exception {
 		// parse response
@@ -110,14 +163,13 @@ public class FileManager {
 	}
 
 	/**
-	 * Upload a new file to the specified mailchimp folder
-	 * @param folder_id The mailchimp folder id where the file will be placed
-	 * @param filename The name of the mailchimp file
-	 * @param file File to be uploaded
-	 * @throws JSONException
-	 * @throws MalformedURLException
+	 * Upload a new image or file to the File Manager.
+	 * @param folder_id The id of the folder.
+	 * @param filename The name of the file.
+	 * @param file The file to be uploaded
+	 * @return
 	 * @throws IOException
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public FileManagerFile upload(int folder_id, String filename, File file) throws IOException, Exception {
 		String fExt = FileInspector.getInstance().getExtension(file);
@@ -131,13 +183,12 @@ public class FileManager {
 	}
 
 	/**
-	 * Upload a new file to mailchimp with no folder
-	 * @param filename The name of the mailchimp file
-	 * @param file File to be uploaded
-	 * @throws JSONException
-	 * @throws MalformedURLException
+	 * Upload a new image or file to the File Manager.
+	 * @param filename The name of the file.
+	 * @param file The file to be uploaded
+	 * @return
 	 * @throws IOException
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public FileManagerFile upload(String filename, File file) throws IOException, Exception {
 		String fExt = FileInspector.getInstance().getExtension(file);
@@ -150,8 +201,8 @@ public class FileManager {
 	}
 
 	/**
-	 * Delete a file with specified fileID
-	 * @param fileID
+	 * Remove a specific file from the File Manager.
+	 * @param fileID The unique id for the File Manager file.
 	 * @throws IOException
 	 * @throws Exception 
 	 */
@@ -160,8 +211,8 @@ public class FileManager {
 	}
 
 	/**
-	 * Delete a folder with specified folderID
-	 * @param folderID
+	 * Delete a specific folder in the File Manager.
+	 * @param folderID The unique id for the File Manager folder.
 	 * @throws IOException
 	 * @throws Exception 
 	 */

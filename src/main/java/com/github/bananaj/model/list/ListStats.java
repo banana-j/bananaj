@@ -5,18 +5,20 @@ import java.time.ZonedDateTime;
 import org.json.JSONObject;
 
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 public class ListStats {
 
-	private int memberCount;		// The number of active members in the list.
-	private int unsubscribeCount;	// The number of members who have unsubscribed from the list.
-	private int cleanedCount;		// The number of members cleaned from the list.
-	private int memberCountSinceSend;	// The number of active members in the list since the last campaign was sent.
-	private int unsubscribeCountSinceSend;	// The number of members who have unsubscribed since the last campaign was sent.
-	private int cleanedCountSinceSend;		// The number of members cleaned from the list since the last campaign was sent.
-	private int campaignCount;		// The number of campaigns in any status that use this list.
+	private Integer memberCount;		// The number of active members in the list.
+	private Integer totalContacts;		// An approximate count of all contacts in any state.
+	private Integer unsubscribeCount;	// The number of members who have unsubscribed from the list.
+	private Integer cleanedCount;		// The number of members cleaned from the list.
+	private Integer memberCountSinceSend;	// The number of active members in the list since the last campaign was sent.
+	private Integer unsubscribeCountSinceSend;	// The number of members who have unsubscribed since the last campaign was sent.
+	private Integer cleanedCountSinceSend;		// The number of members cleaned from the list since the last campaign was sent.
+	private Integer campaignCount;		// The number of campaigns in any status that use this list.
 	private ZonedDateTime campaignLastSent;	// The date and time the last campaign was sent to this list. This is updated when a campaign is sent to 10 or more recipients.
-	private int mergeFieldCount;	// The number of merge vars for this list (not EMAIL, which is required).
+	private Integer mergeFieldCount;	// The number of merge vars for this list (not EMAIL, which is required).
 	private Double avgSubscritionRate;	// The average number of subscriptions per month for the list (not returned if we haven’t calculated it yet).
 	private Double avgUnsubscribeRate;	// The average number of unsubscriptions per month for the list (not returned if we haven’t calculated it yet).
 	private Double targetSubscriptionRate;	// The target number of subscriptions per month for the list to keep it growing (not returned if we haven’t calculated it yet).
@@ -31,47 +33,46 @@ public class ListStats {
 
 	public ListStats(JSONObject jsonObj) {
 		if (jsonObj != null) {
-			memberCount = jsonObj.getInt("member_count");
-			unsubscribeCount = jsonObj.getInt("unsubscribe_count");
-			cleanedCount = jsonObj.getInt("cleaned_count");
-			memberCountSinceSend = jsonObj.getInt("member_count_since_send");
-			unsubscribeCountSinceSend = jsonObj.getInt("unsubscribe_count_since_send");
-			cleanedCountSinceSend = jsonObj.getInt("cleaned_count_since_send");
-			campaignCount = jsonObj.getInt("campaign_count");
-			campaignLastSent = getOptionalDate(jsonObj,"campaign_last_sent");
-			mergeFieldCount = jsonObj.getInt("merge_field_count");
-			avgSubscritionRate = jsonObj.has("avg_sub_rate") ? jsonObj.getDouble("avg_sub_rate") : null;
-			avgUnsubscribeRate = jsonObj.has("avg_unsub_rate") ? jsonObj.getDouble("avg_unsub_rate") : null;
-			targetSubscriptionRate = jsonObj.has("target_sub_rate") ? jsonObj.getDouble("target_sub_rate") : null;
-			openRate = jsonObj.has("open_rate") ? jsonObj.getDouble("open_rate") : null;
-			clickRate = jsonObj.has("click_rate") ? jsonObj.getDouble("click_rate") : null;
-			lastSubcribedDate = getOptionalDate(jsonObj,"last_sub_date");
-			lastUnsubscrivedDate = getOptionalDate(jsonObj,"last_unsub_date");
+			JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
+			memberCount = jObj.getInt("member_count");
+			totalContacts = jObj.getInt("total_contacts");
+			unsubscribeCount = jObj.getInt("unsubscribe_count");
+			cleanedCount = jObj.getInt("cleaned_count");
+			memberCountSinceSend = jObj.getInt("member_count_since_send");
+			unsubscribeCountSinceSend = jObj.getInt("unsubscribe_count_since_send");
+			cleanedCountSinceSend = jObj.getInt("cleaned_count_since_send");
+			campaignCount = jObj.getInt("campaign_count");
+			campaignLastSent = jObj.getISO8601Date("campaign_last_sent");
+			mergeFieldCount = jObj.getInt("merge_field_count");
+			avgSubscritionRate = jObj.getDouble("avg_sub_rate");
+			avgUnsubscribeRate = jObj.getDouble("avg_unsub_rate");
+			targetSubscriptionRate = jObj.getDouble("target_sub_rate");
+			openRate = jObj.getDouble("open_rate");
+			clickRate = jObj.getDouble("click_rate");
+			lastSubcribedDate = jObj.getISO8601Date("last_sub_date");
+			lastUnsubscrivedDate = jObj.getISO8601Date("last_unsub_date");
 		}
 	}
 	
-	private ZonedDateTime getOptionalDate(JSONObject stats, String key) {
-		if(stats.has(key)) {
-			String value = stats.getString(key);
-			if (value.length() > 0) {
-				return DateConverter.fromISO8601(value);
-			}
-		}
-		return null;
-	}
-
 	/**
 	 * The total number of members (sum of subscribed, unsubscribed, and cleaned)
 	 */
-	public int getTotalMemberCount() {
+	public Integer getTotalMemberCount() {
 		return memberCount + unsubscribeCount + cleanedCount;
 	}
 	
 	/**
 	 * The number of active members in the list.
 	 */
-	public int getMemberCount() {
+	public Integer getMemberCount() {
 		return memberCount;
+	}
+
+	/**
+	 * An approximate count of all contacts in any state. Must specify include_total_contacts in query request.
+	 */
+	public Integer getTotalContacts() {
+		return totalContacts;
 	}
 
 	public void setMemberCount(int memberCount) {
@@ -81,7 +82,7 @@ public class ListStats {
 	/**
 	 * The number of members who have unsubscribed from the list.
 	 */
-	public int getUnsubscribeCount() {
+	public Integer getUnsubscribeCount() {
 		return unsubscribeCount;
 	}
 
@@ -92,7 +93,7 @@ public class ListStats {
 	/**
 	 * The number of members cleaned from the list.
 	 */
-	public int getCleanedCount() {
+	public Integer getCleanedCount() {
 		return cleanedCount;
 	}
 
@@ -103,28 +104,28 @@ public class ListStats {
 	/**
 	 * The number of active members in the list since the last campaign was sent.
 	 */
-	public int getMemberCountSinceSend() {
+	public Integer getMemberCountSinceSend() {
 		return memberCountSinceSend;
 	}
 
 	/**
 	 * The number of members who have unsubscribed since the last campaign was sent.
 	 */
-	public int getUnsubscribeCountSinceSend() {
+	public Integer getUnsubscribeCountSinceSend() {
 		return unsubscribeCountSinceSend;
 	}
 
 	/**
 	 * The number of members cleaned from the list since the last campaign was sent.
 	 */
-	public int getCleanedCountSinceSend() {
+	public Integer getCleanedCountSinceSend() {
 		return cleanedCountSinceSend;
 	}
 
 	/**
 	 * The number of campaigns in any status that use this list.
 	 */
-	public int getCampaignCount() {
+	public Integer getCampaignCount() {
 		return campaignCount;
 	}
 
@@ -138,7 +139,7 @@ public class ListStats {
 	/**
 	 * The number of merge vars for this list (not EMAIL, which is required).
 	 */
-	public int getMergeFieldCount() {
+	public Integer getMergeFieldCount() {
 		return mergeFieldCount;
 	}
 

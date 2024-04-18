@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Class representing one specific file manager file.
@@ -21,17 +22,17 @@ import com.github.bananaj.utils.DateConverter;
  */
 public class FileManagerFile implements JSONParser {
 
-	private int id;
-	private int folderId;
+	private Integer id;
+	private Integer folderId;
 	private FileType type;
 	private String name;
 	private String fullSizeUrl;
 	private String thumbnailUrl;
-	private int size;
+	private Integer size;
 	private ZonedDateTime createdAt;
 	private String createdBy;
-	private int width;
-	private int height;
+	private Integer width;
+	private Integer height;
 	private MailChimpConnection connection;
 
 	private static final int BUFFER_SIZE = 4096;
@@ -53,20 +54,25 @@ public class FileManagerFile implements JSONParser {
 	}
 
 	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
-		id = jsonObj.getInt("id");
-		folderId = jsonObj.getInt("folder_id");
-		type = FileType.valueOf(jsonObj.getString("type").toUpperCase());
-		name = jsonObj.getString("name");
-		fullSizeUrl = jsonObj.getString("full_size_url");
-		thumbnailUrl = jsonObj.getString("thumbnail_url");
-		size = jsonObj.getInt("size");
-		createdAt = DateConverter.fromISO8601(jsonObj.getString("created_at"));
-		createdBy = jsonObj.getString("created_by");
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
 		this.connection = connection;
+		id = jObj.getInt("id");
+		folderId = jObj.getInt("folder_id");
+		if (jObj.has("type")) {
+			type = FileType.valueOf(jObj.getString("type").toUpperCase());
+		} else {
+			type = null;
+		}
+		name = jObj.getString("name");
+		fullSizeUrl = jObj.getString("full_size_url");
+		thumbnailUrl = jObj.getString("thumbnail_url");
+		size = jObj.getInt("size");
+		createdAt = jObj.getISO8601Date("created_at");
+		createdBy = jObj.getString("created_by");
 
-		if(jsonObj.getString("type").equals("image")) {
-			width = jsonObj.getInt("width");
-			height = jsonObj.getInt("height");
+		if(type != null && type == FileType.IMAGE) {
+			width = jObj.getInt("width");
+			height = jObj.getInt("height");
 		}
 	}
 
@@ -138,14 +144,14 @@ public class FileManagerFile implements JSONParser {
 	/**
 	 * @return The unique id of the file.
 	 */
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
 	/**
 	 * @return The id of the folder.
 	 */
-	public int getFolderId() {
+	public Integer getFolderId() {
 		return folderId;
 	}
 
@@ -153,7 +159,7 @@ public class FileManagerFile implements JSONParser {
 	 * Move file to a different folder. Must call {@link #update()} for change to take effect.
 	 * @param folderId the folderId for the file
 	 */
-	public void setFolderId(int folderId) {
+	public void setFolderId(Integer folderId) {
 		this.folderId = folderId;
 	}
 
@@ -196,7 +202,7 @@ public class FileManagerFile implements JSONParser {
 	/**
 	 * @return The size of the file in bytes.
 	 */
-	public int getSize() {
+	public Integer getSize() {
 		return size;
 	}
 
@@ -217,14 +223,14 @@ public class FileManagerFile implements JSONParser {
 	/**
 	 * @return The width of the image.
 	 */
-	public int getWidth() {
+	public Integer getWidth() {
 		return width;
 	}
 
 	/**
 	 * @return The height of an image.
 	 */
-	public int getHeight() {
+	public Integer getHeight() {
 		return height;
 	}
 
@@ -262,13 +268,13 @@ public class FileManagerFile implements JSONParser {
 
 
 	public static class Builder {
-		private int id;
+		private Integer id;
 		private String name;
-		private int folderId;
+		private Integer folderId;
 		private String fullSizeUrl;
 		private String thumbnailUrl;
 
-		public FileManagerFile.Builder id(int id) {
+		public FileManagerFile.Builder id(Integer id) {
 			this.id = id;
 			return this;
 		}
@@ -278,7 +284,7 @@ public class FileManagerFile implements JSONParser {
 			return this;
 		}
 
-		public FileManagerFile.Builder folder(int folderId) {
+		public FileManagerFile.Builder folder(Integer folderId) {
 			this.folderId = folderId;
 			return this;
 		}

@@ -12,10 +12,10 @@ import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
+import com.github.bananaj.model.ModelIterator;
 import com.github.bananaj.model.Tracking;
 import com.github.bananaj.model.automation.emails.AutomationEmail;
 import com.github.bananaj.utils.DateConverter;
-import com.github.bananaj.utils.ModelIterator;
 import com.github.bananaj.utils.URLHelper;
 
 /**

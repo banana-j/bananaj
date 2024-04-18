@@ -1,4 +1,4 @@
-package com.github.bananaj.utils;
+package com.github.bananaj.model;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -13,18 +13,23 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
-import com.github.bananaj.model.JSONParser;
+import com.github.bananaj.connection.MailChimpQueryParameters;
 
+/**
+ * Iterator class wrapper for MailChimp AIP. This class wraps MailChimp 
+ * paginated APIs in a unified Iterator interface internally handling
+ * all the pagination mechanics.
+ * 
+ * @param <T>
+ */
 public class ModelIterator<T extends JSONParser> implements Iterable<T> {
 	
 	protected MailChimpConnection connection;
 	protected Queue<T> q = new LinkedList<T>();
-	private String query;
-	private int offset = 0;
-	private int pagesize = 100;
 	private Class<T> typeClasse;
 	protected Integer totalItems;
-	private int currentIndex = 0;
+	private long currentIndex = 0;
+	private MailChimpQueryParameters queryParams;
 	
 	/**
 	 * 
@@ -35,48 +40,74 @@ public class ModelIterator<T extends JSONParser> implements Iterable<T> {
 	public ModelIterator(Class<T> typeClasse, String query, MailChimpConnection connection) {
 		this.typeClasse = typeClasse;
 		this.connection = connection;
-		this.query = query;
+		queryParams = new MailChimpQueryParameters(query)
+				.count(100)
+				.offset(0);
 		if (query != null) {
 			readPagedEntities();
 		}
 	}
 
 	/**
-	 * Create iterator with a specified fetch or page size
+	 * Create iterator with a specified fetch size
 	 * @param typeClasse
 	 * @param query
 	 * @param connection
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
+	 * @param count Number of records to fetch per query. Maximum value is 1000.
 	 */
-	public ModelIterator(Class<T> typeClasse, String query, MailChimpConnection connection, int pageSize) {
+	public ModelIterator(Class<T> typeClasse, String query, MailChimpConnection connection, int count) {
 		this.typeClasse = typeClasse;
 		this.connection = connection;
-		this.query = query;
-		this.pagesize = pagesize > 1000 ? 1000 : (pagesize < 1 ? 1 : pagesize);
+		queryParams = new MailChimpQueryParameters(query)
+				.count(count)
+				.offset(0);
 		readPagedEntities();
 	}
 
 	/**
-	 * Create iterator with a specified page size and starting page number
+	 * Create iterator with a specified fetch size and starting offset.
 	 * @param typeClasse
 	 * @param query
 	 * @param connection
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
+	 * @param count Number of records to fetch per query. Maximum value is 1000.
+	 * @param offset The number of records from a collection to skip.
 	 */
-	public ModelIterator(Class<T> typeClasse, String query, MailChimpConnection connection, int pageSize, int pageNumber) {
+	public ModelIterator(Class<T> typeClasse, String query, MailChimpConnection connection, int count, int offset) {
 		this.typeClasse = typeClasse;
 		this.connection = connection;
-		this.query = query;
-		this.pagesize = pagesize > 1000 ? 1000 : (pagesize < 1 ? 1 : pagesize);
-		this.offset = pageSize * pageNumber;
+		queryParams = new MailChimpQueryParameters(query)
+				.count(count)
+				.offset(offset * count);
 		readPagedEntities();
 	}
 
+	public ModelIterator(Class<T> typeClasse, String query, MailChimpConnection connection, MailChimpQueryParameters params) {
+		this.typeClasse = typeClasse;
+		this.connection = connection;
+		queryParams = params;
+		if (queryParams == null) {
+			queryParams = new MailChimpQueryParameters(query)
+				.count(100)
+				.offset(0);
+		} else {
+			Integer count = queryParams.getCount();
+			Integer offset = queryParams.getOffset();
+			if (count == null) {
+				queryParams.count(100);	// MailChimp defaults to 10. Use larger value to reduce number of REST calls.    
+			}
+			
+			if (offset == null) {
+				queryParams.offset(0);
+			}
+		}
+		queryParams.baseUrl(query);
+		readPagedEntities();
+	}
+	
 	private void readPagedEntities() {
 		try {
-			URL url = new URL(query + (query.contains("?") ? "&" : "?") + "count="+pagesize + "&offset="+offset);
-			offset += pagesize;
+			URL url = queryParams.getURL();
+			queryParams.offset(queryParams.getOffset() + queryParams.getCount()); // step offset for next iteration
 			final JSONObject list = new JSONObject(connection.do_Get(url,connection.getApikey()));
 			parseEntities(list);
 		} catch (IOException | JSONException | URISyntaxException e) {
@@ -92,7 +123,7 @@ public class ModelIterator<T extends JSONParser> implements Iterable<T> {
 	 * Override to handle special parsing requirements such as when base entity
 	 * contains multiple array elements at the root level.
 	 * 
-	 * @param rootObj The base, or root, element returned by the Mailchimp API.
+	 * @param rootObj The base, or root, element returned by the MailChimp API.
 	 */
 	protected void parseEntities(final JSONObject rootObj) {
 		parseRoot(rootObj);
@@ -105,7 +136,7 @@ public class ModelIterator<T extends JSONParser> implements Iterable<T> {
 			if (keyValue instanceof JSONArray) { // look for main entity array
 				// TODO: TRACE -- found 'key' entity array of type T
 				final JSONArray entArray = (JSONArray)keyValue;
-				for (int i = 0 ; i < entArray.length();i++)
+				for (int i = 0 ; i < entArray.length(); i++)
 				{
 					final JSONObject objDetail = entArray.getJSONObject(i);
 					q.offer(buildRefObj(connection, objDetail));
@@ -146,6 +177,10 @@ public class ModelIterator<T extends JSONParser> implements Iterable<T> {
 		}
 	}
 	
+	public Integer getTotalItems() {
+		return totalItems;
+	}
+
 	@Override
 	public Iterator<T> iterator() {
 		Iterator<T> it = new Iterator<T>() {

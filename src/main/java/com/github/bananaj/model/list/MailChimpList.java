@@ -25,6 +25,7 @@ import org.json.JSONObject;
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.exceptions.EmailException;
 import com.github.bananaj.model.JSONParser;
+import com.github.bananaj.model.ModelIterator;
 import com.github.bananaj.model.SortDirection;
 import com.github.bananaj.model.list.interests.Interest;
 import com.github.bananaj.model.list.interests.InterestCategory;
@@ -40,15 +41,13 @@ import com.github.bananaj.model.report.AbuseReport;
 import com.github.bananaj.model.report.Report;
 import com.github.bananaj.utils.DateConverter;
 import com.github.bananaj.utils.EmailValidator;
-import com.github.bananaj.utils.ModelIterator;
 import com.github.bananaj.utils.URLHelper;
 
 
 /**
- * Mailchimp list, also known as audience, is where you store and manage all of your contacts.
+ * Your Mailchimp list, also known as your audience, is where you store and manage all of your contacts.
  * 
- * @author alexanderweiss
- *
+ * @see <a href="https://mailchimp.com/developer/marketing/api/lists/">Lists/Audiences</a> 
  */
 public class MailChimpList implements JSONParser {
 
