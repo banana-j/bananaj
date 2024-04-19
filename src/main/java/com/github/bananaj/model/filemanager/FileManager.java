@@ -2,10 +2,8 @@ package com.github.bananaj.model.filemanager;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
@@ -55,8 +53,8 @@ public class FileManager {
 	/**
 	 * Get an iterator of all folders in the File Manager.
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/file-manager-folders/">File Manager</a> GET /file-manager/folders
-	 * @return
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/file-manager-folders/list-folders/">File Manager Folders -- GET /file-manager/folders</a>
+	 * @return Iterator of all folders in the File Manager.
 	 * @throws IOException
 	 * @throws Exception
 	 */
@@ -67,7 +65,7 @@ public class FileManager {
 	/**
 	 * Get information about a specific folder in the File Manager.
 	 * @param id The unique id for the File Manager folder.
-	 * @return
+	 * @return Information about a specific folder
 	 * @throws IOException
 	 * @throws Exception
 	 */
@@ -114,7 +112,7 @@ public class FileManager {
 	/**
 	 * Get an iterator of available images and files stored in the File Manager for the account.
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/file-manager/">File Manager</a> GET /file-manager/files
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/file-manager-files/list-stored-files/">File Manager Files -- GET /file-manager/files</a>
 	 * @return File manager file iterator
 	 * @throws IOException
 	 * @throws Exception
@@ -152,7 +150,7 @@ public class FileManager {
 	/** 
 	 * Get information about a specific file in the File Manager.
 	 * @param id The unique id for the File Manager file.
-	 * @return
+	 * @return Information about a specific file in the File Manager
 	 * @throws IOException
 	 * @throws Exception
 	 */
@@ -167,7 +165,7 @@ public class FileManager {
 	 * @param folder_id The id of the folder.
 	 * @param filename The name of the file.
 	 * @param file The file to be uploaded
-	 * @return
+	 * @return File information for the newly uploaded file
 	 * @throws IOException
 	 * @throws Exception
 	 */
@@ -186,7 +184,7 @@ public class FileManager {
 	 * Upload a new image or file to the File Manager.
 	 * @param filename The name of the file.
 	 * @param file The file to be uploaded
-	 * @return
+	 * @return File information for the newly uploaded file
 	 * @throws IOException
 	 * @throws Exception
 	 */

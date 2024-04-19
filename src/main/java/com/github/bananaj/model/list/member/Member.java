@@ -665,7 +665,7 @@ public class Member implements JSONParser {
 	/**
 	 * @return Returns up to 50 tags applied to this member. To retrieve all tags
 	 *         see {@link #getAllTags()} or
-	 *         {@link com.github.bananaj.model.list.MailChimpList#getMemberTags(String, int, int)}.
+	 *         {@link com.github.bananaj.model.list.MailChimpList#getMemberTags(String)}.
 	 */
 	public List<MemberTag> getTags() {
 		return tags;

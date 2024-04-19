@@ -175,7 +175,7 @@ public class InterestCategory implements JSONParser {
 	 * Get a list of this category's interests. Interests are referred to
 	 * as ‘group names’ in the MailChimp application.
 	 * 
-	 * @param interestCategoryId
+	 * @return Interests iterator
 	 * @throws IOException
 	 * @throws Exception 
 	 */

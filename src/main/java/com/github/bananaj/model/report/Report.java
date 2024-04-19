@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.connection.MailChimpQueryParameters;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.ModelIterator;
 import com.github.bananaj.model.campaign.Bounce;
@@ -331,7 +332,6 @@ public class Report implements JSONParser {
 	
 	/**
 	 * Get information about a specific subscriber who opened a campaign.
-	 * @param campaignId
 	 * @param subscriber The member's email address or subscriber hash
 	 * @return Detailed information about the campaigns emails that were opened by list members.
 	 * @throws IOException
@@ -397,13 +397,14 @@ public class Report implements JSONParser {
 	
 	/**
 	 * Ecommerce product activity report for Campaign
-	 * @param sortField Optional, sort products by this field.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-ecommerce-product-activity/list-campaign-product-activity/">Ecommerce Product Activity -- GET /reports/{campaign_id}/ecommerce-product-activity</a>
 	 * @return Breakdown of product activity for a campaign.
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public Iterable<EcommerceProductActivity> getEcommerceProductActivityReports(EcommerceSortField sortField) throws IOException, Exception {
-		return connection.getEcommerceProductActivityReports(getId(), sortField);
+	public Iterable<EcommerceProductActivity> getEcommerceProductActivityReports(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return connection.getEcommerceProductActivityReports(getId(), queryParameters);
 	}
 
 	/**
@@ -438,7 +439,7 @@ public class Report implements JSONParser {
 	
 	/**
 	 * Email Activity report - Get a specific list member's activity in a campaign including opens, clicks, and bounces.
-	 * @param campaignId The unique id for the campaign.
+	 * @param subscriber The member's email address or subscriber hash
 	 * @return Member activity for a campaign.
 	 * @throws IOException 
 	 * @throws Exception 

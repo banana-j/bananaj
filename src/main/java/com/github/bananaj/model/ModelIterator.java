@@ -71,6 +71,7 @@ public class ModelIterator<T extends JSONParser> implements Iterable<T> {
 	 * @param connection
 	 * @param count Number of records to fetch per query. Maximum value is 1000.
 	 * @param offset The number of records from a collection to skip.
+	 * @deprecated
 	 */
 	public ModelIterator(Class<T> typeClasse, String query, MailChimpConnection connection, int count, int offset) {
 		this.typeClasse = typeClasse;
@@ -162,7 +163,7 @@ public class ModelIterator<T extends JSONParser> implements Iterable<T> {
 	 * Constructs type T using reflection. Override to provide a concrete constructor.
 	 * @param con
 	 * @param objDetail
-	 * @return
+	 * @return Constructed object of type T
 	 */
 	protected T buildRefObj(MailChimpConnection con, JSONObject objDetail) {
 		try {

@@ -5,15 +5,12 @@
 package com.github.bananaj.model.campaign;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
@@ -303,7 +300,7 @@ public class Campaign implements JSONParser {
 	/**
 	 * Add campaign feedback
 	 * @param message
-	 * @return
+	 * @return The newly created campaign feedback
 	 * @throws IOException 
 	 * @throws Exception
 	 */

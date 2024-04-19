@@ -588,7 +588,7 @@ public class MailChimpList implements JSONParser {
 	 * Get the interest category details given its Id.
 	 * 
 	 * @param interestCategoryId
-	 * @return
+	 * @return Interest category details
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */

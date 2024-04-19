@@ -5,8 +5,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+
+import com.github.bananaj.utils.DateConverter;
 
 /**
  * 
@@ -43,7 +46,7 @@ public class MailChimpQueryParameters {
 	/**
 	 * A comma-separated list of fields to return. Reference parameters of sub-objects with dot notation.
 	 * @param fields
-	 * @return
+	 * @return this
 	 */
 	public MailChimpQueryParameters includeFields(String fields) {
 		this.includeFields = fields;
@@ -53,7 +56,7 @@ public class MailChimpQueryParameters {
 	/**
 	 * A comma-separated list of fields to exclude. Reference parameters of sub-objects with dot notation.
 	 * @param fields
-	 * @return
+	 * @return this
 	 */
 	public MailChimpQueryParameters excludeFields(String fields) {
 		this.excludeFields = fields;
@@ -63,7 +66,7 @@ public class MailChimpQueryParameters {
 	/**
 	 * The number of records to return. Typical default value is 10. Maximum value is 1000
 	 * @param count
-	 * @return
+	 * @return this
 	 */
 	public MailChimpQueryParameters count(Integer count) {
 		if (count <= 0 || count > 1000) {
@@ -83,7 +86,7 @@ public class MailChimpQueryParameters {
 	/**
 	 * Used for pagination, this it the number of records from a collection to skip. Default value is 0.
 	 * @param offset
-	 * @return
+	 * @return  this
 	 */
 	public MailChimpQueryParameters offset(Integer offset) {
 		if (offset < 0) {
@@ -104,16 +107,38 @@ public class MailChimpQueryParameters {
 	 * Add an API specific query parameter.
 	 * @param key
 	 * @param value
-	 * @return
+	 * @return this
 	 */
 	public MailChimpQueryParameters param(String key, String value) {
 		if (queryParams == null) {
 			queryParams = new LinkedHashMap<String,String>();
 		}
-		queryParams.put(key, value);
+		if (value == null) {
+			queryParams.remove(key);
+		} else {
+			queryParams.put(key, value);
+		}
 		return this;
 	}
 
+	/**
+	 * Add an API specific query parameter.
+	 * @param key
+	 * @param value
+	 * @return this
+	 */
+	public MailChimpQueryParameters param(String key, ZonedDateTime value) {
+		if (queryParams == null) {
+			queryParams = new LinkedHashMap<String,String>();
+		}
+		if (value == null) {
+			queryParams.remove(key);
+		} else {
+			queryParams.put(key, DateConverter.toISO8601UTC(value));
+		}
+		return this;
+	}
+	
 	public String getParam(String key) {
 		if (queryParams == null) {
 			return null;

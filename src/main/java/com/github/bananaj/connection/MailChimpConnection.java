@@ -2,7 +2,6 @@ package com.github.bananaj.connection;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,6 @@ import com.github.bananaj.model.report.ClickReport;
 import com.github.bananaj.model.report.ClickReportMember;
 import com.github.bananaj.model.report.DomainPerformance;
 import com.github.bananaj.model.report.EcommerceProductActivity;
-import com.github.bananaj.model.report.EcommerceSortField;
 import com.github.bananaj.model.report.EmailActivity;
 import com.github.bananaj.model.report.OpenReport;
 import com.github.bananaj.model.report.OpenReportMember;
@@ -40,7 +38,6 @@ import com.github.bananaj.model.report.ReportLocation;
 import com.github.bananaj.model.report.ReportSentTo;
 import com.github.bananaj.model.template.Template;
 import com.github.bananaj.model.template.TemplateFolder;
-import com.github.bananaj.utils.DateConverter;
 import com.github.bananaj.utils.URLHelper;
 
 /**
@@ -93,7 +90,7 @@ public class MailChimpConnection extends Connection {
 	/**
 	 * Get information about all lists/audiences in the account.
 	 * 
-	 * @return List/audience iterator
+	 * @return Iterable<MailChimpList> List/audience iterator
 	 * @throws IOException
 	 * @throws Exception 
 	 */
@@ -102,23 +99,10 @@ public class MailChimpConnection extends Connection {
 	}
 
 	/**
-	 * Get List/Audience in your account with pagination
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
-	 * @return List containing Mailchimp lists
-	 * @throws IOException
-	 * @throws Exception
-	 * @deprecated
-	 */
-	public Iterable<MailChimpList> getLists(int pageSize, int pageNumber) throws IOException, Exception {
-		return new ModelIterator<MailChimpList>(MailChimpList.class, listendpoint, this, pageSize, pageNumber);
-	}
-	
-	/**
 	 * Get information about all lists/audiences in the account.
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/lists/">Lists/Audiences</a> GET /lists
-	 * @return
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/lists/get-lists-info/">Lists/Audiences -- GET /lists</a>
+	 * @return Iterable<MailChimpList> List/audience iterator
 	 * @throws IOException
 	 * @throws Exception
 	 */
@@ -130,7 +114,7 @@ public class MailChimpConnection extends Connection {
 	 * Get information about a specific list in your Mailchimp account. Results include list 
 	 * members who have signed up but haven't confirmed their subscription yet and unsubscribed 
 	 * or cleaned.
-	 * @return a Mailchimp list object
+	 * @return a Mailchimp list/audience object
 	 * @throws IOException
 	 * @throws Exception 
 	 */
@@ -142,6 +126,7 @@ public class MailChimpConnection extends Connection {
 	/**
 	 * Create a new List/Audience in your mailchimp account
 	 * @param audience
+	 * @return a Mailchimp list/audience object
 	 * @throws IOException
 	 * @throws Exception 
 	 */
@@ -189,20 +174,21 @@ public class MailChimpConnection extends Connection {
     }
 
     /**
-     * Get campaign folders from MailChimp with pagination
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
-     * @return List containing the campaign folders
-	 * @throws IOException
-	 * @throws Exception 
+     * Get campaign folders
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-folders/list-campaign-folders/">Campaign Folders -- GET /campaign-folders</a>
+     * @return campaign folder iterator
+     * @throws IOException
+     * @throws Exception
      */
-    public Iterable<CampaignFolder> getCampaignFolders(int pageSize, int pageNumber) throws IOException, Exception {
-		return new ModelIterator<CampaignFolder>(CampaignFolder.class, campaignfolderendpoint, this, pageSize, pageNumber);
+    public Iterable<CampaignFolder> getCampaignFolders(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return new ModelIterator<CampaignFolder>(CampaignFolder.class, campaignfolderendpoint, this, queryParameters);
     }
 
     /**
      * Get a specific template folder
      * @param folder_id
+     * @return campaign folder object
 	 * @throws IOException
      * @throws Exception 
      */
@@ -215,6 +201,7 @@ public class MailChimpConnection extends Connection {
     /**
      * Add a template folder with a specific name
      * @param name Name to associate with the folder
+     * @return campaign folder object
 	 * @throws IOException
      * @throws Exception 
      */
@@ -247,25 +234,12 @@ public class MailChimpConnection extends Connection {
     }
 
     /**
-     * Get campaigns from mailchimp account with pagination
-     * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-     * @param pageNumber First page number to fetch starting from 0.
-     * @return List containing campaigns
-	 * @throws IOException
-	 * @throws Exception 
-	 * @deprecated
-     */
-    public Iterable<Campaign> getCampaigns(int pageSize, int pageNumber) throws IOException, Exception {
-		return new ModelIterator<Campaign>(Campaign.class, campaignendpoint, this, pageSize, pageNumber);
-    }
-
-    /**
      * Get all campaigns in an account.<br>
      * Campaigns are how you send emails to your Mailchimp list. Use the Campaigns API calls 
      * to manage campaigns in your Mailchimp account.
      * @param queryParameters Optional query parameters to send to the MailChimp API. 
-     *   @see <a href="https://mailchimp.com/developer/marketing/api/campaigns/">Campaigns</a> GET /campaigns
-     * @return
+     *   @see <a href="https://mailchimp.com/developer/marketing/api/campaigns/list-campaigns/">Campaigns -- GET /campaigns</a>
+     * @return campaign iterator
      * @throws IOException
      * @throws Exception
      */
@@ -290,11 +264,11 @@ public class MailChimpConnection extends Connection {
 	 * @param type
 	 * @param mailChimpList
 	 * @param settings
+     * @return newly created campaign object
 	 * @throws IOException
 	 * @throws Exception 
 	 */
 	public Campaign createCampaign(CampaignType type, MailChimpList mailChimpList, CampaignSettings settings) throws IOException, Exception {
-		
 		JSONObject campaign = new JSONObject();
 		
 		JSONObject recipients = new JSONObject();
@@ -315,12 +289,11 @@ public class MailChimpConnection extends Connection {
 	 * @param type
 	 * @param mailRecipients
 	 * @param settings
-	 * @return
+     * @return newly created campaign object
 	 * @throws IOException
 	 * @throws Exception 
 	 */
 	public Campaign createCampaign(CampaignType type, CampaignRecipients mailRecipients, CampaignSettings settings) throws IOException, Exception {
-		
 		JSONObject campaign = new JSONObject();
 		JSONObject recipients = mailRecipients.getJsonRepresentation();
 		
@@ -345,9 +318,9 @@ public class MailChimpConnection extends Connection {
 	}
 
 	/**
-	 * Get Post comments, reply to team feedback, and send test emails while you're working together on a Mailchimp campaign.
+	 * Get team feedback while you're working together on a Mailchimp campaign.
 	 * @param campaignID
-	 * @return
+	 * @return List of feedback for the campaign
 	 * @throws IOException
 	 * @throws Exception 
 	 */
@@ -367,9 +340,10 @@ public class MailChimpConnection extends Connection {
 	}
 	
 	/**
-	 * Get a specific feedback about a campaign
+	 * Get a specific feedback message from a campaign.
 	 * @param campaignID
 	 * @param feedbackId
+	 * @return Specific feedback for the campaign
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
@@ -383,6 +357,7 @@ public class MailChimpConnection extends Connection {
 	 * Add campaign feedback
 	 * @param campaignID
 	 * @param message
+	 * @return The newly created feedback
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
@@ -424,59 +399,15 @@ public class MailChimpConnection extends Connection {
 	}
 	
 	/**
-	 * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
-	 * @param campaignType Optional, restrict the response by campaign type. Possible values: regular, plaintext, absplit, rss, or variate.
-	 * @param beforeSendTime Optional, restrict the response to campaigns sent before the set time.
-	 * @param sinceSendTime Optional, restrict the response to campaigns sent after the set time.
-	 * @return Campaign reports meeting the specified criteria.
+	 * 
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/reports/list-campaign-reports/">Reports -- GET /reports</a>
+	 * @return Report iterator
 	 * @throws IOException
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public Iterable<Report> getCampaignReports(int pageSize, int pageNumber, CampaignType campaignType, ZonedDateTime beforeSendTime, ZonedDateTime sinceSendTime) throws IOException, Exception {
-		boolean firstSep = true;
-		StringBuilder baseURL = new StringBuilder(getReportsendpoint());
-		if (campaignType!=null) {
-			baseURL.append("?type=").append(campaignType.toString());
-			firstSep = false;
-		}
-		if (beforeSendTime!=null) {
-			baseURL.append(firstSep ? "?" :"&").append("before_send_time=").append(URLEncoder.encode(DateConverter.toISO8601UTC(beforeSendTime), "UTF-8"));
-			firstSep = false;
-		}
-		if (sinceSendTime!=null) { 
-			baseURL.append(firstSep ? "?" :"&").append("since_send_time=").append(URLEncoder.encode(DateConverter.toISO8601UTC(sinceSendTime), "UTF-8"));
-			firstSep = false;
-		}
-		return new ModelIterator<Report>(Report.class, baseURL.toString(), this, pageSize, pageNumber);
-	}
-	
-	/**
-	 * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
-	 * @param campaignType Optional, restrict the response by campaign type. Possible values: regular, plaintext, absplit, rss, or variate.
-	 * @param beforeSendTime Optional, restrict the response to campaigns sent before the set time.
-	 * @param sinceSendTime Optional, restrict the response to campaigns sent after the set time.
-	 * @return Campaign reports meeting the specified criteria.
-	 * @throws IOException
-	 * @throws Exception 
-	 */
-	public Iterable<Report> getCampaignReports(CampaignType campaignType, ZonedDateTime beforeSendTime, ZonedDateTime sinceSendTime) throws IOException, Exception {
-		boolean firstSep = true;
-		StringBuilder baseURL = new StringBuilder(getReportsendpoint());
-		if (campaignType!=null) {
-			baseURL.append("?type=").append(campaignType.toString());
-			firstSep = false;
-		}
-		if (beforeSendTime!=null) {
-			baseURL.append(firstSep ? "?" :"&").append("before_send_time=").append(URLEncoder.encode(DateConverter.toISO8601UTC(beforeSendTime), "UTF-8"));
-			firstSep = false;
-		}
-		if (sinceSendTime!=null) { 
-			baseURL.append(firstSep ? "?" :"&").append("since_send_time=").append(URLEncoder.encode(DateConverter.toISO8601UTC(sinceSendTime), "UTF-8"));
-			firstSep = false;
-		}
-		return new ModelIterator<Report>(Report.class, baseURL.toString(), this);
+	public Iterable<Report> getCampaignReports(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return new ModelIterator<Report>(Report.class, reportsendpoint, this, queryParameters);
 	}
 
 	/**
@@ -509,20 +440,21 @@ public class MailChimpConnection extends Connection {
 
 	/**
 	 * Get information about campaign abuse complaints.
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param campaignId The unique id for the campaign.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-abuse/list-abuse-reports/">Campaign Abuse -- GET /reports/{campaign_id}/abuse-reports</a>
 	 * @return Abuse complaints for a campaign
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<AbuseReport>  getCampaignAbuseReports(int pageSize, int pageNumber, String campaignId) throws IOException, Exception {
+	public Iterable<AbuseReport>  getCampaignAbuseReports(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/abuse-reports");
-		return new ModelIterator<AbuseReport>(AbuseReport.class, baseURL, this, pageSize, pageNumber);
+		return new ModelIterator<AbuseReport>(AbuseReport.class, baseURL, this, queryParameters);
 	}
 
 	/**
 	 * Get information about campaign abuse complaints.
+	 * @param campaignId The unique id for the campaign.
 	 * @return Abuse complaints for a campaign
 	 * @throws IOException
 	 * @throws Exception 
@@ -571,16 +503,16 @@ public class MailChimpConnection extends Connection {
 	
 	/**
 	 * Get detailed information about links clicked in campaigns.
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param campaignId The unique id for the campaign.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/click-reports/list-campaign-details/">Click Reports -- GET /reports/{campaign_id}/click-details</a>
 	 * @return Campaign click details
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<ClickReport> getCampaignClickReports(int pageSize, int pageNumber, String campaignId) throws IOException, Exception {
+	public Iterable<ClickReport> getCampaignClickReports(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details");
-		return new ModelIterator<ClickReport>(ClickReport.class, baseURL, this, pageSize, pageNumber);
+		return new ModelIterator<ClickReport>(ClickReport.class, baseURL, this, queryParameters);
 	}
 	
 	/**
@@ -612,17 +544,17 @@ public class MailChimpConnection extends Connection {
 	
 	/**
 	 * Get information about subscribers who clicked a link.
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param campaignId The unique id for the campaign.
 	 * @param linkId The id for the link.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/link-clickers/list-clicked-link-subscribers/">Click Reports Members -- GET /reports/{campaign_id}/click-details/{link_id}/members</a>
 	 * @return Information about subscribers who clicked a link
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<ClickReportMember> getCampaignMembersClickReports(int pageSize, int pageNumber, String campaignId, String linkId) throws IOException, Exception {
+	public Iterable<ClickReportMember> getCampaignMembersClickReports(String campaignId, String linkId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details/", linkId, "/members");
-		return new ModelIterator<ClickReportMember>(ClickReportMember.class, baseURL, this, pageSize, pageNumber);
+		return new ModelIterator<ClickReportMember>(ClickReportMember.class, baseURL, this, queryParameters);
 	}
 	
 	/**
@@ -670,46 +602,30 @@ public class MailChimpConnection extends Connection {
 	
 	/**
 	 * Ecommerce product activity report for Campaign
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param campaignId The unique id for the campaign.
-	 * @param sortField Optional, sort products by this field.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-ecommerce-product-activity/list-campaign-product-activity/">Ecommerce Product Activity -- GET /reports/{campaign_id}/ecommerce-product-activity</a>
 	 * @return Breakdown of product activity for a campaign.
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<EcommerceProductActivity> getEcommerceProductActivityReports(int pageSize, int pageNumber, String campaignId, EcommerceSortField sortField) throws IOException, Exception {
-		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/ecommerce-product-activity",
-				"?sort_field=", (sortField != null ? sortField.toString() : EcommerceSortField.TITLE.toString()));
-		return new ModelIterator<EcommerceProductActivity>(EcommerceProductActivity.class, baseURL, this, pageSize, pageNumber);
-	}
-	
-	/**
-	 * Ecommerce product activity report for Campaign
-	 * @param campaignId The unique id for the campaign.
-	 * @param sortField Optional, sort products by this field.
-	 * @return Breakdown of product activity for a campaign.
-	 * @throws IOException
-	 * @throws Exception 
-	 */
-	public Iterable<EcommerceProductActivity> getEcommerceProductActivityReports(String campaignId, EcommerceSortField sortField) throws IOException, Exception {
-		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/ecommerce-product-activity",
-				"?sort_field=", (sortField != null ? sortField.toString() : EcommerceSortField.TITLE.toString()));
+	public Iterable<EcommerceProductActivity> getEcommerceProductActivityReports(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/ecommerce-product-activity");
 		return new ModelIterator<EcommerceProductActivity>(EcommerceProductActivity.class, baseURL, this);
 	}
 
 	/**
 	 * Sent To report - Get information about campaign recipients.
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param campaignId The unique id for the campaign.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/sent-to-reports/list-campaign-recipients/">Sent To -- GET /reports/{campaign_id}/sent-to</a>
 	 * @return Information about campaign recipients.
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<ReportSentTo> getCampaignSentToReports(int pageSize, int pageNumber, String campaignId) throws IOException, Exception {
+	public Iterable<ReportSentTo> getCampaignSentToReports(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/sent-to");
-		return new ModelIterator<ReportSentTo>(ReportSentTo.class, baseURL, this, pageSize, pageNumber);
+		return new ModelIterator<ReportSentTo>(ReportSentTo.class, baseURL, this, queryParameters);
 	}
 	
 	/**
@@ -740,16 +656,16 @@ public class MailChimpConnection extends Connection {
 
 	/**
 	 * Email Activity report - Get list member activity for a campaign.
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
 	 * @param campaignId The unique id for the campaign.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/email-activity-reports/list-email-activity/">Email Activity -- GET /reports/{campaign_id}/email-activity</a>
 	 * @return Member activity for a campaign.
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<EmailActivity> getCampaignEmailActivityReports(int pageSize, int pageNumber, String campaignId) throws IOException, Exception {
+	public Iterable<EmailActivity> getCampaignEmailActivityReports(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/email-activity");
-		return new ModelIterator<EmailActivity>(EmailActivity.class, baseURL, this, pageSize, pageNumber);
+		return new ModelIterator<EmailActivity>(EmailActivity.class, baseURL, this, queryParameters);
 	}
 	
 	/**
@@ -767,6 +683,7 @@ public class MailChimpConnection extends Connection {
 	/**
 	 * Email Activity report - Get a specific list member's activity in a campaign including opens, clicks, and bounces.
 	 * @param campaignId The unique id for the campaign.
+	 * @param subscriber The member's email address or subscriber hash
 	 * @return Member activity for a campaign.
 	 * @throws IOException 
 	 * @throws Exception 
@@ -805,24 +722,11 @@ public class MailChimpConnection extends Connection {
 		return new ModelIterator<TemplateFolder>(TemplateFolder.class, templatefolderendpoint, this);
 	}
 
-    /**
-     * Get template folders from MailChimp with pagination
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
-     * @return List of template folders
-	 * @throws IOException
-	 * @throws Exception
-	 * @deprecated 
-     */
-	public Iterable<TemplateFolder> getTemplateFolders(int pageSize, int pageNumber) throws IOException, Exception {
-		return new ModelIterator<TemplateFolder>(TemplateFolder.class, templatefolderendpoint, this, pageSize, pageNumber);
-	}
-
 	/**
 	 * Get template folders iterator
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/template-folders/">Template Folders</a> GET /template-folders
-	 * @return
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/template-folders/">Template Folders -- GET /template-folders</a>
+	 * @return Template folder iterator
 	 * @throws IOException
 	 * @throws Exception
 	 */
@@ -866,8 +770,8 @@ public class MailChimpConnection extends Connection {
     }
 
 	/**
-	 * Get templates iterator
-	 * @return templates iterator
+	 * Get a list of an account's available templates.
+	 * @return Template iterator
 	 * @throws IOException
 	 * @throws Exception 
 	 */
@@ -876,23 +780,10 @@ public class MailChimpConnection extends Connection {
 	}
 
 	/**
-	 * Get templates from mailchimp account with pagination
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
-	 * @return list of templates
-	 * @throws IOException
-	 * @throws Exception 
-	 * @deprecated
-	 */
-	public Iterable<Template> getTemplates(int pageSize, int pageNumber) throws IOException, Exception {
-		return new ModelIterator<Template>(Template.class, templateendpoint, this, pageSize, pageNumber);
-	}
-
-	/**
-	 * Get templates iterator
+	 * Get a list of an account's available templates.
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/templates/">Templates</a> GET /templates
-	 * @return
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/templates/">Templates -- GET /templates</a>
+	 * @return Template iterator
 	 * @throws IOException
 	 * @throws Exception
 	 */
@@ -983,19 +874,19 @@ public class MailChimpConnection extends Connection {
 	}
 	
 	/**
-	 * Get a summary of an account's classic automations with pagination
+	 * Get a summary of an account's classic automations.
 	 * Mailchimp's classic automations feature lets you build a series of emails that 
 	 * send to subscribers when triggered by a specific date, activity, or event. Use 
 	 * the API to manage Automation workflows, emails, and queues. Does not include 
 	 * Customer Journeys.
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
-	 * @return automations iterator starting at the given page number
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/automation/list-automations/">Automations -- GET /automations</a>
+	 * @return automations iterator
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<Automation> getAutomations(int pageSize, int pageNumber) throws IOException, Exception {
-		return new ModelIterator<Automation>(Automation.class, automationendpoint, this, pageSize, pageNumber);
+	public Iterable<Automation> getAutomations(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return new ModelIterator<Automation>(Automation.class, automationendpoint, this, queryParameters);
 	}
 	
 	/**
@@ -1074,17 +965,17 @@ public class MailChimpConnection extends Connection {
 	}
 	
 	/**
-	 * Get a list of automated emails in a workflow with pagination
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
+	 * Get a list of automated emails in a workflow
 	 * @param workflowId The unique id for the Automation workflow
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/automation-email/list-automated-emails/">Automation Emails -- GET /automations/{workflow_id}/emails</a>
 	 * @return List containing automation emails
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<AutomationEmail> getAutomationEmails(int pageSize, int pageNumber, String workflowId) throws IOException, Exception {
+	public Iterable<AutomationEmail> getAutomationEmails(String workflowId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(automationendpoint, "/", workflowId, "/emails");
-		return new ModelIterator<AutomationEmail>(AutomationEmail.class, baseURL, this, pageSize, pageNumber);
+		return new ModelIterator<AutomationEmail>(AutomationEmail.class, baseURL, this, queryParameters);
 	}
 	
 	/**
