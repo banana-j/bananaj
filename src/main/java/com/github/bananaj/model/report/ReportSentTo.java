@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
@@ -23,16 +24,16 @@ public class ReportSentTo implements JSONParser {
 
     private String campaignId;
     private String listId;
-    private boolean listIsActive;
+    private Boolean listIsActive;
 	private String emailId;
 	private String emailAddress;
 	private Map<String, Object> mergeFields;
-	private boolean vip;
+	private Boolean vip;
     private String status;
-    private int openCount;
+    private Integer openCount;
     private ZonedDateTime lastOpen;
     private String abSplitGroup;
-    private int gmtOffset;
+    private Integer gmtOffset;
 	
 	public ReportSentTo() {
 
@@ -44,28 +45,27 @@ public class ReportSentTo implements JSONParser {
 
 	@Override
 	public void parse(MailChimpConnection connection, JSONObject entity) {
-		campaignId = entity.getString("campaign_id");
-		listId = entity.getString("list_id");
-		listIsActive = entity.getBoolean("list_is_active");
-		emailId = entity.getString("email_id");
-		emailAddress = entity.getString("email_address");
+		JSONObjectCheck jObj = new JSONObjectCheck(entity);
+		campaignId = jObj.getString("campaign_id");
+		listId = jObj.getString("list_id");
+		listIsActive = jObj.getBoolean("list_is_active");
+		emailId = jObj.getString("email_id");
+		emailAddress = jObj.getString("email_address");
 		
 		mergeFields = new HashMap<String, Object>();
-		if (entity.has("merge_fields")) {
-			final JSONObject mergeFieldsObj = entity.getJSONObject("merge_fields");
+		if (jObj.has("merge_fields")) {
+			final JSONObject mergeFieldsObj = jObj.getJSONObject("merge_fields");
 			for(String key : mergeFieldsObj.keySet()) {
 				mergeFields.put(key, mergeFieldsObj.get(key));
 			}
 		}
 		
-		vip = entity.getBoolean("vip");
-		status = entity.getString("status");
-		openCount = entity.getInt("open_count");
-		if (entity.has("last_open")) {
-			lastOpen = DateConverter.fromISO8601(entity.getString("last_open"));
-		}
-		abSplitGroup = entity.getString("absplit_group");
-		gmtOffset = entity.getInt("gmt_offset");
+		vip = jObj.getBoolean("vip");
+		status = jObj.getString("status");
+		openCount = jObj.getInt("open_count");
+		lastOpen = jObj.getISO8601Date("last_open");
+		abSplitGroup = jObj.getString("absplit_group");
+		gmtOffset = jObj.getInt("gmt_offset");
 	}
 
 	public String getEmailId() {
@@ -80,7 +80,7 @@ public class ReportSentTo implements JSONParser {
 		return mergeFields;
 	}
 
-	public boolean isVip() {
+	public Boolean isVip() {
 		return vip;
 	}
 
@@ -88,7 +88,7 @@ public class ReportSentTo implements JSONParser {
 		return status;
 	}
 
-	public int getOpenCount() {
+	public Integer getOpenCount() {
 		return openCount;
 	}
 
@@ -100,7 +100,7 @@ public class ReportSentTo implements JSONParser {
 		return abSplitGroup;
 	}
 
-	public int getGmtOffset() {
+	public Integer getGmtOffset() {
 		return gmtOffset;
 	}
 
@@ -112,7 +112,7 @@ public class ReportSentTo implements JSONParser {
 		return listId;
 	}
 
-	public boolean isListIsActive() {
+	public Boolean isListIsActive() {
 		return listIsActive;
 	}
 

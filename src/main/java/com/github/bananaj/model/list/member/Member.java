@@ -19,11 +19,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.connection.MailChimpQueryParameters;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.ModelIterator;
 import com.github.bananaj.model.list.MailChimpList;
 import com.github.bananaj.utils.DateConverter;
 import com.github.bananaj.utils.EmailValidator;
+import com.github.bananaj.utils.JSONObjectCheck;
 import com.github.bananaj.utils.MD5;
 import com.github.bananaj.utils.URLHelper;
 
@@ -48,7 +50,7 @@ public class Member implements JSONParser {
 	private ZonedDateTime timestampSignup;
 	private String ipOpt;
 	private ZonedDateTime timestampOpt;
-	private int rating;
+	private Integer rating;
 	private ZonedDateTime lastChanged;
 	private String language;
 	private boolean vip;
@@ -56,7 +58,7 @@ public class Member implements JSONParser {
 	//private MemberLocation location;
 	//private List<MemberMarketingPermissions> marketingPermissions;
 	private LastNote lastNote;
-	private int tagsCount;
+	private Integer tagsCount;
 	private List<MemberTag> tags;
 	private String listId;
 	
@@ -103,52 +105,61 @@ public class Member implements JSONParser {
 	 * @param member
 	 */
 	public void parse(MailChimpConnection connection, JSONObject member) {
-        id = member.getString("id");
-		emailAddress = member.getString("email_address");
-		uniqueEmailId = member.getString("unique_email_id");
-		emailType =  EmailType.valueOf(member.getString("email_type").toUpperCase());
-		status = MemberStatus.valueOf(member.getString("status").toUpperCase());
-		unsubscribeReason = member.has("unsubscribe_reason") ? member.getString("unsubscribe_reason") : null;
+		JSONObjectCheck jObj = new JSONObjectCheck(member);
+		this.connection = connection;
+        id = jObj.getString("id");
+		emailAddress = jObj.getString("email_address");
+		uniqueEmailId = jObj.getString("unique_email_id");
+		emailType =  jObj.getEnum(EmailType.class, "email_type");
+		status = jObj.getEnum(MemberStatus.class, "status");
+		unsubscribeReason = jObj.getString("unsubscribe_reason");
 		
 		mergeFields = new HashMap<String, Object>();
-		if (member.has("merge_fields")) {
-			final JSONObject mergeFieldsObj = member.getJSONObject("merge_fields");
+		final JSONObject mergeFieldsObj = jObj.getJSONObject("merge_fields");
+		if (mergeFieldsObj != null) {
 			for(String key : mergeFieldsObj.keySet()) {
 				mergeFields.put(key, mergeFieldsObj.get(key));
 			}
 		}
 		
 		interest = new HashMap<String, Boolean>();
-		if (member.has("interests")) {
-			final JSONObject interests = member.getJSONObject("interests");
+		final JSONObject interests = jObj.getJSONObject("interests");
+		if (interests != null) {
 			for(String key : interests.keySet()) {
 				interest.put(key, interests.getBoolean(key));
 			}
 		}
 		
-		stats = new MemberStats(member.getJSONObject("stats"));
-		ipSignup = member.getString("ip_signup");
-		timestampSignup = DateConverter.fromISO8601(member.getString("timestamp_signup"));
-		rating = member.getInt("member_rating");
-		ipOpt = member.getString("ip_opt");
-		timestampOpt = DateConverter.fromISO8601(member.getString("timestamp_opt"));
-		lastChanged = DateConverter.fromISO8601(member.getString("last_changed"));
-		language = member.getString("language");
-		vip = member.getBoolean("vip");
-		emailClient = member.has("email_client") ? member.getString("email_client") : null;
+		if (jObj.has("stats")) {
+			stats = new MemberStats(jObj.getJSONObject("stats"));
+		}
+		
+		ipSignup = jObj.getString("ip_signup");
+		timestampSignup = jObj.getISO8601Date("timestamp_signup");
+		rating = jObj.getInt("member_rating");
+		ipOpt = jObj.getString("ip_opt");
+		timestampOpt = jObj.getISO8601Date("timestamp_opt");
+		lastChanged = jObj.getISO8601Date("last_changed");
+		language = jObj.getString("language");
+		vip = jObj.getBoolean("vip");
+		emailClient = jObj.getString("email_client");
 		//location
 		//marketing_permissions
-		lastNote = member.has("last_note") ? new LastNote(member.getJSONObject("last_note")) : null;
-
-		tagsCount = member.getInt("tags_count");
-		tags = new ArrayList<MemberTag>(tagsCount);
-		final JSONArray tagsArray = member.getJSONArray("tags");
-		for(int i = 0; i < tagsArray.length(); i++) {
-			tags.add(new MemberTag(tagsArray.getJSONObject(i)));
+		
+		if (jObj.has("last_note")) {
+			lastNote =  new LastNote(jObj.getJSONObject("last_note"));
 		}
 
-		listId = member.getString("list_id");
-		this.connection = connection;
+		tagsCount = jObj.getInt("tags_count");
+		tags = new ArrayList<MemberTag>(tagsCount != null ? tagsCount.intValue() : 0);
+		final JSONArray tagsArray = jObj.getJSONArray("tags");
+		if (tagsArray != null) {
+			for(int i = 0; i < tagsArray.length(); i++) {
+				tags.add(new MemberTag(tagsArray.getJSONObject(i)));
+			}
+		}
+
+		listId = jObj.getString("list_id");
 	}
 
 	/**
@@ -161,8 +172,8 @@ public class Member implements JSONParser {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		JSONObject updateMember = new JSONObject();
 		updateMember.put("email_address", emailAddress);
-		String results = getConnection().do_Patch(new URL(getConnection().getListendpoint()+"/"+getListId()+"/members/"+getId()), updateMember.toString(), getConnection().getApikey());
-		parse(getConnection(), new JSONObject(results));  // update member object with current data
+		String results = connection.do_Patch(new URL(connection.getListendpoint()+"/"+getListId()+"/members/"+getId()), updateMember.toString(), connection.getApikey());
+		parse(connection, new JSONObject(results));  // update member object with current data
 	}
 
 	/**
@@ -175,8 +186,8 @@ public class Member implements JSONParser {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		JSONObject updateMember = new JSONObject();
 		updateMember.put("status", status.toString());
-		String results = getConnection().do_Patch(new URL(getConnection().getListendpoint()+"/"+ getListId()+"/members/"+getId()), updateMember.toString(), getConnection().getApikey());
-		parse(getConnection(), new JSONObject(results));  // update member object with current data
+		String results = connection.do_Patch(new URL(connection.getListendpoint()+"/"+ getListId()+"/members/"+getId()), updateMember.toString(), connection.getApikey());
+		parse(connection, new JSONObject(results));  // update member object with current data
 	}
 
 	/**
@@ -195,10 +206,10 @@ public class Member implements JSONParser {
 			json.put("status_if_new", MemberStatus.SUBSCRIBED.toString());
 		}
 
-		String results = getConnection().do_Put(
+		String results = connection.do_Put(
 				new URL(connection.getListendpoint() + "/" + getListId() + "/members/" + getId()), json.toString(),
 				connection.getApikey());
-		parse(getConnection(), new JSONObject(results)); // update member object with current data
+		parse(connection, new JSONObject(results)); // update member object with current data
 	}
 	
 	/**
@@ -241,7 +252,7 @@ public class Member implements JSONParser {
 			}
 		}
 		tagObj.put("tags",tagsArray);
-		getConnection().do_Post(new URL(getConnection().getListendpoint()+"/"+getListId()+"/members/"+getId()+"/tags"), tagObj.toString(), getConnection().getApikey());
+		connection.do_Post(new URL(connection.getListendpoint()+"/"+getListId()+"/members/"+getId()+"/tags"), tagObj.toString(), connection.getApikey());
 	}
 	
 	/**
@@ -268,12 +279,12 @@ public class Member implements JSONParser {
 	 */
 	public List<MemberActivity> getActivities() throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
-		final JSONObject activity = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+getListId()+"/members/"+getId()+"/activity"), getConnection().getApikey()));
+		final JSONObject activity = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getListId()+"/members/"+getId()+"/activity"), connection.getApikey()));
 		//String email_id = activity.getString("email_id");
 		//String list_id = activity.getString("list_id");
-		int total_items = activity.getInt("total_items");	// The total number of items matching the query regardless of pagination
-		List<MemberActivity> activities = new ArrayList<MemberActivity>(total_items);
+		//Integer total_items = activity.getInt("total_items");	// The total number of items matching the query regardless of pagination
 		final JSONArray activityArray = activity.getJSONArray("activity");
+		List<MemberActivity> activities = new ArrayList<MemberActivity>(activityArray.length());
 
 		for (int i = 0 ; i < activityArray.length();i++)
 		{
@@ -292,16 +303,16 @@ public class Member implements JSONParser {
 	//
 	
 	/**
-	 * Get recent notes for this list member.
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
+	 * Get recent notes for this list/audience member.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/list-member-notes/list-recent-member-notes/" target="MailchimpAPIDoc">Lists/Audiences Member Notes -- GET /lists/{list_id}/members/{subscriber_hash}/notes</a>
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<MemberNote> getNotes(int pageSize, int pageNumber) throws IOException, Exception {
-		Objects.requireNonNull(getConnection(), "MailChimpConnection");
-		final String baseURL = URLHelper.join(getConnection().getListendpoint(), "/", getListId(), "/members/", getId(), "/notes");
-		return new ModelIterator<MemberNote>(MemberNote.class, baseURL, getConnection(), pageSize, pageNumber);
+	public Iterable<MemberNote> getNotes(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		Objects.requireNonNull(connection, "MailChimpConnection");
+		final String baseURL = URLHelper.join(connection.getListendpoint(), "/", getListId(), "/members/", getId(), "/notes");
+		return new ModelIterator<MemberNote>(MemberNote.class, baseURL, connection, queryParameters);
 	}
 	
 	/**
@@ -310,9 +321,9 @@ public class Member implements JSONParser {
 	 * @throws Exception 
 	 */
 	public Iterable<MemberNote> getNotes() throws IOException, Exception {
-		Objects.requireNonNull(getConnection(), "MailChimpConnection");
-		final String baseURL = URLHelper.join(getConnection().getListendpoint(), "/", getListId(), "/members/", getId(), "/notes");
-		return new ModelIterator<MemberNote>(MemberNote.class, baseURL, getConnection());
+		Objects.requireNonNull(connection, "MailChimpConnection");
+		final String baseURL = URLHelper.join(connection.getListendpoint(), "/", getListId(), "/members/", getId(), "/notes");
+		return new ModelIterator<MemberNote>(MemberNote.class, baseURL, connection);
 	}
 	
 	/**
@@ -323,7 +334,7 @@ public class Member implements JSONParser {
 	 */
 	public MemberNote getNote(int noteId) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
-		final JSONObject noteObj = new JSONObject(getConnection().do_Get(new URL(getConnection().getListendpoint()+"/"+getListId()+"/members/"+getId()+"/notes/"+noteId), getConnection().getApikey()));
+		final JSONObject noteObj = new JSONObject(connection.do_Get(new URL(connection.getListendpoint()+"/"+getListId()+"/members/"+getId()+"/notes/"+noteId), connection.getApikey()));
 		return new MemberNote(noteObj);
 	}
 	
@@ -335,7 +346,7 @@ public class Member implements JSONParser {
 	 */
 	public void deleteNote(int noteId) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
-		getConnection().do_Delete(new URL(getConnection().getListendpoint()+"/"+getListId()+"/members/"+getId()+"/notes/"+noteId), getConnection().getApikey());
+		connection.do_Delete(new URL(connection.getListendpoint()+"/"+getListId()+"/members/"+getId()+"/notes/"+noteId), connection.getApikey());
 	}
 	
 	/**
@@ -348,7 +359,7 @@ public class Member implements JSONParser {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		JSONObject jsonObj = new JSONObject();
 		jsonObj.put("note", note);
-		final JSONObject noteObj = new JSONObject(getConnection().do_Post(new URL(getConnection().getListendpoint()+"/"+getListId()+"/members/"+getId()+"/notes"), jsonObj.toString(), getConnection().getApikey()));
+		final JSONObject noteObj = new JSONObject(connection.do_Post(new URL(connection.getListendpoint()+"/"+getListId()+"/members/"+getId()+"/notes"), jsonObj.toString(), connection.getApikey()));
 		return new MemberNote(noteObj);
 	}
 	
@@ -365,7 +376,7 @@ public class Member implements JSONParser {
 		jsonObj.put("note", note);
 		jsonObj.put("list_id", getListId());
 		jsonObj.put("email_id", getId());
-		final JSONObject noteObj = new JSONObject(getConnection().do_Patch(new URL(getConnection().getListendpoint()+"/"+getListId()+"/members/"+getId()+"/notes/"+noteId), jsonObj.toString(), getConnection().getApikey()));
+		final JSONObject noteObj = new JSONObject(connection.do_Patch(new URL(connection.getListendpoint()+"/"+getListId()+"/members/"+getId()+"/notes/"+noteId), jsonObj.toString(), connection.getApikey()));
 		return new MemberNote(noteObj);
 	}
 
@@ -594,7 +605,7 @@ public class Member implements JSONParser {
 	/**
 	 * Star rating for this member, between 1 and 5
 	 */
-	public int getRating() {
+	public Integer getRating() {
 		return rating;
 	}
 
@@ -658,7 +669,7 @@ public class Member implements JSONParser {
 	/**
 	 * The number of tags applied to this member
 	 */
-	public int getTagsCount() {
+	public Integer getTagsCount() {
 		return tagsCount;
 	}
 
@@ -681,20 +692,20 @@ public class Member implements JSONParser {
 			return tags;	// already have full list so simply return it
 		}
 		
-		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getListId(),"/members/", getId(), "/tags");
-		return new ModelIterator<MemberTag>(MemberTag.class, baseURL, getConnection());
+		final String baseURL = URLHelper.join(connection.getListendpoint(),"/",getListId(),"/members/", getId(), "/tags");
+		return new ModelIterator<MemberTag>(MemberTag.class, baseURL, connection);
 	}
 	
 	/**
 	 * Get the tags for this list member.
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/list-member-tags/list-member-tags/" target="MailchimpAPIDoc">Lists/Audiences Member Tags -- GET /lists/{list_id}/members/{subscriber_hash}/tags</a>
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<MemberTag> getTags(int pageSize, int pageNumber) throws IOException, Exception {
-		final String baseURL = URLHelper.join(getConnection().getListendpoint(),"/",getListId(),"/members/", getId(), "/tags");
-		return new ModelIterator<MemberTag>(MemberTag.class, baseURL, getConnection(), pageSize, pageNumber);
+	public Iterable<MemberTag> getTags(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		final String baseURL = URLHelper.join(connection.getListendpoint(),"/",getListId(),"/members/", getId(), "/tags");
+		return new ModelIterator<MemberTag>(MemberTag.class, baseURL, connection, queryParameters);
 	}
 
 	/**
@@ -802,10 +813,10 @@ public class Member implements JSONParser {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		JSONObject json = getJsonRepresentation();
 
-		String results = getConnection().do_Patch(
-				new URL(getConnection().getListendpoint() + "/" + getListId() + "/members/" + getId()), json.toString(),
+		String results = connection.do_Patch(
+				new URL(connection.getListendpoint() + "/" + getListId() + "/members/" + getId()), json.toString(),
 				connection.getApikey());
-		parse(getConnection(), new JSONObject(results)); // update member object with current data
+		parse(connection, new JSONObject(results)); // update member object with current data
 	}
 	
 	/**
@@ -815,7 +826,7 @@ public class Member implements JSONParser {
 	 */
 	public void delete() throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
-		getConnection().do_Delete(new URL(getConnection().getListendpoint()+"/"+getListId()+"/members/"+getId()), getConnection().getApikey());
+		connection.do_Delete(new URL(connection.getListendpoint()+"/"+getListId()+"/members/"+getId()), connection.getApikey());
 	}
 	
 	/**
@@ -825,7 +836,7 @@ public class Member implements JSONParser {
 	 */
 	public void deletePermanent() throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
-		getConnection().do_Post(new URL(getConnection().getListendpoint()+"/"+getListId()+"/members/"+getId()+"/actions/delete-permanent"), getConnection().getApikey());
+		connection.do_Post(new URL(connection.getListendpoint()+"/"+getListId()+"/members/"+getId()+"/actions/delete-permanent"), connection.getApikey());
 	}
 	
 	@Override

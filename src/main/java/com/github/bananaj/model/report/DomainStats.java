@@ -2,37 +2,40 @@ package com.github.bananaj.model.report;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
 /**
  * Statistics for a domain from a campaign.
  *
  */
 public class DomainStats {
 	private String domain;
-	private int emailsSent;
-	private int bounces;
-	private int opens;
-	private int clicks;
-	private int unsubs;
-	private int delivered;
-	private double emailsPct;
-	private double bouncesPct;
-	private double opensPct;
-	private double clicksPct;
-	private double unsubsPct;
+	private Integer emailsSent;
+	private Integer bounces;
+	private Integer opens;
+	private Integer clicks;
+	private Integer unsubs;
+	private Integer delivered;
+	private Double emailsPct;
+	private Double bouncesPct;
+	private Double opensPct;
+	private Double clicksPct;
+	private Double unsubsPct;
 
-	public DomainStats(JSONObject jsonObj) {
-		domain = jsonObj.getString("domain");
-		emailsSent = jsonObj.getInt("emails_sent");
-		bounces = jsonObj.getInt("bounces");
-		opens = jsonObj.getInt("opens");
-		clicks = jsonObj.getInt("clicks");
-		unsubs = jsonObj.getInt("unsubs");
-		delivered = jsonObj.getInt("delivered");
-		emailsPct = jsonObj.getDouble("emails_pct");
-		bouncesPct = jsonObj.getDouble("bounces_pct");
-		opensPct = jsonObj.getDouble("opens_pct");
-		clicksPct = jsonObj.getDouble("clicks_pct");
-		unsubsPct = jsonObj.getDouble("unsubs_pct");
+	public DomainStats(JSONObject domainstats) {
+		JSONObjectCheck jObj = new JSONObjectCheck(domainstats);
+		domain = jObj.getString("domain");
+		emailsSent = jObj.getInt("emails_sent");
+		bounces = jObj.getInt("bounces");
+		opens = jObj.getInt("opens");
+		clicks = jObj.getInt("clicks");
+		unsubs = jObj.getInt("unsubs");
+		delivered = jObj.getInt("delivered");
+		emailsPct = jObj.getDouble("emails_pct");
+		bouncesPct = jObj.getDouble("bounces_pct");
+		opensPct = jObj.getDouble("opens_pct");
+		clicksPct = jObj.getDouble("clicks_pct");
+		unsubsPct = jObj.getDouble("unsubs_pct");
 	}
 
 	/**
@@ -45,77 +48,77 @@ public class DomainStats {
 	/**
 	 * @return The number of emails sent to that specific domain.
 	 */
-	public int getEmailsSent() {
+	public Integer getEmailsSent() {
 		return emailsSent;
 	}
 
 	/**
 	 * @return The number of bounces at a domain.
 	 */
-	public int getBounces() {
+	public Integer getBounces() {
 		return bounces;
 	}
 
 	/**
 	 * @return The number of opens for a domain.
 	 */
-	public int getOpens() {
+	public Integer getOpens() {
 		return opens;
 	}
 
 	/**
 	 * @return The number of clicks for a domain.
 	 */
-	public int getClicks() {
+	public Integer getClicks() {
 		return clicks;
 	}
 
 	/**
 	 * @return The total number of unsubscribes for a domain.
 	 */
-	public int getUnsubs() {
+	public Integer getUnsubs() {
 		return unsubs;
 	}
 
 	/**
 	 * @return The number of successful deliveries for a domain.
 	 */
-	public int getDelivered() {
+	public Integer getDelivered() {
 		return delivered;
 	}
 
 	/**
 	 * @return The percentage of total emails that went to this domain.
 	 */
-	public double getEmailsPct() {
+	public Double getEmailsPct() {
 		return emailsPct;
 	}
 
 	/**
 	 * @return The percentage of total bounces from this domain.
 	 */
-	public double getBouncesPct() {
+	public Double getBouncesPct() {
 		return bouncesPct;
 	}
 
 	/**
 	 * @return The percentage of total opens from this domain.
 	 */
-	public double getOpensPct() {
+	public Double getOpensPct() {
 		return opensPct;
 	}
 
 	/**
 	 * @return The percentage of total clicks from this domain.
 	 */
-	public double getClicksPct() {
+	public Double getClicksPct() {
 		return clicksPct;
 	}
 
 	/**
 	 * @return The percentage of total unsubscribes from this domain.
 	 */
-	public double getUnsubsPct() {
+	public Double getUnsubsPct() {
 		return unsubsPct;
 	}
 

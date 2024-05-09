@@ -15,10 +15,6 @@ import com.github.bananaj.model.ModelIterator;
 public class FileManagerFileIterator extends ModelIterator<FileManagerFile> {
 	Long totalFileSize;
 
-	public FileManagerFileIterator(MailChimpConnection connection, int count, int offset) {
-		super(FileManagerFile.class, connection.getFilesendpoint(), connection, count, offset);
-	}
-
 	public FileManagerFileIterator(MailChimpConnection connection, int count) {
 		super(FileManagerFile.class, connection.getFilesendpoint(), connection, count);
 	}

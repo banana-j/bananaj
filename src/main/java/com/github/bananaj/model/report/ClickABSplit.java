@@ -2,6 +2,8 @@ package com.github.bananaj.model.report;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
 public class ClickABSplit {
 	private Integer totalClicks;
 	private Double clickPercentage;
@@ -9,12 +11,13 @@ public class ClickABSplit {
 	private Double uniqueClickPercentage;
 	private String group;
 
-	protected ClickABSplit(String group, JSONObject jsonObj) {
+	protected ClickABSplit(String group, JSONObject click) {
+		JSONObjectCheck jObj = new JSONObjectCheck(click);
 		this.group = group;
-		totalClicks = jsonObj.getInt("total_clicks_"+group);
-		clickPercentage = jsonObj.getDouble("click_percentage_"+group);
-		uniqueClicks = jsonObj.getInt("unique_clicks_"+group);
-		uniqueClickPercentage = jsonObj.getDouble("unique_click_percentage_"+group);
+		totalClicks = jObj.getInt("total_clicks_"+group);
+		clickPercentage = jObj.getDouble("click_percentage_"+group);
+		uniqueClicks = jObj.getInt("unique_clicks_"+group);
+		uniqueClickPercentage = jObj.getDouble("unique_click_percentage_"+group);
 	}
 
 	/**

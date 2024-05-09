@@ -127,7 +127,7 @@ public class FileManagerFolder implements JSONParser {
 	 * list of files is scanned and filtered.
 	 * 
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/file-manager-files/list-stored-files/">File Manager Files -- GET /file-manager/files</a>
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/file-manager-files/list-stored-files/" target="MailchimpAPIDoc">File Manager Files -- GET /file-manager/files</a>
 	 * @return Iterator of all files belonging to this folder
 	 * @throws Exception
 	 */

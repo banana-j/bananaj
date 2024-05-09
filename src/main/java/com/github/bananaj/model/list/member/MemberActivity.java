@@ -2,6 +2,8 @@ package com.github.bananaj.model.list.member;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
 /**
  * Details about subscribers’ recent activity.
  * 
@@ -16,14 +18,15 @@ public class MemberActivity {
     String title;
     String parentCampaign;
 
-    public MemberActivity(JSONObject jsonObj) {
-    	action = jsonObj.getString("action");
-    	timestamp = jsonObj.getString("timestamp");
-    	url = jsonObj.has("url") ? jsonObj.getString("url") : null;
-    	type = jsonObj.has("type") ? jsonObj.getString("type") : null;
-    	campaignId = jsonObj.has("campaign_id") ? jsonObj.getString("campaign_id") : null;
-    	title = jsonObj.has("title") ? jsonObj.getString("title") : null;
-    	parentCampaign = jsonObj.has("parent_campaign") ? jsonObj.getString("parent_campaign") : null;
+    public MemberActivity(JSONObject activity) {
+		JSONObjectCheck jObj = new JSONObjectCheck(activity);
+    	action = jObj.getString("action");
+    	timestamp = jObj.getString("timestamp");
+    	url = jObj.getString("url");
+    	type = jObj.getString("type");
+    	campaignId = jObj.getString("campaign_id");
+    	title = jObj.getString("title");
+    	parentCampaign = jObj.getString("parent_campaign");
     }
 
 	/**

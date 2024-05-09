@@ -7,13 +7,14 @@ import org.json.JSONObject;
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Member Notes
  */
 public class MemberNote implements JSONParser {
 
-	private int id;
+	private Integer id;
 	private ZonedDateTime createdAt;
 	private String createdBy;
 	private ZonedDateTime updatedAt;
@@ -43,13 +44,14 @@ public class MemberNote implements JSONParser {
 	 * @param jsonObj
 	 */
 	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
-		id = jsonObj.getInt("id");
-		createdAt = DateConverter.fromISO8601(jsonObj.getString("created_at"));
-		createdBy = jsonObj.getString("created_by");
-		updatedAt = DateConverter.fromISO8601(jsonObj.getString("updated_at"));
-		note = jsonObj.getString("note");
-		listId = jsonObj.getString("list_id");
-		emailId = jsonObj.getString("email_id");
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
+		id = jObj.getInt("id");
+		createdAt = jObj.getISO8601Date("created_at");
+		createdBy = jObj.getString("created_by");
+		updatedAt = jObj.getISO8601Date("updated_at");
+		note = jObj.getString("note");
+		listId = jObj.getString("list_id");
+		emailId = jObj.getString("email_id");
 	}
 	
 	/**
@@ -69,7 +71,7 @@ public class MemberNote implements JSONParser {
 	/**
 	 * @return The note id.
 	 */
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 

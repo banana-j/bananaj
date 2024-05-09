@@ -4,15 +4,11 @@
  */
 package com.github.bananaj.model.report;
 
-import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
-import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Open locations for a specific campaign.
@@ -24,7 +20,7 @@ public class ReportLocation implements JSONParser {
     private String countryCode;
     private String region;
     private String regionName;
-	private int opens;
+	private Integer opens;
 	
 	public ReportLocation() {
 
@@ -36,10 +32,11 @@ public class ReportLocation implements JSONParser {
 
 	@Override
 	public void parse(MailChimpConnection connection, JSONObject entity) {
-		countryCode = entity.getString("country_code");
-		region = entity.getString("region");
-		regionName = entity.getString("region_name");
-		opens = entity.getInt("opens");
+		JSONObjectCheck jObj = new JSONObjectCheck(entity);
+		countryCode = jObj.getString("country_code");
+		region = jObj.getString("region");
+		regionName = jObj.getString("region_name");
+		opens = jObj.getInt("opens");
 	}
 
 	/**
@@ -69,7 +66,7 @@ public class ReportLocation implements JSONParser {
 	/**
 	 * The number of unique campaign opens for a region.
 	 */
-	public int getOpens() {
+	public Integer getOpens() {
 		return opens;
 	}
 

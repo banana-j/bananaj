@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.bananaj.model.list.interests.Interest;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  *  Extra options for some merge field types.
@@ -25,13 +26,14 @@ public class MergeFieldOptions {
 	 * 
 	 * @param jsonObj
 	 */
-	public MergeFieldOptions(JSONObject jsonObj) {
-		defaultCountry = jsonObj.has("default_country") ? defaultCountry = jsonObj.getInt("default_country") : null;
-		phoneFormat = jsonObj.has("phone_format") ? jsonObj.getString("phone_format") : null;
-		dateFormat = jsonObj.has("date_format") ? dateFormat = jsonObj.getString("date_format") : null;
-		size = jsonObj.has("size") ? jsonObj.getInt("size") : null;
-		if (jsonObj.has("choices")) {
-			JSONArray choicesObj = jsonObj.getJSONArray("choices");
+	public MergeFieldOptions(JSONObject options) {
+		JSONObjectCheck jObj = new JSONObjectCheck(options);
+		defaultCountry = jObj.getInt("default_country");
+		phoneFormat = jObj.getString("phone_format");
+		dateFormat = jObj.getString("date_format");
+		size = jObj.getInt("size");
+		if (jObj.has("choices")) {
+			JSONArray choicesObj = jObj.getJSONArray("choices");
 			choices = new ArrayList<String>(choicesObj.length());
 			for (int i = 0; i < choicesObj.length(); i++) {
 				choices.add((String )choicesObj.get(i));
@@ -102,17 +104,11 @@ public class MergeFieldOptions {
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 */
 	public JSONObject getJsonRepresentation() {
-		JSONObject json = new JSONObject();
+		JSONObjectCheck json = new JSONObjectCheck();
 
-		if (defaultCountry != null) {
-			json.put("default_country", defaultCountry.intValue());
-		}
-		if (phoneFormat != null) {
-			json.put("phone_format", phoneFormat);
-		}
-		if (dateFormat != null) {
-			json.put("date_format", dateFormat);
-		}
+		json.put("default_country", defaultCountry);
+		json.put("phone_format", phoneFormat);
+		json.put("date_format", dateFormat);
 		if (choices != null && choices.size() > 0) {
 			JSONArray choiceArry = new JSONArray();
 			for(String choice: choices) {
@@ -120,11 +116,9 @@ public class MergeFieldOptions {
 			}
 			json.put("choices", choiceArry);
 		}
-		if (size != null) {
-			json.put("size", size.intValue());
-		}
+		json.put("size", size);
 
-		return json;
+		return json.getJsonObject();
 	}
 	
 	@Override

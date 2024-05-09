@@ -8,19 +8,21 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 public class AutomationSubscriberQueue {
 	private String workflowId;
 	private String emailId;
 	private List<AutomationSubscriber> queue;
-	private int totalItems;
+	private Integer totalItems;
 	private MailChimpConnection connection;
 
 	public AutomationSubscriberQueue(MailChimpConnection connection, JSONObject jsonObj) {
-		this.workflowId = jsonObj.getString("workflow_id");
-		this.emailId = jsonObj.getString("email_id");
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
+		this.workflowId = jObj.getString("workflow_id");
+		this.emailId = jObj.getString("email_id");
 		this.queue = new ArrayList<AutomationSubscriber>();
-		this.totalItems = jsonObj.getInt("total_items");
+		this.totalItems = jObj.getInt("total_items");
 		if (jsonObj.has("queue")) {
 			JSONArray subscriberQueue = jsonObj.getJSONArray("queue");
 			for(int i=0; i<subscriberQueue.length(); i++) {
@@ -66,7 +68,7 @@ public class AutomationSubscriberQueue {
 	/**
 	 * The total number of items matching the query regardless of pagination
 	 */
-	public int getTotalItems() {
+	public Integer getTotalItems() {
 		return totalItems;
 	}
 

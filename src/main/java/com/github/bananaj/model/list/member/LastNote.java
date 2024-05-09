@@ -5,22 +5,24 @@ import java.time.ZonedDateTime;
 import org.json.JSONObject;
 
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * The most recent Note for a member.
  */
 public class LastNote {
 	
-	private int id;
+	private Integer id;
 	private ZonedDateTime createdAt;
 	private String createdBy;
 	private String note;
 
 	public LastNote(JSONObject jsonObj) {
-		id = jsonObj.getInt("note_id");
-		createdAt = DateConverter.fromISO8601(jsonObj.getString("created_at"));
-		createdBy = jsonObj.getString("created_by");
-		note = jsonObj.getString("note");
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
+		id = jObj.getInt("note_id");
+		createdAt = jObj.getISO8601Date("created_at");
+		createdBy = jObj.getString("created_by");
+		note = jObj.getString("note");
 	}
 
 	/**
@@ -33,7 +35,7 @@ public class LastNote {
 	/**
 	 * @return The note id.
 	 */
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 

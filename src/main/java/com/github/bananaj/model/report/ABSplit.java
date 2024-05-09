@@ -2,6 +2,8 @@ package com.github.bananaj.model.report;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
 /**
  * General stats about different groups of an A/B Split campaign. Does not include information about Mailchimp Pro's Multivariate Campaigns.
  *
@@ -12,10 +14,15 @@ public class ABSplit {
 	private SplitInfo b;
 
 	public ABSplit(JSONObject jsonObj) {
-		JSONObject aSplit = jsonObj.getJSONObject("a");
-		JSONObject bSplit = jsonObj.getJSONObject("b");
-		a = new SplitInfo(aSplit);
-		b = new SplitInfo(bSplit);
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
+		JSONObject aSplit = jObj.getJSONObject("a");
+		JSONObject bSplit = jObj.getJSONObject("b");
+		if (aSplit != null) {
+			a = new SplitInfo(aSplit);
+		}
+		if (bSplit != null) {
+			b = new SplitInfo(bSplit);
+		}
 	}
 
 	/**

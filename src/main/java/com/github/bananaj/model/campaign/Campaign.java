@@ -20,6 +20,7 @@ import com.github.bananaj.model.ReportSummary;
 import com.github.bananaj.model.Tracking;
 import com.github.bananaj.model.report.Report;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Class for representing a mailchimp campaign
@@ -31,18 +32,18 @@ public class Campaign implements JSONParser {
 	private MailChimpConnection connection;
 	
 	private String id;
-	private int webId;
+	private Integer webId;
 	private String parentCampaignId;
 	private CampaignType type;
 	private ZonedDateTime createTime;
 	private String archiveUrl;
 	private String longArchiveUrl;
 	private CampaignStatus status;
-	private int emailsSent;
+	private Integer emailsSent;
 	private ZonedDateTime sendTime;
 	private CampaignContentType contentType;
-	private boolean needsBlockRefresh;
-	private boolean resendable;
+	private Boolean needsBlockRefresh;
+	private Boolean resendable;
 	private CampaignRecipients recipients;
 	private CampaignSettings settings;
 	//private VariateSettings variate_settings;
@@ -63,36 +64,34 @@ public class Campaign implements JSONParser {
 		parse(connection, jsonObj);
 	}
 
-	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
-		id = jsonObj.getString("id");
+	public void parse(MailChimpConnection connection, JSONObject campaign) {
+		JSONObjectCheck jObj = new JSONObjectCheck(campaign);
 		this.connection = connection;
-		this.webId = jsonObj.getInt("web_id");
-		if (jsonObj.has("parent_campaign_id")) {
-			this.parentCampaignId = jsonObj.getString("parent_campaign_id");
+		id = jObj.getString("id");
+		this.webId = jObj.getInt("web_id");
+		this.parentCampaignId = jObj.getString("parent_campaign_id");
+		this.type = jObj.getEnum(CampaignType.class, "type");
+		this.createTime = jObj.getISO8601Date("create_time");
+		this.archiveUrl = jObj.getString("archive_url");
+		this.longArchiveUrl = jObj.getString("long_archive_url");
+		this.status =  jObj.getEnum(CampaignStatus.class, "status");
+		this.emailsSent = jObj.getInt("emails_sent");
+		this.sendTime = jObj.getISO8601Date("send_time");
+		this.contentType = jObj.getEnum(CampaignContentType.class, "content_type");
+		this.needsBlockRefresh = jObj.getBoolean("needs_block_refresh");
+		this.resendable = jObj.getBoolean("resendable");
+
+		if (campaign.has("recipients")) {
+			this.recipients = new CampaignRecipients(campaign.getJSONObject("recipients"));
 		}
-		this.type = CampaignType.valueOf(jsonObj.getString("type").toUpperCase());
-		this.createTime = DateConverter.fromISO8601(jsonObj.getString("create_time"));
-		this.archiveUrl = jsonObj.getString("archive_url");
-		this.longArchiveUrl = jsonObj.getString("long_archive_url");
-		this.status = CampaignStatus.valueOf(jsonObj.getString("status").toUpperCase());
-		this.emailsSent = jsonObj.getInt("emails_sent");
-		if (jsonObj.has("send_time")) {
-			this.sendTime = DateConverter.fromISO8601(jsonObj.getString("send_time"));
+		if (campaign.has("settings")) {
+			this.settings = new CampaignSettings(campaign.getJSONObject("settings"));
 		}
-		this.contentType = CampaignContentType.valueOf(jsonObj.getString("content_type").toUpperCase());
-		this.needsBlockRefresh = jsonObj.getBoolean("needs_block_refresh");
-		this.resendable = jsonObj.getBoolean("resendable");
-		
-		if (jsonObj.has("recipients")) {
-			this.recipients = new CampaignRecipients(jsonObj.getJSONObject("recipients"));
-//			if (recipients.getListId() != null) {
-//				this.mailChimpList = connection.getList(recipients.getString("list_id"));
-//			}
+		if (campaign.has("tracking")) {
+			this.tracking = new Tracking(campaign.getJSONObject("tracking"));
 		}
-		this.settings = new CampaignSettings(jsonObj.getJSONObject("settings"));
-		this.tracking = new Tracking(jsonObj.getJSONObject("tracking"));
-		if (jsonObj.has("report_summary")) {
-			this.reportSummary = new ReportSummary(jsonObj.getJSONObject("report_summary"));
+		if (campaign.has("report_summary")) {
+			this.reportSummary = new ReportSummary(campaign.getJSONObject("report_summary"));
 		}
 	}
 	
@@ -201,7 +200,7 @@ public class Campaign implements JSONParser {
 	}
 	
 	// TODO: additional actions (schedule, unschedule)
-//	public void schedule(ZonedDateTime schedule_time, boolean timewarp, BatchDelivery batch_delivery) throws Exception {
+//	public void schedule(ZonedDateTime schedule_time, Boolean timewarp, BatchDelivery batch_delivery) throws Exception {
 //		getConnection().do_Post(new URL(getConnection().getCampaignendpoint()+"/"+getId()+"/actions/schedule"), getConnection().getApikey());
 //	}
 //	
@@ -275,7 +274,7 @@ public class Campaign implements JSONParser {
 		JSONObject campaignFeedback = new JSONObject(getConnection().do_Get(new URL(connection.getCampaignendpoint()+"/"+this.getId()+"/feedback"),connection.getApikey()));
 		
 		JSONArray feedbackArray = campaignFeedback.getJSONArray("feedback");
-		for( int i = 0; i< feedbackArray.length();i++)
+		for( Integer i = 0; i< feedbackArray.length();i++)
 		{
 			JSONObject jsonObj = feedbackArray.getJSONObject(i);
 			CampaignFeedback f = new CampaignFeedback(connection, jsonObj);
@@ -329,7 +328,7 @@ public class Campaign implements JSONParser {
 	/**
 	 * The ID used in the Mailchimp web application. View this campaign in your Mailchimp account at https://{dc}.admin.mailchimp.com/campaigns/show/?id={web_id}.
 	 */
-	public int getWebId() {
+	public Integer getWebId() {
 		return webId;
 	}
 
@@ -378,7 +377,7 @@ public class Campaign implements JSONParser {
 	/**
 	 * The total number of emails sent for this campaign
 	 */
-	public int getEmailsSent() {
+	public Integer getEmailsSent() {
 		return emailsSent;
 	}
 
@@ -399,14 +398,14 @@ public class Campaign implements JSONParser {
 	/**
 	 * Determines if the campaign needs its blocks refreshed by opening the web-based campaign editor.
 	 */
-	public boolean isNeedsBlockRefresh() {
+	public Boolean isNeedsBlockRefresh() {
 		return needsBlockRefresh;
 	}
 
 	/**
 	 * Determines if the campaign qualifies to be resent to non-openers
 	 */
-	public boolean isResendable() {
+	public Boolean isResendable() {
 		return resendable;
 	}
 

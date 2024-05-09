@@ -52,7 +52,7 @@ public class MemberTest {
 	public void testMember_MemberNote() {
 		JSONObject jsonObj = new JSONObject("{\"id\":29821,\"created_at\":\"2019-10-22T21:36:06+00:00\",\"created_by\":\"John Smith\",\"updated_at\":\"2019-10-22T21:36:06+00:00\",\"note\":\"This is a test note\",\"list_id\":\"d4a27625e0\",\"email_id\":\"3365d1c1111b3f7523e433e482b0b123\",\"_links\":[{\"rel\":\"self\",\"href\":\"https://us3.api.mailchimp.com/3.0/lists/d4a27625e0/members/3365d1c1111b3f7523e433e482b0b123/notes/29821\",\"method\":\"GET\",\"targetSchema\":\"https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/Members/Notes/Response.json\"},{\"rel\":\"parent\",\"href\":\"https://us3.api.mailchimp.com/3.0/lists/d4a27625e0/members/3365d1c1111b3f7523e433e482b0b123/notes\",\"method\":\"GET\",\"targetSchema\":\"https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/Members/Notes/CollectionResponse.json\"},{\"rel\":\"update\",\"href\":\"https://us3.api.mailchimp.com/3.0/lists/d4a27625e0/members/3365d1c1111b3f7523e433e482b0b123/notes/29821\",\"method\":\"PATCH\",\"targetSchema\":\"https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/Members/Notes/Response.json\",\"schema\":\"https://us3.api.mailchimp.com/schema/3.0/Definitions/Lists/Members/Notes/PATCH.json\"},{\"rel\":\"delete\",\"href\":\"https://us3.api.mailchimp.com/3.0/lists/d4a27625e0/members/3365d1c1111b3f7523e433e482b0b123/notes/29821\",\"method\":\"DELETE\"}]}");
 		MemberNote n = new MemberNote(jsonObj);
-		assertEquals(29821, n.getId());
+		assertEquals(new Integer(29821), n.getId());
 		assertEquals("This is a test note", n.getNote());
 		assertEquals("John Smith", n.getCreatedBy());
 		assertEquals("d4a27625e0", n.getListId());

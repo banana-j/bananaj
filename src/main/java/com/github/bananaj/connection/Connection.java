@@ -26,7 +26,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * HTTP/HTTPS protocol handler
+ * Low level HTTP/HTTPS protocol handler
  */
 public class Connection {
 

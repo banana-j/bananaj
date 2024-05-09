@@ -1,13 +1,10 @@
-/**
- * @author alexanderweiss
- * @date 07.12.2015
- */
 package com.github.bananaj.model.list;
 
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Class for representing a growth history of a mailChimpList
@@ -22,13 +19,13 @@ public class GrowthHistory implements JSONParser {
 	private Integer existing;	// (deprecated)
 	private Integer imports;	// (deprecated)
 	private Integer optins;	// (deprecated)
-	private int subscribed;
-	private int unsubscribed;
-	private int reconfirm;
-	private int cleaned;
-	private int pending;
-	private int deleted;
-	private int transactional;
+	private Integer subscribed;
+	private Integer unsubscribed;
+	private Integer reconfirm;
+	private Integer cleaned;
+	private Integer pending;
+	private Integer deleted;
+	private Integer transactional;
 
 	public GrowthHistory(JSONObject jsonObj) {
 		parse(null, jsonObj);
@@ -36,18 +33,19 @@ public class GrowthHistory implements JSONParser {
 
 	@Override
 	public void parse(MailChimpConnection connection, JSONObject entity) {
-		id = entity.getString("list_id");
-		month = entity.getString("month");
-		existing = entity.has("existing") ? entity.getInt("existing") : null;
-		imports = entity.has("imports") ? entity.getInt("imports") : null;
-		optins = entity.has("optins") ? entity.getInt("optins") : null;
-		subscribed = entity.getInt("subscribed");
-		unsubscribed = entity.getInt("unsubscribed");
-		reconfirm = entity.getInt("reconfirm");
-		cleaned = entity.getInt("cleaned");
-		pending = entity.getInt("pending");
-		deleted = entity.getInt("deleted");
-		transactional = entity.getInt("transactional");
+		JSONObjectCheck jObj = new JSONObjectCheck(entity);
+		id = jObj.getString("list_id");
+		month = jObj.getString("month");
+		existing = jObj.getInt("existing");
+		imports = jObj.getInt("imports");
+		optins = jObj.getInt("optins");
+		subscribed = jObj.getInt("subscribed");
+		unsubscribed = jObj.getInt("unsubscribed");
+		reconfirm = jObj.getInt("reconfirm");
+		cleaned = jObj.getInt("cleaned");
+		pending = jObj.getInt("pending");
+		deleted = jObj.getInt("deleted");
+		transactional = jObj.getInt("transactional");
 	}
 
 	/**
@@ -67,7 +65,7 @@ public class GrowthHistory implements JSONParser {
 
 
 	/**
-	 * @deprecated
+	 * @deprecated Deprecated in the Mailchimp API
 	 */
 	public Integer getExisting() {
 		return existing;
@@ -75,7 +73,7 @@ public class GrowthHistory implements JSONParser {
 
 
 	/**
-	 * @deprecated
+	 * @deprecated Deprecated in the Mailchimp API
 	 */
 	public Integer getImports() {
 		return imports;
@@ -83,7 +81,7 @@ public class GrowthHistory implements JSONParser {
 
 
 	/**
-	 * @deprecated
+	 * @deprecated Deprecated in the Mailchimp API
 	 */
 	public Integer getOptins() {
 		return optins;
@@ -93,7 +91,7 @@ public class GrowthHistory implements JSONParser {
 	/**
 	 * @return Newly subscribed members on the list for a specific month.
 	 */
-	public int getSubscribed() {
+	public Integer getSubscribed() {
 		return subscribed;
 	}
 
@@ -101,7 +99,7 @@ public class GrowthHistory implements JSONParser {
 	/**
 	 * @return Newly unsubscribed members on the list for a specific month.
 	 */
-	public int getUnsubscribed() {
+	public Integer getUnsubscribed() {
 		return unsubscribed;
 	}
 
@@ -109,7 +107,7 @@ public class GrowthHistory implements JSONParser {
 	/**
 	 * @return Newly reconfirmed members on the list for a specific month.
 	 */
-	public int getReconfirm() {
+	public Integer getReconfirm() {
 		return reconfirm;
 	}
 
@@ -117,7 +115,7 @@ public class GrowthHistory implements JSONParser {
 	/**
 	 * @return Newly cleaned (hard-bounced) members on the list for a specific month.
 	 */
-	public int getCleaned() {
+	public Integer getCleaned() {
 		return cleaned;
 	}
 
@@ -125,7 +123,7 @@ public class GrowthHistory implements JSONParser {
 	/**
 	 * @return Pending members on the list for a specific month.
 	 */
-	public int getPending() {
+	public Integer getPending() {
 		return pending;
 	}
 
@@ -133,7 +131,7 @@ public class GrowthHistory implements JSONParser {
 	/**
 	 * @return Newly deleted members on the list for a specific month.
 	 */
-	public int getDeleted() {
+	public Integer getDeleted() {
 		return deleted;
 	}
 
@@ -141,7 +139,7 @@ public class GrowthHistory implements JSONParser {
 	/**
 	 * @return Subscribers that have been sent transactional emails via Mandrill.
 	 */
-	public int getTransactional() {
+	public Integer getTransactional() {
 		return transactional;
 	}
 

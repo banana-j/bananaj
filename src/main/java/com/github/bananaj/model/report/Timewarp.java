@@ -5,6 +5,7 @@ import java.time.ZonedDateTime;
 import org.json.JSONObject;
 
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * An hourly breakdown of sends, opens, and clicks if a campaign is sent using timewarp.
@@ -12,37 +13,38 @@ import com.github.bananaj.utils.DateConverter;
  */
 public class Timewarp {
 
-	private int gmtOffset;
-	private int opens;
+	private Integer gmtOffset;
+	private Integer opens;
 	private ZonedDateTime lastOpen;
-	private int uniqueOpens;
-	private int clicks;
+	private Integer uniqueOpens;
+	private Integer clicks;
 	private ZonedDateTime lastClick;
-	private int uniqueClicks;
-	private int bounces;
+	private Integer uniqueClicks;
+	private Integer bounces;
 
-	public Timewarp(JSONObject jsonObj) {
-		gmtOffset = jsonObj.getInt("gmt_offset");
-		opens = jsonObj.getInt("opens");
-		lastOpen = DateConverter.fromISO8601(jsonObj.getString("last_open"));
-		uniqueOpens = jsonObj.getInt("unique_opens");
-		clicks = jsonObj.getInt("clicks");
-		lastClick = DateConverter.fromISO8601(jsonObj.getString("last_click"));
-		uniqueClicks = jsonObj.getInt("unique_clicks");
-		bounces = jsonObj.getInt("bounces");
+	public Timewarp(JSONObject entity) {
+		JSONObjectCheck jObj = new JSONObjectCheck(entity);
+		gmtOffset = jObj.getInt("gmt_offset");
+		opens = jObj.getInt("opens");
+		lastOpen = jObj.getISO8601Date("last_open");
+		uniqueOpens = jObj.getInt("unique_opens");
+		clicks = jObj.getInt("clicks");
+		lastClick = jObj.getISO8601Date("last_click");
+		uniqueClicks = jObj.getInt("unique_clicks");
+		bounces = jObj.getInt("bounces");
 	}
 
 	/**
 	 * @return For campaigns sent with timewarp, the time zone group the member is apart of.
 	 */
-	public int getGmtOffset() {
+	public Integer getGmtOffset() {
 		return gmtOffset;
 	}
 
 	/**
 	 * @return The number of opens.
 	 */
-	public int getOpens() {
+	public Integer getOpens() {
 		return opens;
 	}
 
@@ -56,14 +58,14 @@ public class Timewarp {
 	/**
 	 * @return The number of unique opens.
 	 */
-	public int getUniqueOpens() {
+	public Integer getUniqueOpens() {
 		return uniqueOpens;
 	}
 
 	/**
 	 * @return The number of clicks.
 	 */
-	public int getClicks() {
+	public Integer getClicks() {
 		return clicks;
 	}
 
@@ -77,14 +79,14 @@ public class Timewarp {
 	/**
 	 * @return The number of unique clicks.
 	 */
-	public int getUniqueClicks() {
+	public Integer getUniqueClicks() {
 		return uniqueClicks;
 	}
 
 	/**
 	 * @return The number of bounces.
 	 */
-	public int getBounces() {
+	public Integer getBounces() {
 		return bounces;
 	}
 

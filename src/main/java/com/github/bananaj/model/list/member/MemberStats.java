@@ -2,13 +2,15 @@ package com.github.bananaj.model.list.member;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
 /**
  * Open and click rates for this subscriber.
  */
 public class MemberStats {
 
-	private double avgOpenRate;
-	private double avgClickRate;
+	private Double avgOpenRate;
+	private Double avgClickRate;
 	private EcommerceData ecommerceData;
 
 	public MemberStats() {
@@ -16,22 +18,23 @@ public class MemberStats {
 	}
 
 	public MemberStats(JSONObject stats) {
-		avgOpenRate = stats.getDouble("avg_open_rate");
-		avgClickRate = stats.getDouble("avg_click_rate");
-		ecommerceData = stats.has("stats") ? new EcommerceData(stats.getJSONObject("stats")) : null;
+		JSONObjectCheck jObj = new JSONObjectCheck(stats);
+		avgOpenRate = jObj.getDouble("avg_open_rate");
+		avgClickRate = jObj.getDouble("avg_click_rate");
+		ecommerceData = jObj.has("stats") ? new EcommerceData(jObj.getJSONObject("stats")) : null;
 	}
 
 	/**
 	 * @return A subscriber’s average open rate.
 	 */
-	public double getAvgOpenRate() {
+	public Double getAvgOpenRate() {
 		return avgOpenRate;
 	}
 
 	/**
 	 * @return A subscriber’s average clickthrough rate.
 	 */
-	public double getAvgClickRate() {
+	public Double getAvgClickRate() {
 		return avgClickRate;
 	}
 
@@ -59,8 +62,8 @@ public class MemberStats {
 	 * Ecommerce stats for the list member if the list is attached to a store.
 	 */
 	public class EcommerceData {
-		private double totalRevenue;
-		private double numberOfOrders;
+		private Double totalRevenue;
+		private Double numberOfOrders;
 		private String currencyCode;
 
 		public EcommerceData() {
@@ -76,14 +79,14 @@ public class MemberStats {
 		/**
 		 * @return The total revenue the list member has brought in.
 		 */
-		public double getTotalRevenue() {
+		public Double getTotalRevenue() {
 			return totalRevenue;
 		}
 
 		/**
 		 * @return The total number of orders placed by the list member.
 		 */
-		public double getNumberOfOrders() {
+		public Double getNumberOfOrders() {
 			return numberOfOrders;
 		}
 

@@ -11,7 +11,7 @@ import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
-import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * a list member who opened a campaign email. Each members object will contain
@@ -23,13 +23,13 @@ public class OpenReportMember implements JSONParser {
 	
 	private String campaignId;
 	private String listId;
-	private boolean listIsActive;
+	private Boolean listIsActive;
 	private String contactStatus;
 	private String emailId;
 	private String emailAddress;
 	private Map<String, Object> mergeFields;
-	private boolean vip;
-	private int opensCount;
+	private Boolean vip;
+	private Integer opensCount;
 	private List<ZonedDateTime> opens;
 
 	public OpenReportMember() {
@@ -42,32 +42,35 @@ public class OpenReportMember implements JSONParser {
 
 	@Override
 	public void parse(MailChimpConnection connection, JSONObject entity) {
-		campaignId = entity.getString("campaign_id");
-		listId = entity.getString("list_id");
-		listIsActive = entity.getBoolean("list_is_active");
-		contactStatus = entity.getString("contact_status");
-		emailId = entity.getString("email_id");
-		emailAddress = entity.getString("email_address");
-		
+		JSONObjectCheck jObj = new JSONObjectCheck(entity);
+		campaignId = jObj.getString("campaign_id");
+		listId = jObj.getString("list_id");
+		listIsActive = jObj.getBoolean("list_is_active");
+		contactStatus = jObj.getString("contact_status");
+		emailId = jObj.getString("email_id");
+		emailAddress = jObj.getString("email_address");
+
 		mergeFields = new HashMap<String, Object>();
-		if (entity.has("merge_fields")) {
-			final JSONObject mergeFieldsObj = entity.getJSONObject("merge_fields");
+		if (jObj.has("merge_fields")) {
+			final JSONObject mergeFieldsObj = jObj.getJSONObject("merge_fields");
 			for(String key : mergeFieldsObj.keySet()) {
 				mergeFields.put(key, mergeFieldsObj.get(key));
 			}
 		}
-		
-		vip = entity.getBoolean("vip");
-		opensCount = entity.getInt("opens_count");
 
-		final JSONArray openArray = entity.getJSONArray("opens");
-		opens = new ArrayList<ZonedDateTime>(openArray.length());
-		for(int i=0; i<openArray.length(); i++) {
-			JSONObject ts = openArray.getJSONObject(i);
-			opens.add(DateConverter.fromISO8601(ts.getString("timestamp")));
+		vip = jObj.getBoolean("vip");
+		opensCount = jObj.getInt("opens_count");
+
+		final JSONArray openArray = jObj.getJSONArray("opens");
+		opens = new ArrayList<ZonedDateTime>(openArray != null ? openArray.length() : 0);
+		if (openArray != null) {
+			for(int i=0; i<openArray.length(); i++) {
+				JSONObjectCheck ts = new JSONObjectCheck(openArray.getJSONObject(i));
+				opens.add(ts.getISO8601Date("timestamp"));
+			}
 		}
 	}
-	
+
 	/**
 	 * @return The unique id for the campaign.
 	 */
@@ -85,7 +88,7 @@ public class OpenReportMember implements JSONParser {
 	/**
 	 * @return The status of the list used, namely if it's deleted or disabled.
 	 */
-	public boolean isListIsActive() {
+	public Boolean isListIsActive() {
 		return listIsActive;
 	}
 
@@ -122,14 +125,14 @@ public class OpenReportMember implements JSONParser {
 	/**
 	 * @return VIP status for subscriber.
 	 */
-	public boolean isVip() {
+	public Boolean isVip() {
 		return vip;
 	}
 
 	/**
 	 * @return The total number of times the this campaign was opened by the list member.
 	 */
-	public int getOpensCount() {
+	public Integer getOpensCount() {
 		return opensCount;
 	}
 

@@ -2,6 +2,8 @@ package com.github.bananaj.model.automation;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
 /**
  * Mailchimp's Automation feature lets you build a series of emails that send to
  * subscribers when triggered by a specific date, activity, or event. Use the
@@ -16,10 +18,11 @@ public class Subscriber {
 	private String emailAddress;
 
 	public Subscriber(JSONObject jsonObj) {
-		id = jsonObj.getString("id");
-		this.workflowId = jsonObj.getString("workflow_id");
-		this.listId = jsonObj.getString("list_id");
-		this.emailAddress = jsonObj.getString("email_address");
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
+		id = jObj.getString("id");
+		this.workflowId = jObj.getString("workflow_id");
+		this.listId = jObj.getString("list_id");
+		this.emailAddress = jObj.getString("email_address");
 	}
 
 	public Subscriber() {

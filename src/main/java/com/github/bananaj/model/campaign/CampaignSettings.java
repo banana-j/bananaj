@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import com.github.bananaj.connection.Connection;
 import com.github.bananaj.exceptions.CampaignSettingsException;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Class for representing settings for a campaign, including subject, from name, reply-to address, and more.
@@ -25,7 +26,7 @@ public class CampaignSettings {
 	private String toName;
 	private String fromName;
 	private String replyTo;
-	private int templateId;
+	private Integer templateId;
 	private Boolean autoFooter;
 	private Boolean useConversation;
 	private Boolean authenticate;
@@ -34,26 +35,26 @@ public class CampaignSettings {
 	private Boolean fbComments;
 	private Boolean dragAndDrop;
 	private Boolean inlineCss;
-	//private Boolean auto_tweet;  // Automatically tweet a link to the campaign archive page when the campaign is sent.
 	//List<> auto_fb_post;  // An array of Facebook page ids to auto-post to.
 	private String folderId;
 	
 	public CampaignSettings(JSONObject settings) {
-		subjectLine = getString(settings, "subject_line");
-		title = getString(settings, "title");
-		toName = getString(settings, "to_name");
-		fromName = getString(settings, "from_name");
-		replyTo = getString(settings, "reply_to");
-		templateId = settings.getInt("template_id");
-		autoFooter = getBoolean(settings, "auto_footer");
-		useConversation = getBoolean(settings, "use_conversation");
-		authenticate = getBoolean(settings, "authenticate");
-		timewarp = getBoolean(settings, "timewarp");
-		autoTweet = getBoolean(settings, "auto_tweet");
-		fbComments = getBoolean(settings, "fb_comments");
-		dragAndDrop = getBoolean(settings, "drag_and_drop");
-		inlineCss = getBoolean(settings, "inline_css");
-		folderId = getString(settings, "folder_id");
+		JSONObjectCheck jObj = new JSONObjectCheck(settings);
+		subjectLine = jObj.getString("subject_line");
+		title = jObj.getString("title");
+		toName = jObj.getString("to_name");
+		fromName = jObj.getString("from_name");
+		replyTo = jObj.getString("reply_to");
+		templateId = jObj.getInt("template_id");
+		autoFooter = jObj.getBoolean("auto_footer");
+		useConversation = jObj.getBoolean("use_conversation");
+		authenticate = jObj.getBoolean("authenticate");
+		timewarp = jObj.getBoolean("timewarp");
+		autoTweet = jObj.getBoolean("auto_tweet");
+		fbComments = jObj.getBoolean("fb_comments");
+		dragAndDrop = jObj.getBoolean("drag_and_drop");
+		inlineCss = jObj.getBoolean("inline_css");
+		folderId = jObj.getString("folder_id");
 	}
 	
 	private CampaignSettings(Builder b) throws CampaignSettingsException {
@@ -97,20 +98,6 @@ public class CampaignSettings {
 		this.folderId = b.folderId;
 	}
 
-	private String getString(JSONObject settings, String key) {
-		if (settings.has(key)) {
-			return settings.getString(key);
-		}
-		return null;
-	}
-	
-	private Boolean getBoolean(JSONObject settings, String key) {
-		if (settings.has(key)) {
-			return settings.getBoolean(key);
-		}
-		return null;
-	}
-	
 	/**
 	 * The subject line for the campaign.
 	 * @return the subject_line
@@ -191,7 +178,7 @@ public class CampaignSettings {
 	 * The id of the template to use.
 	 * @return the template_id
 	 */
-	public int getTemplateId() {
+	public Integer getTemplateId() {
 		return templateId;
 	}
 
@@ -338,26 +325,25 @@ public class CampaignSettings {
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 */
 	public JSONObject getJsonRepresentation() {
-		JSONObject jsonSettings = new JSONObject();
-		put(jsonSettings, "subject_line", getSubjectLine());
-		put(jsonSettings, "title", getTitle());
-		put(jsonSettings, "to_name", getToName());
-		put(jsonSettings, "from_name", getFromName());
-		put(jsonSettings, "reply_to", getReplyTo());
-		if(getTemplateId() != 0 ) {
-			jsonSettings.put("template_id", getTemplateId());
-		}
-		put(jsonSettings, "auto_footer", getAutoFooter());
-		put(jsonSettings, "use_conversation", getUseConversation());
-		put(jsonSettings, "authenticate", getAuthenticate());
-		put(jsonSettings, "timewarp", getTimewarp());
-		put(jsonSettings, "auto_tweet", getAutoTweet());
-		put(jsonSettings, "fb_comments", getFbComments());
-		put(jsonSettings, "drag_and_drop", getDragAndDrop());
-		put(jsonSettings, "inline_css", getInlineCss());
-		put(jsonSettings, "folder_id", getFolderId());
+		JSONObjectCheck jsonSettings = new JSONObjectCheck();
 
-		return jsonSettings;
+		jsonSettings.put("subject_line", getSubjectLine());
+		jsonSettings.put("title", getTitle());
+		jsonSettings.put("to_name", getToName());
+		jsonSettings.put("from_name", getFromName());
+		jsonSettings.put("reply_to", getReplyTo());
+		jsonSettings.put("template_id", getTemplateId());
+		jsonSettings.put("auto_footer", getAutoFooter());
+		jsonSettings.put("use_conversation", getUseConversation());
+		jsonSettings.put("authenticate", getAuthenticate());
+		jsonSettings.put("timewarp", getTimewarp());
+		jsonSettings.put("auto_tweet", getAutoTweet());
+		jsonSettings.put("fb_comments", getFbComments());
+		jsonSettings.put("drag_and_drop", getDragAndDrop());
+		jsonSettings.put("inline_css", getInlineCss());
+		jsonSettings.put("folder_id", getFolderId());
+
+		return jsonSettings.getJsonObject();
 	}
 	
 	/* (non-Javadoc)
@@ -387,20 +373,6 @@ public class CampaignSettings {
 				"    Folder Id: " + folderId;
 	}
 
-	private JSONObject put(JSONObject settings, String key, String value) {
-		if (value != null) {
-			return settings.put(key, value);
-		}
-		return settings;
-	}
-	
-	private JSONObject put(JSONObject settings, String key, Boolean value) {
-		if (value != null) {
-			return settings.put(key, value);
-		}
-		return settings;
-	}
-	
 	/**
 	 * CampaignSettings builder pattern. 
 	 *
@@ -421,7 +393,6 @@ public class CampaignSettings {
 		private Boolean fbComments;
 		private Boolean dragAndDrop;
 		private Boolean inlineCss;
-		//private Boolean auto_tweet;  // Automatically tweet a link to the campaign archive page when the campaign is sent.
 		//List<> auto_fb_post;  // An array of Facebook page ids to auto-post to.
 		private String folderId;
 

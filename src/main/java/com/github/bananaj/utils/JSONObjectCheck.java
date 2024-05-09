@@ -17,6 +17,10 @@ public class JSONObjectCheck {
 
 	JSONObject jsonObj;
 	
+	public JSONObjectCheck() {
+		this.jsonObj = new JSONObject();
+	}
+	
 	public JSONObjectCheck(JSONObject jsonObj) {
 		this.jsonObj = jsonObj;
 	}
@@ -25,6 +29,10 @@ public class JSONObjectCheck {
 		return jsonObj.has(key);
 	}
 
+	public JSONObject getJsonObject() {
+		return jsonObj;
+	}
+	
 	public ZonedDateTime getISO8601Date(String key) {
 		if (!jsonObj.has(key)) return null;
 		return DateConverter.fromISO8601(jsonObj.getString(key));
@@ -37,7 +45,7 @@ public class JSONObjectCheck {
 
 	public <E extends Enum<E>> E getEnum(Class<E> clazz, String key) throws JSONException {
 		if (!jsonObj.has(key)) return null;
-		return jsonObj.getEnum(clazz, key);
+		return Enum.valueOf(clazz, jsonObj.getString(key).toUpperCase());
 	}
 
 	public Boolean getBoolean(String key) throws JSONException {
@@ -91,8 +99,65 @@ public class JSONObjectCheck {
 	}
 
 	public String getString(String key) throws JSONException {
-		if (!jsonObj.has(key)) return null;
-		return jsonObj.getString(key);
+		return jsonObj.optString(key,null);
+	}
+
+	public JSONObjectCheck put(String key, String value) {
+		jsonObj.put(key, value);
+		return this;
+	}
+
+	public JSONObjectCheck put(String key, Boolean value) {
+		if (value != null) {
+			jsonObj.put(key, value.booleanValue());
+		} else {
+			jsonObj.remove(key);
+		}
+		return this;
+	}
+	
+	public JSONObjectCheck put(String key, Double value) {
+		if (value != null) {
+			jsonObj.put(key, value.doubleValue());
+		} else {
+			jsonObj.remove(key);
+		}
+		return this;
+	}
+
+	public JSONObjectCheck put(String key, Integer value) {
+		if (value != null) {
+			jsonObj.put(key, value.intValue());
+		} else {
+			jsonObj.remove(key);
+		}
+		return this;
+	}
+	public JSONObjectCheck put(String key, Float value) {
+		if (value != null) {
+			jsonObj.put(key, value.floatValue());
+		} else {
+			jsonObj.remove(key);
+		}
+		return this;
+	}
+
+	public JSONObjectCheck put(String key, Object value) {
+		if (value != null) {
+			jsonObj.put(key, value);
+		} else {
+			jsonObj.remove(key);
+		}
+		return this;
+	}
+
+	public JSONObjectCheck put(String key, Enum value) {
+		if (value != null) {
+			jsonObj.put(key, value.toString());
+		} else {
+			jsonObj.remove(key);
+		}
+		return this;
 	}
 
 }

@@ -21,7 +21,7 @@ public class AutomationTest {
 		Automation automation = new Automation(null, jsonObj);
 		assertEquals("2f522d1363", automation.getId());
 		assertNull("Not started", automation.getStartTime());
-		assertEquals(0, automation.getEmailsSent());
+		assertEquals(new Integer(0), automation.getEmailsSent());
 		assertEquals(AutomationStatus.SAVE, automation.getStatus());
 		assertEquals("a70b3a068a", automation.getRecipients().getListId());
 		assertEquals("Analytics Robot", automation.getSettings().getFromName());
@@ -34,7 +34,7 @@ public class AutomationTest {
 		AutomationEmail autoObj = new AutomationEmail(null, jsonObj);
 		assertEquals("3fbba32116", autoObj.getId());
 		assertNull("Not started", autoObj.getStartTime());
-		assertEquals(0, autoObj.getEmailsSent());
+		assertEquals(new Integer(0), autoObj.getEmailsSent());
 		assertEquals(AutomationStatus.SAVE, autoObj.getStatus());
 		assertEquals("a70b3a068a", autoObj.getRecipients().getListId());
 		assertEquals(MatchType.ANY, autoObj.getRecipients().getSegmentOpts().getMatch());

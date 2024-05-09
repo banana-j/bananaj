@@ -41,9 +41,12 @@ import com.github.bananaj.model.template.TemplateFolder;
 import com.github.bananaj.utils.URLHelper;
 
 /**
- * Class for the com.github.bananaj.connection to mailchimp servers. Used to get lists from mailchimp account.
+ * Primary class in the bananaj library that provides access to the Mailchimp
+ * Marketing API. Used to establish a connection with the Mailchimp Marketing
+ * API and provides methods to call most of the exposed Mailchimp API.
  * 
- * @see <a href="https://mailchimp.com/developer/marketing/api/">MAILCHIMP MARKETING API</a>
+ * 
+ * @see <a href="https://mailchimp.com/developer/marketing/api/" target="MailchimpAPIDoc">MAILCHIMP MARKETING API</a>
  *
  */
 public class MailChimpConnection extends Connection {
@@ -101,7 +104,7 @@ public class MailChimpConnection extends Connection {
 	/**
 	 * Get information about all lists/audiences in the account.
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/lists/get-lists-info/">Lists/Audiences -- GET /lists</a>
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/lists/get-lists-info/" target="MailchimpAPIDoc">Lists/Audiences -- GET /lists</a>
 	 * @return Iterable<MailChimpList> List/audience iterator
 	 * @throws IOException
 	 * @throws Exception
@@ -114,12 +117,18 @@ public class MailChimpConnection extends Connection {
 	 * Get information about a specific list in your Mailchimp account. Results include list 
 	 * members who have signed up but haven't confirmed their subscription yet and unsubscribed 
 	 * or cleaned.
+	 * 
+	 * @param listID
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/lists/get-list-info/" target="MailchimpAPIDoc">Lists/Audiences -- GET /lists/{list_id}</a>
 	 * @return a Mailchimp list/audience object
 	 * @throws IOException
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public MailChimpList getList(String listID) throws IOException, Exception {
-		JSONObject jsonList = new JSONObject(do_Get(URLHelper.url(listendpoint,"/",listID),getApikey()));
+	public MailChimpList getList(String listID, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(listendpoint,"/",listID));
+		JSONObject jsonList = new JSONObject(do_Get(query.getURL(),getApikey()));
 		return new MailChimpList(this, jsonList);
 	}
 
@@ -176,7 +185,7 @@ public class MailChimpConnection extends Connection {
     /**
      * Get campaign folders
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-folders/list-campaign-folders/">Campaign Folders -- GET /campaign-folders</a>
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-folders/list-campaign-folders/" target="MailchimpAPIDoc">Campaign Folders -- GET /campaign-folders</a>
      * @return campaign folder iterator
      * @throws IOException
      * @throws Exception
@@ -187,14 +196,17 @@ public class MailChimpConnection extends Connection {
 
     /**
      * Get a specific template folder
-     * @param folder_id
+     * @param folder_id The unique id for the campaign folder.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-folders/get-campaign-folder/" target="MailchimpAPIDoc">Campaign Folders -- GET /campaign-folders/{folder_id}</a>
      * @return campaign folder object
 	 * @throws IOException
      * @throws Exception 
      */
-    public CampaignFolder getCampaignFolder(String folder_id) throws IOException, Exception {
-
-    	JSONObject jsonCampaignFolder = new JSONObject(do_Get(URLHelper.url(campaignfolderendpoint,"/",folder_id), getApikey()));
+    public CampaignFolder getCampaignFolder(String folder_id, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(campaignfolderendpoint,"/",folder_id));
+    	JSONObject jsonCampaignFolder = new JSONObject(do_Get(query.getURL(), getApikey()));
     	return new CampaignFolder(this, jsonCampaignFolder);
     }
 
@@ -238,7 +250,7 @@ public class MailChimpConnection extends Connection {
      * Campaigns are how you send emails to your Mailchimp list. Use the Campaigns API calls 
      * to manage campaigns in your Mailchimp account.
      * @param queryParameters Optional query parameters to send to the MailChimp API. 
-     *   @see <a href="https://mailchimp.com/developer/marketing/api/campaigns/list-campaigns/">Campaigns -- GET /campaigns</a>
+     *   @see <a href="https://mailchimp.com/developer/marketing/api/campaigns/list-campaigns/" target="MailchimpAPIDoc">Campaigns -- GET /campaigns</a>
      * @return campaign iterator
      * @throws IOException
      * @throws Exception
@@ -247,17 +259,21 @@ public class MailChimpConnection extends Connection {
 		return new ModelIterator<Campaign>(Campaign.class, campaignendpoint, this, queryParameters);
     }
     
-	/**
-	 * Get a campaign from mailchimp account
-	 * @param campaignID
-	 * @return a campaign object
-	 * @throws IOException
-	 * @throws Exception 
-	 */
-	public Campaign getCampaign(String campaignID) throws IOException, Exception {
-		JSONObject campaign = new JSONObject(do_Get(URLHelper.url(campaignendpoint,"/",campaignID),getApikey()));
-		return new Campaign(this, campaign);
-	}
+    /**
+     * Get information about a specific campaign.
+     * @param campaignID The unique id for the campaign.
+     * @param queryParameters Optional query parameters to send to the MailChimp API. 
+     *   @see <a href="https://mailchimp.com/developer/marketing/api/campaigns/get-campaign-info/" target="MailchimpAPIDoc">Campaigns -- GET /campaigns/{campaign_id}</a>
+     * @return a campaign object
+     * @throws IOException
+     * @throws Exception 
+     */
+    public Campaign getCampaign(String campaignID, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(campaignendpoint,"/",campaignID));
+    	JSONObject campaign = new JSONObject(do_Get(query.getURL(),getApikey()));
+    	return new Campaign(this, campaign);
+    }
 
 	/**
 	 * Create a new campaign in your mailchimp account
@@ -320,12 +336,16 @@ public class MailChimpConnection extends Connection {
 	/**
 	 * Get team feedback while you're working together on a Mailchimp campaign.
 	 * @param campaignID
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-feedback/list-campaign-feedback/" target="MailchimpAPIDoc">Campaign Feedback -- GET /campaigns/{campaign_id}/feedback</a>
 	 * @return List of feedback for the campaign
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public List<CampaignFeedback> getCampaignFeedback(String campaignID) throws IOException, Exception {
-		JSONObject campaignFeedback = new JSONObject(do_Get(URLHelper.url(getCampaignendpoint(),"/",campaignID,"/feedback"),getApikey()));
+	public List<CampaignFeedback> getCampaignFeedback(String campaignID, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(getCampaignendpoint(),"/",campaignID,"/feedback"));
+		JSONObject campaignFeedback = new JSONObject(do_Get(query.getURL(),getApikey()));
 		JSONArray feedbackArray = campaignFeedback.getJSONArray("feedback");
 		List<CampaignFeedback> feedback = new ArrayList<CampaignFeedback>(feedbackArray.length());
 		
@@ -341,14 +361,18 @@ public class MailChimpConnection extends Connection {
 	
 	/**
 	 * Get a specific feedback message from a campaign.
-	 * @param campaignID
-	 * @param feedbackId
+	 * @param campaignID The unique id for the campaign.
+	 * @param feedbackId The unique id for the feedback message.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-feedback/get-campaign-feedback-message/" target="MailchimpAPIDoc">Campaign Feedback -- GET /campaigns/{campaign_id}/feedback/{feedback_id}</a>
 	 * @return Specific feedback for the campaign
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public CampaignFeedback getCampaignFeedback(String campaignID, String feedbackId) throws IOException, Exception {
-		JSONObject jsonObj = new JSONObject(do_Get(URLHelper.url(getCampaignendpoint(),"/",campaignID,"/feedback/",feedbackId),getApikey()));
+	public CampaignFeedback getCampaignFeedback(String campaignID, String feedbackId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(getCampaignendpoint(),"/",campaignID,"/feedback/",feedbackId));
+		JSONObject jsonObj = new JSONObject(do_Get(query.getURL(),getApikey()));
 		CampaignFeedback feedback = new CampaignFeedback(this, jsonObj);
 		return feedback;
 	}
@@ -375,33 +399,23 @@ public class MailChimpConnection extends Connection {
 
 	/**
 	 * Get the send checklist for a campaign. Review the send checklist for your campaign, and resolve any issues before sending.
-	 * @param campaignID
+	 * @param campaignID The unique id for the campaign.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-checklist/get-campaign-send-checklist/" target="MailchimpAPIDoc">Campaign Send Checklist -- GET /campaigns/{campaign_id}/send-checklist</a>
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	CampaignSendChecklist getCampaignSendChecklist(String campaignID) throws IOException, Exception {
-		String results = do_Get(URLHelper.url(getCampaignendpoint(),"/",campaignID,"/send-checklist"), getApikey());
+	CampaignSendChecklist getCampaignSendChecklist(String campaignID, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(getCampaignendpoint(),"/",campaignID,"/send-checklist"));
+		String results = do_Get(query.getURL(), getApikey());
 		return new CampaignSendChecklist(new JSONObject(results));
-	}
-	
-	/**
-	 * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
-	 * 
-	 * @param campaignId
-	 * @return Report for the specified campaign. 
-	 * @throws IOException
-	 * @throws Exception 
-	 */
-	public Report getCampaignReport(String campaignId) throws IOException, Exception {
-		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId);
-		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
-    	return new Report(this, jsonReport);
 	}
 	
 	/**
 	 * 
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/reports/list-campaign-reports/">Reports -- GET /reports</a>
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/reports/list-campaign-reports/" target="MailchimpAPIDoc">Reports -- GET /reports</a>
 	 * @return Report iterator
 	 * @throws IOException
 	 * @throws Exception
@@ -411,12 +425,43 @@ public class MailChimpConnection extends Connection {
 	}
 
 	/**
+	 * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
+	 * 
+	 * @param campaignId The unique id for the campaign.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/reports/get-campaign-report/" target="MailchimpAPIDoc">Reports -- GET /reports/{campaign_id}</a>
+	 * @return Report for the specified campaign. 
+	 * @throws IOException
+	 * @throws Exception 
+	 */
+	public Report getCampaignReport(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId));
+		JSONObject jsonReport = new JSONObject(do_Get(query.getURL(), getApikey()));
+    	return new Report(this, jsonReport);
+	}
+	
+	/**
+	 * Get detailed information about any campaign emails that were opened by a list member.
+	 * @param campaignId The unique id for the campaign.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/open-reports/list-campaign-open-details/" target="MailchimpAPIDoc">Campaign Open Reports -- GET /reports/{campaign_id}/open-details</a>
+	 * @return OpenReport Iterator
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public OpenReport getCampaignOpenReports(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return OpenReport.getOpenReport(this, campaignId, queryParameters);
+	}
+	
+	/**
 	 * Get a detailed report about any emails in a specific campaign that were opened by recipients.
-	 * @param campaignId
+	 * @param campaignId The unique id for the campaign.
 	 * @param since Optional, restrict results to campaign open events that occur after a specific time.
 	 * @return Detailed information about the campaigns emails that were opened by list members.
 	 * @throws IOException
 	 * @throws Exception 
+	 * @deprecated use {@link MailChimpConnection#getCampaignOpenReports(String, MailChimpQueryParameters)} with "since" query parameter defined.
 	 */
 	public OpenReport getCampaignOpenReports(String campaignId, ZonedDateTime since) throws IOException, Exception {
 		return OpenReport.getOpenReport(this, campaignId, since);
@@ -425,15 +470,18 @@ public class MailChimpConnection extends Connection {
 
 	/**
 	 * Get information about a specific subscriber who opened a campaign.
-	 * @param campaignId
+	 * @param campaignId The unique id for the campaign.
 	 * @param subscriber The member's email address or subscriber hash
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/open-reports/get-opened-campaign-subscriber/" target="MailchimpAPIDoc">Campaign Subscriber Open Reports -- GET /reports/{campaign_id}/open-details/{subscriber_hash}</a>
 	 * @return Detailed information about the campaigns emails that were opened by list members.
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public OpenReportMember getCampaignOpenReport(String campaignId, String subscriber) throws IOException, Exception {
-		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/open-details","/", Member.subscriberHash(subscriber));
-		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
+	public OpenReportMember getCampaignOpenReport(String campaignId, String subscriber, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId, "/open-details","/", Member.subscriberHash(subscriber)));
+		JSONObject jsonReport = new JSONObject(do_Get(query.getURL(), getApikey()));
 		return new OpenReportMember(jsonReport);
 	}
 	
@@ -442,7 +490,7 @@ public class MailChimpConnection extends Connection {
 	 * Get information about campaign abuse complaints.
 	 * @param campaignId The unique id for the campaign.
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-abuse/list-abuse-reports/">Campaign Abuse -- GET /reports/{campaign_id}/abuse-reports</a>
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-abuse/list-abuse-reports/" target="MailchimpAPIDoc">Campaign Abuse -- GET /reports/{campaign_id}/abuse-reports</a>
 	 * @return Abuse complaints for a campaign
 	 * @throws IOException
 	 * @throws Exception 
@@ -468,27 +516,34 @@ public class MailChimpConnection extends Connection {
 	 * Get information about a specific abuse report for a campaign.
 	 * @param campaignId The unique id for the campaign.
 	 * @param reportId The id for the abuse report.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-abuse/get-abuse-report/" target="MailchimpAPIDoc">Campaign Abuse -- GET /reports/{campaign_id}/abuse-reports/{report_id}</a>
 	 * @return Information about a specific abuse report
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public AbuseReport  getCampaignAbuseReport(String campaignId, int reportId) throws IOException, Exception {
-		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/abuse-reports/", Integer.toString(reportId));
-		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
+	public AbuseReport  getCampaignAbuseReport(String campaignId, int reportId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId, "/abuse-reports/", Integer.toString(reportId)));
+		JSONObject jsonReport = new JSONObject(do_Get(query.getURL(), getApikey()));
 		AbuseReport report = new AbuseReport(jsonReport);
 		return report;
 	}
 	
 	/**
-	 * Get recent feedback based on a campaign's statistics.
+	 * Get feedback based on a campaign's statistics. Advice feedback is based on 
+	 * campaign stats like opens, clicks, unsubscribes, bounces, and more.
 	 * @param campaignId The unique id for the campaign.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-advice/list-campaign-feedback/" target="MailchimpAPIDoc">Campaign Advice -- GET /reports/{campaign_id}/advice</a>
 	 * @return Recent feedback based on a campaign's statistics.
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public List<AdviceReport> getCampaignAdviceReports(String campaignId) throws IOException, Exception {
-		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/advice");
-		JSONObject jsonReports = new JSONObject(do_Get(url, getApikey()));
+	public List<AdviceReport> getCampaignAdviceReports(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId, "/advice"));
+		JSONObject jsonReports = new JSONObject(do_Get(query.getURL(), getApikey()));
 		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
     	JSONArray reportsArray = jsonReports.getJSONArray("advice");
     	List<AdviceReport> reports = new ArrayList<AdviceReport>(reportsArray.length());
@@ -505,7 +560,7 @@ public class MailChimpConnection extends Connection {
 	 * Get detailed information about links clicked in campaigns.
 	 * @param campaignId The unique id for the campaign.
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/click-reports/list-campaign-details/">Click Reports -- GET /reports/{campaign_id}/click-details</a>
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/click-reports/list-campaign-details/" target="MailchimpAPIDoc">Click Reports -- GET /reports/{campaign_id}/click-details</a>
 	 * @return Campaign click details
 	 * @throws IOException
 	 * @throws Exception 
@@ -524,20 +579,23 @@ public class MailChimpConnection extends Connection {
 	 */
 	public Iterable<ClickReport> getCampaignClickReports(String campaignId) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details");
-		return new ModelIterator<ClickReport>(ClickReport.class, baseURL, this,500);
+		return new ModelIterator<ClickReport>(ClickReport.class, baseURL, this, 500);
 	}
 	
 	/**
 	 * Get detailed information about links clicked in campaigns for a specific link.
 	 * @param campaignId The unique id for the campaign.
 	 * @param linkId The id for the link.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/click-reports/get-campaign-link-details/" target="MailchimpAPIDoc">Click Reports -- GET /reports/{campaign_id}/click-details/{link_id}</a>
 	 * @return Click details for a specific link.
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public ClickReport getCampaignClickReport(String campaignId, String linkId) throws IOException, Exception {
-		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/click-details/", linkId);
-		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
+	public ClickReport getCampaignClickReport(String campaignId, String linkId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details/", linkId));
+		JSONObject jsonReport = new JSONObject(do_Get(query.getURL(), getApikey()));
 		ClickReport report = new ClickReport(jsonReport);
 		return report;
 	}
@@ -547,7 +605,7 @@ public class MailChimpConnection extends Connection {
 	 * @param campaignId The unique id for the campaign.
 	 * @param linkId The id for the link.
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/link-clickers/list-clicked-link-subscribers/">Click Reports Members -- GET /reports/{campaign_id}/click-details/{link_id}/members</a>
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/link-clickers/list-clicked-link-subscribers/" target="MailchimpAPIDoc">Click Reports Members -- GET /reports/{campaign_id}/click-details/{link_id}/members</a>
 	 * @return Information about subscribers who clicked a link
 	 * @throws IOException
 	 * @throws Exception 
@@ -567,7 +625,7 @@ public class MailChimpConnection extends Connection {
 	 */
 	public Iterable<ClickReportMember> getCampaignMembersClickReports(String campaignId, String linkId) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details/", linkId, "/members");
-		return new ModelIterator<ClickReportMember>(ClickReportMember.class, baseURL, this,500);
+		return new ModelIterator<ClickReportMember>(ClickReportMember.class, baseURL, this, 500);
 	}
 	
 	/**
@@ -575,13 +633,16 @@ public class MailChimpConnection extends Connection {
 	 * @param campaignId The unique id for the campaign.
 	 * @param linkId The id for the link.
 	 * @param subscriber The member's email address or subscriber hash
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/link-clickers/get-clicked-link-subscriber/" target="MailchimpAPIDoc">Click Reports Members -- GET /reports/{campaign_id}/click-details/{link_id}/members/{subscriber_hash}</a>
 	 * @return Information about a specific subscriber who clicked a link
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public ClickReportMember getCampaignMembersClickReport(String campaignId, String linkId, String subscriber) throws IOException, Exception {
-		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/click-details/", linkId, "/members/", Member.subscriberHash(subscriber));
-		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
+	public ClickReportMember getCampaignMembersClickReport(String campaignId, String linkId, String subscriber, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details/", linkId, "/members/", Member.subscriberHash(subscriber)));
+		JSONObject jsonReport = new JSONObject(do_Get(query.getURL(), getApikey()));
 		ClickReportMember report = new ClickReportMember(jsonReport);
 		return report;
 	}
@@ -589,13 +650,16 @@ public class MailChimpConnection extends Connection {
 	/**
 	 * Get statistics for the top-performing domains from a campaign.
 	 * @param campaignId The unique id for the campaign.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/domain-performance-reports/list-domain-performance-stats/" target="MailchimpAPIDoc">Reports Domain Performance -- GET /reports/{campaign_id}/domain-performance</a>
 	 * @return Statistics for the top-performing domains from a campaign.
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public DomainPerformance getDomainPerformanceReport(String campaignId) throws IOException, Exception {
-		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/domain-performance");
-		JSONObject jsonReport = new JSONObject(do_Get(url, getApikey()));
+	public DomainPerformance getDomainPerformanceReport(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId, "/domain-performance"));
+		JSONObject jsonReport = new JSONObject(do_Get(query.getURL(), getApikey()));
 		DomainPerformance report = new DomainPerformance(jsonReport);
 		return report;
 	}
@@ -604,7 +668,7 @@ public class MailChimpConnection extends Connection {
 	 * Ecommerce product activity report for Campaign
 	 * @param campaignId The unique id for the campaign.
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-ecommerce-product-activity/list-campaign-product-activity/">Ecommerce Product Activity -- GET /reports/{campaign_id}/ecommerce-product-activity</a>
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-ecommerce-product-activity/list-campaign-product-activity/" target="MailchimpAPIDoc">Ecommerce Product Activity -- GET /reports/{campaign_id}/ecommerce-product-activity</a>
 	 * @return Breakdown of product activity for a campaign.
 	 * @throws IOException
 	 * @throws Exception 
@@ -618,7 +682,7 @@ public class MailChimpConnection extends Connection {
 	 * Sent To report - Get information about campaign recipients.
 	 * @param campaignId The unique id for the campaign.
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/sent-to-reports/list-campaign-recipients/">Sent To -- GET /reports/{campaign_id}/sent-to</a>
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/sent-to-reports/list-campaign-recipients/" target="MailchimpAPIDoc">Sent To -- GET /reports/{campaign_id}/sent-to</a>
 	 * @return Information about campaign recipients.
 	 * @throws IOException
 	 * @throws Exception 
@@ -643,13 +707,17 @@ public class MailChimpConnection extends Connection {
 	/**
 	 * Sent To Recipient report - Get information about a specific campaign recipient.
 	 * @param campaignId The unique id for the campaign.
+	 * @param subscriber The member's email address or subscriber hash
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/sent-to-reports/list-campaign-recipients/" target="MailchimpAPIDoc">Sent To -- GET /reports/{campaign_id}/sent-to</a>
 	 * @return Information about a specific campaign recipients.
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public ReportSentTo getCampaignSentToReport(String campaignId, String subscriber) throws IOException, Exception {
-		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/sent-to/", Member.subscriberHash(subscriber));
-		JSONObject jsonRpt = new JSONObject(do_Get(url, getApikey()));
+	public ReportSentTo getCampaignSentToReport(String campaignId, String subscriber, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId, "/sent-to/", Member.subscriberHash(subscriber)));
+		JSONObject jsonRpt = new JSONObject(do_Get(query.getURL(), getApikey()));
 		ReportSentTo rpt = new ReportSentTo(jsonRpt);
 		return rpt;
 	}
@@ -658,7 +726,7 @@ public class MailChimpConnection extends Connection {
 	 * Email Activity report - Get list member activity for a campaign.
 	 * @param campaignId The unique id for the campaign.
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/email-activity-reports/list-email-activity/">Email Activity -- GET /reports/{campaign_id}/email-activity</a>
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/email-activity-reports/list-email-activity/" target="MailchimpAPIDoc">Email Activity -- GET /reports/{campaign_id}/email-activity</a>
 	 * @return Member activity for a campaign.
 	 * @throws IOException
 	 * @throws Exception 
@@ -684,13 +752,16 @@ public class MailChimpConnection extends Connection {
 	 * Email Activity report - Get a specific list member's activity in a campaign including opens, clicks, and bounces.
 	 * @param campaignId The unique id for the campaign.
 	 * @param subscriber The member's email address or subscriber hash
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/email-activity-reports/get-subscriber-email-activity/" target="MailchimpAPIDoc">Email Activity -- GET /reports/{campaign_id}/email-activity/{subscriber_hash}</a>
 	 * @return Member activity for a campaign.
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public EmailActivity getCampaignEmailActivityReport(String campaignId, String subscriber) throws IOException, Exception {
-		URL url = URLHelper.url(getReportsendpoint(), "/", campaignId, "/email-activity/", Member.subscriberHash(subscriber));
-		JSONObject jsonRpt = new JSONObject(do_Get(url, getApikey()));
+	public EmailActivity getCampaignEmailActivityReport(String campaignId, String subscriber, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId, "/email-activity/", Member.subscriberHash(subscriber)));
+		JSONObject jsonRpt = new JSONObject(do_Get(query.getURL(), getApikey()));
 		EmailActivity rpt = new EmailActivity(jsonRpt);
 		return rpt;
 	}
@@ -698,12 +769,14 @@ public class MailChimpConnection extends Connection {
 	/**
 	 * Top open locations for a specific campaign.
 	 * @param campaignId The unique id for the campaign.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/location-reports/list-top-open-activities/" target="MailchimpAPIDoc">Reports Location -- GET /reports/{campaign_id}/locations</a>
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public Iterable<ReportLocation> getCampaignLocationsReports(String campaignId) throws IOException, Exception {
+	public Iterable<ReportLocation> getCampaignLocationsReports(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/locations");
-		return new ModelIterator<ReportLocation>(ReportLocation.class, baseURL, this);
+		return new ModelIterator<ReportLocation>(ReportLocation.class, baseURL, this, queryParameters);
 	}
 	
 	// TODO: Report - Sub-Reports- A list of reports for child campaigns of a specific parent campaign. For example, use this endpoint to view Multivariate, RSS, and A/B Testing Campaign reports.
@@ -725,7 +798,7 @@ public class MailChimpConnection extends Connection {
 	/**
 	 * Get template folders iterator
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/template-folders/">Template Folders -- GET /template-folders</a>
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/template-folders/" target="MailchimpAPIDoc">Template Folders -- GET /template-folders</a>
 	 * @return Template folder iterator
 	 * @throws IOException
 	 * @throws Exception
@@ -735,20 +808,23 @@ public class MailChimpConnection extends Connection {
 	}
 	
     /**
-     * Get a specific template folder
-     * @param folder_id
+     * Get information about a specific folder used to organize templates.
+     * @param folder_id The unique id for the template folder.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/templates/" target="MailchimpAPIDoc">Template Folders -- GET /template-folders/{folder_id}</a>
 	 * @throws IOException
      * @throws Exception 
      */
-    public TemplateFolder getTemplateFolder(String folder_id) throws IOException, Exception {
-
-        JSONObject jsonTemplateFolder = new JSONObject(do_Get(URLHelper.url(templatefolderendpoint,"/",folder_id), getApikey()));
+    public TemplateFolder getTemplateFolder(String folder_id, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(templatefolderendpoint,"/",folder_id));
+        JSONObject jsonTemplateFolder = new JSONObject(do_Get(query.getURL(), getApikey()));
         return new TemplateFolder(this, jsonTemplateFolder);
     }
 
     /**
-     * Add a template folder with a specific name
-     * @param name
+     * Create a new template folder.
+     * @param name The name of the folder.
 	 * @throws IOException
      * @throws Exception 
      */
@@ -782,7 +858,7 @@ public class MailChimpConnection extends Connection {
 	/**
 	 * Get a list of an account's available templates.
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/templates/">Templates -- GET /templates</a>
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/templates/" target="MailchimpAPIDoc">Templates -- GET /templates</a>
 	 * @return Template iterator
 	 * @throws IOException
 	 * @throws Exception
@@ -793,13 +869,17 @@ public class MailChimpConnection extends Connection {
 	
 	/**
 	 * Get a template from mailchimp account
-	 * @param id
+	 * @param id The unique id for the template.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/templates/get-template-info/" target="MailchimpAPIDoc">Templates -- GET /templates/{template_id}</a>
 	 * @return a template object
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Template getTemplate(String id) throws IOException, Exception {
-		JSONObject jsonTemplate = new JSONObject(do_Get(URLHelper.url(templateendpoint,"/",id),getApikey()));
+	public Template getTemplate(String id, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(templateendpoint,"/",id));
+		JSONObject jsonTemplate = new JSONObject(do_Get(query.getURL(),getApikey()));
 		return new Template(this, jsonTemplate);
 	}
 
@@ -880,7 +960,7 @@ public class MailChimpConnection extends Connection {
 	 * the API to manage Automation workflows, emails, and queues. Does not include 
 	 * Customer Journeys.
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/automation/list-automations/">Automations -- GET /automations</a>
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/automation/list-automations/" target="MailchimpAPIDoc">Automations -- GET /automations</a>
 	 * @return automations iterator
 	 * @throws IOException
 	 * @throws Exception 
@@ -890,25 +970,28 @@ public class MailChimpConnection extends Connection {
 	}
 	
 	/**
-	 * Get information about a specific Automation workflow.
-	 * Mailchimp's classic automations feature lets you build a series of emails that 
-	 * send to subscribers when triggered by a specific date, activity, or event. Use 
-	 * the API to manage Automation workflows, emails, and queues. Does not include 
-	 * Customer Journeys.
+	 * Get a summary of an individual classic automation workflow's settings and
+	 * content. The trigger_settings object returns information for the first email
+	 * in the workflow.
+	 * 
 	 * @param workflowId The unique id for the Automation workflow
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/automation/get-automation-info/" target="MailchimpAPIDoc">Automations -- GET /automations/{workflow_id}</a>
 	 * @return an Automation object
 	 * @throws IOException
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public Automation getAutomation(String workflowId) throws IOException, Exception {
-		JSONObject jsonAutomation = new JSONObject(do_Get(URLHelper.url(automationendpoint,"/",workflowId), getApikey()));
+	public Automation getAutomation(String workflowId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(automationendpoint,"/",workflowId));
+		JSONObject jsonAutomation = new JSONObject(do_Get(query.getURL(), getApikey()));
 		return new Automation(this, jsonAutomation);
 	}
 
 	/**
-	 * Create a new Automation
-	 * @param recipients
-	 * @param settings
+	 * Create a new classic automation in your Mailchimp account.
+	 * @param recipients List settings for the Automation.
+	 * @param settings The settings for the Automation workflow.
 	 * @return The newly added automation
 	 * @throws IOException
 	 * @throws Exception 
@@ -964,19 +1047,20 @@ public class MailChimpConnection extends Connection {
 		return new ModelIterator<AutomationEmail>(AutomationEmail.class, baseURL, this);
 	}
 	
-	/**
-	 * Get a list of automated emails in a workflow
-	 * @param workflowId The unique id for the Automation workflow
-	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/automation-email/list-automated-emails/">Automation Emails -- GET /automations/{workflow_id}/emails</a>
-	 * @return List containing automation emails
-	 * @throws IOException
-	 * @throws Exception 
-	 */
-	public Iterable<AutomationEmail> getAutomationEmails(String workflowId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		final String baseURL = URLHelper.join(automationendpoint, "/", workflowId, "/emails");
-		return new ModelIterator<AutomationEmail>(AutomationEmail.class, baseURL, this, queryParameters);
-	}
+// Does this endpoint support query parameters? 
+//	/**
+//	 * Get a list of automated emails in a workflow
+//	 * @param workflowId The unique id for the Automation workflow
+//	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+//	 *   @see <a href="https://mailchimp.com/developer/marketing/api/automation-email/list-automated-emails/" target="MailchimpAPIDoc">Automation Emails -- GET /automations/{workflow_id}/emails</a>
+//	 * @return List containing automation emails
+//	 * @throws IOException
+//	 * @throws Exception 
+//	 */
+//	public Iterable<AutomationEmail> getAutomationEmails(String workflowId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+//		final String baseURL = URLHelper.join(automationendpoint, "/", workflowId, "/emails");
+//		return new ModelIterator<AutomationEmail>(AutomationEmail.class, baseURL, this, queryParameters);
+//	}
 	
 	/**
 	 * Get information about a specific workflow email

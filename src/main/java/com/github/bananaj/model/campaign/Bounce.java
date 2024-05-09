@@ -6,6 +6,8 @@ package com.github.bananaj.model.campaign;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
 /**
  * Class representing bounce counts for a campaign
  * 
@@ -24,34 +26,35 @@ import org.json.JSONObject;
  */
 public class Bounce {
 
-	private int hardBounces;
-	private int softBounces;
-	private int syntaxErrors;
+	private Integer hardBounces;
+	private Integer softBounces;
+	private Integer syntaxErrors;
 
-	public Bounce(JSONObject jsonObj) {
-		hardBounces = jsonObj.getInt("hard_bounces");
-		softBounces = jsonObj.getInt("soft_bounces");
-		syntaxErrors = jsonObj.getInt("syntax_errors");
+	public Bounce(JSONObject bounce) {
+		JSONObjectCheck jObj = new JSONObjectCheck(bounce);
+		hardBounces = jObj.getInt("hard_bounces");
+		softBounces = jObj.getInt("soft_bounces");
+		syntaxErrors = jObj.getInt("syntax_errors");
 	}
 
 	/**
 	 * @return The total number of hard bounced email addresses.
 	 */
-	public int getHardBounces() {
+	public Integer getHardBounces() {
 		return hardBounces;
 	}
 
 	/**
 	 * @return The total number of soft bounced email addresses.
 	 */
-	public int getSoftBounces() {
+	public Integer getSoftBounces() {
 		return softBounces;
 	}
 
 	/**
 	 * @return The total number of addresses that were syntax-related bounces.
 	 */
-	public int getSyntaxErrors() {
+	public Integer getSyntaxErrors() {
 		return syntaxErrors;
 	}
 

@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.Connection;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * The conditions of a segment. Static segments (tags) and fuzzy segments don’t have conditions.
@@ -28,17 +29,18 @@ public class SegmentOptions {
 		setConditions(conditions);
 	}
 
-	public SegmentOptions (JSONObject jsonObj) {
-		match = MatchType.valueOf(jsonObj.getString("match").toUpperCase());
+	public SegmentOptions (JSONObject options) {
+		JSONObjectCheck jObj = new JSONObjectCheck(options);
+		match = jObj.getEnum(MatchType.class, "match");;
 
-		if (jsonObj.has("conditions")) {
+		if (jObj.has("conditions")) {
 			conditions = new ArrayList<AbstractCondition>();
-			JSONArray jsonConditions = jsonObj.getJSONArray("conditions");
+			JSONArray jsonConditions = jObj.getJSONArray("conditions");
 			for (int i = 0; i<jsonConditions.length();i++) {
-				JSONObject jsonCondition = jsonConditions.getJSONObject(i);
+				JSONObjectCheck jsonCondition = new JSONObjectCheck(jsonConditions.getJSONObject(i));
 
 				try {
-					ConditionType conditiontype = ConditionType.valueOf(jsonCondition.getString("condition_type").toUpperCase());
+					ConditionType conditiontype = jsonCondition.getEnum(ConditionType.class, "condition_type");
 					switch(conditiontype) {
 					case AIM:
 					case AUTOMATION:
@@ -61,10 +63,13 @@ public class SegmentOptions {
 					case TEXTMERGE:
 					case SELECTMERGE:
 					case EMAILADDRESS:
+					case NEWSUBSCRIBERS:
+					case PREDICTEDAGE:
+					case PREDICTEDGENDER:
 						conditions.add( new StringCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+								.operator(jsonCondition.getEnum(Operator.class, "op"))
 								.value(jsonCondition.getString("value"))
 								.build());
 						break;
@@ -74,7 +79,7 @@ public class SegmentOptions {
 						conditions.add( new IntegerCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+								.operator(jsonCondition.getEnum(Operator.class, "op"))
 								.value(jsonCondition.getInt("value"))
 								.build());
 						break;
@@ -88,7 +93,7 @@ public class SegmentOptions {
 						conditions.add( new DoubleCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+								.operator(jsonCondition.getEnum(Operator.class, "op"))
 								.value(jsonCondition.getDouble("value"))
 								.build());
 						break;
@@ -99,7 +104,7 @@ public class SegmentOptions {
 						conditions.add( new StringCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+								.operator(jsonCondition.getEnum(Operator.class, "op"))
 								.extra(jsonCondition.getString("extra"))
 								.value(jsonCondition.getString("value"))
 								.build());
@@ -113,7 +118,7 @@ public class SegmentOptions {
 						conditions.add( new OpCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+								.operator(jsonCondition.getEnum(Operator.class, "op"))
 								.build());
 						break;
 
@@ -130,7 +135,7 @@ public class SegmentOptions {
 						conditions.add( new StringArrayCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+								.operator(jsonCondition.getEnum(Operator.class, "op"))
 								.value(values)
 								.build());
 						break;
@@ -139,7 +144,7 @@ public class SegmentOptions {
 						conditions.add( new IntegerCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+								.operator(jsonCondition.getEnum(Operator.class, "op"))
 								.extra(jsonCondition.getInt("extra"))
 								.value(jsonCondition.getInt("value"))
 								.build());
@@ -149,7 +154,7 @@ public class SegmentOptions {
 						conditions.add( new IPGeoInCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+								.operator(jsonCondition.getEnum(Operator.class, "op"))
 								.lng(jsonCondition.getString("lng"))
 								.lat(jsonCondition.getString("lat"))
 								.value(jsonCondition.getInt("value"))
@@ -163,7 +168,7 @@ public class SegmentOptions {
 					logger.warn("Unknown or invalid condition : " + e.getMessage(), e);
 					// Use raw condition for unknowns.
 					conditions.add( new RawCondition.Builder()
-							.json(jsonCondition)
+							.json(jsonCondition.getJsonObject())
 							.build());
 				}
 			}

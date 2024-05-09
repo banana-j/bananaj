@@ -2,37 +2,38 @@ package com.github.bananaj.model.automation.emails;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
 public class AutomationEmailSettings {
 	String	subjectLine;	// Campaign Subject Line	
 	String	previewText;	// Campaign Preview Text	
 	String	title;	// Campaign Title	
 	String	fromName;	// From Name	
 	String	replyTo;	// Reply To Address	
-	boolean	authenticate;	// Authentication	
-	boolean	autoFooter;	// Auto-Footer	
-	boolean	inlineCss;	// Inline CSS	
-	boolean	autoTweet;	// Auto-Tweet	
+	Boolean	authenticate;	// Authentication	
+	Boolean	autoFooter;	// Auto-Footer	
+	Boolean	inlineCss;	// Inline CSS	
+	Boolean	autoTweet;	// Auto-Tweet	
 	// List<String> autoFbPost;	// Auto Post to Facebook	
-	boolean	fbComments;	// Facebook Comments	
-	int	templateId;	// Template ID	
-	boolean	dragAndDrop;	// Drag And Drop Campaign	
+	Boolean	fbComments;	// Facebook Comments	
+	Integer templateId;	// Template ID	
+	Boolean	dragAndDrop;	// Drag And Drop Campaign	
 
-	public AutomationEmailSettings(JSONObject jsonObj) {
-		this.subjectLine = jsonObj.getString("subject_line");
-		if (jsonObj.has("preview_text")) {
-			this.previewText = jsonObj.getString("preview_text");
-		}
-		this.title = jsonObj.getString("title");
-		this.fromName = jsonObj.getString("from_name");
-		this.replyTo = jsonObj.getString("reply_to");
-		this.authenticate = jsonObj.getBoolean("authenticate");
-		this.autoFooter = jsonObj.getBoolean("auto_footer");
-		this.inlineCss = jsonObj.getBoolean("inline_css");
-		this.autoTweet = jsonObj.getBoolean("auto_tweet");
+	public AutomationEmailSettings(JSONObject settings) {
+		JSONObjectCheck jObj = new JSONObjectCheck(settings);
+		this.subjectLine = jObj.getString("subject_line");
+		this.previewText = jObj.getString("preview_text");
+		this.title = jObj.getString("title");
+		this.fromName = jObj.getString("from_name");
+		this.replyTo = jObj.getString("reply_to");
+		this.authenticate = jObj.getBoolean("authenticate");
+		this.autoFooter = jObj.getBoolean("auto_footer");
+		this.inlineCss = jObj.getBoolean("inline_css");
+		this.autoTweet = jObj.getBoolean("auto_tweet");
 		//this.autoFbPost = jsonObj.getJSONArray("auto_fb_post");
-		this.fbComments = jsonObj.getBoolean("fb_comments");
-		this.templateId = jsonObj.getInt("template_id");
-		this.dragAndDrop = jsonObj.getBoolean("drag_and_drop");
+		this.fbComments = jObj.getBoolean("fb_comments");
+		this.templateId = jObj.getInt("template_id");
+		this.dragAndDrop = jObj.getBoolean("drag_and_drop");
 	}
 
 	public AutomationEmailSettings() {
@@ -77,49 +78,49 @@ public class AutomationEmailSettings {
 	/**
 	 * Whether Mailchimp authenticated the campaign. Defaults to true.
 	 */
-	public boolean isAuthenticate() {
+	public Boolean isAuthenticate() {
 		return authenticate;
 	}
 
 	/**
 	 * Automatically append Mailchimp’s default footer to the campaign
 	 */
-	public boolean isAutoFooter() {
+	public Boolean isAutoFooter() {
 		return autoFooter;
 	}
 
 	/**
 	 * Automatically inline the CSS included with the campaign content
 	 */
-	public boolean isInlineCss() {
+	public Boolean isInlineCss() {
 		return inlineCss;
 	}
 
 	/**
 	 * Automatically tweet a link to the campaign archive page when the campaign is sent
 	 */
-	public boolean isAutoTweet() {
+	public Boolean isAutoTweet() {
 		return autoTweet;
 	}
 
 	/**
 	 * Allows Facebook comments on the campaign (also force-enables the Campaign Archive toolbar). Defaults to true.
 	 */
-	public boolean isFbComments() {
+	public Boolean isFbComments() {
 		return fbComments;
 	}
 
 	/**
 	 * The id for the template used in this campaign
 	 */
-	public int getTemplateId() {
+	public Integer getTemplateId() {
 		return templateId;
 	}
 
 	/**
 	 * Whether the campaign uses the drag-and-drop editor
 	 */
-	public boolean isDragAndDrop() {
+	public Boolean isDragAndDrop() {
 		return dragAndDrop;
 	}
 

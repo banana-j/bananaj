@@ -1,16 +1,14 @@
 package com.github.bananaj.model.campaign;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.ZonedDateTime;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Feedback message from a campaign. Post comments, reply to team feedback, and send test emails while you're working together on a Mailchimp campaign.
@@ -51,18 +49,19 @@ public class CampaignFeedback {
 	 * @param connection
 	 * @param jsonObj
 	 */
-	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
-		this.feedbackId = jsonObj.getInt("feedback_id");
-		this.parentId = jsonObj.getInt("parent_id");
-		this.blockId = jsonObj.getInt("block_id");
-		this.message = jsonObj.getString("message");
-		this.isComplete = jsonObj.getBoolean("is_complete");
-		this.createdBy = jsonObj.getString("created_by");
-		this.createdAt = DateConverter.fromISO8601(jsonObj.getString("created_at"));
-		this.updatedAt = DateConverter.fromISO8601(jsonObj.getString("updated_at"));
-		this.source = CampaignFeedbackSourceType.valueOf(jsonObj.getString("source").toUpperCase());
-		this.campaignId = jsonObj.getString("campaign_id");
+	public void parse(MailChimpConnection connection, JSONObject campaignfeedback) {
+		JSONObjectCheck jObj = new JSONObjectCheck(campaignfeedback);
 		this.connection = connection;
+		this.feedbackId = jObj.getInt("feedback_id");
+		this.parentId = jObj.getInt("parent_id");
+		this.blockId = jObj.getInt("block_id");
+		this.message = jObj.getString("message");
+		this.isComplete = jObj.getBoolean("is_complete");
+		this.createdBy = jObj.getString("created_by");
+		this.createdAt = jObj.getISO8601Date("created_at");
+		this.updatedAt = jObj.getISO8601Date("updated_at");
+		this.source = jObj.getEnum(CampaignFeedbackSourceType.class, "source");
+		this.campaignId = jObj.getString("campaign_id");
 	}
 	
 	/**

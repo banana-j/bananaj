@@ -24,8 +24,8 @@ public class AdviceReport implements JSONParser {
 
 	@Override
 	public void parse(MailChimpConnection connection, JSONObject entity) {
-		type = entity.getString("type");
-		message = entity.getString("message");
+		type = entity.optString("type", null);
+		message = entity.optString("message", null);
 	}
 
 	/**

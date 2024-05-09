@@ -6,16 +6,23 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
+/**
+ * 
+ *
+ */
 public class RemovedSubscribers extends Subscriber {
 
 	private String workflowId;
 	private List<Subscriber> subscribers = new ArrayList<Subscriber>();
-	private int totalItems;
+	private Integer totalItems;
 	
 	public RemovedSubscribers(JSONObject jsonObj) {
 		super(jsonObj);
-		this.workflowId = jsonObj.getString("workflow_id"); 
-		this.totalItems = jsonObj.getInt("workflow_id");
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
+		this.workflowId = jObj.getString("workflow_id"); 
+		this.totalItems = jObj.getInt("workflow_id");
 		if(jsonObj.has("subscribers")) {
 			JSONArray list = jsonObj.getJSONArray("subscribers");
 			for(int i=0; i<list.length(); i++) {
@@ -46,7 +53,7 @@ public class RemovedSubscribers extends Subscriber {
 	/**
 	 * The total number of items matching the query regardless of pagination
 	 */
-	public int getTotalItems() {
+	public Integer getTotalItems() {
 		return totalItems;
 	}
 

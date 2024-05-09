@@ -6,22 +6,27 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
 /**
  * The send checklist for a campaign
  *
  */
 public class CampaignSendChecklist {
 
-	private boolean ready;
+	private Boolean ready;
 	private List<CampaignSendCheck> items;
 
 	public CampaignSendChecklist(JSONObject jsonObj) {
-		ready = jsonObj.getBoolean("is_ready");
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
+		ready = jObj.getBoolean("is_ready");
 		items = new ArrayList<CampaignSendCheck>();
-		JSONArray itemList = jsonObj.getJSONArray("items");
-		for (int i=0; i<itemList.length(); i++) {
-			CampaignSendCheck check = new CampaignSendCheck(itemList.getJSONObject(i));
-			items.add(check);
+		if (jsonObj.has("items")) {
+			JSONArray itemList = jsonObj.getJSONArray("items");
+			for (int i=0; i<itemList.length(); i++) {
+				CampaignSendCheck check = new CampaignSendCheck(itemList.getJSONObject(i));
+				items.add(check);
+			}
 		}
 	}
 
@@ -32,7 +37,7 @@ public class CampaignSendChecklist {
 	/**
 	 * @return Whether the campaign is ready to send
 	 */
-	public boolean isReady() {
+	public Boolean isReady() {
 		return ready;
 	}
 

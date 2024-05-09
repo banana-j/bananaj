@@ -6,8 +6,10 @@ import java.net.URL;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.connection.MailChimpQueryParameters;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.ModelIterator;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Manage interest categories for a specific list. Interest categories organize
@@ -50,14 +52,15 @@ public class InterestCategory implements JSONParser {
 	 * @param connection 
 	 * @param jsonObj
      */
-	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
-		id = jsonObj.getString("id");
-		listId = jsonObj.getString("list_id");
-		title = jsonObj.getString("title");
-		displayOrder = jsonObj.getInt("display_order");
-		type = InterestCategoryType.valueOf(jsonObj.getString("type").toUpperCase());
-		this.connection = connection;
-	}
+    public void parse(MailChimpConnection connection, JSONObject interestcategory) {
+    	JSONObjectCheck jObj = new JSONObjectCheck(interestcategory);
+    	this.connection = connection;
+    	id = jObj.getString("id");
+    	listId = jObj.getString("list_id");
+    	title = jObj.getString("title");
+    	displayOrder = jObj.getInt("display_order");
+    	type = jObj.getEnum(InterestCategoryType.class, "type");
+    }
 	
 	/**
 	 * @return The id for the interest category.
@@ -124,14 +127,13 @@ public class InterestCategory implements JSONParser {
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 */
 	public JSONObject getJsonRepresentation() {
-		JSONObject json = new JSONObject();
+		JSONObjectCheck json = new JSONObjectCheck();
 
 		json.put("title", getTitle());
-		json.put("type", getType().toString());
-		if (getDisplayOrder() != null) {
-			json.put("display_order", getDisplayOrder());
-		}
-		return json;
+		json.put("type", getType());
+		json.put("display_order", getDisplayOrder());
+		
+		return json.getJsonObject();
 	}
 	
 	/**
@@ -157,18 +159,20 @@ public class InterestCategory implements JSONParser {
 	}
 	
 	/**
-	 * Get a list of this category's interests. Interests are referred to as ‘group names’ in
-	 * the MailChimp application.
+	 * Get a list of this category's interests. Interest categories organize
+	 * interests, which are used to group subscribers based on their preferences.
+	 * These correspond to 'group titles' in the Mailchimp application.
 	 * 
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
+	 * @param queryParameters Optional query parameters to send to the MailChimp
+	 *                        API.
+	 * @see <a href="https://mailchimp.com/developer/marketing/api/interest-categories/list-interest-categories/" target="MailchimpAPIDoc">Lists/Audiences Interest Categories -- GET /lists/{list_id}/interest-categories</a>
 	 * @throws IOException
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public Iterable<Interest> getInterests(int pageSize, int pageNumber) throws IOException, Exception {
+	public Iterable<Interest> getInterests(MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = connection.getListendpoint() + "/" + getListId() + "/interest-categories/"
 				+ getId() + "/interests";
-		return new ModelIterator<Interest>(Interest.class, baseURL, connection, pageSize, pageNumber);
+		return new ModelIterator<Interest>(Interest.class, baseURL, connection, queryParameters);
 	}
 
 	/**

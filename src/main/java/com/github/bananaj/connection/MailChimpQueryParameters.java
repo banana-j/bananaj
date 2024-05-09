@@ -150,17 +150,19 @@ public class MailChimpQueryParameters {
 		StringBuilder sb = new StringBuilder(baseUrl);
 		boolean first = !baseUrl.contains("?");
 		
-		for (String key : queryParams.keySet()) {
-			String value = queryParams.get(key);
-			if(first) {
-				sb.append("?");
-				first = false;
-			} else {
-				sb.append("&");
+		if (queryParams != null && queryParams.size() > 0) {
+			for (String key : queryParams.keySet()) {
+				String value = queryParams.get(key);
+				if(first) {
+					sb.append("?");
+					first = false;
+				} else {
+					sb.append("&");
+				}
+				sb.append(encodeValue(key));
+				sb.append("=");
+				sb.append(encodeValue(value));
 			}
-			sb.append(encodeValue(key));
-			sb.append("=");
-			sb.append(encodeValue(value));
 		}
 
 		if (includeFields != null && includeFields.length() > 0) {

@@ -27,11 +27,11 @@ public class ReportTest {
 		assertEquals("024a680c00", report.getId());
 		assertEquals("TEST #15 2018", report.getCampaignTitle());
 		assertEquals("0d12345876", report.getListId());
-		assertEquals(0, report.getAbuseReport());
+		assertEquals(new Integer(0), report.getAbuseReport());
 		assertEquals("Implementation for TEST on March 14, 2019", report.getSubjectLine());
-		assertEquals(9, report.getEmailsSent());
-		assertEquals(1, report.getForwards().getCount());
-		assertEquals(23, report.getOpens().getOpensTotal());
+		assertEquals(new Integer(9), report.getEmailsSent());
+		assertEquals(new Integer(1), report.getForwards().getCount());
+		assertEquals(new Integer(23), report.getOpens().getOpensTotal());
 		assertNotNull("Expeced IndustryStats found null", report.getIndustryStats());
 		report.toString();
 	}
@@ -45,11 +45,11 @@ public class ReportTest {
 		assertEquals("024a680c00", report.getId());
 		assertEquals("TEST #15 2018", report.getCampaignTitle());
 		assertEquals("0d12345876", report.getListId());
-		assertEquals(0, report.getAbuseReport());
+		assertEquals(new Integer(0), report.getAbuseReport());
 		assertEquals("Implementation for TEST on March 14, 2019", report.getSubjectLine());
-		assertEquals(9, report.getEmailsSent());
-		assertEquals(1, report.getForwards().getCount());
-		assertEquals(23, report.getOpens().getOpensTotal());
+		assertEquals(new Integer(9), report.getEmailsSent());
+		assertEquals(new Integer(1), report.getForwards().getCount());
+		assertEquals(new Integer(23), report.getOpens().getOpensTotal());
 		assertNull("Expeced null for IndustryStats", report.getIndustryStats());
 		report.toString();
 	}
@@ -58,7 +58,7 @@ public class ReportTest {
 	public void testReport_abuse_report() {
 		JSONObject jsonObj = new JSONObject("{\"id\":1486,\"campaign_id\": \"42694e9e57\",\"list_id\":\"a70b3a068a\",\"email_id\":\"1986e2ad5e507dd4cd5b91a6058837d4\",\"email_address\":\"mr.test@gmail.com\",\"merge_fields\":{\"FNAME\":\"John\",\"LNAME\":\"Smith\",\"ADDRESS\":\"123 Mocking Bird Ln\",\"PHONE\":\"555-1234\"},\"vip\":true,\"date\":\"2019-04-04T23:39:59+00:00\",\"_links\":[]}");
 		AbuseReport abuse = new AbuseReport(jsonObj);
-		assertEquals(1486, abuse.getId());
+		assertEquals(new Integer(1486), abuse.getId());
 		assertEquals("42694e9e57", abuse.getCampaignId());
 		assertEquals("a70b3a068a", abuse.getListId());
 		assertEquals("1986e2ad5e507dd4cd5b91a6058837d4", abuse.getEmailId());
@@ -91,7 +91,7 @@ public class ReportTest {
 		assertEquals(DateConverter.fromISO8601("2023-04-03T14:51:14+00:00"), rpt.getOpens().get(0));
 		assertEquals(4, rpt.getMergeFields().size());
 		assertEquals("Jeanne", rpt.getMergeFields().get("FNAME"));
-		assertEquals(1, rpt.getOpensCount());
+		assertEquals(new Integer(1), rpt.getOpensCount());
 		assertEquals("subscribed", rpt.getContactStatus());
 		assertEquals(true, rpt.isListIsActive());
 		assertEquals(false, rpt.isVip());
@@ -115,12 +115,12 @@ public class ReportTest {
 		assertEquals(2, domains.getDomains().size());
 		DomainStats ds = domains.getDomains().get(1);
 		assertEquals("q.com",ds.getDomain());
-		assertEquals(1,ds.getEmailsSent());
-		assertEquals(0,ds.getBounces());
-		assertEquals(1,ds.getOpens());
-		assertEquals(1,ds.getClicks());
-		assertEquals(0,ds.getUnsubs());
-		assertEquals(1,ds.getDelivered());
+		assertEquals(new Integer(1),ds.getEmailsSent());
+		assertEquals(new Integer(0),ds.getBounces());
+		assertEquals(new Integer(1),ds.getOpens());
+		assertEquals(new Integer(1),ds.getClicks());
+		assertEquals(new Integer(0),ds.getUnsubs());
+		assertEquals(new Integer(1),ds.getDelivered());
 	}
 
 	@Test
@@ -141,11 +141,11 @@ public class ReportTest {
 		assertEquals("53b9e632ccb57cc123f2d2d04f9440aa", rpt.getEmailId());
 		assertEquals("jeanne.tester@gmail.com", rpt.getEmailAddress());
 		assertEquals("", rpt.getAbSplitGroup());
-		assertEquals(0, rpt.getGmtOffset());
+		assertEquals(new Integer(0), rpt.getGmtOffset());
 		assertEquals(DateConverter.fromISO8601("2023-04-03T14:51:14+00:00"), rpt.getLastOpen());
 		assertEquals(4, rpt.getMergeFields().size());
 		assertEquals("Jeanne", rpt.getMergeFields().get("FNAME"));
-		assertEquals(1, rpt.getOpenCount());
+		assertEquals(new Integer(1), rpt.getOpenCount());
 		assertEquals("sent", rpt.getStatus());
 		assertEquals(true, rpt.isListIsActive());
 		assertEquals(false, rpt.isVip());
@@ -175,7 +175,7 @@ public class ReportTest {
 		assertEquals("jeanne.tester@gmail.com", rpt.getEmailAddress());
 		assertEquals(4, rpt.getMergeFields().size());
 		assertEquals("Jeanne", rpt.getMergeFields().get("FNAME"));
-		assertEquals(1, rpt.getClicks());
+		assertEquals(new Integer(1), rpt.getClicks());
 		assertEquals("subscribed", rpt.getContactStatus());
 		assertEquals(true, rpt.isListIsActive());
 		assertEquals(false, rpt.isVip());

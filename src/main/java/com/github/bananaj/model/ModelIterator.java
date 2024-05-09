@@ -64,24 +64,6 @@ public class ModelIterator<T extends JSONParser> implements Iterable<T> {
 		readPagedEntities();
 	}
 
-	/**
-	 * Create iterator with a specified fetch size and starting offset.
-	 * @param typeClasse
-	 * @param query
-	 * @param connection
-	 * @param count Number of records to fetch per query. Maximum value is 1000.
-	 * @param offset The number of records from a collection to skip.
-	 * @deprecated
-	 */
-	public ModelIterator(Class<T> typeClasse, String query, MailChimpConnection connection, int count, int offset) {
-		this.typeClasse = typeClasse;
-		this.connection = connection;
-		queryParams = new MailChimpQueryParameters(query)
-				.count(count)
-				.offset(offset * count);
-		readPagedEntities();
-	}
-
 	public ModelIterator(Class<T> typeClasse, String query, MailChimpConnection connection, MailChimpQueryParameters params) {
 		this.typeClasse = typeClasse;
 		this.connection = connection;

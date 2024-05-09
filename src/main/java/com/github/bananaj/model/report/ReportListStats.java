@@ -6,6 +6,8 @@ package com.github.bananaj.model.report;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
 /**
  * Class for representing list stats in a report object
  * @author alexanderweiss
@@ -13,43 +15,44 @@ import org.json.JSONObject;
  */
 public class ReportListStats {
 
-	private double subRate;
-	private double unsubRate;
-	private double openRate;
-	private double clickRate;
+	private Double subRate;
+	private Double unsubRate;
+	private Double openRate;
+	private Double clickRate;
 
-	public ReportListStats(JSONObject jsonObj) {
-		this.subRate = jsonObj.getDouble("sub_rate");
-		this.unsubRate = jsonObj.getDouble("unsub_rate");
-		this.openRate = jsonObj.getDouble("open_rate");
-		this.clickRate = jsonObj.getDouble("click_rate");
+	public ReportListStats(JSONObject entity) {
+		JSONObjectCheck jObj = new JSONObjectCheck(entity);
+		this.subRate = jObj.getDouble("sub_rate");
+		this.unsubRate = jObj.getDouble("unsub_rate");
+		this.openRate = jObj.getDouble("open_rate");
+		this.clickRate = jObj.getDouble("click_rate");
 	}
 
 	/**
 	 * @return The average number of subscriptions per month for the list.
 	 */
-	public double getSubRate() {
+	public Double getSubRate() {
 		return subRate;
 	}
 
 	/**
 	 * @return The average number of unsubscriptions per month for the list.
 	 */
-	public double getUnsubRate() {
+	public Double getUnsubRate() {
 		return unsubRate;
 	}
 
 	/**
 	 * @return The average open rate (a percentage represented as a number between 0 and 100) per campaign for the list.
 	 */
-	public double getOpenRate() {
+	public Double getOpenRate() {
 		return openRate;
 	}
 
 	/**
 	 * @return The average click rate (a percentage represented as a number between 0 and 100) per campaign for the list.
 	 */
-	public double getClickRate() {
+	public Double getClickRate() {
 		return clickRate;
 	}
 

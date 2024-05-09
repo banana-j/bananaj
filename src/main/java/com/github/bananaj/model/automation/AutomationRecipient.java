@@ -2,10 +2,12 @@ package com.github.bananaj.model.automation;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
 public class AutomationRecipient {
 
 	private String listId;
-	private boolean listIsActive;
+	private Boolean listIsActive;
 	private String listName;
 	//private SegmentOpts segment_opts;
 	private String storeId;
@@ -22,12 +24,11 @@ public class AutomationRecipient {
 	}
 
 	public AutomationRecipient(JSONObject recipients) {
-		this.listId = recipients.getString("list_id");
-		this.listIsActive = recipients.getBoolean("list_is_active");
-		this.listName = recipients.getString("list_name");
-		if (recipients.has("store_id")) {
-			this.storeId = recipients.getString("store_id");
-		}
+		JSONObjectCheck jObj = new JSONObjectCheck(recipients);
+		this.listId = jObj.getString("list_id");
+		this.listIsActive = jObj.getBoolean("list_is_active");
+		this.listName = jObj.getString("list_name");
+		this.storeId = jObj.getString("store_id");
 	}
 
 	public AutomationRecipient() {
@@ -67,7 +68,7 @@ public class AutomationRecipient {
 	/**
 	 * The status of the list used, namely if it’s deleted or disabled
 	 */
-	public boolean isListIsActive() {
+	public Boolean isListIsActive() {
 		return listIsActive;
 	}
 

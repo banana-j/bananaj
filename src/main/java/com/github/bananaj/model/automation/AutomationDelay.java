@@ -2,6 +2,8 @@ package com.github.bananaj.model.automation;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
 public class AutomationDelay {
 	Integer amount;
 	DelayType type;
@@ -24,13 +26,14 @@ public class AutomationDelay {
 		this.action = action;
 	}
 
-	public AutomationDelay(JSONObject jsonObj) {
-		amount = jsonObj.has("amount") ? jsonObj.getInt("amount") : null;
-		type = DelayType.valueOf(jsonObj.getString("type").toUpperCase());
-		direction = jsonObj.has("direction") ? DelayDirection.valueOf(jsonObj.getString("direction").toUpperCase()) : null;
-		action = DelayAction.valueOf(jsonObj.getString("action").toUpperCase());
-		actionDescription = jsonObj.has("action_description") ? jsonObj.getString("action_description") : null;
-		fullDescription = jsonObj.has("full_description") ? fullDescription = jsonObj.getString("full_description") : null;
+	public AutomationDelay(JSONObject delay) {
+		JSONObjectCheck jObj = new JSONObjectCheck(delay);
+		amount = jObj.getInt("amount");
+		type = jObj.getEnum(DelayType.class, "type");
+		direction = jObj.getEnum(DelayDirection.class, "direction");
+		action = jObj.getEnum(DelayAction.class, "action");
+		actionDescription = jObj.getString("action_description");
+		fullDescription = jObj.getString("full_description");
 	}
 	
 	/**

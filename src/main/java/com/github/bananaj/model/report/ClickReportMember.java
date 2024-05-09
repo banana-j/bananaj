@@ -7,17 +7,18 @@ import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 public class ClickReportMember implements JSONParser {
 	private String campaignId;
 	private String listId;
-	private boolean listIsActive;
+	private Boolean listIsActive;
 	private String contactStatus;
 	private String emailId;
 	private String emailAddress;
 	private Map<String, Object> mergeFields;
-	private boolean vip;
-	private int clicks;
+	private Boolean vip;
+	private Integer clicks;
 	private String urlId;
 
 	public ClickReportMember() {
@@ -29,7 +30,8 @@ public class ClickReportMember implements JSONParser {
 	}
 
 	@Override
-	public void parse(MailChimpConnection connection, JSONObject entity) {
+	public void parse(MailChimpConnection connection, JSONObject member) {
+		JSONObjectCheck entity = new JSONObjectCheck(member);
 		campaignId = entity.getString("campaign_id");
 		listId = entity.getString("list_id");
 		listIsActive = entity.getBoolean("list_is_active");
@@ -67,7 +69,7 @@ public class ClickReportMember implements JSONParser {
 	/**
 	 * @return The status of the list used, namely if it's deleted or disabled.
 	 */
-	public boolean isListIsActive() {
+	public Boolean isListIsActive() {
 		return listIsActive;
 	}
 
@@ -102,14 +104,14 @@ public class ClickReportMember implements JSONParser {
 	/**
 	 * @return VIP status for subscriber.
 	 */
-	public boolean isVip() {
+	public Boolean isVip() {
 		return vip;
 	}
 
 	/**
 	 * @return The total number of times the subscriber clicked on the link.
 	 */
-	public int getClicks() {
+	public Integer getClicks() {
 		return clicks;
 	}
 

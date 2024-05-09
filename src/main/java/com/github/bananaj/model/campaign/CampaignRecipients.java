@@ -13,6 +13,7 @@ import com.github.bananaj.model.list.segment.MatchType;
 import com.github.bananaj.model.list.segment.Operator;
 import com.github.bananaj.model.list.segment.Segment;
 import com.github.bananaj.model.list.segment.StringArrayCondition;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Defines the audience or recipients for a campaign
@@ -20,10 +21,10 @@ import com.github.bananaj.model.list.segment.StringArrayCondition;
 public class CampaignRecipients {
 
     private String listId;
-    private boolean listIsActive;
+    private Boolean listIsActive;
     private String listName;
     private String segmentText;
-    private int recipientCount;
+    private Integer recipientCount;
     private CampaignSegmentOpts segmentOpts;
 
     /**
@@ -42,11 +43,12 @@ public class CampaignRecipients {
      * @param jsonObj
      */
     public CampaignRecipients(JSONObject jsonObj) {
-    	this.listId = jsonObj.getString("list_id");
-    	this.listIsActive = jsonObj.getBoolean("list_is_active");
-    	this.listName = jsonObj.getString("list_name");
-    	this.segmentText = jsonObj.getString("segment_text");
-    	this.recipientCount = jsonObj.getInt("recipient_count");
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
+    	this.listId = jObj.getString("list_id");
+    	this.listIsActive = jObj.getBoolean("list_is_active");
+    	this.listName = jObj.getString("list_name");
+    	this.segmentText = jObj.getString("segment_text");
+    	this.recipientCount = jObj.getInt("recipient_count");
     	if (jsonObj.has("segment_opts")) {
     		this.segmentOpts = new CampaignSegmentOpts(jsonObj.getJSONObject("segment_opts"));
     	}
@@ -115,7 +117,7 @@ public class CampaignRecipients {
     /**
      * The status of the list used, namely if it’s deleted or disabled
      */
-    public boolean isListIsActive() {
+    public Boolean isListIsActive() {
 		return listIsActive;
 	}
 
@@ -136,7 +138,7 @@ public class CampaignRecipients {
 	/**
 	 * Count of the recipients on the associated list
 	 */
-	public int getRecipientCount() {
+	public Integer getRecipientCount() {
 		return recipientCount;
 	}
 

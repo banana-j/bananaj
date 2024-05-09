@@ -30,9 +30,9 @@ public class CampaignTest {
 		assertEquals(CampaignStatus.SENT, campaign.getStatus());
 		assertEquals("0a05001000", campaign.getRecipients().getListId());
 		assertEquals("TEST_LIST", campaign.getRecipients().getListName());
-		assertEquals(23, campaign.getReportSummary().getOpens());
+		assertEquals(new Integer(23), campaign.getReportSummary().getOpens());
 		assertEquals(Boolean.TRUE, campaign.getTracking().isHtmlClicks());
-		assertEquals(23, campaign.getReportSummary().getOpens());
+		assertEquals(new Integer(23), campaign.getReportSummary().getOpens());
 
 		// TODO: JSONObject json = campaign.getJsonRepresentation();
 	}
@@ -49,9 +49,9 @@ public class CampaignTest {
 		assertEquals(new Integer(67277), campaign.getRecipients().getSegmentOpts().getSavedSegmentId());
 		assertEquals(MatchType.ANY, campaign.getRecipients().getSegmentOpts().getMatch());
 		assertEquals(1, campaign.getRecipients().getSegmentOpts().getConditions().size());
-		assertEquals(8, campaign.getReportSummary().getOpens());
+		assertEquals(new Integer(8), campaign.getReportSummary().getOpens());
 		assertEquals(Boolean.TRUE, campaign.getTracking().isHtmlClicks());
-		assertEquals(8, campaign.getReportSummary().getOpens());
+		assertEquals(new Integer(8), campaign.getReportSummary().getOpens());
 		assertEquals(Boolean.TRUE, campaign.getSettings().getAuthenticate());
 		assertEquals("Insights for Fayette", campaign.getSettings().getSubjectLine());
 	}
@@ -97,7 +97,7 @@ public class CampaignTest {
 		assertEquals(8, items.size());
 		CampaignSendCheck item = items.get(0);
 		assertEquals(CampaignCheckType.SUCCESS, item.getType());
-		assertEquals(506, item.getId());
+		assertEquals(new Integer(506), item.getId());
 		assertEquals("List", item.getHeading());
 		assertEquals("Mailchimp will deliver this to the Test list. (9 recipients)", item.getDetails());
 	}

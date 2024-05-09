@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 public class EcommerceProductActivity implements JSONParser {
 	private String title;
@@ -25,14 +26,15 @@ public class EcommerceProductActivity implements JSONParser {
 
 	@Override
 	public void parse(MailChimpConnection connection, JSONObject entity) {
-		title = entity.getString("title");
-		sku = entity.getString("sku");
-		imageUrl = entity.getString("image_url");
-		totalRevenue = entity.getDouble("total_revenue");
-		totalPurchased = entity.getDouble("total_purchased");
-		currencyCode = entity.getString("currency_code");
-		recommendationTotal = entity.getInt("recommendation_total");
-		recommendationPurchased = entity.getInt("recommendation_purchased");
+		JSONObjectCheck jObj = new JSONObjectCheck(entity);
+		title = jObj.getString("title");
+		sku = jObj.getString("sku");
+		imageUrl = jObj.getString("image_url");
+		totalRevenue = jObj.getDouble("total_revenue");
+		totalPurchased = jObj.getDouble("total_purchased");
+		currencyCode = jObj.getString("currency_code");
+		recommendationTotal = jObj.getInt("recommendation_total");
+		recommendationPurchased = jObj.getInt("recommendation_purchased");
 	}
 
 	/**

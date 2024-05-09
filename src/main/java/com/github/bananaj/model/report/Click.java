@@ -9,6 +9,7 @@ import java.time.ZonedDateTime;
 import org.json.JSONObject;
 
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Class for representing clicks for a campaign
@@ -17,45 +18,46 @@ import com.github.bananaj.utils.DateConverter;
  */
 public class Click {
 	
-	private int clicksTotal;
-	private int uniqueClicks;
-	private int uniqueSubscriberClicks;
-	private double clickRate;
+	private Integer clicksTotal;
+	private Integer uniqueClicks;
+	private Integer uniqueSubscriberClicks;
+	private Double clickRate;
 	private ZonedDateTime lastClick;
 
-	public Click(JSONObject jsonObj) {
-		clicksTotal = jsonObj.getInt("clicks_total");
-		uniqueClicks = jsonObj.getInt("unique_clicks");
-		uniqueSubscriberClicks = jsonObj.getInt("unique_subscriber_clicks");
-		clickRate = jsonObj.getDouble("click_rate");
-		lastClick = DateConverter.fromISO8601(jsonObj.getString("last_click"));
+	public Click(JSONObject click) {
+		JSONObjectCheck jObj = new JSONObjectCheck(click);
+		clicksTotal = jObj.getInt("clicks_total");
+		uniqueClicks = jObj.getInt("unique_clicks");
+		uniqueSubscriberClicks = jObj.getInt("unique_subscriber_clicks");
+		clickRate = jObj.getDouble("click_rate");
+		lastClick = jObj.getISO8601Date("last_click");
 	}
 
 	/**
 	 * @return The total number of clicks for the campaign.
 	 */
-	public int getClicksTotal() {
+	public Integer getClicksTotal() {
 		return clicksTotal;
 	}
 
 	/**
 	 * @return The total number of unique clicks for links across a campaign.
 	 */
-	public int getUniqueClicks() {
+	public Integer getUniqueClicks() {
 		return uniqueClicks;
 	}
 
 	/**
 	 * @return The total number of subscribers who clicked on a campaign.
 	 */
-	public int getUniqueSubscriberClicks() {
+	public Integer getUniqueSubscriberClicks() {
 		return uniqueSubscriberClicks;
 	}
 
 	/**
 	 * @return The number of unique clicks divided by the total number of successful deliveries.
 	 */
-	public double getClickRate() {
+	public Double getClickRate() {
 		return clickRate;
 	}
 

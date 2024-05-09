@@ -76,7 +76,16 @@ public class FileManagerFile implements JSONParser {
 		}
 	}
 
-	public void update() throws Exception {
+	/**
+	 * Update a file in the File Manager. Only the file name and folder id can be
+	 * modified. Setting folder_id to 0 will remove a file from its current folder.
+	 * {@link FileManagerFile#setName(String)}
+	 * {@link FileManagerFile#setFolderId(Integer)}
+	 * 
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public void update() throws IOException, Exception {
 		JSONObject jsonObj = getJsonRepresentation();
 		String results = getConnection().do_Patch(new URL(getConnection().getFilesendpoint()+"/"+getId()), jsonObj.toString(), getConnection().getApikey());
 		parse(connection, new JSONObject(results));
@@ -242,12 +251,12 @@ public class FileManagerFile implements JSONParser {
 	 * Helper method to convert JSON for mailchimp PATCH/POST operations
 	 */
 	protected JSONObject getJsonRepresentation() throws Exception {
-		JSONObject jsonObj = new JSONObject();
+		JSONObjectCheck fileInfo = new JSONObjectCheck();
 
-		jsonObj.put("name", getName());
-		jsonObj.put("folder_id", getFolderId());
+		fileInfo.put("name", getName());
+		fileInfo.put("folder_id", getFolderId());
 
-		return jsonObj;
+		return fileInfo.getJsonObject();
 	}
 	
 	@Override

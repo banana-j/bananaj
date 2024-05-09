@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Class for representing a template folder
@@ -15,7 +16,7 @@ public class TemplateFolder implements JSONParser {
 
 	private String id;
     private String name;
-    private int count;
+    private Integer count;
 	private MailChimpConnection connection;
 
 	public TemplateFolder() {
@@ -27,10 +28,11 @@ public class TemplateFolder implements JSONParser {
     }
 
     public void parse(MailChimpConnection connection, JSONObject jsonObj) {
-        id = jsonObj.getString("id");
-        name = jsonObj.getString("name");
-        count = jsonObj.getInt("count");
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
         this.connection = connection;
+        id = jObj.getString("id");
+        name = jObj.getString("name");
+        count = jObj.getInt("count");
     }
 
 	/**
@@ -76,7 +78,7 @@ public class TemplateFolder implements JSONParser {
      * 
      * @return The number of templates in the folder.
      */
-    public int getCount() {
+    public Integer getCount() {
         return count;
     }
 

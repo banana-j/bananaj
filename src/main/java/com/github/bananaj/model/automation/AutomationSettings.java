@@ -2,12 +2,18 @@ package com.github.bananaj.model.automation;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
+/**
+ * Automation workflow settings
+ *
+ */
 public class AutomationSettings {
 
 	private String title;
 	private String fromName;
 	private String replyTo;
-	private boolean useConversation;
+	private Boolean useConversation;
 	private String toName;
 	private boolean authenticate;
 	private boolean autoFooter;
@@ -25,14 +31,15 @@ public class AutomationSettings {
 	}
 
 	public AutomationSettings(JSONObject settings) {
-		this.title = settings.getString("title");
-		this.fromName = settings.getString("from_name");
-		this.replyTo = settings.getString("reply_to");
-		this.useConversation = settings.getBoolean("use_conversation");
-		this.toName = settings.getString("to_name");
-		this.authenticate = settings.getBoolean("authenticate");
-		this.autoFooter = settings.getBoolean("auto_footer");
-		this.inlineCss = settings.getBoolean("inline_css");
+		JSONObjectCheck jObj = new JSONObjectCheck(settings);
+		this.title = jObj.getString("title");
+		this.fromName = jObj.getString("from_name");
+		this.replyTo = jObj.getString("reply_to");
+		this.useConversation = jObj.getBoolean("use_conversation");
+		this.toName = jObj.getString("to_name");
+		this.authenticate = jObj.getBoolean("authenticate");
+		this.autoFooter = jObj.getBoolean("auto_footer");
+		this.inlineCss = jObj.getBoolean("inline_css");
 	}
 
 	public AutomationSettings() {
@@ -87,7 +94,7 @@ public class AutomationSettings {
 	/**
 	 * Whether to use Mailchimp’s Conversations feature to manage out-of-office replies
 	 */
-	public boolean isUseConversation() {
+	public Boolean isUseConversation() {
 		return useConversation;
 	}
 

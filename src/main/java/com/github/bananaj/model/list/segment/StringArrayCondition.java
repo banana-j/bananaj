@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.bananaj.exceptions.ConditionException;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Segment option condition condition_type uses a String array value
@@ -62,7 +63,7 @@ public class StringArrayCondition implements AbstractCondition {
 
 	@Override
 	public JSONObject getJsonRepresentation(){
-		JSONObject condition = new JSONObject();
+		JSONObjectCheck condition = new JSONObjectCheck();
 		JSONArray valuearray = new JSONArray();
 
 		Iterator<String> v = value.iterator();
@@ -70,12 +71,12 @@ public class StringArrayCondition implements AbstractCondition {
 			valuearray.put(v.next());
 		}
 
-		condition.put("condition_type", getConditionType().toString());
-		condition.put("op", getOp().toString());
+		condition.put("condition_type", getConditionType());
+		condition.put("op", getOp());
 		condition.put("field", getField());
 		condition.put("value", valuearray);
 
-		return condition;
+		return condition.getJsonObject();
 	}
 
 	/* (non-Javadoc)

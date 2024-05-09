@@ -15,11 +15,10 @@ import org.json.JSONObject;
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.connection.MailChimpQueryParameters;
 import com.github.bananaj.model.JSONParser;
-import com.github.bananaj.model.ModelIterator;
 import com.github.bananaj.model.campaign.Bounce;
 import com.github.bananaj.model.campaign.CampaignType;
 import com.github.bananaj.utils.DateConverter;
-import com.github.bananaj.utils.URLHelper;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
@@ -33,13 +32,13 @@ public class Report implements JSONParser {
 	private String campaignTitle;
 	private CampaignType type;
 	private String listId;
-	private boolean listIsActive;
+	private Boolean listIsActive;
 	private String listName;
 	private String subjectLine;
 	private String previewText;
-	private int emailsSent;
-	private int abuseReport;
-	private int unsubscribed;
+	private Integer emailsSent;
+	private Integer abuseReport;
+	private Integer unsubscribed;
 	private ZonedDateTime sendtime;
 	private ZonedDateTime rssLastSend;
 	private Bounce bounces;
@@ -66,48 +65,49 @@ public class Report implements JSONParser {
 
 	@Override
 	public void parse(MailChimpConnection connection, JSONObject entity) {
-		id = entity.getString("id");
+		JSONObjectCheck jObj = new JSONObjectCheck(entity);
+		id = jObj.getString("id");
 		this.connection = connection;
-		campaignTitle = entity.getString("campaign_title");
-		type = CampaignType.valueOf(entity.getString("type").toUpperCase());
-		listId = entity.getString("list_id");
-		listIsActive = entity.getBoolean("list_is_active");
-		listName = entity.getString("list_name");
-		subjectLine = entity.getString("subject_line");
-		previewText = entity.getString("preview_text");
-		emailsSent = entity.getInt("emails_sent");
-		abuseReport = entity.getInt("abuse_reports");
-		unsubscribed = entity.getInt("unsubscribed");
-		sendtime = DateConverter.fromISO8601(entity.getString("send_time"));
-		rssLastSend = entity.has("rss_last_send") ? DateConverter.fromISO8601(entity.getString("rss_last_send")) : null;
-		bounces = new Bounce(entity.getJSONObject("bounces"));
-		forwards = new Forward(entity.getJSONObject("forwards"));
-		clicks = new Click(entity.getJSONObject("clicks"));
-		opens = new Open(entity.getJSONObject("opens"));
-		facebookLikes = entity.has("facebook_likes") ? new FacebookLikes(entity.getJSONObject("facebook_likes")) : null;
-		industryStats = entity.has("industry_stats") ? new IndustryStats(entity.getJSONObject("industry_stats")) : null;
-		listStats = entity.has("list_stats") ? new ReportListStats(entity.getJSONObject("list_stats")) : null;
-		abSplit = entity.has("ab_split") ? new ABSplit(entity.getJSONObject("ab_split")) : null;
+		campaignTitle = jObj.getString("campaign_title");
+		type = jObj.getEnum(CampaignType.class, "type");
+		listId = jObj.getString("list_id");
+		listIsActive = jObj.getBoolean("list_is_active");
+		listName = jObj.getString("list_name");
+		subjectLine = jObj.getString("subject_line");
+		previewText = jObj.getString("preview_text");
+		emailsSent = jObj.getInt("emails_sent");
+		abuseReport = jObj.getInt("abuse_reports");
+		unsubscribed = jObj.getInt("unsubscribed");
+		sendtime = jObj.getISO8601Date("send_time");
+		rssLastSend = jObj.getISO8601Date("rss_last_send");
+		bounces = jObj.has("bounces") ? new Bounce(jObj.getJSONObject("bounces")) : null;
+		forwards = jObj.has("forwards") ? new Forward(jObj.getJSONObject("forwards")) : null;
+		clicks = jObj.has("clicks") ? new Click(jObj.getJSONObject("clicks")) : null;
+		opens = jObj.has("opens") ? new Open(jObj.getJSONObject("opens")) : null;
+		facebookLikes = jObj.has("facebook_likes") ? new FacebookLikes(jObj.getJSONObject("facebook_likes")) : null;
+		industryStats = jObj.has("industry_stats") ? new IndustryStats(jObj.getJSONObject("industry_stats")) : null;
+		listStats = jObj.has("list_stats") ? new ReportListStats(jObj.getJSONObject("list_stats")) : null;
+		abSplit = jObj.has("ab_split") ? new ABSplit(jObj.getJSONObject("ab_split")) : null;
 		
-		if (entity.has("timewarp")) {
-			final JSONArray series = entity.getJSONArray("timewarp");
+		if (jObj.has("timewarp")) {
+			final JSONArray series = jObj.getJSONArray("timewarp");
 			timewarp = new ArrayList<Timewarp>(series.length());
 			for(int i=0; i<series.length(); i++) {
 				timewarp.add(new Timewarp(series.getJSONObject(i)));
 			}
 		}
 		
-		if (entity.has("timeseries")) {
-			final JSONArray series = entity.getJSONArray("timeseries");
+		if (jObj.has("timeseries")) {
+			final JSONArray series = jObj.getJSONArray("timeseries");
 			timeseries = new ArrayList<TimeSeries>(series.length());
 			for(int i=0; i<series.length(); i++) {
 				timeseries.add(new TimeSeries(series.getJSONObject(i)));
 			}
 		}
 		
-		shareReport = entity.has("share_report") ? new ShareReport(entity.getJSONObject("share_report")) : null;
-		ecommerce = entity.has("ecommerce") ? new Ecommerce(entity.getJSONObject("ecommerce")) : null;
-		deliveryStatus = entity.has("delivery_status") ? new DeliveryStatus(entity.getJSONObject("delivery_status")) : null;
+		shareReport = jObj.has("share_report") ? new ShareReport(jObj.getJSONObject("share_report")) : null;
+		ecommerce = jObj.has("ecommerce") ? new Ecommerce(jObj.getJSONObject("ecommerce")) : null;
+		deliveryStatus = jObj.has("delivery_status") ? new DeliveryStatus(jObj.getJSONObject("delivery_status")) : null;
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class Report implements JSONParser {
 	/**
 	 * @return The total number of emails sent for the campaign.
 	 */
-	public int getEmailsSent() {
+	public Integer getEmailsSent() {
 		return emailsSent;
 	}
 
@@ -134,14 +134,14 @@ public class Report implements JSONParser {
 	/**
 	 * @return The number of abuse reports generated for this campaign.
 	 */
-	public int getAbuseReport() {
+	public Integer getAbuseReport() {
 		return abuseReport;
 	}
 
 	/**
 	 * @return The total number of unsubscribed members for this campaign.
 	 */
-	public int getUnsubscribed() {
+	public Integer getUnsubscribed() {
 		return unsubscribed;
 	}
 
@@ -268,7 +268,7 @@ public class Report implements JSONParser {
 	/**
 	 * @return The status of the list used, namely if it's deleted or disabled.
 	 */
-	public boolean isListIsActive() {
+	public Boolean isListIsActive() {
 		return listIsActive;
 	}
 
@@ -310,35 +310,41 @@ public class Report implements JSONParser {
 	}
 	
 	/**
-	 * Get recent feedback based on a campaign's statistics.
+	 * Get feedback based on a campaign's statistics. Advice feedback is based on 
+	 * campaign stats like opens, clicks, unsubscribes, bounces, and more.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-advice/list-campaign-feedback/" target="MailchimpAPIDoc">Campaign Advice -- GET /reports/{campaign_id}/advice</a>
 	 * @return Recent feedback based on a campaign's statistics.
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public Iterable<AdviceReport> getAdviceReports(String campaignId) throws IOException, Exception {
-		return connection.getCampaignAdviceReports(getId());
+	public Iterable<AdviceReport> getAdviceReports(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return connection.getCampaignAdviceReports(getId(), queryParameters);
 	}
 	
 	/**
 	 * Get a detailed report about any emails in a specific campaign that were opened by recipients.
-	 * @param since Optional, restrict results to campaign open events that occur after a specific time.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/open-reports/list-campaign-open-details/" target="MailchimpAPIDoc">Campaign Open Reports -- GET /reports/{campaign_id}/open-details</a>
 	 * @return Detailed information about the campaigns emails that were opened by list members.
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public OpenReport getOpenReports(ZonedDateTime since) throws IOException, Exception {
-		return connection.getCampaignOpenReports(getId(), since);
+	public OpenReport getOpenReports(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return connection.getCampaignOpenReports(getId(), queryParameters);
 	}
 	
 	/**
 	 * Get information about a specific subscriber who opened a campaign.
 	 * @param subscriber The member's email address or subscriber hash
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/open-reports/get-opened-campaign-subscriber/" target="MailchimpAPIDoc">Campaign Subscriber Open Reports -- GET /reports/{campaign_id}/open-details/{subscriber_hash}</a>
 	 * @return Detailed information about the campaigns emails that were opened by list members.
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public OpenReportMember getOpenReport(String subscriber) throws IOException, Exception {
-		return connection.getCampaignOpenReport(getId(), subscriber);
+	public OpenReportMember getOpenReport(String subscriber, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return connection.getCampaignOpenReport(getId(), subscriber, queryParameters);
 	}
 
 	/**
@@ -354,12 +360,14 @@ public class Report implements JSONParser {
 	/**
 	 * Get detailed information about links clicked in campaigns for a specific link.
 	 * @param linkId The id for the link.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/click-reports/get-campaign-link-details/" target="MailchimpAPIDoc">Click Reports -- GET /reports/{campaign_id}/click-details/{link_id}</a>
 	 * @return Click details for a specific link.
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public ClickReport getClickReport(String linkId) throws IOException, Exception {
-		return connection.getCampaignClickReport(getId(), linkId);
+	public ClickReport getClickReport(String linkId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return connection.getCampaignClickReport(getId(), linkId, queryParameters);
 	}
 	
 	/**
@@ -377,28 +385,32 @@ public class Report implements JSONParser {
 	 * Get information about a specific subscriber who clicked a link.
 	 * @param linkId The id for the link.
 	 * @param subscriber The member's email address or subscriber hash
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/link-clickers/get-clicked-link-subscriber/" target="MailchimpAPIDoc">Click Reports Members -- GET /reports/{campaign_id}/click-details/{link_id}/members/{subscriber_hash}</a>
 	 * @return Information about a specific subscriber who clicked a link
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public ClickReportMember getMembersClickReport(String linkId, String subscriber) throws IOException, Exception {
-		return connection.getCampaignMembersClickReport(getId(), linkId, subscriber);
+	public ClickReportMember getMembersClickReport(String linkId, String subscriber, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return connection.getCampaignMembersClickReport(getId(), linkId, subscriber, queryParameters);
 	}
 	
 	/**
 	 * Get statistics for the top-performing domains from a campaign.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/domain-performance-reports/list-domain-performance-stats/" target="MailchimpAPIDoc">Reports Domain Performance -- GET /reports/{campaign_id}/domain-performance</a>
 	 * @return Statistics for the top-performing domains from a campaign.
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public DomainPerformance getDomainPerformanceReport() throws IOException, Exception {
-		return connection.getDomainPerformanceReport(getId());
+	public DomainPerformance getDomainPerformanceReport(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return connection.getDomainPerformanceReport(getId(), queryParameters);
 	}
 	
 	/**
 	 * Ecommerce product activity report for Campaign
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-ecommerce-product-activity/list-campaign-product-activity/">Ecommerce Product Activity -- GET /reports/{campaign_id}/ecommerce-product-activity</a>
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/campaign-ecommerce-product-activity/list-campaign-product-activity/" target="MailchimpAPIDoc">Ecommerce Product Activity -- GET /reports/{campaign_id}/ecommerce-product-activity</a>
 	 * @return Breakdown of product activity for a campaign.
 	 * @throws IOException 
 	 * @throws Exception 
@@ -409,22 +421,27 @@ public class Report implements JSONParser {
 
 	/**
 	 * Sub report - Sent To - Get information about campaign recipients.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/sent-to-reports/list-campaign-recipients/" target="MailchimpAPIDoc">Sent To -- GET /reports/{campaign_id}/sent-to</a>
 	 * @return Information about campaign recipients.
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public Iterable<ReportSentTo> getSentToReports() throws IOException, Exception {
-		return connection.getCampaignSentToReports(getId());
+	public Iterable<ReportSentTo> getSentToReports(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return connection.getCampaignSentToReports(getId(), queryParameters);
 	}
 
 	/**
 	 * Sent To Recipient report - Get information about a specific campaign recipient.
+	 * @param subscriber The member's email address or subscriber hash
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/sent-to-reports/list-campaign-recipients/" target="MailchimpAPIDoc">Sent To -- GET /reports/{campaign_id}/sent-to</a>
 	 * @return Information about a specific campaign recipients.
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public ReportSentTo getSentToReport(String subscriberHash) throws IOException, Exception {
-		return connection.getCampaignSentToReport(getId(), subscriberHash);
+	public ReportSentTo getSentToReport(String subscriberHash, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return connection.getCampaignSentToReport(getId(), subscriberHash, queryParameters);
 	}
 	
 	/**
@@ -440,21 +457,25 @@ public class Report implements JSONParser {
 	/**
 	 * Email Activity report - Get a specific list member's activity in a campaign including opens, clicks, and bounces.
 	 * @param subscriber The member's email address or subscriber hash
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/email-activity-reports/get-subscriber-email-activity/" target="MailchimpAPIDoc">Email Activity -- GET /reports/{campaign_id}/email-activity/{subscriber_hash}</a>
 	 * @return Member activity for a campaign.
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public EmailActivity getEmailActivityReport(String subscriber) throws IOException, Exception {
-		return connection.getCampaignEmailActivityReport(getId(), subscriber);
+	public EmailActivity getEmailActivityReport(String subscriber, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return connection.getCampaignEmailActivityReport(getId(), subscriber, queryParameters);
 	}
 	
 	/**
 	 * Top open locations for a specific campaign.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/location-reports/list-top-open-activities/" target="MailchimpAPIDoc">Reports Location -- GET /reports/{campaign_id}/locations</a>
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public Iterable<ReportLocation> getLocationsReports() throws IOException, Exception {
-		return connection.getCampaignLocationsReports(getId());
+	public Iterable<ReportLocation> getLocationsReports(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return connection.getCampaignLocationsReports(getId(), queryParameters);
 	}
 	
 	@Override

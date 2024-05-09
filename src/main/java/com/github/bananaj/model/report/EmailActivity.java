@@ -6,18 +6,15 @@ package com.github.bananaj.model.report;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
-import com.github.bananaj.model.automation.emails.AutomationEmail;
-import com.github.bananaj.model.list.member.MemberTag;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Mailchimp's campaign and Automation reports analyze clicks, opens, subscribers' social activity, e-commerce data, and more.
@@ -28,7 +25,7 @@ public class EmailActivity implements JSONParser {
 
     private String campaignId;
     private String listId;
-    private boolean listIsActive;
+    private Boolean listIsActive;
 	private String emailId;
 	private String emailAddress;
 	private List<Activity> activity;
@@ -43,17 +40,20 @@ public class EmailActivity implements JSONParser {
 
 	@Override
 	public void parse(MailChimpConnection connection, JSONObject entity) {
-		campaignId = entity.getString("campaign_id");
-		listId = entity.getString("list_id");
-		listIsActive = entity.getBoolean("list_is_active");
-		emailId = entity.getString("email_id");
-		emailAddress = entity.getString("email_address");
+		JSONObjectCheck jObj = new JSONObjectCheck(entity);
+		campaignId = jObj.getString("campaign_id");
+		listId = jObj.getString("list_id");
+		listIsActive = jObj.getBoolean("list_is_active");
+		emailId = jObj.getString("email_id");
+		emailAddress = jObj.getString("email_address");
 
-		JSONArray array = entity.getJSONArray("activity");
-		activity = new ArrayList<Activity>(array.length());
-		for( int i = 0; i< array.length(); i++)
-		{
-			activity.add(new Activity(array.getJSONObject(i)));
+		JSONArray array = jObj.getJSONArray("activity");
+		activity = new ArrayList<Activity>(array != null ? array.length() : 0);
+		if (array != null) {
+			for( int i = 0; i< array.length(); i++)
+			{
+				activity.add(new Activity(array.getJSONObject(i)));
+			}
 		}
 	}
 
@@ -73,7 +73,7 @@ public class EmailActivity implements JSONParser {
 		return listId;
 	}
 
-	public boolean isListIsActive() {
+	public Boolean isListIsActive() {
 		return listIsActive;
 	}
 

@@ -9,20 +9,21 @@ import org.json.JSONObject;
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * An abuse complaint occurs when your recipient reports an email as spam in their mail program.
  *
  */
 public class AbuseReport implements JSONParser {
-	private int id;
+	private Integer id;
 	private String campaignId;
 	private String listId;
 	private Boolean listIsActive;
 	private String emailId;
 	private String emailAddress;
 	private Map<String, Object> mergeFields;
-	private boolean vip;
+	private Boolean vip;
 	private ZonedDateTime date;
 
 	public AbuseReport() {
@@ -39,27 +40,28 @@ public class AbuseReport implements JSONParser {
 	 * @param abuse
 	 */
 	public void parse(MailChimpConnection connection, JSONObject abuse) {
-		id = abuse.getInt("id");
-		campaignId = abuse.getString("campaign_id");
-		listId = abuse.getString("list_id");
-		listIsActive = abuse.has("list_is_active") ? abuse.getBoolean("list_is_active") : null;
-		emailId = abuse.getString("email_id");
-		emailAddress = abuse.getString("email_address");
+		JSONObjectCheck jObj = new JSONObjectCheck(abuse);
+		id = jObj.getInt("id");
+		campaignId = jObj.getString("campaign_id");
+		listId = jObj.getString("list_id");
+		listIsActive = jObj.getBoolean("list_is_active");
+		emailId = jObj.getString("email_id");
+		emailAddress = jObj.getString("email_address");
 		mergeFields = new HashMap<String, Object>();
-		if (abuse.has("merge_fields")) {
-			final JSONObject mergeFieldsObj = abuse.getJSONObject("merge_fields");
+		if (jObj.has("merge_fields")) {
+			final JSONObject mergeFieldsObj = jObj.getJSONObject("merge_fields");
 			for(String key : mergeFieldsObj.keySet()) {
 				mergeFields.put(key, mergeFieldsObj.get(key));
 			}
 		}
-		vip = abuse.getBoolean("vip");
-		date = DateConverter.fromISO8601(abuse.getString("date"));
+		vip = jObj.getBoolean("vip");
+		date = jObj.getISO8601Date("date");
 	}
 	
 	/**
 	 * @return The id for the abuse report.
 	 */
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
@@ -108,7 +110,7 @@ public class AbuseReport implements JSONParser {
 	/**
 	 * @return VIP status for subscriber.
 	 */
-	public boolean isVip() {
+	public Boolean isVip() {
 		return vip;
 	}
 

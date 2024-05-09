@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import com.github.bananaj.model.automation.Subscriber;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 public class AutomationSubscriber extends Subscriber {
 
@@ -15,13 +16,10 @@ public class AutomationSubscriber extends Subscriber {
 
 	public AutomationSubscriber(JSONObject jsonObj) {
 		super(jsonObj);
-		this.emailId = jsonObj.getString("email_id");
-		if (jsonObj.has("list_is_active")) {
-			this.listIsActive = jsonObj.getBoolean("list_is_active");
-		}
-		if (jsonObj.has("next_send")) {
-			this.nextSend = DateConverter.fromISO8601(jsonObj.getString("next_send"));
-		}
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
+		this.emailId = jObj.getString("email_id");
+		this.listIsActive = jObj.getBoolean("list_is_active");
+		this.nextSend = jObj.getISO8601Date("next_send");
 	}
 
 	public AutomationSubscriber() {

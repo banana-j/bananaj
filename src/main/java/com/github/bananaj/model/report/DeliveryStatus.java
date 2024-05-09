@@ -2,6 +2,8 @@ package com.github.bananaj.model.report;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
 /**
  * Updates on campaigns in the process of sending.
  *
@@ -15,11 +17,12 @@ public class DeliveryStatus {
 	private Integer emailsCanceled;
 
 	public DeliveryStatus(JSONObject jsonObj) {
-		enabled = jsonObj.getBoolean("enabled");
-		canCancel = jsonObj.has("can_cancel") ? jsonObj.getBoolean("can_cancel") : null;
-		status = jsonObj.has("status") ? jsonObj.getString("status") : null;
-		emailsSent = jsonObj.has("emails_sent") ? jsonObj.getInt("emails_sent") : null;
-		emailsCanceled = jsonObj.has("emails_canceled") ? jsonObj.getInt("emails_canceled") : null;
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
+		enabled = jObj.getBoolean("enabled");
+		canCancel = jObj.getBoolean("can_cancel");
+		status = jObj.getString("status");
+		emailsSent = jObj.getInt("emails_sent");
+		emailsCanceled = jObj.getInt("emails_canceled");
 	}
 
 	/**

@@ -14,10 +14,10 @@ public class ListCampaignDefaults {
 	}
 
 	public ListCampaignDefaults(JSONObject defaults) {
-		this.fromName = defaults.getString("from_name");
-		this.fromEmail = defaults.getString("from_email");
-		this.subject = defaults.getString("subject");
-		this.language = defaults.getString("language");
+		this.fromName = defaults.optString("from_name", null);
+		this.fromEmail = defaults.optString("from_email", null);
+		this.subject = defaults.optString("subject", null);
+		this.language = defaults.optString("language", null);
 	}
 
 	public ListCampaignDefaults(Builder b) {

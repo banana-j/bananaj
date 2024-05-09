@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 public class ClickReport implements JSONParser {
 	private String campaignId;
@@ -29,7 +30,8 @@ public class ClickReport implements JSONParser {
 	}
 
 	@Override
-	public void parse(MailChimpConnection connection, JSONObject entity) {
+	public void parse(MailChimpConnection connection, JSONObject clickrpt) {
+		JSONObjectCheck entity = new JSONObjectCheck(clickrpt);
 		campaignId = entity.getString("campaign_id");
 		id = entity.getString("id");
 		url = entity.getString("url");
@@ -37,12 +39,16 @@ public class ClickReport implements JSONParser {
 		clickPercentage = entity.getDouble("click_percentage");
 		uniqueClicks = entity.getInt("unique_clicks");
 		uniqueClickPercentage = entity.getDouble("unique_click_percentage");
-		lastClick = DateConverter.fromISO8601(entity.getString("last_click"));
+		lastClick = entity.getISO8601Date("last_click");
 
 		if(entity.has("ab_split")) {
 			JSONObject split = entity.getJSONObject("ab_split");
-			abSplit_a = new ClickABSplit("a", split.getJSONObject("a"));
-			abSplit_b = new ClickABSplit("b", split.getJSONObject("b"));
+			if (split.has("a")) {
+				abSplit_a = new ClickABSplit("a", split.getJSONObject("a"));
+			}
+			if (split.has("b")) { 
+				abSplit_b = new ClickABSplit("b", split.getJSONObject("b"));
+			}
 		}
 	}
 

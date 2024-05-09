@@ -3,6 +3,7 @@ package com.github.bananaj.model.list.segment;
 import org.json.JSONObject;
 
 import com.github.bananaj.exceptions.ConditionException;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Segment option condition condition_type for "IPGeoIn"
@@ -79,13 +80,13 @@ public class IPGeoInCondition implements AbstractCondition {
 
 	@Override
 	public JSONObject getJsonRepresentation(){
-		JSONObject condition = new JSONObject();
-		condition.put("condition_type", getConditionType().toString());
-		condition.put("op", getOp().toString());
+		JSONObjectCheck condition = new JSONObjectCheck();
+		condition.put("condition_type", getConditionType());
+		condition.put("op", getOp());
 		condition.put("field", getField());
 		condition.put("value", getValue());
 
-		return condition;
+		return condition.getJsonObject();
 	}
 
 	/* (non-Javadoc)

@@ -2,22 +2,25 @@ package com.github.bananaj.model.campaign;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
 /**
  * A feedback item to review before sending a campaign
  *
  */
 public class CampaignSendCheck {
 
-	private int id;
+	private Integer id;
 	private CampaignCheckType type;
 	private String heading;
 	private String details;
 	
 	public CampaignSendCheck(JSONObject jsonObj) {
-		id = jsonObj.getInt("id");
-		type = CampaignCheckType.valueOf(jsonObj.getString("type").toUpperCase());
-		heading = jsonObj.getString("heading");
-		details = jsonObj.getString("details");
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
+		id = jObj.getInt("id");
+		type = jObj.getEnum(CampaignCheckType.class, "type");
+		heading = jObj.getString("heading");
+		details = jObj.getString("details");
 	}
 
 	public CampaignSendCheck() {
@@ -27,7 +30,7 @@ public class CampaignSendCheck {
 	/**
 	 * @return The ID for the item
 	 */
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 

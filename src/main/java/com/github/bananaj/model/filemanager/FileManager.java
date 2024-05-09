@@ -17,7 +17,7 @@ import com.github.bananaj.utils.URLHelper;
  * place to store images, documents, and other files you include or link to in
  * your campaigns, templates, or signup forms.
  * 
- * @see <a href="https://mailchimp.com/developer/marketing/api/file-manager/">File Manager</a> 
+ * @see <a href="https://mailchimp.com/developer/marketing/api/file-manager/" target="MailchimpAPIDoc">File Manager</a> 
  */
 
 public class FileManager {
@@ -39,21 +39,9 @@ public class FileManager {
 	}
 
 	/**
-	 * Get a paginated list of folders in the File Manager.
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
-	 * @throws IOException
-	 * @throws Exception 
-	 * @deprecated
-	 */
-	public Iterable<FileManagerFolder> getFolders(int pageSize, int pageNumber) throws IOException, Exception {
-		return new ModelIterator<FileManagerFolder>(FileManagerFolder.class, getConnection().getFilemanagerfolderendpoint(), getConnection(), pageSize, pageNumber);
-	}
-
-	/**
 	 * Get an iterator of all folders in the File Manager.
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/file-manager-folders/list-folders/">File Manager Folders -- GET /file-manager/folders</a>
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/file-manager-folders/list-folders/" target="MailchimpAPIDoc">File Manager Folders -- GET /file-manager/folders</a>
 	 * @return Iterator of all folders in the File Manager.
 	 * @throws IOException
 	 * @throws Exception
@@ -98,21 +86,9 @@ public class FileManager {
 	}
 
 	/**
-	 * Get a paginated list of available images and files stored in the File Manager for the account.
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
-	 * @throws IOException
-	 * @throws Exception 
-	 * @deprecated
-	 */
-	public FileManagerFileIterator getFiles(int pageSize, int pageNumber) throws IOException, Exception {
-		return new FileManagerFileIterator(getConnection(), pageSize, pageNumber);
-	}
-
-	/**
 	 * Get an iterator of available images and files stored in the File Manager for the account.
 	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
-	 *   @see <a href="https://mailchimp.com/developer/marketing/api/file-manager-files/list-stored-files/">File Manager Files -- GET /file-manager/files</a>
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/file-manager-files/list-stored-files/" target="MailchimpAPIDoc">File Manager Files -- GET /file-manager/files</a>
 	 * @return File manager file iterator
 	 * @throws IOException
 	 * @throws Exception

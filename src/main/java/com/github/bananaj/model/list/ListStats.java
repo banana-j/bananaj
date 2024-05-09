@@ -31,27 +31,25 @@ public class ListStats {
 
 	}
 
-	public ListStats(JSONObject jsonObj) {
-		if (jsonObj != null) {
-			JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
-			memberCount = jObj.getInt("member_count");
-			totalContacts = jObj.getInt("total_contacts");
-			unsubscribeCount = jObj.getInt("unsubscribe_count");
-			cleanedCount = jObj.getInt("cleaned_count");
-			memberCountSinceSend = jObj.getInt("member_count_since_send");
-			unsubscribeCountSinceSend = jObj.getInt("unsubscribe_count_since_send");
-			cleanedCountSinceSend = jObj.getInt("cleaned_count_since_send");
-			campaignCount = jObj.getInt("campaign_count");
-			campaignLastSent = jObj.getISO8601Date("campaign_last_sent");
-			mergeFieldCount = jObj.getInt("merge_field_count");
-			avgSubscritionRate = jObj.getDouble("avg_sub_rate");
-			avgUnsubscribeRate = jObj.getDouble("avg_unsub_rate");
-			targetSubscriptionRate = jObj.getDouble("target_sub_rate");
-			openRate = jObj.getDouble("open_rate");
-			clickRate = jObj.getDouble("click_rate");
-			lastSubcribedDate = jObj.getISO8601Date("last_sub_date");
-			lastUnsubscrivedDate = jObj.getISO8601Date("last_unsub_date");
-		}
+	public ListStats(JSONObject liststats) {
+		JSONObjectCheck jObj = new JSONObjectCheck(liststats);
+		memberCount = jObj.getInt("member_count");
+		totalContacts = jObj.getInt("total_contacts");
+		unsubscribeCount = jObj.getInt("unsubscribe_count");
+		cleanedCount = jObj.getInt("cleaned_count");
+		memberCountSinceSend = jObj.getInt("member_count_since_send");
+		unsubscribeCountSinceSend = jObj.getInt("unsubscribe_count_since_send");
+		cleanedCountSinceSend = jObj.getInt("cleaned_count_since_send");
+		campaignCount = jObj.getInt("campaign_count");
+		campaignLastSent = jObj.getISO8601Date("campaign_last_sent");
+		mergeFieldCount = jObj.getInt("merge_field_count");
+		avgSubscritionRate = jObj.getDouble("avg_sub_rate");
+		avgUnsubscribeRate = jObj.getDouble("avg_unsub_rate");
+		targetSubscriptionRate = jObj.getDouble("target_sub_rate");
+		openRate = jObj.getDouble("open_rate");
+		clickRate = jObj.getDouble("click_rate");
+		lastSubcribedDate = jObj.getISO8601Date("last_sub_date");
+		lastUnsubscrivedDate = jObj.getISO8601Date("last_unsub_date");
 	}
 	
 	/**

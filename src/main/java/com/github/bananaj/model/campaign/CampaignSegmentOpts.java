@@ -19,6 +19,7 @@ import com.github.bananaj.model.list.segment.Operator;
 import com.github.bananaj.model.list.segment.RawCondition;
 import com.github.bananaj.model.list.segment.StringArrayCondition;
 import com.github.bananaj.model.list.segment.StringCondition;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * A class representing all campaign segmentation options. This object should
@@ -46,20 +47,21 @@ public class CampaignSegmentOpts {
 		this.conditions = b.conditions;
 	}
 
-	public CampaignSegmentOpts(JSONObject jsonObj) {
-		savedSegmentId = jsonObj.has("saved_segment_id") ? jsonObj.getInt("saved_segment_id") : null;
-		prebuiltSegmentId = jsonObj.has("prebuilt_segment_id") ? jsonObj.getInt("prebuilt_segment_id") : null;
-		match = jsonObj.has("match") ? MatchType.valueOf(jsonObj.getString("match").toUpperCase()) : null;
+	public CampaignSegmentOpts(JSONObject options) {
+		JSONObjectCheck jObj = new JSONObjectCheck(options);
+		savedSegmentId = jObj.getInt("saved_segment_id");
+		prebuiltSegmentId = jObj.getInt("prebuilt_segment_id");
+		match = jObj.getEnum(MatchType.class, "match");
 
-		if (jsonObj.has("conditions"))
+		if (jObj.has("conditions"))
 		{
 			conditions = new ArrayList<AbstractCondition>();
-			JSONArray jsonConditions = jsonObj.getJSONArray("conditions");
+			JSONArray jsonConditions = jObj.getJSONArray("conditions");
 			for (int i = 0; i<jsonConditions.length();i++){
-				JSONObject jsonCondition = jsonConditions.getJSONObject(i);
+				JSONObjectCheck jsonCondition = new JSONObjectCheck(jsonConditions.getJSONObject(i));
 
 				try {
-					ConditionType conditiontype = ConditionType.valueOf(jsonCondition.getString("condition_type").toUpperCase());
+					ConditionType conditiontype = jsonCondition.getEnum(ConditionType.class, "condition_type");
 					switch(conditiontype) {
 					case AIM:
 					case AUTOMATION:
@@ -88,7 +90,7 @@ public class CampaignSegmentOpts {
 						conditions.add( new StringCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+								.operator(jsonCondition.getEnum(Operator.class, "op"))
 								.value(jsonCondition.getString("value"))
 								.build());
 						break;
@@ -98,7 +100,7 @@ public class CampaignSegmentOpts {
 						conditions.add( new IntegerCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+								.operator(jsonCondition.getEnum(Operator.class, "op"))
 								.value(jsonCondition.getInt("value"))
 								.build());
 						break;
@@ -112,7 +114,7 @@ public class CampaignSegmentOpts {
 						conditions.add( new DoubleCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+								.operator(jsonCondition.getEnum(Operator.class, "op"))
 								.value(jsonCondition.getDouble("value"))
 								.build());
 						break;
@@ -123,11 +125,9 @@ public class CampaignSegmentOpts {
 						StringCondition.Builder b = new StringCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+								.operator(jsonCondition.getEnum(Operator.class, "op"))
+								.extra(jsonCondition.getString("extra"))
 								.value(jsonCondition.getString("value"));
-						if (jsonCondition.has("extra")) {
-							b.extra(jsonCondition.getString("extra"));
-						}
 						conditions.add(b.build());
 						break;
 
@@ -139,7 +139,7 @@ public class CampaignSegmentOpts {
 						conditions.add( new OpCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+								.operator(jsonCondition.getEnum(Operator.class, "op"))
 								.build());
 						break;
 
@@ -156,7 +156,7 @@ public class CampaignSegmentOpts {
 						conditions.add( new StringArrayCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+								.operator(jsonCondition.getEnum(Operator.class, "op"))
 								.value(values)
 								.build());
 						break;
@@ -165,7 +165,7 @@ public class CampaignSegmentOpts {
 						conditions.add( new IntegerCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+								.operator(jsonCondition.getEnum(Operator.class, "op"))
 								.extra(jsonCondition.getInt("extra"))
 								.value(jsonCondition.getInt("value"))
 								.build());
@@ -175,7 +175,7 @@ public class CampaignSegmentOpts {
 						conditions.add( new IPGeoInCondition.Builder()
 								.conditionType(conditiontype)
 								.field(jsonCondition.getString("field"))
-								.operator(Operator.valueOf(jsonCondition.getString("op").toUpperCase()))
+								.operator(jsonCondition.getEnum(Operator.class, "op"))
 								.lng(jsonCondition.getString("lng"))
 								.lat(jsonCondition.getString("lat"))
 								.value(jsonCondition.getInt("value"))
@@ -189,7 +189,7 @@ public class CampaignSegmentOpts {
 					logger.warn("Unknown or invalid condition : " + e.getMessage(), e);
 					// Use raw condition for unknowns.
 					conditions.add( new RawCondition.Builder()
-							.json(jsonCondition)
+							.json(jsonCondition.getJsonObject())
 							.build());
 				}
 			}

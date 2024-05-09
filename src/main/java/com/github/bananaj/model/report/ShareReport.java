@@ -12,8 +12,8 @@ public class ShareReport {
 	private String sharePassword;
 
 	public ShareReport(JSONObject jsonObj) {
-		shareUrl = jsonObj.getString("share_url");
-		sharePassword = jsonObj.has("share_password") ? jsonObj.getString("share_password") : null;
+		shareUrl = jsonObj.optString("share_url", null);
+		sharePassword = jsonObj.optString("share_password", null);
 	}
 
 	/**

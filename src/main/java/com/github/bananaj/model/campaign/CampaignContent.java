@@ -27,9 +27,9 @@ public class CampaignContent {
 	}
 
 	private void parse(JSONObject jsonObj) {
-		this.plainText = jsonObj.has("plain_text") ? jsonObj.getString("plain_text") : null;
-		this.html =  jsonObj.has("html") ? jsonObj.getString("html") : null;
-		this.archiveHtml =  jsonObj.has("archive_html") ? jsonObj.getString("archive_html") : null;
+		this.plainText = jsonObj.optString("plain_text",null);
+		this.html = jsonObj.optString("html",null);
+		this.archiveHtml =  jsonObj.optString("archive_html",null);
 	}
 	
 	/**

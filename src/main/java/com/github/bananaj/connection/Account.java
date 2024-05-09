@@ -4,7 +4,7 @@ import java.time.ZonedDateTime;
 
 import org.json.JSONObject;
 
-import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * The API root resource links to all other resources available in the API. Also includes details about the Mailchimp user account.
@@ -27,37 +27,36 @@ public class Account {
 	private String accountTimezone;
 	private String accountIndustry;
 	private Contact contact;
-	private boolean proEnabled;
+	private Boolean proEnabled;
 	private ZonedDateTime lastLogin;
-	private int totalSubscribers;
+	private Integer totalSubscribers;
 	private IndustryStats industryStats;
 
-	public Account(MailChimpConnection connection, JSONObject jsonObj) {
-		this.id = jsonObj.getString("account_id");
+	public Account(MailChimpConnection connection, JSONObject account) {
+		JSONObjectCheck jObj = new JSONObjectCheck(account);
 		this.connection = connection;
-		this.loginId = jsonObj.getString("login_id");
-		this.accountName = jsonObj.getString("account_name");
-		this.email = jsonObj.getString("email");
-		this.firstName = jsonObj.getString("first_name");
-		this.lastName = jsonObj.getString("last_name");
-		this.username = jsonObj.getString("username");
-		this.avatarUrl = jsonObj.getString("avatar_url");
-		this.role = jsonObj.getString("role");
-		this.memberSince = DateConverter.fromISO8601(jsonObj.getString("member_since"));
-		this.pricingPlanType = PricingPlanType.valueOf(jsonObj.getString("pricing_plan_type").toUpperCase());
-		if (jsonObj.has("first_payment")) {
-			this.firstPayment = DateConverter.fromISO8601(jsonObj.getString("first_payment"));
+		this.id = jObj.getString("account_id");
+		this.loginId = jObj.getString("login_id");
+		this.accountName = jObj.getString("account_name");
+		this.email = jObj.getString("email");
+		this.firstName = jObj.getString("first_name");
+		this.lastName = jObj.getString("last_name");
+		this.username = jObj.getString("username");
+		this.avatarUrl = jObj.getString("avatar_url");
+		this.role = jObj.getString("role");
+		this.memberSince = jObj.getISO8601Date("member_since");
+		this.pricingPlanType = jObj.getEnum(PricingPlanType.class, "pricing_plan_type");
+		this.firstPayment = jObj.getISO8601Date("first_payment");
+		this.accountTimezone = account.getString("account_timezone");
+		this.accountIndustry = jObj.getString("account_industry");
+		this.proEnabled = jObj.getBoolean("pro_enabled");
+		this.lastLogin = jObj.getISO8601Date("last_login");
+		this.totalSubscribers = jObj.getInt("total_subscribers");
+		if (account.has("contact")) {
+			contact = new Contact(account.getJSONObject("contact"));
 		}
-		this.accountTimezone = jsonObj.getString("account_timezone");
-		if (jsonObj.has("account_industry")) {
-			this.accountIndustry = jsonObj.getString("account_industry");
-		}
-		this.proEnabled = jsonObj.getBoolean("pro_enabled");
-		this.lastLogin = DateConverter.fromISO8601(jsonObj.getString("last_login"));
-		this.totalSubscribers = jsonObj.getInt("total_subscribers");
-		contact = new Contact(jsonObj.getJSONObject("contact"));
-		if (jsonObj.has("industry_stats")) {
-			industryStats = new IndustryStats(jsonObj.getJSONObject("industry_stats"));
+		if (account.has("industry_stats")) {
+			industryStats = new IndustryStats(account.getJSONObject("industry_stats"));
 		}
 	}
 
@@ -127,6 +126,7 @@ public class Account {
 
 	/**
 	 * The user role for the account
+	 * @see <a href="https://mailchimp.com/help/manage-user-levels-in-your-account/" target="MailchimpAPIDoc">user role</a> 
 	 */
 	public String getRole() {
 		return role;
@@ -168,9 +168,10 @@ public class Account {
 	}
 
 	/**
-	 * Whether the account includes Mailchimp Pro
+	 * Legacy - whether the account includes Mailchimp Pro.
+	 * @see <a href="https://mailchimp.com/help/about-mailchimp-pro/" target="MailchimpAPIDoc">Mailchimp Pro</a> 
 	 */
-	public boolean isProEnabled() {
+	public Boolean isProEnabled() {
 		return proEnabled;
 	}
 
@@ -184,7 +185,7 @@ public class Account {
 	/**
 	 * The total number of subscribers across all lists in the account
 	 */
-	public int getTotalSubscribers() {
+	public Integer getTotalSubscribers() {
 		return totalSubscribers;
 	}
 
@@ -197,6 +198,7 @@ public class Account {
 
 	/**
 	 * The average campaign statistics for all campaigns in the account’s specified industry
+	 * @see <a href="https://mailchimp.com/resources/research/email-marketing-benchmarks/?utm_source=mc-api&utm_medium=docs&utm_campaign=apidocs" target="MailchimpAPIDoc">average campaign statistics</a> 
 	 */
 	public IndustryStats getIndustryStats() {
 		return industryStats;
@@ -240,6 +242,10 @@ public class Account {
 		}
 	}
 
+	/**
+	 * Information about the account contact.
+	 *
+	 */
 	public class Contact {
 		private String company;
 		private String address1;
@@ -253,14 +259,15 @@ public class Account {
 
 		}
 
-		public Contact(JSONObject jsonObj) {
-			this.company = jsonObj.getString("company");
-			this.address1 = jsonObj.getString("addr1");
-			this.address2 = jsonObj.getString("addr2");
-			this.city = jsonObj.getString("city");
-			this.state = jsonObj.getString("state");
-			this.zip = jsonObj.getString("zip");
-			this.country = jsonObj.getString("country");
+		public Contact(JSONObject contact) {
+			JSONObjectCheck jObj = new JSONObjectCheck(contact);
+			this.company = jObj.getString("company");
+			this.address1 = jObj.getString("addr1");
+			this.address2 = jObj.getString("addr2");
+			this.city = jObj.getString("city");
+			this.state = jObj.getString("state");
+			this.zip = jObj.getString("zip");
+			this.country = jObj.getString("country");
 		}
 
 		/**
@@ -322,39 +329,44 @@ public class Account {
 		}
 	}
 
+	/**
+	 * The average campaign statistics for all campaigns in the account’s specified industry
+	 * @see <a href="https://mailchimp.com/resources/research/email-marketing-benchmarks/?utm_source=mc-api&utm_medium=docs&utm_campaign=apidocs" target="MailchimpAPIDoc">average campaign statistics</a> 
+	 */
 	public class IndustryStats {
-		private double openRate;
-		private double bounceRate;
-		private double clickRate;
+		private Double openRate;
+		private Double bounceRate;
+		private Double clickRate;
 
 		public IndustryStats() {
 
 		}
 
-		public IndustryStats(JSONObject jsonObj) {
-			this.openRate = jsonObj.getDouble("open_rate");
-			this.bounceRate = jsonObj.getDouble("bounce_rate");
-			this.clickRate = jsonObj.getDouble("click_rate");
+		public IndustryStats(JSONObject stats) {
+			JSONObjectCheck jObj = new JSONObjectCheck(stats);
+			this.openRate = jObj.getDouble("open_rate");
+			this.bounceRate = jObj.getDouble("bounce_rate");
+			this.clickRate = jObj.getDouble("click_rate");
 		}
 
 		/**
 		 * The average unique open rate for all campaigns in the account’s specified industry
 		 */
-		public double getOpenRate() {
+		public Double getOpenRate() {
 			return openRate;
 		}
 
 		/**
 		 * The average bounce rate for all campaigns in the account’s specified industry
 		 */
-		public double getBounceRate() {
+		public Double getBounceRate() {
 			return bounceRate;
 		}
 
 		/**
 		 * The average unique click rate for all campaigns in the account’s specified industry
 		 */
-		public double getClickRate() {
+		public Double getClickRate() {
 			return clickRate;
 		}
 

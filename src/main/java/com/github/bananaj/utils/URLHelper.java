@@ -12,10 +12,6 @@ public class URLHelper {
 	 * @throws MalformedURLException
 	 */
 	public static URL url(String... parts) throws MalformedURLException {
-	    StringBuilder sb = new StringBuilder(100);
-	    for (String arg : parts) {
-	        sb.append(arg);
-	    }
 	    return new URL(join(parts));
 	}
 	

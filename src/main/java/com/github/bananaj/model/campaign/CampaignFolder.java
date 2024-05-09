@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Created by alexanderweiss on 10.08.2016.
@@ -14,7 +15,7 @@ public class CampaignFolder implements JSONParser {
 
 	private String id;
     private String name;
-    private int count;
+    private Integer count;
     private MailChimpConnection connection;
 
     public CampaignFolder() {
@@ -25,11 +26,12 @@ public class CampaignFolder implements JSONParser {
         parse(connection, jsonCampaignFolder);
     }
     
-    public void parse(MailChimpConnection connection, JSONObject jsonObj) {
-        id = jsonObj.getString("id");
-        this.name = jsonObj.getString("name");
-        this.count = jsonObj.getInt("count");
+    public void parse(MailChimpConnection connection, JSONObject campaignfolder) {
+		JSONObjectCheck jObj = new JSONObjectCheck(campaignfolder);
         this.connection = connection;
+        id = jObj.getString("id");
+        this.name = jObj.getString("name");
+        this.count = jObj.getInt("count");
     }
     
     /**
@@ -75,7 +77,7 @@ public class CampaignFolder implements JSONParser {
 	/**
      * The number of campaigns in the folder
      */
-    public int getCount() {
+    public Integer getCount() {
         return count;
     }
 

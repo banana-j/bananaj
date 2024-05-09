@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * A tag that has been assigned to a contact.
@@ -36,11 +37,10 @@ public class MemberTag implements JSONParser {
 	 * @param jsonObj
 	 */
 	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
-		name = jsonObj.getString("name");
-		id = jsonObj.getInt("id");
-		if (jsonObj.has("date_added")) {
-			dateAdded = DateConverter.fromISO8601(jsonObj.getString("date_added"));
-		}
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
+		name = jObj.getString("name");
+		id = jObj.getInt("id");
+		dateAdded = jObj.getISO8601Date("date_added");
 	}
 	
 	/**

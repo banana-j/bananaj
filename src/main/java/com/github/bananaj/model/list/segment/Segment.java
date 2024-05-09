@@ -7,6 +7,7 @@ import java.time.ZonedDateTime;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
+import com.github.bananaj.connection.MailChimpQueryParameters;
 import com.github.bananaj.exceptions.SegmentException;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.ModelIterator;
@@ -97,14 +98,14 @@ public class Segment implements JSONParser {
 
     /**
      * Get members in this list
-	 * @param pageSize Number of records to fetch per query. Maximum value is 1000.
-	 * @param pageNumber First page number to fetch starting from 0.
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 *   @see <a href="https://mailchimp.com/developer/marketing/api/list-segment-members/list-members-in-segment/" target="MailchimpAPIDoc">Lists/Audiences Segment Members -- GET /lists/{list_id}/segments/{segment_id}/members</a>
 	 * @throws IOException
 	 * @throws Exception 
      */
-    public Iterable<Member> getMembers(int pageSize, int pageNumber) throws IOException, Exception {
+    public Iterable<Member> getMembers(MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getConnection().getListendpoint(), "/", this.getListId(), "/segments/", Integer.toString(this.getId()), "/members");
-		return new ModelIterator<Member>(Member.class, baseURL, getConnection(), pageSize, pageNumber);
+		return new ModelIterator<Member>(Member.class, baseURL, getConnection(), queryParameters);
     }
 
     /**

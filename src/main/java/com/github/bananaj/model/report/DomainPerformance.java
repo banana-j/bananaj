@@ -6,27 +6,32 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
 /**
  * Statistics for the top-performing domains from a campaign.
  *
  */
 public class DomainPerformance {
 	private List<DomainStats> domains;
-	private int totalSent;
+	private Integer totalSent;
 	private String campaignId;
-	private int totalItems;
+	private Integer totalItems;
 
-	public DomainPerformance(JSONObject jsonObj) {
-		totalSent = jsonObj.getInt("total_sent");
-		campaignId = jsonObj.getString("campaign_id");
-		totalItems = jsonObj.getInt("total_items");
-		JSONArray domainsArray = jsonObj.getJSONArray("domains");
-    	domains = new ArrayList<DomainStats>(domainsArray.length());
-    	for( int i = 0; i< domainsArray.length(); i++)
-    	{
-    		JSONObject domainDetail = domainsArray.getJSONObject(i);
-    		DomainStats report = new DomainStats(domainDetail);
-    		domains.add(report);
+	public DomainPerformance(JSONObject domainperformance) {
+		JSONObjectCheck jObj = new JSONObjectCheck(domainperformance);
+		totalSent = jObj.getInt("total_sent");
+		campaignId = jObj.getString("campaign_id");
+		totalItems = jObj.getInt("total_items");
+		JSONArray domainsArray = jObj.getJSONArray("domains");
+    	domains = new ArrayList<DomainStats>(domainsArray != null ? domainsArray.length() : 0);
+    	if (domainsArray != null) {
+    		for( int i = 0; i< domainsArray.length(); i++)
+    		{
+    			JSONObject domainDetail = domainsArray.getJSONObject(i);
+    			DomainStats report = new DomainStats(domainDetail);
+    			domains.add(report);
+    		}
     	}
 	}
 
@@ -40,7 +45,7 @@ public class DomainPerformance {
 	/**
 	 * @return The total number of emails sent for the campaign.
 	 */
-	public int getTotalSent() {
+	public Integer getTotalSent() {
 		return totalSent;
 	}
 
@@ -54,7 +59,7 @@ public class DomainPerformance {
 	/**
 	 * @return The total number of items matching the query regardless of pagination.
 	 */
-	public int getTotalItems() {
+	public Integer getTotalItems() {
 		return totalItems;
 	}
 

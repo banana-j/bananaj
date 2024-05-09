@@ -18,14 +18,14 @@ public class ListContact {
 	}
 
 	public ListContact(JSONObject stats) {
-		this.company = stats.getString("company");
-		this.address1 = stats.getString("address1");
-		this.address2 = stats.getString("address2");
-		this.city = stats.getString("city");
-		this.state = stats.getString("state");
-		this.zip = stats.getString("zip");
-		this.country = stats.getString("country");
-		this.phone = stats.getString("phone");
+		this.company = stats.optString("company", null);
+		this.address1 = stats.optString("address1", null);
+		this.address2 = stats.optString("address2", null);
+		this.city = stats.optString("city", null);
+		this.state = stats.optString("state", null);
+		this.zip = stats.optString("zip", null);
+		this.country = stats.optString("country", null);
+		this.phone = stats.optString("phone", null);
 	}
 
 	public ListContact(Builder b) {

@@ -5,77 +5,79 @@ import java.time.ZonedDateTime;
 import org.json.JSONObject;
 
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 public class SplitInfo {
 
-	private int bounces;
-	private int abuseReports;
-	private int unsubs;
-	private int recipientClicks;
-	private int forwards;
-	private int forwardsOpens;
-	private int opens;
+	private Integer bounces;
+	private Integer abuseReports;
+	private Integer unsubs;
+	private Integer recipientClicks;
+	private Integer forwards;
+	private Integer forwardsOpens;
+	private Integer opens;
 	private ZonedDateTime lastOpen;
-	private int uniqueOpens;
+	private Integer uniqueOpens;
 
 	public SplitInfo(JSONObject jsonObj) {
-		bounces = jsonObj.getInt("bounces");
-		abuseReports = jsonObj.getInt("abuse_reports");
-		unsubs = jsonObj.getInt("unsubs");
-		recipientClicks = jsonObj.getInt("recipient_clicks");
-		forwards = jsonObj.getInt("forwards");
-		forwardsOpens = jsonObj.getInt("forwards_opens");
-		opens = jsonObj.getInt("opens");
-		lastOpen = DateConverter.fromISO8601(jsonObj.getString("last_open"));
-		uniqueOpens = jsonObj.getInt("unique_opens");
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
+		bounces = jObj.getInt("bounces");
+		abuseReports = jObj.getInt("abuse_reports");
+		unsubs = jObj.getInt("unsubs");
+		recipientClicks = jObj.getInt("recipient_clicks");
+		forwards = jObj.getInt("forwards");
+		forwardsOpens = jObj.getInt("forwards_opens");
+		opens = jObj.getInt("opens");
+		lastOpen = jObj.getISO8601Date("last_open");
+		uniqueOpens = jObj.getInt("unique_opens");
 	}
 
 	/**
 	 * @return Bounces for Campaign.
 	 */
-	public int getBounces() {
+	public Integer getBounces() {
 		return bounces;
 	}
 
 	/**
 	 * @return Abuse reports for Campaign.
 	 */
-	public int getAbuseReports() {
+	public Integer getAbuseReports() {
 		return abuseReports;
 	}
 
 	/**
 	 * @return Unsubscribes for Campaign.
 	 */
-	public int getUnsubs() {
+	public Integer getUnsubs() {
 		return unsubs;
 	}
 
 	/**
 	 * @return Recipient Clicks for Campaign.
 	 */
-	public int getRecipientClicks() {
+	public Integer getRecipientClicks() {
 		return recipientClicks;
 	}
 
 	/**
 	 * @return Forwards for Campaign.
 	 */
-	public int getForwards() {
+	public Integer getForwards() {
 		return forwards;
 	}
 
 	/**
 	 * @return Opens from forwards for Campaign.
 	 */
-	public int getForwardsOpens() {
+	public Integer getForwardsOpens() {
 		return forwardsOpens;
 	}
 
 	/**
 	 * @return Opens for Campaign.
 	 */
-	public int getOpens() {
+	public Integer getOpens() {
 		return opens;
 	}
 
@@ -89,7 +91,7 @@ public class SplitInfo {
 	/**
 	 * @return Unique opens for Campaign.
 	 */
-	public int getUniqueOpens() {
+	public Integer getUniqueOpens() {
 		return uniqueOpens;
 	}
 

@@ -1,19 +1,15 @@
 package com.github.bananaj.model.report;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.bananaj.connection.MailChimpConnection;
-import com.github.bananaj.model.JSONParser;
+import com.github.bananaj.connection.MailChimpQueryParameters;
 import com.github.bananaj.model.ModelIterator;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 import com.github.bananaj.utils.URLHelper;
 
 /**
@@ -30,6 +26,24 @@ public class OpenReport extends ModelIterator<OpenReportMember> {
 		super(OpenReportMember.class, query, connection);
 	}
 
+	protected OpenReport(String query, MailChimpConnection connection, MailChimpQueryParameters queryParameters) {
+		super(OpenReportMember.class, query, connection, queryParameters);
+	}
+	
+	public static OpenReport getOpenReport(MailChimpConnection connection, String campaignId, MailChimpQueryParameters queryParameters) throws Exception {
+		String baseUrl = URLHelper.join(connection.getReportsendpoint(), "/", campaignId, "/open-details");
+		return new OpenReport(baseUrl, connection, queryParameters);
+	}
+
+	/**
+	 * 
+	 * @param connection
+	 * @param campaignId
+	 * @param since
+	 * @return
+	 * @throws Exception
+	 * @deprecated
+	 */
 	public static OpenReport getOpenReport(MailChimpConnection connection, String campaignId, ZonedDateTime since) throws Exception {
 		String baseUrl = URLHelper.join(connection.getReportsendpoint(), "/", campaignId, "/open-details",
 				(since!=null ? "?since=" + URLEncoder.encode(DateConverter.toISO8601UTC(since), "UTF-8") : "") );
@@ -49,13 +63,10 @@ public class OpenReport extends ModelIterator<OpenReportMember> {
 	@Override
 	protected void parseRoot(JSONObject list) {
 		super.parseRoot(list);
-		campaignId = list.getString("campaign_id");
-		if (list.has("total_opens")) {
-			totalOpens = list.getInt("total_opens");
-		}
-		if (list.has("total_items")) {
-			totalItems = list.getInt("total_items");
-		}
+		JSONObjectCheck jObj = new JSONObjectCheck(list);
+		campaignId = jObj.getString("campaign_id");
+		totalOpens = jObj.getInt("total_opens");
+		totalItems = jObj.getInt("total_items");
 	}
 
 	/**

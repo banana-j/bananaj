@@ -12,23 +12,24 @@ import org.json.JSONObject;
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Mailchimp template.
  */
 public class Template implements JSONParser {
 
-	private int id;
+	private Integer id;
 	private TemplateType type;
 	private String name;
-	private boolean dragAndDrop;
-	private boolean responsive;
+	private Boolean dragAndDrop;
+	private Boolean responsive;
 	private String category;
 	private ZonedDateTime dateCreated;
 	private ZonedDateTime dateEdited;
 	private String createdBy;
 	private String editedBy;
-	private boolean active;
+	private Boolean active;
 	private String folderId;
 	private String thumbnail;
 	private String shareUrl;
@@ -49,22 +50,23 @@ public class Template implements JSONParser {
 		this.html = b.html;
 	}
 
-	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
-		id = jsonObj.getInt("id");
-		type = TemplateType.valueOf(jsonObj.getString("type").toUpperCase());
-		name = jsonObj.getString("name");
-		dragAndDrop = jsonObj.getBoolean("drag_and_drop");
-		responsive = jsonObj.getBoolean("responsive");
-		category = jsonObj.has("category") ? jsonObj.getString("category") : null;
-		dateCreated = DateConverter.fromISO8601(jsonObj.getString("date_created"));
-		dateEdited = DateConverter.fromISO8601(jsonObj.getString("date_edited"));
-		createdBy = jsonObj.getString("created_by");
-		editedBy = jsonObj.getString("edited_by");
-		active = jsonObj.getBoolean("active");
-		folderId = jsonObj.has("folder_id") ? jsonObj.getString("folder_id") : null;
-		thumbnail = jsonObj.has("thumbnail") ? jsonObj.getString("thumbnail") : null;
-		shareUrl = jsonObj.getString("share_url");
+	public void parse(MailChimpConnection connection, JSONObject template) {
+		JSONObjectCheck jObj = new JSONObjectCheck(template);
 		this.connection = connection;
+		id = jObj.getInt("id");
+		type = jObj.getEnum(TemplateType.class, "type");
+		name = jObj.getString("name");
+		dragAndDrop = jObj.getBoolean("drag_and_drop");
+		responsive = jObj.getBoolean("responsive");
+		category = jObj.getString("category");
+		dateCreated = jObj.getISO8601Date("date_created");
+		dateEdited = jObj.getISO8601Date("date_edited");
+		createdBy = jObj.getString("created_by");
+		editedBy = jObj.getString("edited_by");
+		active = jObj.getBoolean("active");
+		folderId = jObj.getString("folder_id");
+		thumbnail = jObj.getString("thumbnail");
+		shareUrl = jObj.getString("share_url");
 		html = null;
 	}
 
@@ -89,7 +91,7 @@ public class Template implements JSONParser {
 	/**
 	 * @return The individual id for the template
 	 */
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
@@ -118,14 +120,14 @@ public class Template implements JSONParser {
 	/**
 	 * @return Whether the template uses the drag and drop editor.
 	 */
-	public boolean isDragAndDrop() {
+	public Boolean isDragAndDrop() {
 		return dragAndDrop;
 	}
 
 	/**
 	 * @return Whether the template contains media queries to make it responsive.
 	 */
-	public boolean isResponsive() {
+	public Boolean isResponsive() {
 		return responsive;
 	}
 
@@ -168,7 +170,7 @@ public class Template implements JSONParser {
 	 * User templates are not ‘deleted,’ but rather marked as ‘inactive.’
 	 * @return Wether the template is still active.
 	 */
-	public boolean isActive() {
+	public Boolean isActive() {
 		return active;
 	}
 

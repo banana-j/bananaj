@@ -6,6 +6,8 @@ package com.github.bananaj.model.report;
 
 import org.json.JSONObject;
 
+import com.github.bananaj.utils.JSONObjectCheck;
+
 /**
  * Class for representing facebook likes
  * @author alexanderweiss
@@ -13,33 +15,34 @@ import org.json.JSONObject;
  */
 public class FacebookLikes {
 
-	private int recipientLikes;
-	private int uniqueLikes;
-	private int facebookLikes;
+	private Integer recipientLikes;
+	private Integer uniqueLikes;
+	private Integer facebookLikes;
 	
 	public FacebookLikes(JSONObject jsonObj) {
-		recipientLikes = jsonObj.getInt("recipient_likes");
-		uniqueLikes = jsonObj.getInt("unique_likes");
-		facebookLikes = jsonObj.getInt("facebook_likes");
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
+		recipientLikes = jObj.getInt("recipient_likes");
+		uniqueLikes = jObj.getInt("unique_likes");
+		facebookLikes = jObj.getInt("facebook_likes");
 	}
 	/**
 	 * @return The number of recipients who liked the campaign on Facebook.
 	 */
-	public int getRecipientLikes() {
+	public Integer getRecipientLikes() {
 		return recipientLikes;
 	}
 
 	/**
 	 * @return The number of unique likes.
 	 */
-	public int getUniqueLikes() {
+	public Integer getUniqueLikes() {
 		return uniqueLikes;
 	}
 
 	/**
 	 * @return The number of Facebook likes for the campaign.
 	 */
-	public int getFacebookLikes() {
+	public Integer getFacebookLikes() {
 		return facebookLikes;
 	}
 	/* (non-Javadoc)

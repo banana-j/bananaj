@@ -14,23 +14,24 @@ import com.github.bananaj.model.automation.AutomationDelay;
 import com.github.bananaj.model.automation.AutomationStatus;
 import com.github.bananaj.model.campaign.CampaignRecipients;
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 public class AutomationEmail implements JSONParser {
 
 	private String id;
-	private int webId;
+	private Integer webId;
 	private String workflowId;
-	private int position;
+	private Integer position;
 	private AutomationDelay delay;
 	private ZonedDateTime createTime;
 	private ZonedDateTime startTime;
 	private String archiveUrl;
 	private AutomationStatus status;
-	private int emailsSent;
+	private Integer emailsSent;
 	private ZonedDateTime sendTime;
 	private String contentType;
-	private boolean needsBlockRefresh;
-	private boolean hasLogoMergeTag;
+	private Boolean needsBlockRefresh;
+	private Boolean hasLogoMergeTag;
 	private CampaignRecipients recipients;
 	private AutomationEmailSettings settings;
 	private Tracking tracking;
@@ -48,26 +49,37 @@ public class AutomationEmail implements JSONParser {
 
 	}
 
-	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
-        id = jsonObj.getString("id");
-		webId = jsonObj.getInt("web_id");
-		workflowId = jsonObj.getString("workflow_id");
-		position = jsonObj.getInt("position");
-		delay = new AutomationDelay(jsonObj.getJSONObject("delay"));
-        createTime = DateConverter.fromISO8601(jsonObj.getString("create_time"));
-        startTime = jsonObj.has("start_time") ? DateConverter.fromISO8601(jsonObj.getString("start_time")) : null;
-        archiveUrl = jsonObj.getString("archive_url");
-		status = AutomationStatus.valueOf(jsonObj.getString("status").toUpperCase());
-		emailsSent = jsonObj.getInt("emails_sent");
-        sendTime = jsonObj.has("send_time") ? DateConverter.fromISO8601(jsonObj.getString("send_time")) : null;
-        contentType = jsonObj.getString("content_type");
-        needsBlockRefresh = jsonObj.getBoolean("needs_block_refresh");
-        hasLogoMergeTag = jsonObj.getBoolean("has_logo_merge_tag");
-        recipients = new CampaignRecipients(jsonObj.getJSONObject("recipients"));
-        settings = new AutomationEmailSettings(jsonObj.getJSONObject("settings"));
-        tracking = new Tracking(jsonObj.getJSONObject("tracking"));
-        reportSummary = jsonObj.has("report_summary") ? new ReportSummary(jsonObj.getJSONObject("report_summary")) : null;
-        this.connection = connection;
+	public void parse(MailChimpConnection connection, JSONObject automationemail) {
+		JSONObjectCheck jObj = new JSONObjectCheck(automationemail);
+		this.connection = connection;
+		id = jObj.getString("id");
+		webId = jObj.getInt("web_id");
+		workflowId = jObj.getString("workflow_id");
+		position = jObj.getInt("position");
+		if (automationemail.has("delay")) {
+			delay = new AutomationDelay(automationemail.getJSONObject("delay"));
+		}
+		createTime = jObj.getISO8601Date("create_time");
+		startTime = jObj.getISO8601Date("start_time");
+		archiveUrl = jObj.getString("archive_url");
+		status = jObj.getEnum(AutomationStatus.class, "status");
+		emailsSent = jObj.getInt("emails_sent");
+		sendTime = jObj.getISO8601Date("send_time");
+		contentType = jObj.getString("content_type");
+		needsBlockRefresh = jObj.getBoolean("needs_block_refresh");
+		hasLogoMergeTag = jObj.getBoolean("has_logo_merge_tag");
+		if (automationemail.has("recipients")) {
+			recipients = new CampaignRecipients(automationemail.getJSONObject("recipients"));
+		}
+		if (automationemail.has("settings")) {
+			settings = new AutomationEmailSettings(automationemail.getJSONObject("settings"));
+		}
+		if (automationemail.has("tracking")) {
+			tracking = new Tracking(automationemail.getJSONObject("tracking"));
+		}
+		if (automationemail.has("report_summary")) {
+			reportSummary = new ReportSummary(automationemail.getJSONObject("report_summary"));
+		}
 	}
 
 	/**
@@ -121,7 +133,7 @@ public class AutomationEmail implements JSONParser {
 	 * Mailchimp account at
 	 * https://{dc}.admin.mailchimp.com/campaigns/show/?id={web_id}.
 	 */
-	public int getWebId() {
+	public Integer getWebId() {
 		return webId;
 	}
 
@@ -135,7 +147,7 @@ public class AutomationEmail implements JSONParser {
 	/**
 	 * the position of an Automation email in a workflow
 	 */
-	public int getPosition() {
+	public Integer getPosition() {
 		return position;
 	}
 
@@ -177,7 +189,7 @@ public class AutomationEmail implements JSONParser {
 	/**
 	 * The total number of emails sent for this campaign
 	 */
-	public int getEmailsSent() {
+	public Integer getEmailsSent() {
 		return emailsSent;
 	}
 
@@ -198,14 +210,14 @@ public class AutomationEmail implements JSONParser {
 	/**
 	 * Determines if the automation email needs its blocks refreshed by opening the web-based campaign editor
 	 */
-	public boolean isNeedsBlockRefresh() {
+	public Boolean isNeedsBlockRefresh() {
 		return needsBlockRefresh;
 	}
 
 	/**
 	 * Determines if the campaign contains the |BRAND:LOGO| merge tag
 	 */
-	public boolean isHasLogoMergeTag() {
+	public Boolean isHasLogoMergeTag() {
 		return hasLogoMergeTag;
 	}
 

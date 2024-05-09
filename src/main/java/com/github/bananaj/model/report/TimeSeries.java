@@ -5,6 +5,7 @@ import java.time.ZonedDateTime;
 import org.json.JSONObject;
 
 import com.github.bananaj.utils.DateConverter;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * An hourly breakdown of the performance of the campaign over the first 24 hours.
@@ -13,15 +14,16 @@ import com.github.bananaj.utils.DateConverter;
 public class TimeSeries {
 
 	private ZonedDateTime timestamp;
-	private int emailsSent;
-	private int uniqueOpens;
-	private int recipientsClicks;
+	private Integer emailsSent;
+	private Integer uniqueOpens;
+	private Integer recipientsClicks;
 
 	public TimeSeries(JSONObject jsonObj) {
-		timestamp = DateConverter.fromISO8601(jsonObj.getString("timestamp"));
-		emailsSent = jsonObj.getInt("emails_sent");
-		uniqueOpens = jsonObj.getInt("unique_opens");
-		recipientsClicks = jsonObj.getInt("recipients_clicks");
+		JSONObjectCheck jObj = new JSONObjectCheck(jsonObj);
+		timestamp = jObj.getISO8601Date("timestamp");
+		emailsSent = jObj.getInt("emails_sent");
+		uniqueOpens = jObj.getInt("unique_opens");
+		recipientsClicks = jObj.getInt("recipients_clicks");
 	}
 
 	/**
@@ -34,21 +36,21 @@ public class TimeSeries {
 	/**
 	 * @return The number of emails sent in the timeseries.
 	 */
-	public int getEmailsSent() {
+	public Integer getEmailsSent() {
 		return emailsSent;
 	}
 
 	/**
 	 * @return The number of unique opens in the timeseries
 	 */
-	public int getUniqueOpens() {
+	public Integer getUniqueOpens() {
 		return uniqueOpens;
 	}
 
 	/**
 	 * @return The number of clicks in the timeseries.
 	 */
-	public int getRecipientsClicks() {
+	public Integer getRecipientsClicks() {
 		return recipientsClicks;
 	}
 

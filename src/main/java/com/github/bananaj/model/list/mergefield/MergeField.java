@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import com.github.bananaj.connection.MailChimpConnection;
 import com.github.bananaj.model.JSONParser;
 import com.github.bananaj.model.list.interests.Interest;
+import com.github.bananaj.utils.JSONObjectCheck;
 
 /**
  * Manage merge fields (formerly merge vars) for a specific list.
@@ -50,22 +51,22 @@ public class MergeField implements JSONParser {
 		helpText = b.helpText;
 	}
 
-	public void parse(MailChimpConnection connection, JSONObject jsonObj) {
+	public void parse(MailChimpConnection connection, JSONObject mergefield) {
+		JSONObjectCheck jObj = new JSONObjectCheck(mergefield);
 		this.connection = connection;
-		id = jsonObj.getInt("merge_id");
-		tag = jsonObj.getString("tag");
-		name = jsonObj.getString("name");
-		type = MergeFieldType.valueOf(jsonObj.getString("type").toUpperCase());
-		required = jsonObj.getBoolean("required");
-		defaultValue = jsonObj.getString("default_value");
-		isPublic = jsonObj.getBoolean("public");
-		displayOrder = jsonObj.getInt("display_order");
-		listId = jsonObj.getString("list_id");
-		helpText = jsonObj.getString("help_text");
+		id = jObj.getInt("merge_id");
+		tag = jObj.getString("tag");
+		name = jObj.getString("name");
+		type = jObj.getEnum(MergeFieldType.class, "type");
+		required = jObj.getBoolean("required");
+		defaultValue = jObj.getString("default_value");
+		isPublic = jObj.getBoolean("public");
+		displayOrder = jObj.getInt("display_order");
+		listId = jObj.getString("list_id");
+		helpText = jObj.getString("help_text");
 
-		if (jsonObj.has("options")) {
-			JSONObject optionsObj = jsonObj.getJSONObject("options");
-			options = new MergeFieldOptions(optionsObj);
+		if (jObj.has("options")) {
+			options = new MergeFieldOptions(jObj.getJSONObject("options"));
 		}
 	}
 
