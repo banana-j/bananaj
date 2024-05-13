@@ -402,8 +402,9 @@ public class Member implements JSONParser {
 	 * 
 	 * @param emailAddress The new Email address for this subscriber.
 	 */
-	public void setEmailAddress(String emailAddress) {
+	public Member setEmailAddress(String emailAddress) {
 		this.emailAddress = emailAddress;
+		return this;
 	}
 
 	/**
@@ -428,8 +429,9 @@ public class Member implements JSONParser {
 	 * 
 	 * @param emailType
 	 */
-	public void setEmailType(EmailType emailType) {
+	public Member setEmailType(EmailType emailType) {
 		this.emailType = emailType;
+		return this;
 	}
 
 	/**
@@ -445,8 +447,9 @@ public class Member implements JSONParser {
 	 * {@link MailChimpList#addOrUpdateMember(Member)}, or
 	 * {@link MailChimpList#updateMember(Member)} for changes to take effect.
 	 */
-	public void setStatus(MemberStatus status) {
+	public Member setStatus(MemberStatus status) {
 		this.status = status;
+		return this;
 	}
 
 	/**
@@ -472,8 +475,9 @@ public class Member implements JSONParser {
 	 * 
 	 * @param statusIfNew
 	 */
-	public void setStatusIfNew(MemberStatus statusIfNew) {
+	public Member setStatusIfNew(MemberStatus statusIfNew) {
 		this.statusIfNew = statusIfNew;
+		return this;
 	}
 
 	/**
@@ -541,8 +545,9 @@ public class Member implements JSONParser {
 	 * 
 	 * @param ipSignup the ipSignup to set
 	 */
-	public void setIpSignup(String ipSignup) {
+	public Member setIpSignup(String ipSignup) {
 		this.ipSignup = ipSignup;
+		return this;
 	}
 
 	/**
@@ -560,8 +565,9 @@ public class Member implements JSONParser {
 	 * 
 	 * @param timestampSignup the timestampSignup to set
 	 */
-	public void setTimestampSignup(ZonedDateTime timestampSignup) {
+	public Member setTimestampSignup(ZonedDateTime timestampSignup) {
 		this.timestampSignup = timestampSignup;
+		return this;
 	}
 
 	/**
@@ -579,8 +585,9 @@ public class Member implements JSONParser {
 	 * 
 	 * @param ipOpt the ipOpt to set
 	 */
-	public void setIpOpt(String ipOpt) {
+	public Member setIpOpt(String ipOpt) {
 		this.ipOpt = ipOpt;
+		return this;
 	}
 
 	/**
@@ -598,8 +605,9 @@ public class Member implements JSONParser {
 	 * 
 	 * @param timestampOpt the timestampOpt to set
 	 */
-	public void setTimestampOpt(ZonedDateTime timestampOpt) {
+	public Member setTimestampOpt(ZonedDateTime timestampOpt) {
 		this.timestampOpt = timestampOpt;
+		return this;
 	}
 
 	/**
@@ -630,8 +638,9 @@ public class Member implements JSONParser {
 	 * 
 	 * @param language the language to set
 	 */
-	public void setLanguage(String language) {
+	public Member setLanguage(String language) {
 		this.language = language;
+		return this;
 	}
 
 	/**
@@ -648,8 +657,9 @@ public class Member implements JSONParser {
 	 * 
 	 * @param vip the vip to set
 	 */
-	public void setVip(boolean vip) {
+	public Member setVip(boolean vip) {
 		this.vip = vip;
+		return this;
 	}
 
 	/**
