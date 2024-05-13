@@ -27,6 +27,10 @@ public class GrowthHistory implements JSONParser {
 	private Integer deleted;
 	private Integer transactional;
 
+	public GrowthHistory() {
+
+	}
+
 	public GrowthHistory(JSONObject jsonObj) {
 		parse(null, jsonObj);
 	}
