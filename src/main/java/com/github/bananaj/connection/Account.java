@@ -209,6 +209,7 @@ public class Account {
 		return "Id: " + getId() + System.lineSeparator() +
 				"Email: " + getEmail() + System.lineSeparator() +
 				"Account name: " + getAccountName() + System.lineSeparator() +
+				"Priceing Plan: " + getPricingPlanType() + System.lineSeparator() +
 				"Contact: " + getContact().toString() + System.lineSeparator() +
 				"User: " + getFirstName() + " " + getLastName() + " <" + getUsername() +">" + System.lineSeparator() +
 				"Last Login: " + getLastLogin() + System.lineSeparator() +
