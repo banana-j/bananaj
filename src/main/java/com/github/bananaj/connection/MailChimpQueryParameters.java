@@ -20,7 +20,7 @@ import com.github.bananaj.utils.DateConverter;
  * Pagination can be performed by specifying count and offset.
  *  
  */
-public class MailChimpQueryParameters {
+public class MailChimpQueryParameters implements Cloneable {
 
 	// General Query Parameters
 	protected String baseUrl;
@@ -195,4 +195,14 @@ public class MailChimpQueryParameters {
 	private String encodeValue(String value) throws UnsupportedEncodingException {
 	    return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
 	}
+
+	@Override
+	public Object clone() {
+		try {
+			return super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new InternalError(e);
+		}
+	}
+
 }

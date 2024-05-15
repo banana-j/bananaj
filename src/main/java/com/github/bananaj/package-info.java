@@ -1,4 +1,5 @@
 /**
+ * <h2>Mailchimp Marketing API -- BananaJ</h2>
  * bananaj provides an Java wrapper for the MailChimp Marketing API 3.0.
  * <p>
  * The Mailchimp Marketing API provides programmatic access to Mailchimp data

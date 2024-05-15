@@ -46,7 +46,7 @@ public class FileManager {
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	public Iterable<FileManagerFolder> getFolders(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<FileManagerFolder> getFolders(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return new ModelIterator<FileManagerFolder>(FileManagerFolder.class, getConnection().getFilemanagerfolderendpoint(), getConnection(), queryParameters);
 	}
 
@@ -93,7 +93,7 @@ public class FileManager {
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	public FileManagerFileIterator getFiles(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public FileManagerFileIterator getFiles(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return new FileManagerFileIterator(getConnection(), queryParameters);
 	}
 	

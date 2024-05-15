@@ -169,7 +169,7 @@ public class InterestCategory implements JSONParser {
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	public Iterable<Interest> getInterests(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<Interest> getInterests(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = connection.getListendpoint() + "/" + getListId() + "/interest-categories/"
 				+ getId() + "/interests";
 		return new ModelIterator<Interest>(Interest.class, baseURL, connection, queryParameters);

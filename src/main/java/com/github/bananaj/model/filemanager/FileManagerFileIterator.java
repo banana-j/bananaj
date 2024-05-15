@@ -19,7 +19,7 @@ public class FileManagerFileIterator extends ModelIterator<FileManagerFile> {
 		super(FileManagerFile.class, connection.getFilesendpoint(), connection, count);
 	}
 
-	public FileManagerFileIterator(MailChimpConnection connection, MailChimpQueryParameters params) {
+	public FileManagerFileIterator(MailChimpConnection connection, final MailChimpQueryParameters params) {
 		super(FileManagerFile.class, connection.getFilesendpoint(), connection, params);
 	}
 

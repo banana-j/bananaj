@@ -318,7 +318,7 @@ public class Report implements JSONParser {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public Iterable<AdviceReport> getAdviceReports(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<AdviceReport> getAdviceReports(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return connection.getCampaignAdviceReports(getId(), queryParameters);
 	}
 	
@@ -330,7 +330,7 @@ public class Report implements JSONParser {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public OpenReport getOpenReports(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public OpenReport getOpenReports(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return connection.getCampaignOpenReports(getId(), queryParameters);
 	}
 	
@@ -343,7 +343,7 @@ public class Report implements JSONParser {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public OpenReportMember getOpenReport(String subscriber, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public OpenReportMember getOpenReport(String subscriber, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return connection.getCampaignOpenReport(getId(), subscriber, queryParameters);
 	}
 
@@ -366,7 +366,7 @@ public class Report implements JSONParser {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public ClickReport getClickReport(String linkId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public ClickReport getClickReport(String linkId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return connection.getCampaignClickReport(getId(), linkId, queryParameters);
 	}
 	
@@ -391,7 +391,7 @@ public class Report implements JSONParser {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public ClickReportMember getMembersClickReport(String linkId, String subscriber, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public ClickReportMember getMembersClickReport(String linkId, String subscriber, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return connection.getCampaignMembersClickReport(getId(), linkId, subscriber, queryParameters);
 	}
 	
@@ -403,7 +403,7 @@ public class Report implements JSONParser {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public DomainPerformance getDomainPerformanceReport(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public DomainPerformance getDomainPerformanceReport(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return connection.getDomainPerformanceReport(getId(), queryParameters);
 	}
 	
@@ -415,7 +415,7 @@ public class Report implements JSONParser {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public Iterable<EcommerceProductActivity> getEcommerceProductActivityReports(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<EcommerceProductActivity> getEcommerceProductActivityReports(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return connection.getEcommerceProductActivityReports(getId(), queryParameters);
 	}
 
@@ -427,7 +427,7 @@ public class Report implements JSONParser {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public Iterable<ReportSentTo> getSentToReports(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<ReportSentTo> getSentToReports(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return connection.getCampaignSentToReports(getId(), queryParameters);
 	}
 
@@ -440,7 +440,7 @@ public class Report implements JSONParser {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public ReportSentTo getSentToReport(String subscriberHash, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public ReportSentTo getSentToReport(String subscriberHash, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return connection.getCampaignSentToReport(getId(), subscriberHash, queryParameters);
 	}
 	
@@ -463,7 +463,7 @@ public class Report implements JSONParser {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public EmailActivity getEmailActivityReport(String subscriber, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public EmailActivity getEmailActivityReport(String subscriber, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return connection.getCampaignEmailActivityReport(getId(), subscriber, queryParameters);
 	}
 	
@@ -474,7 +474,7 @@ public class Report implements JSONParser {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public Iterable<ReportLocation> getLocationsReports(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<ReportLocation> getLocationsReports(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return connection.getCampaignLocationsReports(getId(), queryParameters);
 	}
 	

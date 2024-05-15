@@ -3,6 +3,7 @@ package com.github.bananaj.utils;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.ZonedDateTime;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -160,4 +161,23 @@ public class JSONObjectCheck {
 		return this;
 	}
 
+	public JSONObjectCheck put(String key, Map<?,?> m) {
+		if (m != null) {
+			jsonObj.put(key, m);
+		} else {
+			jsonObj.remove(key);
+		}
+		return this;
+	}
+
+//	public JSONObjectCheck putArray(String key, Map<?,?> m) {
+//		if (m != null) {
+//			JSONArray a = new JSONArray();
+//			a.put(m);
+//			jsonObj.put(key, a);
+//		} else {
+//			jsonObj.remove(key);
+//		}
+//		return this;
+//	}
 }

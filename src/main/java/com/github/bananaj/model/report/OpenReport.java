@@ -26,11 +26,11 @@ public class OpenReport extends ModelIterator<OpenReportMember> {
 		super(OpenReportMember.class, query, connection);
 	}
 
-	protected OpenReport(String query, MailChimpConnection connection, MailChimpQueryParameters queryParameters) {
+	protected OpenReport(String query, MailChimpConnection connection, final MailChimpQueryParameters queryParameters) {
 		super(OpenReportMember.class, query, connection, queryParameters);
 	}
 	
-	public static OpenReport getOpenReport(MailChimpConnection connection, String campaignId, MailChimpQueryParameters queryParameters) throws Exception {
+	public static OpenReport getOpenReport(MailChimpConnection connection, String campaignId, final MailChimpQueryParameters queryParameters) throws Exception {
 		String baseUrl = URLHelper.join(connection.getReportsendpoint(), "/", campaignId, "/open-details");
 		return new OpenReport(baseUrl, connection, queryParameters);
 	}

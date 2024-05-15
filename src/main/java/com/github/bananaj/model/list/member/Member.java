@@ -309,7 +309,7 @@ public class Member implements JSONParser {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<MemberNote> getNotes(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<MemberNote> getNotes(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		final String baseURL = URLHelper.join(connection.getListendpoint(), "/", getListId(), "/members/", getId(), "/notes");
 		return new ModelIterator<MemberNote>(MemberNote.class, baseURL, connection, queryParameters);
@@ -713,7 +713,7 @@ public class Member implements JSONParser {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<MemberTag> getTags(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<MemberTag> getTags(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(connection.getListendpoint(),"/",getListId(),"/members/", getId(), "/tags");
 		return new ModelIterator<MemberTag>(MemberTag.class, baseURL, connection, queryParameters);
 	}

@@ -103,7 +103,7 @@ public class Segment implements JSONParser {
 	 * @throws IOException
 	 * @throws Exception 
      */
-    public Iterable<Member> getMembers(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+    public Iterable<Member> getMembers(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getConnection().getListendpoint(), "/", this.getListId(), "/segments/", Integer.toString(this.getId()), "/members");
 		return new ModelIterator<Member>(Member.class, baseURL, getConnection(), queryParameters);
     }

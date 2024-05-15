@@ -137,7 +137,7 @@ public class MailChimpList implements JSONParser {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<AbuseReport> getAbuseReports(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<AbuseReport> getAbuseReports(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		final String baseURL = URLHelper.join(connection.getListendpoint(),"/",getId(),"/abuse-reports");
 		return new ModelIterator<AbuseReport>(AbuseReport.class, baseURL, connection, queryParameters);
@@ -233,7 +233,7 @@ public class MailChimpList implements JSONParser {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<Member> getMembers(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<Member> getMembers(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		final String baseURL = URLHelper.join(connection.getListendpoint(),"/",getId(),"/members");
 		return new ModelIterator<Member>(Member.class, baseURL, connection, queryParameters);
@@ -431,7 +431,7 @@ public class MailChimpList implements JSONParser {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<MemberTag> getMemberTags(String subscriber, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<MemberTag> getMemberTags(String subscriber, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		Objects.requireNonNull(subscriber, "Subscriber itentifyer");
 		final String baseURL = URLHelper.join(connection.getListendpoint(),"/",getId(),"/members/", 
@@ -472,7 +472,7 @@ public class MailChimpList implements JSONParser {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<MemberNote> getMemberNotes(String subscriber, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<MemberNote> getMemberNotes(String subscriber, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		Objects.requireNonNull(subscriber, "Subscriber itentifyer");
 		final String baseURL = URLHelper.join(connection.getListendpoint(),"/",getId(),"/members/",
@@ -533,18 +533,13 @@ public class MailChimpList implements JSONParser {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<GrowthHistory> getGrowthHistory(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<GrowthHistory> getGrowthHistory(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		final String baseURL = URLHelper.join(connection.getListendpoint(), "/", getId(), "/growth-history");
-		if (queryParameters == null) {
-			queryParameters = new MailChimpQueryParameters()
-					.param("sort_field", "month")
-					.param("sort_dir", SortDirection.DESC.toString());
-		} else {
-			if (queryParameters.getParam("sort_field") == null) {queryParameters.param("sort_field", "month");}
-			if (queryParameters.getParam("sort_dir") == null) {queryParameters.param("sort_dir", SortDirection.DESC.toString());}
-		}
-		return new ModelIterator<GrowthHistory>(GrowthHistory.class, baseURL, connection, queryParameters);
+		if (query.getParam("sort_field") == null) {query.param("sort_field", "month");}
+		if (query.getParam("sort_dir") == null) {query.param("sort_dir", SortDirection.DESC.toString());}
+		return new ModelIterator<GrowthHistory>(GrowthHistory.class, baseURL, connection, query);
 	}
 
 	/**
@@ -556,17 +551,13 @@ public class MailChimpList implements JSONParser {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public GrowthHistory getGrowthHistoryByMonth(String month, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public GrowthHistory getGrowthHistoryByMonth(String month, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		String url = URLHelper.join(connection.getListendpoint(), "/", getId(), "/growth-history", "/", month);
+		MailChimpQueryParameters query = (queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters())
+				.baseUrl(url);
 		
-		if (queryParameters == null) {
-			queryParameters = new MailChimpQueryParameters(url);
-		} else {
-			queryParameters.baseUrl(url);
-		}
-		
-		JSONObject jsonReport = new JSONObject(connection.do_Get(queryParameters.getURL(), connection.getApikey()));
+		JSONObject jsonReport = new JSONObject(connection.do_Get(query.getURL(), connection.getApikey()));
 		GrowthHistory report = new GrowthHistory(jsonReport);
 		return report;
 }
@@ -588,7 +579,7 @@ public class MailChimpList implements JSONParser {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<InterestCategory> getInterestCategories(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<InterestCategory> getInterestCategories(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		final String baseURL = URLHelper.join(connection.getListendpoint(),"/",getId(),"/interest-categories");
 		return new ModelIterator<InterestCategory>(InterestCategory.class, baseURL, connection, queryParameters);
@@ -674,7 +665,7 @@ public class MailChimpList implements JSONParser {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<Interest> getInterests(String interestCategoryId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<Interest> getInterests(String interestCategoryId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		final String baseURL = URLHelper.join(connection.getListendpoint(), "/", getId(), "/interest-categories/",
 				interestCategoryId, "/interests");
@@ -735,7 +726,7 @@ public class MailChimpList implements JSONParser {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<Segment> getSegments(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<Segment> getSegments(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		final String baseURL = URLHelper.join(connection.getListendpoint(),"/",getId(),"/segments");
 		return new ModelIterator<Segment>(Segment.class, baseURL, connection, queryParameters);
@@ -882,7 +873,7 @@ public class MailChimpList implements JSONParser {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<MergeField> getMergeFields(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<MergeField> getMergeFields(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		Objects.requireNonNull(connection, "MailChimpConnection");
 		final String baseURL = URLHelper.join(connection.getListendpoint(),"/",getId(),"/merge-fields");
 		return new ModelIterator<MergeField>(MergeField.class, baseURL, connection, queryParameters);

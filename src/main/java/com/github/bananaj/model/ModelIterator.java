@@ -64,24 +64,18 @@ public class ModelIterator<T extends JSONParser> implements Iterable<T> {
 		readPagedEntities();
 	}
 
-	public ModelIterator(Class<T> typeClasse, String query, MailChimpConnection connection, MailChimpQueryParameters params) {
+	public ModelIterator(Class<T> typeClasse, String query, MailChimpConnection connection, final MailChimpQueryParameters params) {
 		this.typeClasse = typeClasse;
 		this.connection = connection;
-		queryParams = params;
-		if (queryParams == null) {
-			queryParams = new MailChimpQueryParameters(query)
-				.count(100)
-				.offset(0);
-		} else {
-			Integer count = queryParams.getCount();
-			Integer offset = queryParams.getOffset();
-			if (count == null) {
-				queryParams.count(100);	// MailChimp defaults to 10. Use larger value to reduce number of REST calls.    
-			}
-			
-			if (offset == null) {
-				queryParams.offset(0);
-			}
+		queryParams = params != null ? (MailChimpQueryParameters) params.clone() : new MailChimpQueryParameters();
+		Integer count = queryParams.getCount();
+		Integer offset = queryParams.getOffset();
+		if (count == null) {
+			queryParams.count(100);	// MailChimp defaults to 10. Use larger value to reduce number of REST calls.    
+		}
+
+		if (offset == null) {
+			queryParams.offset(0);
 		}
 		queryParams.baseUrl(query);
 		readPagedEntities();

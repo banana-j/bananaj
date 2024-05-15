@@ -131,7 +131,7 @@ public class FileManagerFolder implements JSONParser {
 	 * @return Iterator of all files belonging to this folder
 	 * @throws Exception
 	 */
-	public Iterable<FileManagerFile> getFiles(MailChimpQueryParameters queryParameters) throws Exception {
+	public Iterable<FileManagerFile> getFiles(final MailChimpQueryParameters queryParameters) throws Exception {
 		// TODO: Contact Mailchimp about shortcoming and look for undocumented filter on folder_id
 		return new FolderFileIterator(queryParameters);
 	}
@@ -174,7 +174,7 @@ public class FileManagerFolder implements JSONParser {
 			scanFiles();
 		}
 
-		public FolderFileIterator(MailChimpQueryParameters queryParameters) throws Exception {
+		public FolderFileIterator(final MailChimpQueryParameters queryParameters) throws Exception {
 			it = connection.getFileManager().getFiles(queryParameters).iterator();
 			scanFiles();
 		}
