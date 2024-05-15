@@ -1,6 +1,8 @@
 package com.github.bananaj.connection;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -14,6 +16,8 @@ import com.github.bananaj.model.automation.Automation;
 import com.github.bananaj.model.automation.AutomationRecipient;
 import com.github.bananaj.model.automation.AutomationSettings;
 import com.github.bananaj.model.automation.emails.AutomationEmail;
+import com.github.bananaj.model.batch.BatchInfo;
+import com.github.bananaj.model.batch.BatchOperation;
 import com.github.bananaj.model.campaign.Campaign;
 import com.github.bananaj.model.campaign.CampaignFeedback;
 import com.github.bananaj.model.campaign.CampaignFolder;
@@ -54,6 +58,7 @@ public class MailChimpConnection extends Connection {
 	private String server;
 	private String authorization;
 	private final String apiendpoint;
+	private final String batchendpoint;
 	private final String listendpoint;
 	private final String campaignfolderendpoint;
 	private final String campaignendpoint;
@@ -79,6 +84,7 @@ public class MailChimpConnection extends Connection {
 		this.server = server;
 		this.authorization = tokenType + " " + token;
 		this.apiendpoint = "https://"+server+".api.mailchimp.com/3.0/";
+		this.batchendpoint = "https://"+server+".api.mailchimp.com/3.0/batches";
 		this.listendpoint = "https://"+server+".api.mailchimp.com/3.0/lists";
 		this.campaignfolderendpoint =  "https://"+server+".api.mailchimp.com/3.0/campaign-folders";
 		this.campaignendpoint ="https://"+server+".api.mailchimp.com/3.0/campaigns";
@@ -109,7 +115,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	public Iterable<MailChimpList> getLists(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<MailChimpList> getLists(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return new ModelIterator<MailChimpList>(MailChimpList.class, listendpoint, this, queryParameters);
 	}
 
@@ -125,8 +131,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	public MailChimpList getList(String listID, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+	public MailChimpList getList(String listID, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(listendpoint,"/",listID));
 		JSONObject jsonList = new JSONObject(do_Get(query.getURL(),getApikey()));
 		return new MailChimpList(this, jsonList);
@@ -190,7 +196,7 @@ public class MailChimpConnection extends Connection {
      * @throws IOException
      * @throws Exception
      */
-    public Iterable<CampaignFolder> getCampaignFolders(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+    public Iterable<CampaignFolder> getCampaignFolders(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return new ModelIterator<CampaignFolder>(CampaignFolder.class, campaignfolderendpoint, this, queryParameters);
     }
 
@@ -203,8 +209,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
      * @throws Exception 
      */
-    public CampaignFolder getCampaignFolder(String folder_id, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+    public CampaignFolder getCampaignFolder(String folder_id, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(campaignfolderendpoint,"/",folder_id));
     	JSONObject jsonCampaignFolder = new JSONObject(do_Get(query.getURL(), getApikey()));
     	return new CampaignFolder(this, jsonCampaignFolder);
@@ -255,7 +261,7 @@ public class MailChimpConnection extends Connection {
      * @throws IOException
      * @throws Exception
      */
-    public Iterable<Campaign> getCampaigns(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+    public Iterable<Campaign> getCampaigns(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return new ModelIterator<Campaign>(Campaign.class, campaignendpoint, this, queryParameters);
     }
     
@@ -268,8 +274,8 @@ public class MailChimpConnection extends Connection {
      * @throws IOException
      * @throws Exception 
      */
-    public Campaign getCampaign(String campaignID, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+    public Campaign getCampaign(String campaignID, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(campaignendpoint,"/",campaignID));
     	JSONObject campaign = new JSONObject(do_Get(query.getURL(),getApikey()));
     	return new Campaign(this, campaign);
@@ -324,8 +330,8 @@ public class MailChimpConnection extends Connection {
 	}
 	
 	/**
-	 * Delete a campaign from mailchimp account
-	 * @param campaignID
+	 * Remove a campaign from your Mailchimp account.
+	 * @param campaignID The unique id for the campaign.
 	 * @throws IOException
 	 * @throws Exception 
 	 */
@@ -342,8 +348,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public List<CampaignFeedback> getCampaignFeedback(String campaignID, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+	public List<CampaignFeedback> getCampaignFeedback(String campaignID, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(getCampaignendpoint(),"/",campaignID,"/feedback"));
 		JSONObject campaignFeedback = new JSONObject(do_Get(query.getURL(),getApikey()));
 		JSONArray feedbackArray = campaignFeedback.getJSONArray("feedback");
@@ -369,8 +375,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public CampaignFeedback getCampaignFeedback(String campaignID, String feedbackId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+	public CampaignFeedback getCampaignFeedback(String campaignID, String feedbackId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(getCampaignendpoint(),"/",campaignID,"/feedback/",feedbackId));
 		JSONObject jsonObj = new JSONObject(do_Get(query.getURL(),getApikey()));
 		CampaignFeedback feedback = new CampaignFeedback(this, jsonObj);
@@ -405,8 +411,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	CampaignSendChecklist getCampaignSendChecklist(String campaignID, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+	CampaignSendChecklist getCampaignSendChecklist(String campaignID, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(getCampaignendpoint(),"/",campaignID,"/send-checklist"));
 		String results = do_Get(query.getURL(), getApikey());
 		return new CampaignSendChecklist(new JSONObject(results));
@@ -420,7 +426,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	public Iterable<Report> getCampaignReports(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<Report> getCampaignReports(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return new ModelIterator<Report>(Report.class, reportsendpoint, this, queryParameters);
 	}
 
@@ -434,8 +440,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Report getCampaignReport(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+	public Report getCampaignReport(String campaignId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId));
 		JSONObject jsonReport = new JSONObject(do_Get(query.getURL(), getApikey()));
     	return new Report(this, jsonReport);
@@ -450,7 +456,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	public OpenReport getCampaignOpenReports(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public OpenReport getCampaignOpenReports(String campaignId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return OpenReport.getOpenReport(this, campaignId, queryParameters);
 	}
 	
@@ -478,8 +484,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public OpenReportMember getCampaignOpenReport(String campaignId, String subscriber, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+	public OpenReportMember getCampaignOpenReport(String campaignId, String subscriber, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId, "/open-details","/", Member.subscriberHash(subscriber)));
 		JSONObject jsonReport = new JSONObject(do_Get(query.getURL(), getApikey()));
 		return new OpenReportMember(jsonReport);
@@ -495,7 +501,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<AbuseReport>  getCampaignAbuseReports(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<AbuseReport>  getCampaignAbuseReports(String campaignId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/abuse-reports");
 		return new ModelIterator<AbuseReport>(AbuseReport.class, baseURL, this, queryParameters);
 	}
@@ -522,8 +528,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public AbuseReport  getCampaignAbuseReport(String campaignId, int reportId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+	public AbuseReport  getCampaignAbuseReport(String campaignId, int reportId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId, "/abuse-reports/", Integer.toString(reportId)));
 		JSONObject jsonReport = new JSONObject(do_Get(query.getURL(), getApikey()));
 		AbuseReport report = new AbuseReport(jsonReport);
@@ -540,8 +546,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public List<AdviceReport> getCampaignAdviceReports(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+	public List<AdviceReport> getCampaignAdviceReports(String campaignId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId, "/advice"));
 		JSONObject jsonReports = new JSONObject(do_Get(query.getURL(), getApikey()));
 		//int total_items = jsonReports.getInt("total_items"); 	// The total number of items matching the query regardless of pagination
@@ -565,7 +571,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<ClickReport> getCampaignClickReports(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<ClickReport> getCampaignClickReports(String campaignId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details");
 		return new ModelIterator<ClickReport>(ClickReport.class, baseURL, this, queryParameters);
 	}
@@ -592,8 +598,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public ClickReport getCampaignClickReport(String campaignId, String linkId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+	public ClickReport getCampaignClickReport(String campaignId, String linkId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details/", linkId));
 		JSONObject jsonReport = new JSONObject(do_Get(query.getURL(), getApikey()));
 		ClickReport report = new ClickReport(jsonReport);
@@ -610,7 +616,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<ClickReportMember> getCampaignMembersClickReports(String campaignId, String linkId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<ClickReportMember> getCampaignMembersClickReports(String campaignId, String linkId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details/", linkId, "/members");
 		return new ModelIterator<ClickReportMember>(ClickReportMember.class, baseURL, this, queryParameters);
 	}
@@ -639,8 +645,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public ClickReportMember getCampaignMembersClickReport(String campaignId, String linkId, String subscriber, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+	public ClickReportMember getCampaignMembersClickReport(String campaignId, String linkId, String subscriber, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId, "/click-details/", linkId, "/members/", Member.subscriberHash(subscriber)));
 		JSONObject jsonReport = new JSONObject(do_Get(query.getURL(), getApikey()));
 		ClickReportMember report = new ClickReportMember(jsonReport);
@@ -656,8 +662,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public DomainPerformance getDomainPerformanceReport(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+	public DomainPerformance getDomainPerformanceReport(String campaignId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId, "/domain-performance"));
 		JSONObject jsonReport = new JSONObject(do_Get(query.getURL(), getApikey()));
 		DomainPerformance report = new DomainPerformance(jsonReport);
@@ -673,7 +679,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<EcommerceProductActivity> getEcommerceProductActivityReports(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<EcommerceProductActivity> getEcommerceProductActivityReports(String campaignId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/ecommerce-product-activity");
 		return new ModelIterator<EcommerceProductActivity>(EcommerceProductActivity.class, baseURL, this);
 	}
@@ -687,7 +693,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<ReportSentTo> getCampaignSentToReports(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<ReportSentTo> getCampaignSentToReports(String campaignId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/sent-to");
 		return new ModelIterator<ReportSentTo>(ReportSentTo.class, baseURL, this, queryParameters);
 	}
@@ -714,8 +720,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public ReportSentTo getCampaignSentToReport(String campaignId, String subscriber, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+	public ReportSentTo getCampaignSentToReport(String campaignId, String subscriber, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId, "/sent-to/", Member.subscriberHash(subscriber)));
 		JSONObject jsonRpt = new JSONObject(do_Get(query.getURL(), getApikey()));
 		ReportSentTo rpt = new ReportSentTo(jsonRpt);
@@ -731,7 +737,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<EmailActivity> getCampaignEmailActivityReports(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<EmailActivity> getCampaignEmailActivityReports(String campaignId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/email-activity");
 		return new ModelIterator<EmailActivity>(EmailActivity.class, baseURL, this, queryParameters);
 	}
@@ -758,8 +764,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public EmailActivity getCampaignEmailActivityReport(String campaignId, String subscriber, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+	public EmailActivity getCampaignEmailActivityReport(String campaignId, String subscriber, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(getReportsendpoint(), "/", campaignId, "/email-activity/", Member.subscriberHash(subscriber)));
 		JSONObject jsonRpt = new JSONObject(do_Get(query.getURL(), getApikey()));
 		EmailActivity rpt = new EmailActivity(jsonRpt);
@@ -774,7 +780,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public Iterable<ReportLocation> getCampaignLocationsReports(String campaignId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<ReportLocation> getCampaignLocationsReports(String campaignId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		final String baseURL = URLHelper.join(getReportsendpoint(), "/", campaignId, "/locations");
 		return new ModelIterator<ReportLocation>(ReportLocation.class, baseURL, this, queryParameters);
 	}
@@ -803,7 +809,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	public Iterable<TemplateFolder> getTemplateFolders(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<TemplateFolder> getTemplateFolders(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return new ModelIterator<TemplateFolder>(TemplateFolder.class, templatefolderendpoint, this, queryParameters);
 	}
 	
@@ -815,8 +821,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
      * @throws Exception 
      */
-    public TemplateFolder getTemplateFolder(String folder_id, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+    public TemplateFolder getTemplateFolder(String folder_id, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(templatefolderendpoint,"/",folder_id));
         JSONObject jsonTemplateFolder = new JSONObject(do_Get(query.getURL(), getApikey()));
         return new TemplateFolder(this, jsonTemplateFolder);
@@ -863,7 +869,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	public Iterable<Template> getTemplates(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<Template> getTemplates(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return new ModelIterator<Template>(Template.class, templateendpoint, this, queryParameters);
 	}
 	
@@ -876,8 +882,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Template getTemplate(String id, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+	public Template getTemplate(String id, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(templateendpoint,"/",id));
 		JSONObject jsonTemplate = new JSONObject(do_Get(query.getURL(),getApikey()));
 		return new Template(this, jsonTemplate);
@@ -965,7 +971,7 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception 
 	 */
-	public Iterable<Automation> getAutomations(MailChimpQueryParameters queryParameters) throws IOException, Exception {
+	public Iterable<Automation> getAutomations(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 		return new ModelIterator<Automation>(Automation.class, automationendpoint, this, queryParameters);
 	}
 	
@@ -981,8 +987,8 @@ public class MailChimpConnection extends Connection {
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	public Automation getAutomation(String workflowId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
-		MailChimpQueryParameters query = queryParameters != null ? queryParameters : new MailChimpQueryParameters();
+	public Automation getAutomation(String workflowId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
 		query.baseUrl(URLHelper.join(automationendpoint,"/",workflowId));
 		JSONObject jsonAutomation = new JSONObject(do_Get(query.getURL(), getApikey()));
 		return new Automation(this, jsonAutomation);
@@ -1057,7 +1063,7 @@ public class MailChimpConnection extends Connection {
 //	 * @throws IOException
 //	 * @throws Exception 
 //	 */
-//	public Iterable<AutomationEmail> getAutomationEmails(String workflowId, MailChimpQueryParameters queryParameters) throws IOException, Exception {
+//	public Iterable<AutomationEmail> getAutomationEmails(String workflowId, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
 //		final String baseURL = URLHelper.join(automationendpoint, "/", workflowId, "/emails");
 //		return new ModelIterator<AutomationEmail>(AutomationEmail.class, baseURL, this, queryParameters);
 //	}
@@ -1104,6 +1110,69 @@ public class MailChimpConnection extends Connection {
 	}
 	
 	/**
+	 * Get a summary of batch requests that have been made in the last seven days.
+     * @param queryParameters Optional query parameters to send to the MailChimp API. 
+     *   @see <a href="https://mailchimp.com/developer/marketing/api/batch-operations/list-batch-requests/" target="MailchimpAPIDoc">Batch Operations -- GET /batches</a>
+	 * @return BatchInfo iterator for batches created in the last seven days.
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public Iterable<BatchInfo> getBatches(final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		return new ModelIterator<BatchInfo>(BatchInfo.class, batchendpoint, this, queryParameters);
+	}
+
+	/**
+	 * Get the status of a batch request.
+	 * @param batch_id The unique id for the batch operation.
+     * @param queryParameters Optional query parameters to send to the MailChimp API. 
+     *   @see <a href="https://mailchimp.com/developer/marketing/api/batch-operations/get-batch-operation-status/" target="MailchimpAPIDoc">Batch Operations -- /batches/{batch_id}</a>
+	 * @return The status of a batch request.
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public BatchInfo getBatch(String batch_id, final MailChimpQueryParameters queryParameters) throws IOException, Exception {
+		MailChimpQueryParameters query = queryParameters != null ? (MailChimpQueryParameters) queryParameters.clone() : new MailChimpQueryParameters();
+		query.baseUrl(URLHelper.join(batchendpoint,"/",batch_id));
+		JSONObject jsonBatch = new JSONObject(do_Get(query.getURL(), getApikey()));
+		return new BatchInfo(this, jsonBatch);
+	}
+	
+	/**
+	 * Start batch operation
+	 * @param operations List of operations to perform in a batch
+	 * @return The status of a batch request
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public BatchInfo createBatch(final List<BatchOperation> operations) throws IOException, Exception {
+		JSONObject jsonObj = new JSONObject();
+		JSONArray a = new JSONArray();
+		for (BatchOperation batch : operations) {
+			a.put(batch.getJsonRepresentation());
+		}
+		jsonObj.put("operations", a);
+		
+		String results = do_Post(URLHelper.url(batchendpoint), jsonObj.toString(),getApikey());
+		return new BatchInfo(this, new JSONObject(results));
+	}
+
+	/**
+	 * Stops a batch request from running. Since only one batch request is run at a
+	 * time, this can be used to cancel a long running request. The results of any
+	 * completed operations will not be available after this call.
+	 * 
+	 * @param batch_id The unique id for the batch operation.
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public void deleteBatch(String batch_id) throws IOException, Exception {
+		do_Delete(URLHelper.url(batchendpoint,"/",batch_id),getApikey());
+	}
+	
+	// TODO: Batch Webhooks
+	
+	
+	/**
 	 * Get the File/Folder Manager for accessing files and folders in your account.
 	 */
 	public FileManager getFileManager() {
@@ -1114,84 +1183,105 @@ public class MailChimpConnection extends Connection {
 	}
 
 	/**
-	 * @return the server
+	 * @return The server
 	 */
 	public String getServer() {
 		return this.server;
 	}
 
 	/**
-	 * @return the apikey
+	 * @return The api key
 	 */
 	public String getApikey() {
 		return this.authorization;
 	}
 
+	/**
+	 * @return The api key
+	 */
 	public String getAuthorization() {
 		return this.authorization;
 	}
 
 	/**
-	 * @return the apiendpoint
+	 * @return The api end point
 	 */
 	public String getApiendpoint() {
 		return this.apiendpoint;
 	}
 
 	/**
-	 * @return the lISTENDPOINT
+	 * @return The batch end point
+	 */
+	public String getBatchendpoint() {
+		return this.batchendpoint;
+	}
+
+	/**
+	 * @return The list end point
 	 */
 	public String getListendpoint() {
 		return this.listendpoint;
 	}
 
 	/**
-	 * @return the campaignendpoint
+	 * @return The campaign end point
 	 */
 	public String getCampaignendpoint() {
 		return this.campaignendpoint;
 	}
 
 	/**
-	 * @return the templateendpoint
+	 * @return The template end point
 	 */
 	public String getTemplateendpoint() {
 		return this.templateendpoint;
 	}
 
 	/**
-	 * @return the automationendpoint
+	 * @return The automation end point
 	 */
 	public String getAutomationendpoint(){
 		return this.automationendpoint;
 	}
 
 	/**
-	 * @return the filemanagerfolderendpoint
+	 * @return The file manager folder end point
 	 */
 	public String getFilemanagerfolderendpoint() {
 		return this.filemanagerfolderendpoint;
 	}
 
-
+	/**
+	 * @return The files end point
+	 */
 	public String getFilesendpoint() {
 		return filesendpoint;
 	}
 
+	/**
+	 * @return The campaign folder end point
+	 */
 	public String getCampaignfolderendpoint() {
 		return this.campaignfolderendpoint;
 	}
 
+	/**
+	 * @return The template folder end point
+	 */
 	public String getTemplatefolderendpoint() {
 		return this.templatefolderendpoint;
 	}
 
+	/**
+	 * @return The reports end point
+	 */
 	public String getReportsendpoint() {
 		return reportsendpoint;
 	}
 
 	/**
-	 * @return the account
+	 * @return the account information
 	 * @throws IOException 
 	 * @throws Exception 
 	 */
