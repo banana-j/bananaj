@@ -157,16 +157,17 @@ Every endpoint supports GET, POST, and DELETE requests. So it is possible to ful
 ### Endpoints used
 
 - **"https://"+server+".api.mailchimp.com/3.0/"**
-- **"https://"+server+".api.mailchimp.com/3.0/lists"**
+- **"https://"+server+".api.mailchimp.com/3.0/automations"**
+- **"https://"+server+".api.mailchimp.com/3.0/batches"**
 - **"https://"+server+".api.mailchimp.com/3.0/campaign-folders"**
 - **"https://"+server+".api.mailchimp.com/3.0/campaigns"**
+- **"https://"+server+".api.mailchimp.com/3.0/file-manager/files"**
+- **"https://"+server+".api.mailchimp.com/3.0/file-manager/folders"**
+- **"https://"+server+".api.mailchimp.com/3.0/file-manager/reports"**
+- **"https://"+server+".api.mailchimp.com/3.0/lists"**
+- **"https://"+server+".api.mailchimp.com/3.0/reports"**
 - **"https://"+server+".api.mailchimp.com/3.0/template-folders"**
 - **"https://"+server+".api.mailchimp.com/3.0/templates"**
-- **"https://"+server+".api.mailchimp.com/3.0/automations"**
-- **"https://"+server+".api.mailchimp.com/3.0/file-manager/folders"**
-- **"https://"+server+".api.mailchimp.com/3.0/file-manager/files"**
-- **"https://"+server+".api.mailchimp.com/3.0/file-manager/reports"**
-- **"https://"+server+".api.mailchimp.com/3.0/reports"**
 
 # To do 
 - Add missing edit function to the different endpoints 
