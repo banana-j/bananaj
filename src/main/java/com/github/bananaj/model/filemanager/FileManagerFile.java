@@ -268,7 +268,7 @@ public class FileManagerFile implements JSONParser {
 				"    Type: " + getType().toString() +  (getType() == FileType.IMAGE ?  
 					" Width: " + getWidth()+"px " + 
 					" Height: "+ getHeight()+"px" : "" ) + System.lineSeparator() +
-				"    Folder-Id: " + getId() + System.lineSeparator() +
+				"    Folder-Id: " + getFolderId() + System.lineSeparator() +
 				"    Created: " + DateConverter.toLocalString(getCreatedAt()) + System.lineSeparator() +
 				"    Created by: " + getCreatedBy() + System.lineSeparator() +
 				"    URL: " + getFullSizeUrl() + System.lineSeparator() +
