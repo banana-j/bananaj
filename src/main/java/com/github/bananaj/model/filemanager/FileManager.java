@@ -40,7 +40,7 @@ public class FileManager {
 
 	/**
 	 * Get an iterator of all folders in the File Manager.
-	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 * @param queryParameters Optional query parameters to send to the MailChimp API. Warning, do not exclude folders.file_count if you intend to iterate files in the folders as this will result in a full file scan for each folder.
 	 *   @see <a href="https://mailchimp.com/developer/marketing/api/file-manager-folders/list-folders/" target="MailchimpAPIDoc">File Manager Folders -- GET /file-manager/folders</a>
 	 * @return Iterator of all folders in the File Manager.
 	 * @throws IOException
@@ -87,7 +87,7 @@ public class FileManager {
 
 	/**
 	 * Get an iterator of available images and files stored in the File Manager for the account.
-	 * @param queryParameters Optional query parameters to send to the MailChimp API. 
+	 * @param queryParameters Optional query parameters to send to the MailChimp API.
 	 *   @see <a href="https://mailchimp.com/developer/marketing/api/file-manager-files/list-stored-files/" target="MailchimpAPIDoc">File Manager Files -- GET /file-manager/files</a>
 	 * @return File manager file iterator
 	 * @throws IOException

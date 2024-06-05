@@ -19,7 +19,7 @@ import com.github.bananaj.utils.JSONObjectCheck;
 /**
  * Manage specific folders in the File Manager for your Mailchimp account. The
  * File Manager is a place to store images, documents, and other files you
- * include or link to in your campaigns, templates, or signup forms.
+ * include or link to in your campaigns, templates, or sign up forms.
  */
 public class FileManagerFolder implements JSONParser {
 	private Integer id;
@@ -187,7 +187,7 @@ public class FileManagerFolder implements JSONParser {
 					q.offer(file);
 					numfound++;
 					totfound++;
-					if (totfound == fileCount) { break; }
+					if (fileCount != null && totfound == fileCount.intValue()) { break; }
 				}
 			}
 		}
@@ -204,7 +204,7 @@ public class FileManagerFolder implements JSONParser {
 				@Override
 				public FileManagerFile next() {
 					FileManagerFile file = q.poll();
-					if (q.peek() == null && totfound < fileCount) {
+					if (q.peek() == null && (fileCount == null || totfound < fileCount.intValue())) {
 						scanFiles();	// queue is empty so scan for more files
 					}
 					if (file == null ) {
